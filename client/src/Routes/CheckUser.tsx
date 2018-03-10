@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Redirect } from 'react-router-dom'
 import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
 
 import Button from 'material-ui/Button'
@@ -10,7 +11,7 @@ import Select from 'material-ui/Select'
 import TextField from 'material-ui/TextField'
 import Typography from 'material-ui/Typography'
 
-const styles: StyleRulesCallback<'paper'> =
+const styles: StyleRulesCallback =
   ({ palette, spacing, shadows }: Theme) => ({
     paper: {
       position: 'absolute',
@@ -35,16 +36,24 @@ const styles: StyleRulesCallback<'paper'> =
 
 class CheckUser extends React.Component<PropClasses> {
   state = {
-    userName: 'hever'
+    userName: 'hever',
+    checked: false,
   }
 
   handleUserNameChange = (name: string) => {
     this.setState({ userName: name })
   }
 
+  handleContinue = () => {
+    this.setState({ checked: true })
+  }
+
   render() {
     const { props, state } = this
     const { classes } = props
+    if (state.checked) {
+      return <Redirect to='/sell' push />
+    }
     return (
       <Modal
         open={true}
@@ -74,6 +83,7 @@ class CheckUser extends React.Component<PropClasses> {
               className={classes.field}
               type="password"
               margin="normal"
+              inputProps={{inputMode: 'numeric'}}
             />
           </FormControl>
           <Button
@@ -82,6 +92,7 @@ class CheckUser extends React.Component<PropClasses> {
             color='primary'
             fullWidth
             className={classes.button}
+            onClick={this.handleContinue}
           >
             Continuar
           </Button>
