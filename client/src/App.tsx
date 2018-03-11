@@ -9,7 +9,7 @@ import AuthCallback from './Routes/AuthCallback'
 import SilentAuth from './Routes/SilentAuth'
 import Logout from './Routes/Logout'
 
-import Reboot from 'material-ui/Reboot'
+import CssBaseline from 'material-ui/CssBaseline'
 
 import Route from './AuthRoute'
 
@@ -18,7 +18,7 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <MuiThemeProvider theme={theme}>
-          <Reboot />
+          <CssBaseline />
           <Switch>
             <Route exact path='/'><Redirect to='/check' /></Route>
 
