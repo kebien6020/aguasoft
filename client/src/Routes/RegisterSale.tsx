@@ -14,6 +14,8 @@ import Typography from 'material-ui/Typography'
 import AddIcon from 'material-ui-icons/Add'
 import RemoveIcon from 'material-ui-icons/Remove'
 
+import Layout from '../components/Layout'
+
 const styles: StyleRulesCallback = (theme: Theme) => ({
   title: {
     textAlign: 'center',
@@ -98,73 +100,75 @@ class RegisterSale extends React.Component<PropClasses> {
   }
 
   handleChange = (prop: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({[prop]: event.target.value})
+    this.setState({ [prop]: event.target.value })
   }
 
   render() {
     const { props, state } = this
     const { classes } = props
     return (
-      <Paper elevation={8} className={classes.paper}>
-        <Typography variant="title" className={classes.title}>
-          Registrar Venta
+      <Layout>
+        <Paper elevation={8} className={classes.paper}>
+          <Typography variant="title" className={classes.title}>
+            Registrar Venta
         </Typography>
-        <Grid container>
-          <Grid item xs={6}>
-            <FormControl fullWidth margin='normal'>
-              <InputLabel htmlFor='input-user'>Usuario</InputLabel>
-              <Input
-                disabled
-                value='(001) Hever'
-              />
-            </FormControl>
+          <Grid container>
+            <Grid item xs={6}>
+              <FormControl fullWidth margin='normal'>
+                <InputLabel htmlFor='input-user'>Usuario</InputLabel>
+                <Input
+                  disabled
+                  value='(001) Hever'
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth margin='normal'>
+                <InputLabel htmlFor='input-client'>Cliente</InputLabel>
+                <Select
+                  id='input-client'
+                  fullWidth
+                  value={state.client}
+                  onChange={this.handleChange('client')}
+                >
+                  <MenuItem value='001'>(001) Venta Planta</MenuItem>
+                  <MenuItem value='002'>(002) Oscar</MenuItem>
+                  <MenuItem value='003'>(003) Alex</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Código</TableCell>
+                    <TableCell>Producto</TableCell>
+                    <TableCell className={classes.qtyCell}>Cantidad</TableCell>
+                    <TableCell>Valor Unitario</TableCell>
+                    <TableCell>Valor Total</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>001</TableCell>
+                    <TableCell>Botellón</TableCell>
+                    <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
+                    <TableCell numeric>4000</TableCell>
+                    <TableCell numeric>4000</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>002</TableCell>
+                    <TableCell>Bolsa 6L</TableCell>
+                    <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
+                    <TableCell numeric>1500</TableCell>
+                    <TableCell numeric>1500</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth margin='normal'>
-              <InputLabel htmlFor='input-client'>Cliente</InputLabel>
-              <Select
-                id='input-client'
-                fullWidth
-                value={state.client}
-                onChange={this.handleChange('client')}
-              >
-                <MenuItem value='001'>(001) Venta Planta</MenuItem>
-                <MenuItem value='002'>(002) Oscar</MenuItem>
-                <MenuItem value='003'>(003) Alex</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Código</TableCell>
-                  <TableCell>Producto</TableCell>
-                  <TableCell className={classes.qtyCell}>Cantidad</TableCell>
-                  <TableCell>Valor Unitario</TableCell>
-                  <TableCell>Valor Total</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell>001</TableCell>
-                  <TableCell>Botellón</TableCell>
-                  <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
-                  <TableCell numeric>4000</TableCell>
-                  <TableCell numeric>4000</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>002</TableCell>
-                  <TableCell>Bolsa 6L</TableCell>
-                  <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
-                  <TableCell numeric>1500</TableCell>
-                  <TableCell numeric>1500</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Grid>
-        </Grid>
-      </Paper>
+        </Paper>
+      </Layout>
     )
   }
 }

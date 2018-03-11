@@ -11,6 +11,8 @@ import Select from 'material-ui/Select'
 import TextField from 'material-ui/TextField'
 import Typography from 'material-ui/Typography'
 
+import Layout from '../components/Layout'
+
 const styles: StyleRulesCallback =
   ({ palette, spacing, shadows }: Theme) => ({
     paper: {
@@ -55,49 +57,51 @@ class CheckUser extends React.Component<PropClasses> {
       return <Redirect to='/sell' push />
     }
     return (
-      <Modal
-        open={true}
-      >
-        <div className={classes.paper}>
-          <Typography variant="title" className={classes.title}>
-            Usuario
+      <Layout>
+        <Modal
+          open={true}
+        >
+          <div className={classes.paper}>
+            <Typography variant="title" className={classes.title}>
+              Usuario
           </Typography>
-          <FormControl fullWidth className={classes.formControl}>
-            <InputLabel>Usuario</InputLabel>
-            <Select
+            <FormControl fullWidth className={classes.formControl}>
+              <InputLabel>Usuario</InputLabel>
+              <Select
+                fullWidth
+                className={classes.field}
+                value={state.userName}
+                onChange={(event) => this.handleUserNameChange(event.target.value)}
+              >
+                <MenuItem value='hever'>Hever</MenuItem>
+                <MenuItem value='jose'>Jose</MenuItem>
+                <MenuItem value='alvaro'>Alvaro</MenuItem>
+                <MenuItem value='abelardo'>Abelardo</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth className={classes.formControl}>
+              <TextField
+                fullWidth
+                label="Contraseña"
+                className={classes.field}
+                type="password"
+                margin="normal"
+                inputProps={{ inputMode: 'numeric' }}
+              />
+            </FormControl>
+            <Button
+              size='large'
+              variant='raised'
+              color='primary'
               fullWidth
-              className={classes.field}
-              value={state.userName}
-              onChange={(event) => this.handleUserNameChange(event.target.value)}
+              className={classes.button}
+              onClick={this.handleContinue}
             >
-              <MenuItem value='hever'>Hever</MenuItem>
-              <MenuItem value='jose'>Jose</MenuItem>
-              <MenuItem value='alvaro'>Alvaro</MenuItem>
-              <MenuItem value='abelardo'>Abelardo</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth className={classes.formControl}>
-            <TextField
-              fullWidth
-              label="Contraseña"
-              className={classes.field}
-              type="password"
-              margin="normal"
-              inputProps={{inputMode: 'numeric'}}
-            />
-          </FormControl>
-          <Button
-            size='large'
-            variant='raised'
-            color='primary'
-            fullWidth
-            className={classes.button}
-            onClick={this.handleContinue}
-          >
-            Continuar
+              Continuar
           </Button>
-        </div>
-      </Modal>
+          </div>
+        </Modal>
+      </Layout>
     )
   }
 }
