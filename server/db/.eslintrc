@@ -1,0 +1,49 @@
+{
+    "env": {
+        "commonjs": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "installedESLint": true,
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "script"
+    },
+    "rules": {
+        "indent": [
+            "error",
+            2
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "never"
+        ],
+        "curly": ["error", "multi", "consistent"],
+        "dot-location": ["error", "property"],
+        "eqeqeq": "error",
+        "no-eq-null": "error",
+        "no-eval": "error",
+        "no-extra-bind": "warn",
+        "no-implicit-coercion": "error",
+        "no-useless-concat": "warn",
+        "no-useless-escape": "warn",
+        "block-spacing": "warn",
+        "brace-style": "warn",
+        "camelcase": "warn",
+        "comma-spacing": "warn",
+        "spaced-comment": "warn",
+        "no-const-assign": "error",
+        "no-var": "error",
+        "prefer-const": "error",
+        "template-curly-spacing": ["warn", "never"],
+        "no-console": "off"
+    }
+}
