@@ -24,7 +24,7 @@ export async function fetchJsonAuth(
   const opts = options || {}
 
   const headers = Object.assign({}, baseHeaders, opts.headers)
-  const allOpts = Object.assign({}, options, {headers})
+  const allOpts: RequestInit = Object.assign({}, options, {headers, credentials: 'include'})
 
   const response = await fetch(apiUrl + url, allOpts)
   const data = await response.json()

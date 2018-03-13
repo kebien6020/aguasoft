@@ -28,6 +28,9 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
     const savedHash = user.password
     const result = await bcrypt.compare(providedPass, savedHash)
 
+    // If the correct pass was provided save the userId to the session
+    req.session.userId = result ? userId : undefined
+
     res.json({result})
   } catch (e) {
     next (e)

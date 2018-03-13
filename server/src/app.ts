@@ -62,6 +62,17 @@ app.use('/api/clients', authCheck, routes.clients)
 // in any route or middleware
 app.use(jsonErrorHandler)
 
+// Check the routes that require logged user
+function checkUser(req: Request, res: Response, next: NextFunction) {
+  if (typeof req.session.userId === 'number') {
+    next()
+  } else {
+    res.redirect('/check')
+  }
+}
+
+app.get('/sell', checkUser)
+
 // Serve the SPA for any unhandled route (it handles 404)
 app.get('*', (req, res) => {
   res.sendFile(INDEX_FILE)
