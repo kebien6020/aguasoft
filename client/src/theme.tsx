@@ -21,7 +21,7 @@ export default createMuiTheme({
   },
   overrides: {
     MuiTableCell: {
-     paddingDefault: {
+     paddingDense: {
        padding: '20px 16px 20px 8px',
        fontSize: '16px',
      },
