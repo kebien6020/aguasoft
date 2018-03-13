@@ -106,9 +106,16 @@ interface Client {
   name: string
 }
 
+interface User {
+  id: number
+  code:string
+  name: string
+}
+
 interface RegisterSaleState {
   clientId: number
   clients: Client[]
+  user: User
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -121,13 +128,19 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     this.state = {
       clientId: null,
       clients: null,
+      user: null,
     }
   }
 
   async componentWillMount() {
     const clients: Client[] = await fetchJsonAuth('/api/clients', this.props.auth)
-
     this.setState({clients, clientId: clients[0].id})
+
+    const user: User = await fetchJsonAuth('/api/users/getCurrent', this.props.auth)
+    if (user) {
+      this.setState({user})
+    }
+
   }
 
   handleClientChange = (event: InputEvent) => {
@@ -153,7 +166,10 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                 <InputLabel htmlFor='input-user'>Usuario</InputLabel>
                 <Input
                   disabled
-                  value='(001) Hever'
+                  value={state.user ?
+                    `(${state.user.code}) ${state.user.name}` :
+                    'Cargando...'
+                  }
                 />
               </FormControl>
             </Grid>

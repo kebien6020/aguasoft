@@ -36,3 +36,20 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
     next (e)
   }
 }
+
+export async function getCurrent(req: Request, res: Response, next: NextFunction) {
+  try {
+    // If there is no user logged in simply return null
+    if (!req.session.userId)
+      return res.json(null)
+
+    // Find all of the user info from the id
+    const user = await Users.findById(req.session.userId, {
+      attributes: ['name', 'code', 'id']
+    })
+
+    res.json(user)
+  } catch (e) {
+    next (e)
+  }
+}
