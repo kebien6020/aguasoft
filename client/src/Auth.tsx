@@ -4,8 +4,8 @@ const domain = 'kevinpena.auth0.com'
 const clientID = 'HIWjFo1TbHBO1nezMkcLew22aTYvBi7L'
 const redirectUri = baseUrl + '/authCallback'
 const silentRedirectUri = baseUrl + '/silentAuth'
-const audience = 'https://kevinpena.auth0.com/userinfo'
-const scope = 'openid'
+const audience = 'https://soft.agualaif.com'
+const scope = 'openid read:fullapi'
 
 export default class Auth {
   auth0 = new auth0.WebAuth({
