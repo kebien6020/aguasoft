@@ -15,6 +15,8 @@ import AddIcon from 'material-ui-icons/Add'
 import RemoveIcon from 'material-ui-icons/Remove'
 
 import Layout from '../components/Layout'
+import { fetchJsonAuth } from '../utils'
+import { AuthRouteComponentProps } from '../AuthRoute'
 
 const styles: StyleRulesCallback = (theme: Theme) => ({
   title: {
@@ -94,13 +96,46 @@ const NumericPicker = ({ classes }: PropClasses) => (
   </React.Fragment>
 )
 
-class RegisterSale extends React.Component<PropClasses> {
-  state = {
-    client: '001'
+interface RegisterSaleProps extends PropClasses, AuthRouteComponentProps<{}> {
+
+}
+
+interface Client {
+  id: number
+  code:string
+  name: string
+}
+
+interface RegisterSaleState {
+  clientId: number
+  clients: Client[]
+}
+
+type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+
+class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState> {
+
+  constructor(props: RegisterSaleProps) {
+    super(props)
+
+    this.state = {
+      clientId: null,
+      clients: null,
+    }
   }
 
-  handleChange = (prop: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ [prop]: event.target.value })
+  async componentWillMount() {
+    const clients: Client[] = await fetchJsonAuth('/api/clients', this.props.auth)
+
+    this.setState({clients, clientId: clients[0].id})
+  }
+
+  handleClientChange = (event: InputEvent) => {
+    const clientId = event.target.value === 'none' ?
+     null :
+     Number(event.target.value)
+
+    this.setState({clientId})
   }
 
   render() {
@@ -128,12 +163,17 @@ class RegisterSale extends React.Component<PropClasses> {
                 <Select
                   id='input-client'
                   fullWidth
-                  value={state.client}
-                  onChange={this.handleChange('client')}
+                  value={state.clientId || 'none'}
+                  onChange={this.handleClientChange}
                 >
-                  <MenuItem value='001'>(001) Venta Planta</MenuItem>
-                  <MenuItem value='002'>(002) Oscar</MenuItem>
-                  <MenuItem value='003'>(003) Alex</MenuItem>
+                {state.clients
+                  ? state.clients.map((client, key) =>
+                      <MenuItem key={key} value={client.id}>
+                        ({client.code}) {client.name}
+                      </MenuItem>
+                    )
+                  : <MenuItem value='none'>Cargando...</MenuItem>
+                }
                 </Select>
               </FormControl>
             </Grid>
