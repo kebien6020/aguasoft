@@ -12,6 +12,8 @@ import TextField from 'material-ui/TextField'
 import Typography from 'material-ui/Typography'
 
 import Layout from '../components/Layout'
+import { fetchJsonAuth } from '../utils'
+import { AuthRouteComponentProps } from '../AuthRoute'
 
 const styles: StyleRulesCallback =
   ({ palette, spacing, shadows }: Theme) => ({
@@ -36,18 +38,56 @@ const styles: StyleRulesCallback =
     },
   })
 
-class CheckUser extends React.Component<PropClasses> {
-  state = {
-    userName: 'hever',
-    checked: false,
+interface CheckUserProps extends PropClasses, AuthRouteComponentProps<{}> {
+
+}
+
+interface User {
+  id: number
+  name: string
+  code: string
+}
+
+interface CheckUserState {
+  userId: number
+  checked: boolean
+  users: User[]
+}
+
+type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+
+class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
+
+  constructor(props: CheckUserProps) {
+    super(props)
+
+    this.state = {
+      userId: null,
+      checked: false,
+      users: null,
+    }
   }
 
-  handleUserNameChange = (name: string) => {
-    this.setState({ userName: name })
+  async componentWillMount() {
+    const users: User[] = await fetchJsonAuth('/api/users', this.props.auth)
+
+    this.setState({users, userId: users[0].id})
+  }
+
+  handleUserChange = (event: InputEvent) => {
+    const userId = event.target.value === 'none' ?
+     null :
+     Number(event.target.value)
+
+    this.setState({userId})
   }
 
   handleContinue = () => {
     this.setState({ checked: true })
+  }
+
+  getDisplayName = (user: User) => {
+    return `(${user.code}) ${user.name}`
   }
 
   render() {
@@ -70,13 +110,17 @@ class CheckUser extends React.Component<PropClasses> {
               <Select
                 fullWidth
                 className={classes.field}
-                value={state.userName}
-                onChange={(event) => this.handleUserNameChange(event.target.value)}
+                value={state.userId || 'none'}
+                onChange={this.handleUserChange}
               >
-                <MenuItem value='hever'>Hever</MenuItem>
-                <MenuItem value='jose'>Jose</MenuItem>
-                <MenuItem value='alvaro'>Alvaro</MenuItem>
-                <MenuItem value='abelardo'>Abelardo</MenuItem>
+                {state.users
+                  ? state.users.map((user, key) =>
+                      <MenuItem key={key} value={user.id}>
+                        ({user.code}) {user.name}
+                      </MenuItem>
+                    )
+                  : <MenuItem value='none'>Cargando...</MenuItem>
+                }
               </Select>
             </FormControl>
             <FormControl fullWidth className={classes.formControl}>
