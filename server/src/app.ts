@@ -57,6 +57,7 @@ app.use(express.static(STATIC_FOLDER))
 // API routes
 app.use('/api/users', authCheck, routes.users)
 app.use('/api/clients', authCheck, routes.clients)
+app.use('/api/products', authCheck, routes.products)
 
 // Error handler for any error thrown
 // in any route or middleware
