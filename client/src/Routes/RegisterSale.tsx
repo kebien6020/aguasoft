@@ -79,7 +79,7 @@ const MinusButton = () => (
   <SqIconButton><RemoveIcon /></SqIconButton>
 )
 const handleNumericFocus = (event: React.FocusEvent<HTMLDivElement>) => {
-  const inputElement = event.target as HTMLInputElement // Trust me this is fine
+  const inputElement = event.target as any as HTMLInputElement // Trust me this is fine
   inputElement.select()
 }
 const NumericPicker = ({ classes }: PropClasses) => (
