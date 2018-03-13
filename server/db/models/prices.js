@@ -9,8 +9,8 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
-        Prices.belongsTo(models.Client)
-        Prices.belongsTo(models.Product)
+        Prices.belongsTo(models.Clients)
+        Prices.belongsTo(models.Products)
       }
     }
   });

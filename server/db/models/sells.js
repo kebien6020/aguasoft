@@ -27,9 +27,9 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
-        Sells.belongsTo(models.User)
-        Sells.belongsTo(models.Client)
-        Sells.belongsTo(models.Product)
+        Sells.belongsTo(models.Users)
+        Sells.belongsTo(models.Clients)
+        Sells.belongsTo(models.Products)
       }
     }
   });
