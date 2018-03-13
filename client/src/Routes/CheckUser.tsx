@@ -52,6 +52,8 @@ interface CheckUserState {
   userId: number
   checked: boolean
   users: User[]
+  password: string
+  errorLogin: boolean
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -65,6 +67,8 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
       userId: null,
       checked: false,
       users: null,
+      password: '',
+      errorLogin: false,
     }
   }
 
@@ -82,8 +86,27 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
     this.setState({userId})
   }
 
-  handleContinue = () => {
-    this.setState({ checked: true })
+  handleContinue = async () => {
+    this.setState({ errorLogin: false })
+
+    const { state } = this
+    const check = await fetchJsonAuth('/api/users/check', this.props.auth, {
+      method: 'post',
+      body: JSON.stringify({
+        id: state.userId,
+        password: state.password
+      })
+    })
+
+    this.setState({ checked: check.result, errorLogin: !check.result })
+  }
+
+  handlePasswordChange = (event: InputEvent) => {
+    const password = event.target.value
+    this.setState({
+      password,
+      errorLogin: false,  // Clean error message on any modifications
+    })
   }
 
   getDisplayName = (user: User) => {
@@ -100,6 +123,7 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
       <Layout>
         <Modal
           open={true}
+          onKeyPress={(event) => event.key === 'Enter' && this.handleContinue()}
         >
           <div className={classes.paper}>
             <Typography variant="title" className={classes.title}>
@@ -126,11 +150,15 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
             <FormControl fullWidth className={classes.formControl}>
               <TextField
                 fullWidth
+                value={state.password}
+                onChange={this.handlePasswordChange}
                 label="Contraseña"
                 className={classes.field}
                 type="password"
                 margin="normal"
                 inputProps={{ inputMode: 'numeric' }}
+                error={state.errorLogin}
+                helperText={state.errorLogin ? 'Contraseña erronea' : null}
               />
             </FormControl>
             <Button
