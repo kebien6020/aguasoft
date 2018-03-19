@@ -112,10 +112,18 @@ interface User {
   name: string
 }
 
+interface Product {
+  id: number
+  code: string
+  name: string
+  basePrice: string
+}
+
 interface RegisterSaleState {
   clientId: number
   clients: Client[]
   user: User
+  products: Product[]
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -129,14 +137,19 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       clientId: null,
       clients: null,
       user: null,
+      products: null,
     }
   }
 
   async componentWillMount() {
-    const clients: Client[] = await fetchJsonAuth('/api/clients', this.props.auth)
+    const auth = this.props.auth
+    const clients: Client[] = await fetchJsonAuth('/api/clients', auth)
     this.setState({clients, clientId: clients[0].id})
 
-    const user: User = await fetchJsonAuth('/api/users/getCurrent', this.props.auth)
+    const products: Product[] = await fetchJsonAuth('/api/products', auth)
+    this.setState({products})
+
+    const user: User = await fetchJsonAuth('/api/users/getCurrent', auth)
     if (user) {
       this.setState({user})
     }
@@ -205,20 +218,23 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>001</TableCell>
-                    <TableCell>Botellón</TableCell>
-                    <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
-                    <TableCell numeric>4000</TableCell>
-                    <TableCell numeric>4000</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>002</TableCell>
-                    <TableCell>Bolsa 6L</TableCell>
-                    <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
-                    <TableCell numeric>1500</TableCell>
-                    <TableCell numeric>1500</TableCell>
-                  </TableRow>
+                  {!state.products ?
+                    <TableRow>
+                      <TableCell colSpan={5} style={{textAlign: 'center'}}>
+                        Cargando...
+                      </TableCell>
+                    </TableRow> :
+                    // Loaded products
+                    state.products.map((product, key) => (
+                      <TableRow key={key}>
+                        <TableCell>{product.code}</TableCell>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
+                        <TableCell numeric>{product.basePrice}</TableCell>
+                        <TableCell numeric>0</TableCell>
+                      </TableRow>
+                    ))
+                  }
                 </TableBody>
               </Table>
             </Grid>
