@@ -59,6 +59,7 @@ app.use('/api/users', authCheck, routes.users)
 app.use('/api/clients', authCheck, routes.clients)
 app.use('/api/products', authCheck, routes.products)
 app.use('/api/prices', authCheck, routes.prices)
+app.use('/api/sells', authCheck, routes.sells)
 
 // Error handler for any error thrown
 // in any route or middleware

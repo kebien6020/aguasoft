@@ -64,6 +64,10 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
       },
     },
   },
+  button: {
+    marginTop: theme.spacing.unit * 4,
+    color: 'white'
+  },
 })
 
 interface SqIconButtonProps {
@@ -202,6 +206,10 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
 
   }
 
+  submit = async () => {
+    console.log('here')
+  }
+
   handleClientChange = async (event: InputEvent) => {
     const clientId = event.target.value === 'none' ?
      null :
@@ -328,6 +336,18 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                   }
                 </TableBody>
               </Table>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                size='large'
+                variant='raised'
+                color='primary'
+                fullWidth
+                className={classes.button}
+                onClick={this.submit}
+              >
+                Registrar Venta
+              </Button>
             </Grid>
           </Grid>
         </Paper>
