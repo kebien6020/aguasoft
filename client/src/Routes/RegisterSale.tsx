@@ -66,33 +66,51 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-interface SqIconButtonProps { children: JSX.Element }
-const SqIconButton = ({ children }: SqIconButtonProps) => (
-  <Button disableRipple size='small' variant='raised' color='secondary'>
+interface SqIconButtonProps {
+  children: JSX.Element
+  onClick: () => any
+}
+const SqIconButton = ({ children, onClick }: SqIconButtonProps) => (
+  <Button
+    disableRipple
+    onClick={onClick}
+    size='small'
+    variant='raised'
+    color='secondary'
+  >
     {children}
   </Button>
 )
 
-const PlusButton = () => (
-  <SqIconButton><AddIcon /></SqIconButton>
+interface PlusButtonProps { onClick: () => any }
+const PlusButton = (props: PlusButtonProps) => (
+  <SqIconButton onClick={props.onClick}><AddIcon /></SqIconButton>
 )
 
-const MinusButton = () => (
-  <SqIconButton><RemoveIcon /></SqIconButton>
+interface MinusButtonProps { onClick: () => any }
+const MinusButton = (props: MinusButtonProps) => (
+  <SqIconButton onClick={props.onClick}><RemoveIcon /></SqIconButton>
 )
 const handleNumericFocus = (event: React.FocusEvent<HTMLDivElement>) => {
   const inputElement = event.target as any as HTMLInputElement // Trust me this is fine
   inputElement.select()
 }
-const NumericPicker = ({ classes }: PropClasses) => (
+
+interface NumericPickerProps extends PropClasses {
+  value: number
+  onChange: (val: number) => any
+}
+const NumericPicker = (props: NumericPickerProps) => (
   <React.Fragment>
     <Input
       type='number'
-      defaultValue={0}
-      className={classes.numericInput}
+      value={props.value}
+      className={props.classes.numericInput}
       onFocus={handleNumericFocus}
+      onChange={(event) => props.onChange(Number(event.target.value) || 0)}
     />
-    <PlusButton /> <MinusButton />
+    <PlusButton onClick={() => props.onChange(props.value + 1)} />
+    <MinusButton onClick={() => props.onChange(props.value -  1)}/>
   </React.Fragment>
 )
 
@@ -119,11 +137,23 @@ interface Product {
   basePrice: string
 }
 
+interface DetailedProduct extends Product {
+  qty: number
+  price: number
+}
+
+interface Price {
+  id: number
+  clientId: number
+  productId: number
+  value: number
+}
+
 interface RegisterSaleState {
   clientId: number
   clients: Client[]
   user: User
-  products: Product[]
+  products: DetailedProduct[]
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -146,8 +176,24 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     const clients: Client[] = await fetchJsonAuth('/api/clients', auth)
     this.setState({clients, clientId: clients[0].id})
 
+    const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clients[0].id, auth)
+
+    const getCustomPrice = (id: number) => {
+      const customPrice = customPrices.find((cp) => cp.productId === id)
+      if (customPrice)
+        return customPrice.value
+      return undefined
+    }
+
     const products: Product[] = await fetchJsonAuth('/api/products', auth)
-    this.setState({products})
+    const detailedProducts: DetailedProduct[] = products.map(p => (
+      {
+        ...p,
+        qty: 0,
+        price: getCustomPrice(p.id) || Number(p.basePrice)
+      }
+    ))
+    this.setState({products: detailedProducts})
 
     const user: User = await fetchJsonAuth('/api/users/getCurrent', auth)
     if (user) {
@@ -156,12 +202,43 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
 
   }
 
-  handleClientChange = (event: InputEvent) => {
+  handleClientChange = async (event: InputEvent) => {
     const clientId = event.target.value === 'none' ?
      null :
      Number(event.target.value)
 
+     const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clientId, this.props.auth)
+
+     const getCustomPrice = (id: number) => {
+       const customPrice = customPrices.find((cp) => cp.productId === id)
+       if (customPrice)
+         return customPrice.value
+       return undefined
+     }
+
+     const currentProducts = this.state.products
+     const updatedProducts: DetailedProduct[] = currentProducts.map(p => (
+       {
+         ...p,
+         price: getCustomPrice(p.id) || Number(p.basePrice)
+       }
+     ))
+     this.setState({products: updatedProducts})
+
     this.setState({clientId})
+  }
+
+  handleProductQtyChange = (productId: number, qty: number) => {
+    if (qty < 0) return
+
+    const { state } = this
+    const products = state.products
+    const product = products.find(p => p.id === productId)
+    if (product) {
+      product.qty = qty
+    }
+
+    this.setState({products})
   }
 
   render() {
@@ -229,11 +306,25 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                       <TableRow key={key}>
                         <TableCell>{product.code}</TableCell>
                         <TableCell>{product.name}</TableCell>
-                        <TableCell className={classes.qtyCell}><NumericPicker classes={classes} /></TableCell>
-                        <TableCell numeric>{product.basePrice}</TableCell>
-                        <TableCell numeric>0</TableCell>
+                        <TableCell className={classes.qtyCell}>
+                          <NumericPicker
+                            classes={classes}
+                            value={product.qty}
+                            onChange={(qty)=> this.handleProductQtyChange(product.id, qty)}
+                          />
+                        </TableCell>
+                        <TableCell numeric>{product.price}</TableCell>
+                        <TableCell numeric>{product.price * product.qty}</TableCell>
                       </TableRow>
                     ))
+                  }
+                  {state.products &&
+                    // Total row
+                    <TableRow>
+                      <TableCell colSpan={3}></TableCell>
+                      <TableCell>Total</TableCell>
+                      <TableCell>{state.products.reduce((acc, prod) => acc + prod.price * prod.qty, 0)}</TableCell>
+                    </TableRow>
                   }
                 </TableBody>
               </Table>
