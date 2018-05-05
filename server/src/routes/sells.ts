@@ -39,7 +39,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
     await Sells.create(body, {
       // Only allow user input to control these attributes
-      attributes: [
+      fields: [
         'date',
         'clientId',
         'productId',
@@ -82,6 +82,31 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
     })
 
     res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function listDay(req: Request, res: Response, next: NextFunction) {
+  try {
+    const day = req.query.day
+    const sells = await Sells.findAll({
+      attributes: [
+        'id',
+        'date',
+        'clientId',
+        'productId',
+        'quantity',
+        'value',
+        'cash',
+        'userId',
+      ],
+      where: {
+        date: day
+      }
+    })
+
+    res.json(sells)
   } catch (e) {
     next(e)
   }
