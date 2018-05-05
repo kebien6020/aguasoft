@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
 import { SellModel } from '../db/models/sells'
+import { ProductModel } from '../db/models/products'
+import { ClientModel } from '../db/models/clients'
+import { UserModel } from '../db/models/users'
 
 const Sells = models.Sells as SellModel
 
@@ -94,16 +97,28 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
       attributes: [
         'id',
         'date',
-        'clientId',
-        'productId',
         'quantity',
         'value',
         'cash',
-        'userId',
+        'priceOverride',
       ],
       where: {
         date: day
-      }
+      },
+      include: [
+        {
+          model: models.Products as ProductModel,
+          attributes: ['name'],
+        },
+        {
+          model: models.Clients as ClientModel,
+          attributes: ['name'],
+        },
+        {
+          model: models.Users as UserModel,
+          attributes: ['name'],
+        },
+      ],
     })
 
     res.json(sells)
