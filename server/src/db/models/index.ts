@@ -35,7 +35,7 @@ const db: DBExport = {
 fs
   .readdirSync(__dirname)
   .filter(file => (file.indexOf('.') !== 0) && (file !== thisFile) && (file.slice(-3) === '.js'))
-  .forEach(function(file) {
+  .map(function(file) {
       // Models have to be in a specific way for them to be
       // able to be imported by Sequelize.prototype.import
     const model = sequelize.import(path.join(__dirname, file))
@@ -43,15 +43,14 @@ fs
     debug(`adding ${model.name} to models`)
       // Actually add them to the db object
     db[model.name] = model
+    return model
   })
-
-// Setup model associations
-Object.keys(db).forEach(modelName => {
-  const model = db[modelName] as Sequelize.Model<any, any>
-  if (model.associate) {
-    debug(`setting up ${modelName} associations`)
-    model.associate(db as Sequelize.Models)
-  }
-})
+  // Setup model associations
+  .forEach(model => {
+    if (model.associate) {
+      debug(`setting up ${model.name} associations`)
+      model.associate(db as Sequelize.Models)
+    }
+  })
 
 export default db

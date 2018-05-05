@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { Sequelize, DataTypes, Model, Instance } from 'sequelize'
 
 export interface SessionAttributes {
   sid: string
@@ -21,11 +21,6 @@ export default function(sequelize: Sequelize, DataTypes: DataTypes) {
     expires: DataTypes.DATE,
     data: DataTypes.STRING(50000)
   }, {
-    classMethods: {
-      associate: function(models: Models) {
-        // associations can be defined here
-      }
-    },
     timestamps: false
   });
   return Session;

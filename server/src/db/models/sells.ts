@@ -51,15 +51,12 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-  }, {
-    classMethods: {
-      associate: function(models: Models) {
-        // associations can be defined here
-        Sells.belongsTo(models.Users, {as: 'user'})
-        Sells.belongsTo(models.Clients, {as: 'client'})
-        Sells.belongsTo(models.Products, {as: 'product'})
-      }
-    }
   });
+  Sells.associate = function(models: Models) {
+    // associations can be defined here
+    Sells.belongsTo(models.Users)
+    Sells.belongsTo(models.Clients)
+    Sells.belongsTo(models.Products)
+  }
   return Sells;
 };

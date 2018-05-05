@@ -16,14 +16,11 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.DECIMAL(20, 8),
       allowNull: false,
     },
-  }, {
-    classMethods: {
-      associate: function(models: Models) {
-        // associations can be defined here
-        Prices.belongsTo(models.Clients)
-        Prices.belongsTo(models.Products)
-      }
-    }
   });
+  Prices.associate = function(models: Models) {
+    // associations can be defined here
+    Prices.belongsTo(models.Clients)
+    Prices.belongsTo(models.Products)
+  }
   return Prices;
 };

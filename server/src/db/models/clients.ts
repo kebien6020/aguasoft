@@ -19,12 +19,11 @@ export default function(sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.STRING,
       allowNull: false,
     },
-  }, {
-    classMethods: {
-      associate: function(models: Models) {
-        // associations can be defined here
-      }
-    }
   });
+
+  Clients.associate = function(models: Models) {
+    // associations can be defined here
+    Clients.hasMany(models.Sells)
+  }
   return Clients;
 };

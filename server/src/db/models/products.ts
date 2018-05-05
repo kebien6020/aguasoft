@@ -24,12 +24,11 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.DECIMAL(20, 8),
       allowNull: false,
     },
-  }, {
-    classMethods: {
-      associate: function(models: Models) {
-        // associations can be defined here
-      }
-    }
   });
+
+  Products.associate = function(models: Models) {
+    // associations can be defined here
+    Products.hasMany(models.Sells)
+  }
   return Products;
 };
