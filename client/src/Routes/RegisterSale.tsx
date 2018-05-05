@@ -158,6 +158,7 @@ interface RegisterSaleState {
   clients: Client[]
   user: User
   products: DetailedProduct[]
+  disableButton: boolean
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -172,6 +173,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       clients: null,
       user: null,
       products: null,
+      disableButton: false,
     }
   }
 
@@ -207,7 +209,24 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   }
 
   submit = async () => {
-    console.log('here')
+    const { state, props } = this
+    const auth = props.auth
+    this.setState({disableButton: true})
+
+    const date = new Date()
+    const sells = state.products.map(product => ({
+      date,
+      clientId: state.clientId,
+      productId: product.id,
+      quantity: product.qty,
+      value: product.price,
+      cash: true,  // TODO: Add UI to select this
+    })).filter(sell => sell.quantity !== 0)
+    
+    await fetchJsonAuth('/api/sells/bulkNew', auth, {
+      method: 'post',
+      body: JSON.stringify({sells})
+    })
   }
 
   handleClientChange = async (event: InputEvent) => {
@@ -345,6 +364,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                 fullWidth
                 className={classes.button}
                 onClick={this.submit}
+                disabled={state.disableButton}
               >
                 Registrar Venta
               </Button>
