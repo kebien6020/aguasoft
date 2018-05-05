@@ -222,11 +222,14 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       value: product.price,
       cash: true,  // TODO: Add UI to select this
     })).filter(sell => sell.quantity !== 0)
-    
+
     await fetchJsonAuth('/api/sells/bulkNew', auth, {
       method: 'post',
       body: JSON.stringify({sells})
     })
+
+    // After submitting go back to the user selection screen
+    this.props.history.push('/check')
   }
 
   handleClientChange = async (event: InputEvent) => {

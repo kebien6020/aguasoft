@@ -40,10 +40,12 @@
     "body-parser": "^1.18.2",
     "connect-session-sequelize": "^5.2.1",
     "cors": "^2.8.4",
+    "date-fns": "^2.0.0-alpha.7",
     "express": "^4.16.2",
     "express-jwt": "^5.3.1",
     "express-session": "^1.15.6",
     "jwks-rsa": "^1.2.1",
+    "material-ui-pickers": "^1.0.0-rc.7",
     "sequelize": "^4.36.0",
     "sqlite3": "^3.1.13"
   }
