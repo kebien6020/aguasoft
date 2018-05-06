@@ -10,6 +10,7 @@
     "dev": "npm-run-all -p dev-server watch-client-js"
   },
   "devDependencies": {
+    "@material-ui/icons": "^1.0.0-beta.43",
     "@types/auth0-js": "^8.11.2",
     "@types/bcrypt": "^1.0.0",
     "@types/cors": "^2.8.3",
@@ -24,8 +25,7 @@
     "awesome-typescript-loader": "^3.4.1",
     "copyfiles": "^2.0.0",
     "eslint": "^4.18.2",
-    "material-ui": "next",
-    "material-ui-icons": "^1.0.0-beta.17",
+    "material-ui": "^1.0.0-beta.44",
     "nodemon": "^1.14.12",
     "npm-run-all": "^4.1.2",
     "react": "^16.2.0",
@@ -36,7 +36,7 @@
     "webpack": "^3.11.0"
   },
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "bcrypt": "^2.0.1",
     "body-parser": "^1.18.2",
     "connect-session-sequelize": "^5.2.1",
     "cors": "^2.8.4",
