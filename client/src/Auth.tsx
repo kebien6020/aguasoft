@@ -1,5 +1,5 @@
 import * as auth0 from 'auth0-js'
-const baseUrl = 'http://localhost:3000'
+const baseUrl = window.location.origin
 const domain = 'kevinpena.auth0.com'
 const clientID = 'HIWjFo1TbHBO1nezMkcLew22aTYvBi7L'
 const redirectUri = baseUrl + '/authCallback'
