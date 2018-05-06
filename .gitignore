@@ -4,3 +4,5 @@ client/dist
 server/dist
 
 db.sqlite
+
+upload.cmd
