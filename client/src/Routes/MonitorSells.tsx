@@ -2,6 +2,7 @@ import * as React from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
 import { isSameDay } from 'date-fns'
+import { fetchJsonAuth } from '../utils'
 
 import Typography from 'material-ui/Typography'
 import Table, { TableRow, TableCell, TableHead, TableBody } from 'material-ui/Table'
@@ -11,9 +12,31 @@ interface MonitorSellsProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
-class MonitorSells extends React.Component<MonitorSellsProps> {
-  state = {
-    date: new Date()
+interface MonitorSellsState {
+  date: Date,
+  sells: Sell[],
+}
+
+interface Sell {
+  Client: {name: string},
+  Product: {name: string},
+  User: {name: string},
+  cash: boolean,
+  date: string,
+  id: number,
+  priceOverride: number,
+  quantity: number,
+  value: number,
+}
+
+class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState> {
+
+  constructor(props: MonitorSellsProps) {
+    super(props)
+    this.state = {
+      date: new Date(),
+      sells: null,
+    }
   }
 
   handleDateChange = (date: Date) => {
@@ -27,8 +50,15 @@ class MonitorSells extends React.Component<MonitorSellsProps> {
     this.updateContents(new Date())
   }
 
-  updateContents = (date: Date) => {
-    console.log('update table to date', date)
+  updateContents = async (date: Date) => {
+    const { auth } = this.props
+    this.setState({sells: null})
+    const sells: Sell[] = await fetchJsonAuth(
+      '/api/sells/listDay?day=' + date.toString(),
+      auth
+    )
+
+    this.setState({sells})
   }
 
   render() {
@@ -62,12 +92,27 @@ class MonitorSells extends React.Component<MonitorSellsProps> {
             </TableRow>
           </TableHead>
           <TableBody>
-
-            <TableRow>
-              <TableCell colSpan={8} style={{textAlign: 'center'}}>
-                Cargando...
-              </TableCell>
-            </TableRow>
+            {
+              state.sells ?
+              state.sells.map((sell, key) => (
+                <TableRow key={key}>
+                  <TableCell>{sell.date}</TableCell>
+                  <TableCell>{sell.Product.name}</TableCell>
+                  <TableCell>{sell.Client.name}</TableCell>
+                  <TableCell>{sell.cash ? 'si' : 'no'}</TableCell>
+                  <TableCell>{sell.priceOverride || ''}</TableCell>
+                  <TableCell>{sell.quantity}</TableCell>
+                  <TableCell>{sell.value}</TableCell>
+                  <TableCell>{sell.User.name}</TableCell>
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell colSpan={8} style={{textAlign: 'center'}}>
+                    Cargando...
+                  </TableCell>
+                </TableRow>
+              )
+            }
           </TableBody>
         </Table>
       </React.Fragment>
