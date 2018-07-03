@@ -55,11 +55,14 @@ const INDEX_FILE = path.resolve(__dirname, '../../client/index.html')
 app.use(express.static(STATIC_FOLDER))
 
 // API routes
-app.use('/api/users', authCheck, routes.users)
-app.use('/api/clients', authCheck, routes.clients)
-app.use('/api/products', authCheck, routes.products)
-app.use('/api/prices', authCheck, routes.prices)
-app.use('/api/sells', authCheck, routes.sells)
+if (process.env.NODE_ENV === 'production') {
+  app.use('/api', authCheck)
+}
+app.use('/api/users', routes.users)
+app.use('/api/clients', routes.clients)
+app.use('/api/products', routes.products)
+app.use('/api/prices', routes.prices)
+app.use('/api/sells', routes.sells)
 
 // Error handler for any error thrown
 // in any route or middleware
