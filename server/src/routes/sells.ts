@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
 import { SellModel } from '../db/models/sells'
-import { ProductModel } from '../db/models/products'
-import { ClientModel } from '../db/models/clients'
-import { UserModel } from '../db/models/users'
 
 const Sells = models.Sells as SellModel
 
@@ -107,15 +104,15 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
       },
       include: [
         {
-          model: models.Products as ProductModel,
+          model: models.Products,
           attributes: ['name'],
         },
         {
-          model: models.Clients as ClientModel,
+          model: models.Clients,
           attributes: ['name'],
         },
         {
-          model: models.Users as UserModel,
+          model: models.Users,
           attributes: ['name'],
         },
       ],

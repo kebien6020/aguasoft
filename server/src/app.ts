@@ -9,8 +9,7 @@ import * as session from 'express-session'
 import * as ConnectSessionSequelize from 'connect-session-sequelize'
 import * as routes from './routes'
 import jsonErrorHandler from './utils/jsonErrors'
-import models from './db/models'
-const sequelize = models.sequelize
+import { sequelize } from './db/models'
 
 const SequelizeStore = ConnectSessionSequelize(session.Store)
 
@@ -42,6 +41,7 @@ const sessionMiddleware = session({
 })
 
 const app = express()
+app.use('*', (req:any, res: any, next: any) => {console.log(req); next()})
 
 // Common middleware
 app.use(bodyParser.urlencoded({ extended: false }))
