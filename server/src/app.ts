@@ -41,7 +41,7 @@ const sessionMiddleware = session({
 })
 
 const app = express()
-app.use('*', (req:any, res: any, next: any) => {console.log(req); next()})
+// app.use('*', (req:any, res: any, next: any) => {console.log(req); next()})
 
 // Common middleware
 app.use(bodyParser.urlencoded({ extended: false }))
