@@ -2,7 +2,7 @@ import * as React from 'react'
 import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
 
 import Button from 'material-ui/Button'
-import { FormControl } from 'material-ui/Form'
+import { FormControl, FormControlLabel } from 'material-ui/Form'
 import Grid from 'material-ui/Grid'
 // import IconButton from 'material-ui/IconButton'
 import Input, { InputLabel } from 'material-ui/Input'
@@ -10,6 +10,7 @@ import { MenuItem } from 'material-ui/Menu'
 import Paper from 'material-ui/Paper'
 import Select from 'material-ui/Select'
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table'
+import CheckBox from 'material-ui/CheckBox'
 import Typography from 'material-ui/Typography'
 import AddIcon from '@material-ui/icons/Add'
 import RemoveIcon from '@material-ui/icons/Remove'
@@ -64,8 +65,11 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
       },
     },
   },
-  button: {
+  credit: {
+    textAlign: 'center',
     marginTop: theme.spacing.unit * 4,
+  },
+  button: {
     color: 'white'
   },
 })
@@ -126,6 +130,7 @@ interface Client {
   id: number
   code:string
   name: string
+  defaultCash: boolean
 }
 
 interface User {
@@ -159,6 +164,7 @@ interface RegisterSaleState {
   user: User
   products: DetailedProduct[]
   disableButton: boolean
+  cash: boolean
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
@@ -174,13 +180,14 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       user: null,
       products: null,
       disableButton: false,
+      cash: false,
     }
   }
 
   async componentWillMount() {
     const auth = this.props.auth
     const clients: Client[] = await fetchJsonAuth('/api/clients', auth)
-    this.setState({clients, clientId: clients[0].id})
+    this.setState({clients, clientId: clients[0].id, cash: clients[0].defaultCash})
 
     const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clients[0].id, auth)
 
@@ -220,7 +227,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       productId: product.id,
       quantity: product.qty,
       value: product.price,
-      cash: true,  // TODO: Add UI to select this
+      cash: state.cash,
     })).filter(sell => sell.quantity !== 0)
 
     await fetchJsonAuth('/api/sells/bulkNew', auth, {
@@ -237,25 +244,29 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
      null :
      Number(event.target.value)
 
-     const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clientId, this.props.auth)
+    const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clientId, this.props.auth)
 
-     const getCustomPrice = (id: number) => {
-       const customPrice = customPrices.find((cp) => cp.productId === id)
-       if (customPrice)
-         return customPrice.value
-       return undefined
-     }
+    const getCustomPrice = (id: number) => {
+      const customPrice = customPrices.find((cp) => cp.productId === id)
+      if (customPrice)
+        return customPrice.value
+      return undefined
+    }
 
-     const currentProducts = this.state.products
-     const updatedProducts: DetailedProduct[] = currentProducts.map(p => (
-       {
-         ...p,
-         price: getCustomPrice(p.id) || Number(p.basePrice)
-       }
-     ))
-     this.setState({products: updatedProducts})
-
-    this.setState({clientId})
+    const currentProducts = this.state.products
+    const updatedProducts: DetailedProduct[] = currentProducts.map(p => (
+      {
+        ...p,
+        price: getCustomPrice(p.id) || Number(p.basePrice)
+      }
+    ))
+    const client = this.state.clients ? this.state.clients.find(c => c.id === clientId) : null
+    const clientDefaultCash = client ? client.defaultCash : false
+    this.setState({
+      products: updatedProducts,
+      cash: clientDefaultCash,
+      clientId,
+    })
   }
 
   handleProductQtyChange = (productId: number, qty: number) => {
@@ -269,6 +280,10 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     }
 
     this.setState({products})
+  }
+
+  handleDefaultCashChange = (event: any, checked: boolean) => {
+    this.setState({cash: !checked})
   }
 
   render() {
@@ -358,6 +373,19 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                   }
                 </TableBody>
               </Table>
+            </Grid>
+            <Grid item xs={12} className={classes.credit}>
+              <FormControlLabel
+                control={
+                  <CheckBox
+                    checked={!state.cash}
+                    onChange={this.handleDefaultCashChange}
+                    value="credit"
+                    color="primary"
+                  />
+                }
+                label="Pago post-fechado"
+              />
             </Grid>
             <Grid item xs={12}>
               <Button
