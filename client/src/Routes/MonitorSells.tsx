@@ -31,6 +31,7 @@ interface Sell {
   priceOverride: number,
   quantity: number,
   value: number,
+  updatedAt: string,
 }
 
 class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState> {
@@ -93,6 +94,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
               <TableCell>Cantidad</TableCell>
               <TableCell>Valor Total</TableCell>
               <TableCell>Registrado por</TableCell>
+              <TableCell>Registrado en</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -108,6 +110,12 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
                   <TableCell>{sell.quantity}</TableCell>
                   <TableCell>{sell.value}</TableCell>
                   <TableCell>{sell.User.name}</TableCell>
+                  <TableCell>{
+                    (moment(sell.date).isSame(sell.updatedAt, 'day')
+                     ? ''
+                     : moment(sell.date).format('DD-MMM-YYYY '))
+                    + moment(sell.updatedAt).format('hh:mm a')
+                  }</TableCell>
                 </TableRow>
               )) : (
                 <TableRow>

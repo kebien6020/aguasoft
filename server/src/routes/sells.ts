@@ -98,6 +98,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
         'value',
         'cash',
         'priceOverride',
+        'updatedAt',
       ],
       where: {
         date: day
@@ -116,6 +117,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
           attributes: ['name'],
         },
       ],
+      order: [['updatedAt', 'DESC']]
     })
 
     res.json(sells)
