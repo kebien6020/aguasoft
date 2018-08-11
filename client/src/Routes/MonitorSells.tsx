@@ -8,6 +8,10 @@ import Typography from 'material-ui/Typography'
 import Table, { TableRow, TableCell, TableHead, TableBody } from 'material-ui/Table'
 import DatePicker from 'material-ui-pickers/DatePicker'
 
+import * as moment from 'moment'
+import 'moment/locale/es'
+moment.locale('es')
+
 interface MonitorSellsProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
@@ -54,7 +58,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
     const { auth } = this.props
     this.setState({sells: null})
     const sells: Sell[] = await fetchJsonAuth(
-      '/api/sells/listDay?day=' + date.toString(),
+      '/api/sells/listDay?day=' + moment(date).format('YYYY-MM-DD'),
       auth
     )
 
@@ -73,7 +77,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
           <DatePicker
             className={classes.datePicker}
             value={state.date}
-            format='DD-MMM-YY'
+            format='D-MMM-YYYY'
             disableFuture
             onChange={this.handleDateChange}
           />
@@ -96,7 +100,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
               state.sells ?
               state.sells.map((sell, key) => (
                 <TableRow key={key}>
-                  <TableCell>{sell.date}</TableCell>
+                  <TableCell>{moment(sell.date, 'YYYY-MM-DD').format('DD-MMM-YYYY')}</TableCell>
                   <TableCell>{sell.Product.name}</TableCell>
                   <TableCell>{sell.Client.name}</TableCell>
                   <TableCell>{sell.cash ? 'si' : 'no'}</TableCell>
