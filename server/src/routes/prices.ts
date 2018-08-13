@@ -8,7 +8,7 @@ export async function list(req: Request, res: Response, next: NextFunction) {
   try {
     const clientId = req.params.clientId as string
     const prices = await Prices.findAll({
-      attributes: ['id', 'value', 'productId'],
+      attributes: ['id', 'value', 'productId', 'name'],
       where: {clientId: clientId},
     })
 

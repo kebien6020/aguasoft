@@ -77,7 +77,8 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
         'quantity',
         'value',
         'cash',
-        'userId'
+        'userId',
+        'priceOverride',
       ],
     })
 
