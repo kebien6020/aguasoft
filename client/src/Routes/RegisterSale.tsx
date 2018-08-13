@@ -236,10 +236,8 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       clientId: state.clientId,
       productId: product.id,
       quantity: product.qty,
-      value: product.selectedPrice.value,
-      priceOverride: product.selectedPrice.value !== Number(product.basePrice)
-                     ? product.selectedPrice.value
-                     : undefined,
+      value: product.selectedPrice.value * product.qty,
+      priceOverride: product.selectedPrice.value,
       cash: state.cash,
     })).filter(sell => sell.quantity !== 0)
 
