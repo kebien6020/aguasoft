@@ -100,6 +100,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
         'cash',
         'priceOverride',
         'updatedAt',
+        'deleted',
       ],
       where: {
         date: day
@@ -122,6 +123,19 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
     })
 
     res.json(sells)
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function del(req: Request, res: Response, next: NextFunction) {
+  try {
+    const sellId = req.params.id
+    const sell = await Sells.findById(sellId)
+    sell.deleted = true
+    await sell.save({silent: true}) // Do not touch updatedAt
+
+    res.json({success: true})
   } catch (e) {
     next(e)
   }

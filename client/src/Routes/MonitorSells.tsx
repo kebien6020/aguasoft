@@ -7,6 +7,8 @@ import { fetchJsonAuth } from '../utils'
 import Typography from 'material-ui/Typography'
 import Table, { TableRow, TableCell, TableHead, TableBody } from 'material-ui/Table'
 import DatePicker from 'material-ui-pickers/DatePicker'
+import IconButton from 'material-ui/IconButton'
+import DeleteIcon from 'material-ui-icons/Delete'
 
 import * as moment from 'moment'
 import 'moment/locale/es'
@@ -32,6 +34,7 @@ interface Sell {
   quantity: number,
   value: number,
   updatedAt: string,
+  deleted: boolean
 }
 
 class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState> {
@@ -48,6 +51,24 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
     if (!isSameDay(date, this.state.date)) {
       this.setState({date})
       this.updateContents(date)
+    }
+  }
+
+  handleClickDelete = async (sellId: number) => {
+    const { auth } = this.props
+
+    const result = await fetchJsonAuth('/api/sells/' + sellId, auth, {
+      method: 'delete',
+    })
+
+    if (result && result.success) {
+      const sells = [...this.state.sells]
+      const sell = sells.find(s => s.id === sellId)
+      sell.deleted = true
+
+      this.setState({sells})
+    } else {
+      console.log(result)
     }
   }
 
@@ -95,13 +116,14 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
               <TableCell>Valor Total</TableCell>
               <TableCell>Registrado por</TableCell>
               <TableCell>Registrado en</TableCell>
+              <TableCell>{/*Eliminar*/}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {
               state.sells ?
               state.sells.map((sell, key) => (
-                <TableRow key={key}>
+                <TableRow key={key} className={classes.row + (sell.deleted ? ' disabled' : '')}>
                   <TableCell>{moment(sell.date, 'YYYY-MM-DD').format('DD-MMM-YYYY')}</TableCell>
                   <TableCell>{sell.Product.name}</TableCell>
                   <TableCell>{sell.Client.name}</TableCell>
@@ -116,6 +138,15 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
                      : moment(sell.date).format('DD-MMM-YYYY '))
                     + moment(sell.updatedAt).format('hh:mm a')
                   }</TableCell>
+                  <TableCell>
+                    <IconButton
+                      className={classes.deleteButton}
+                      onClick={() => this.handleClickDelete(sell.id)}
+                      disabled={sell.deleted}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               )) : (
                 <TableRow>
@@ -146,6 +177,15 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   datePicker: {
     '& input': {
       textAlign: 'center',
+    },
+  },
+  deleteButton: {
+    color: 'red',
+  },
+  row: {
+    '&.disabled > td': {
+      color: 'gray',
+      textDecoration: 'line-through',
     },
   },
 })
