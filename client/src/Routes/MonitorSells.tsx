@@ -111,7 +111,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
               <TableCell>Producto</TableCell>
               <TableCell>Cliente</TableCell>
               <TableCell>Efectivo</TableCell>
-              <TableCell>Precio Especial</TableCell>
+              <TableCell>Precio Unitario</TableCell>
               <TableCell>Cantidad</TableCell>
               <TableCell>Valor Total</TableCell>
               <TableCell>Registrado por</TableCell>
@@ -128,7 +128,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
                   <TableCell>{sell.Product.name}</TableCell>
                   <TableCell>{sell.Client.name}</TableCell>
                   <TableCell>{sell.cash ? 'si' : 'no'}</TableCell>
-                  <TableCell>{sell.priceOverride || ''}</TableCell>
+                  <TableCell>{Math.round(sell.value / sell.quantity)}</TableCell>
                   <TableCell>{sell.quantity}</TableCell>
                   <TableCell>{sell.value}</TableCell>
                   <TableCell>{sell.User.name}</TableCell>
