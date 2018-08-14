@@ -2,13 +2,17 @@ import * as React from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
 import { isSameDay } from 'date-fns'
-import { fetchJsonAuth } from '../utils'
+import { fetchJsonAuth, money } from '../utils'
 
 import Typography from 'material-ui/Typography'
 import Table, { TableRow, TableCell, TableHead, TableBody } from 'material-ui/Table'
 import DatePicker from 'material-ui-pickers/DatePicker'
 import IconButton from 'material-ui/IconButton'
 import DeleteIcon from 'material-ui-icons/Delete'
+import Button from 'material-ui/Button'
+import UpdateIcon from 'material-ui-icons/Update'
+import Grid from 'material-ui/Grid'
+import Paper from 'material-ui/Paper'
 
 import * as moment from 'moment'
 import 'moment/locale/es'
@@ -87,6 +91,16 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
     this.setState({sells})
   }
 
+  calcSell = (cash: boolean) : number => {
+    if (!this.state.sells) return 0
+    return this.state.sells.reduce((acc, sell) => {
+      if (sell.cash === cash && !sell.deleted) {
+        return acc + sell.value
+      }
+      return acc
+    }, 0)
+  }
+
   render() {
     const { props, state } = this
     const { classes } = props
@@ -104,6 +118,30 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
             onChange={this.handleDateChange}
           />
         </div>
+        <Grid container spacing={24} className={classes.summary}>
+          <Grid item xs={12} lg={5}>
+            <Paper className={classes.paper}>
+              <Typography variant='body1'>Venta efectivo: {money(this.calcSell(true))}</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} lg={5}>
+            <Paper className={classes.paper}>
+              <Typography variant='body1'>Venta pago post-fechado: {money(this.calcSell(false))}</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} lg={2}>
+            <Paper className={classes.paper}>
+              <Button
+                onClick={() => this.updateContents(state.date)}
+                variant='raised'
+                color='secondary'
+                className={classes.updateButton}
+              >
+                Actualizar <UpdateIcon />
+              </Button>
+            </Paper>
+          </Grid>
+        </Grid>
         <Table>
           <TableHead>
             <TableRow>
@@ -128,9 +166,9 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
                   <TableCell>{sell.Product.name}</TableCell>
                   <TableCell>{sell.Client.name}</TableCell>
                   <TableCell>{sell.cash ? 'si' : 'no'}</TableCell>
-                  <TableCell>{Math.round(sell.value / sell.quantity)}</TableCell>
+                  <TableCell>{money(sell.value / sell.quantity)}</TableCell>
                   <TableCell>{sell.quantity}</TableCell>
-                  <TableCell>{sell.value}</TableCell>
+                  <TableCell>{money(sell.value)}</TableCell>
                   <TableCell>{sell.User.name}</TableCell>
                   <TableCell>{
                     (moment(sell.date).isSame(sell.updatedAt, 'day')
@@ -187,6 +225,22 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
       color: 'gray',
       textDecoration: 'line-through',
     },
+  },
+  summary: {
+    width: '90%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  paper: {
+    padding: theme.spacing.unit * 2,
+    textAlign: 'center',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  updateButton: {
+    fontSize: '16px',
   },
 })
 
