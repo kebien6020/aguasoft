@@ -16,7 +16,7 @@ import AddIcon from '@material-ui/icons/Add'
 import RemoveIcon from '@material-ui/icons/Remove'
 
 import Layout from '../components/Layout'
-import { fetchJsonAuth } from '../utils'
+import { fetchJsonAuth, money } from '../utils'
 import { AuthRouteComponentProps } from '../AuthRoute'
 
 const styles: StyleRulesCallback = (theme: Theme) => ({
@@ -393,14 +393,14 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                           {product.prices
                             ? product.prices.map((price, key) =>
                                 <MenuItem key={key} value={price.name}>
-                                  {price.name} | {Math.round(price.value*100)/100}
+                                  {price.name} | {money(price.value, 2)}
                                 </MenuItem>
                               )
                             : <MenuItem value='none'>Cargando...</MenuItem>
                           }
                           </Select>
                         </TableCell>
-                        <TableCell numeric>{Math.round(product.selectedPrice.value * product.qty)}</TableCell>
+                        <TableCell numeric>{money(product.selectedPrice.value * product.qty)}</TableCell>
                       </TableRow>
                     ))
                   }
@@ -409,7 +409,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                     <TableRow>
                       <TableCell colSpan={3}></TableCell>
                       <TableCell>Total</TableCell>
-                      <TableCell>{Math.round(state.products.reduce((acc, prod) => acc + prod.selectedPrice.value * prod.qty, 0))}</TableCell>
+                      <TableCell>{money(state.products.reduce((acc, prod) => acc + prod.selectedPrice.value * prod.qty, 0))}</TableCell>
                     </TableRow>
                   }
                 </TableBody>
