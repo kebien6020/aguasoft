@@ -56,7 +56,7 @@ interface CheckUserState {
   errorLogin: boolean
 }
 
-type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
 
 class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
 

@@ -10,14 +10,6 @@ const thisFile = path.basename(module.filename)
 const env = process.env.NODE_ENV || 'development'
 // load the config for this environment
 const config = require(path.resolve(__dirname, '../config.json'))[env]
-// Here will be placed all the model classes
-interface DBExport {
-  sequelize: Sequelize.Sequelize
-  Sequelize: Sequelize.SequelizeStatic
-  [idx: string]: Sequelize.Model<any, any> |
-                 Sequelize.Sequelize |
-                 Sequelize.SequelizeStatic
-}
 
 // Log database connection
 debug(`Using ${config.dialect} database, in storage ${config.storage}`)
@@ -26,11 +18,8 @@ config.logging = require('debug')('app:sql')
 // Connect
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
-// Add sequelize instance and class to the exports
-const db: DBExport = {
-  sequelize: sequelize,
-  Sequelize: Sequelize
-}
+// Here will be placed all the model classes
+const models: Sequelize.Models = {}
 // Load all models in this folder (remember to exclude this file)
 fs
   .readdirSync(__dirname)
@@ -42,15 +31,18 @@ fs
       // Log all added models
     debug(`adding ${model.name} to models`)
       // Actually add them to the db object
-    db[model.name] = model
+    models[model.name] = model
     return model
   })
   // Setup model associations
   .forEach(model => {
     if (model.associate) {
       debug(`setting up ${model.name} associations`)
-      model.associate(db as Sequelize.Models)
+      model.associate(models as Sequelize.Models)
     }
   })
 
-export default db
+export default models
+
+// Add sequelize instance and class to the exports
+export { sequelize, Sequelize }

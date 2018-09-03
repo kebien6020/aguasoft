@@ -2,7 +2,7 @@ import * as React from 'react'
 import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
 
 import Button from 'material-ui/Button'
-import { FormControl } from 'material-ui/Form'
+import { FormControl, FormControlLabel } from 'material-ui/Form'
 import Grid from 'material-ui/Grid'
 // import IconButton from 'material-ui/IconButton'
 import Input, { InputLabel } from 'material-ui/Input'
@@ -10,12 +10,13 @@ import { MenuItem } from 'material-ui/Menu'
 import Paper from 'material-ui/Paper'
 import Select from 'material-ui/Select'
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table'
+import CheckBox from 'material-ui/CheckBox'
 import Typography from 'material-ui/Typography'
-import AddIcon from 'material-ui-icons/Add'
-import RemoveIcon from 'material-ui-icons/Remove'
+import AddIcon from '@material-ui/icons/Add'
+import RemoveIcon from '@material-ui/icons/Remove'
 
 import Layout from '../components/Layout'
-import { fetchJsonAuth } from '../utils'
+import { fetchJsonAuth, money } from '../utils'
 import { AuthRouteComponentProps } from '../AuthRoute'
 
 const styles: StyleRulesCallback = (theme: Theme) => ({
@@ -64,8 +65,11 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
       },
     },
   },
-  button: {
+  credit: {
+    textAlign: 'center',
     marginTop: theme.spacing.unit * 4,
+  },
+  button: {
     color: 'white'
   },
 })
@@ -126,11 +130,17 @@ interface Client {
   id: number
   code:string
   name: string
+  defaultCash: boolean
 }
 
 interface User {
   id: number
   code:string
+  name: string
+}
+
+interface SimplePrice {
+  value: number
   name: string
 }
 
@@ -143,7 +153,8 @@ interface Product {
 
 interface DetailedProduct extends Product {
   qty: number
-  price: number
+  prices: SimplePrice[]
+  selectedPrice: SimplePrice
 }
 
 interface Price {
@@ -151,6 +162,7 @@ interface Price {
   clientId: number
   productId: number
   value: number
+  name: string
 }
 
 interface RegisterSaleState {
@@ -159,9 +171,10 @@ interface RegisterSaleState {
   user: User
   products: DetailedProduct[]
   disableButton: boolean
+  cash: boolean
 }
 
-type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
 
 class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState> {
 
@@ -174,31 +187,35 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       user: null,
       products: null,
       disableButton: false,
+      cash: false,
     }
+  }
+
+  getCustomPrices(id: number, customPrices: Price[]) {
+    const prices = customPrices.filter((cp) => cp.productId === id)
+    if (prices.length > 0)
+      return prices
+    return undefined
   }
 
   async componentWillMount() {
     const auth = this.props.auth
     const clients: Client[] = await fetchJsonAuth('/api/clients', auth)
-    this.setState({clients, clientId: clients[0].id})
+    this.setState({clients, clientId: clients[0].id, cash: clients[0].defaultCash})
 
     const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clients[0].id, auth)
 
-    const getCustomPrice = (id: number) => {
-      const customPrice = customPrices.find((cp) => cp.productId === id)
-      if (customPrice)
-        return customPrice.value
-      return undefined
-    }
-
     const products: Product[] = await fetchJsonAuth('/api/products', auth)
-    const detailedProducts: DetailedProduct[] = products.map(p => (
-      {
+    const detailedProducts: DetailedProduct[] = products.map(p => {
+      const prices = this.getCustomPrices(p.id, customPrices)
+                     || [{value: Number(p.basePrice), name: 'Base'}]
+      return {
         ...p,
         qty: 0,
-        price: getCustomPrice(p.id) || Number(p.basePrice)
+        prices,
+        selectedPrice: prices[0],
       }
-    ))
+    })
     this.setState({products: detailedProducts})
 
     const user: User = await fetchJsonAuth('/api/users/getCurrent', auth)
@@ -219,8 +236,9 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       clientId: state.clientId,
       productId: product.id,
       quantity: product.qty,
-      value: product.price,
-      cash: true,  // TODO: Add UI to select this
+      value: Math.round(product.selectedPrice.value * product.qty),
+      priceOverride: product.selectedPrice.value,
+      cash: state.cash,
     })).filter(sell => sell.quantity !== 0)
 
     await fetchJsonAuth('/api/sells/bulkNew', auth, {
@@ -233,29 +251,32 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   }
 
   handleClientChange = async (event: InputEvent) => {
+    const { auth } = this.props
     const clientId = event.target.value === 'none' ?
-     null :
-     Number(event.target.value)
+      null :
+      Number(event.target.value)
 
-     const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clientId, this.props.auth)
+    const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clientId, auth)
 
-     const getCustomPrice = (id: number) => {
-       const customPrice = customPrices.find((cp) => cp.productId === id)
-       if (customPrice)
-         return customPrice.value
-       return undefined
-     }
+    const currentProducts = this.state.products
+    const updatedProducts: DetailedProduct[] = currentProducts.map(p => {
+      const prices = this.getCustomPrices(p.id, customPrices)
+                     || [{value: Number(p.basePrice), name: 'Base'}]
+      return {
+        ...p,
+        prices,
+        selectedPrice: prices[0],
+      }
+    })
 
-     const currentProducts = this.state.products
-     const updatedProducts: DetailedProduct[] = currentProducts.map(p => (
-       {
-         ...p,
-         price: getCustomPrice(p.id) || Number(p.basePrice)
-       }
-     ))
-     this.setState({products: updatedProducts})
+    const client = this.state.clients ? this.state.clients.find(c => c.id === clientId) : null
+    const clientDefaultCash = client ? client.defaultCash : false
 
-    this.setState({clientId})
+    this.setState({
+      products: updatedProducts,
+      cash: clientDefaultCash,
+      clientId,
+    })
   }
 
   handleProductQtyChange = (productId: number, qty: number) => {
@@ -269,6 +290,25 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     }
 
     this.setState({products})
+  }
+
+  handleDefaultCashChange = (event: any, checked: boolean) => {
+    this.setState({cash: !checked})
+  }
+
+  handlePriceChange = (productId: number, priceName: string) => {
+    const modProducts = this.state.products.map(p => {
+      if (p.id === productId) {
+        return {
+          ...p,
+          selectedPrice: p.prices.find(pr => pr.name === priceName)
+        }
+      } else {
+        return p
+      }
+    })
+
+    this.setState({products: modProducts})
   }
 
   render() {
@@ -343,8 +383,24 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                             onChange={(qty)=> this.handleProductQtyChange(product.id, qty)}
                           />
                         </TableCell>
-                        <TableCell numeric>{product.price}</TableCell>
-                        <TableCell numeric>{product.price * product.qty}</TableCell>
+                        <TableCell numeric>
+                          <Select
+                            id={`price-product-${product.id}`}
+                            fullWidth
+                            value={product.selectedPrice.name}
+                            onChange={(event) => this.handlePriceChange(product.id, event.target.value)}
+                          >
+                          {product.prices
+                            ? product.prices.map((price, key) =>
+                                <MenuItem key={key} value={price.name}>
+                                  {price.name} | {money(price.value, 2)}
+                                </MenuItem>
+                              )
+                            : <MenuItem value='none'>Cargando...</MenuItem>
+                          }
+                          </Select>
+                        </TableCell>
+                        <TableCell numeric>{money(product.selectedPrice.value * product.qty)}</TableCell>
                       </TableRow>
                     ))
                   }
@@ -353,11 +409,24 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                     <TableRow>
                       <TableCell colSpan={3}></TableCell>
                       <TableCell>Total</TableCell>
-                      <TableCell>{state.products.reduce((acc, prod) => acc + prod.price * prod.qty, 0)}</TableCell>
+                      <TableCell>{money(state.products.reduce((acc, prod) => acc + prod.selectedPrice.value * prod.qty, 0))}</TableCell>
                     </TableRow>
                   }
                 </TableBody>
               </Table>
+            </Grid>
+            <Grid item xs={12} className={classes.credit}>
+              <FormControlLabel
+                control={
+                  <CheckBox
+                    checked={!state.cash}
+                    onChange={this.handleDefaultCashChange}
+                    value="credit"
+                    color="primary"
+                  />
+                }
+                label="Pago post-fechado"
+              />
             </Grid>
             <Grid item xs={12}>
               <Button

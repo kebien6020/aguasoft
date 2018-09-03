@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
 import { UserModel } from '../db/models/users'
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 
 const Users = models.Users as UserModel
 

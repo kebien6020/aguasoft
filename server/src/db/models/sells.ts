@@ -9,6 +9,7 @@ export interface SellAttributes {
   userId: number
   clientId: number
   productId: number
+  deleted: boolean
 }
 
 export type SellInstance = Instance<SellAttributes> & SellAttributes
@@ -50,6 +51,11 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
     productId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    deleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
   });
   Sells.associate = function(models: Models) {

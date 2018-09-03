@@ -4,6 +4,7 @@ export interface PriceAttributes {
   value: string
   clientId: string
   productId: string
+  name: string
 }
 
 export type PriceInstance = Instance<PriceAttributes> & PriceAttributes
@@ -15,6 +16,11 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
     value: {
       type: DataTypes.DECIMAL(20, 8),
       allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'Base',
     },
   });
   Prices.associate = function(models: Models) {

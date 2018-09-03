@@ -7,7 +7,7 @@ const Clients = models.Clients as ClientModel
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
     const clients = await Clients.findAll({
-      attributes: ['id', 'name', 'code'],
+      attributes: ['id', 'name', 'code', 'defaultCash'],
       order: ['code']
     })
 
