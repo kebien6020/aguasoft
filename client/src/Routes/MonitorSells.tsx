@@ -1,18 +1,18 @@
 import * as React from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
-import { isSameDay } from 'date-fns'
 import { fetchJsonAuth, money } from '../utils'
 
 import Typography from 'material-ui/Typography'
 import Table, { TableRow, TableCell, TableHead, TableBody } from 'material-ui/Table'
-import DatePicker from 'material-ui-pickers/DatePicker'
 import IconButton from 'material-ui/IconButton'
 import DeleteIcon from 'material-ui-icons/Delete'
 import Button from 'material-ui/Button'
 import UpdateIcon from 'material-ui-icons/Update'
 import Grid from 'material-ui/Grid'
 import Paper from 'material-ui/Paper'
+
+import MyDatePicker from '../components/MyDatePicker'
 
 import * as moment from 'moment'
 import 'moment/locale/es'
@@ -52,10 +52,8 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
   }
 
   handleDateChange = (date: Date) => {
-    if (!isSameDay(date, this.state.date)) {
-      this.setState({date})
-      this.updateContents(date)
-    }
+    this.setState({date})
+    this.updateContents(date)
   }
 
   handleClickDelete = async (sellId: number) => {
@@ -109,15 +107,10 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
         <Typography variant='title' className={classes.title}>
           Ventas del Dia
         </Typography>
-        <div className={classes.datePickerContainer}>
-          <DatePicker
-            className={classes.datePicker}
-            value={state.date}
-            format='D-MMM-YYYY'
-            disableFuture
-            onChange={this.handleDateChange}
-          />
-        </div>
+        <MyDatePicker
+          date={state.date}
+          onDateChange={this.handleDateChange}
+        />
         <Grid container spacing={24} className={classes.summary}>
           <Grid item xs={12} lg={5}>
             <Paper className={classes.paper}>
@@ -205,17 +198,6 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   title: {
     textAlign: 'center',
     marginTop: theme.spacing.unit * 2,
-  },
-  datePickerContainer: {
-    display: 'block',
-    textAlign: 'center',
-    marginTop: theme.spacing.unit * 1,
-    marginBottom: theme.spacing.unit * 2,
-  },
-  datePicker: {
-    '& input': {
-      textAlign: 'center',
-    },
   },
   deleteButton: {
     color: 'red',
