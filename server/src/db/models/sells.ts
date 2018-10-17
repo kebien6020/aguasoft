@@ -1,6 +1,7 @@
 import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
 
 export interface SellAttributes {
+  id: number
   date: string
   cash: boolean
   priceOverride: number

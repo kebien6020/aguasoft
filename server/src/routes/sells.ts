@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
-import models from '../db/models'
+import models, { Sequelize } from '../db/models'
 import { SellModel } from '../db/models/sells'
 
 const Sells = models.Sells as SellModel
+const { gt } = Sequelize.Op
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
@@ -120,6 +121,48 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
         },
       ],
       order: [['updatedAt', 'DESC']]
+    })
+
+    res.json(sells)
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function listFrom(req: Request, res: Response, next: NextFunction) {
+  try {
+    const fromId: string = req.query.fromId
+    const sells = await Sells.findAll({
+      attributes: [
+        'id',
+        'date',
+        'quantity',
+        'value',
+        'cash',
+        'priceOverride',
+        'updatedAt',
+        'deleted',
+      ],
+      where: {
+        id: {
+          [gt]: fromId,
+        },
+      },
+      include: [
+        {
+          model: models.Products,
+          attributes: ['name'],
+        },
+        {
+          model: models.Clients,
+          attributes: ['name'],
+        },
+        {
+          model: models.Users,
+          attributes: ['name'],
+        },
+      ],
+      order: [['id', 'ASC']]
     })
 
     res.json(sells)
