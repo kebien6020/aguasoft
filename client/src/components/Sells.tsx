@@ -64,6 +64,13 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
 
     return (
       <Grid container spacing={16}>
+        {state.sells && state.sells.length === 0 &&
+          <Grid item xs={12}>
+            <Typography variant='headline'>
+              No se registaron ventas este día.
+            </Typography>
+          </Grid>
+        }
         {state.sells ?
           state.sells.map((sell, key) => (
             <Grid item xs={12} key={key}>
