@@ -43,6 +43,10 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
     this.updateContents(this.props.day)
   }
 
+  componentWillReceiveProps(props: SellsPropsAll) {
+    this.updateContents(props.day)
+  }
+
   updateContents = async (date: Moment) => {
     const { auth } = this.props
     this.setState({sells: null})
