@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import DatePicker from 'material-ui-pickers/DatePicker'
 import { isSameDay } from 'date-fns'
 
@@ -15,6 +15,9 @@ type MyDatePickerPropsAll = MyDatePickerProps & PropClasses
 const MyDatePicker = (props : MyDatePickerPropsAll) => (
   <div className={props.classes.datePickerContainer}>
     <DatePicker
+      // @ts-ignore This is neccesary while material-ui-pickers releases
+      //            a new version. Remeber to also remove skipLibCheck
+      //            from the tsconfig.json
       className={props.classes.datePicker}
       value={props.date}
       format='D-MMM-YYYY'
@@ -49,4 +52,4 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-export default withStyles(styles)<MyDatePickerProps>(MyDatePicker)
+export default withStyles(styles)(MyDatePicker)

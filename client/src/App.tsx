@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
-import { MuiThemeProvider } from 'material-ui/styles'
+import { MuiThemeProvider } from '@material-ui/core/styles'
 import theme from './theme'
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider'
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils'
@@ -14,7 +14,7 @@ import Logout from './Routes/Logout'
 import MonitorSells from './Routes/MonitorSells'
 import Dashboard from './Routes/Dashboard'
 
-import CssBaseline from 'material-ui/CssBaseline'
+import CssBaseline from '@material-ui/core/CssBaseline'
 
 import Route from './AuthRoute'
 

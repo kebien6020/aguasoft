@@ -22,6 +22,14 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       allowNull: false,
       defaultValue: 'Base',
     },
+    clientId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   });
   Prices.associate = function(models: Models) {
     // associations can be defined here

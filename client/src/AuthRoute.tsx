@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Route, RouteProps, RouteComponentProps } from 'react-router-dom'
-import { CircularProgress } from 'material-ui/Progress'
-import Typography from 'material-ui/Typography'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Typography from '@material-ui/core/Typography'
 import Layout from './components/Layout'
 import Auth from './Auth'
 const auth  = new Auth()

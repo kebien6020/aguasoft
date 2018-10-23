@@ -1,9 +1,10 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
-import Paper from 'material-ui/Paper'
-import Grid from 'material-ui/Grid'
-import Typography from 'material-ui/Typography'
+import Paper from '@material-ui/core/Paper'
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import * as colors from '@material-ui/core/colors'
 
 import { fetchJsonAuth, money } from '../utils'
 import Auth from '../Auth'
@@ -60,7 +61,18 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
 
   render() {
     const { state } = this
-    // const { classes } = this.props
+    const { classes } = this.props
+
+    const getCardClass = (sell: Sell) => {
+      const classNames: String[] = [classes.sellCard]
+
+      classNames.push(sell.cash ?
+        classes.sellCardCash :
+        classes.sellCardPost
+      )
+
+      return classNames.join(' ')
+    }
 
     return (
       <Grid container spacing={16}>
@@ -74,7 +86,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
         {state.sells ?
           state.sells.map((sell, key) => (
             <Grid item xs={12} key={key}>
-              <Paper>
+              <Paper className={getCardClass(sell)}>
                 <Typography variant='subheading'>
                   {sell.quantity} {sell.Product.name}
                 </Typography>
@@ -93,8 +105,19 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
 }
 
 const styles: StyleRulesCallback = (theme: Theme) => ({
-  // CSS here
+  sellCard: {
+    borderLeft: '3px solid ' + theme.palette.grey[500],
+  },
+  sellCardCash: {
+    borderLeftColor: theme.palette.primary.main,
+  },
+  sellCardPost: {
+    borderLeftColor: theme.palette.secondary.main,
+  },
+  sellCardWarning: {
+    borderLeftColor: colors.orange[500],
+  },
 })
 
 // See comment on component Login
-export default withStyles(styles)<SellsProps>(Sells)
+export default withStyles(styles)(Sells)

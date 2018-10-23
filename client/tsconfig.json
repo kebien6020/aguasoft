@@ -4,7 +4,8 @@
     "outDir": "dist",
     "jsx": "react",
     "target": "es5",
-    "lib": ["es5", "es6", "dom"]
+    "lib": ["es5", "es6", "dom"],
+    "skipLibCheck": true
   },
   "include": [
       "src/**/*"
