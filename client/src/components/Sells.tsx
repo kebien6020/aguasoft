@@ -78,7 +78,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
       <Grid container spacing={16}>
         {state.sells && state.sells.length === 0 &&
           <Grid item xs={12}>
-            <Typography variant='headline'>
+            <Typography variant='h5'>
               No se registaron ventas este día.
             </Typography>
           </Grid>
@@ -87,7 +87,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
           state.sells.map((sell, key) => (
             <Grid item xs={12} key={key}>
               <Paper className={getCardClass(sell)}>
-                <Typography variant='subheading'>
+                <Typography variant='subtitle1'>
                   {sell.quantity} {sell.Product.name}
                 </Typography>
                 para {sell.Client.name}

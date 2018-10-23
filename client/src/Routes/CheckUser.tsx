@@ -126,7 +126,7 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
           onKeyPress={(event) => event.key === 'Enter' && this.handleContinue()}
         >
           <div className={classes.paper}>
-            <Typography variant="title" className={classes.title}>
+            <Typography variant="h6" className={classes.title}>
               Usuario
           </Typography>
             <FormControl fullWidth className={classes.formControl}>
@@ -163,7 +163,7 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
             </FormControl>
             <Button
               size='large'
-              variant='raised'
+              variant='contained'
               color='primary'
               fullWidth
               className={classes.button}

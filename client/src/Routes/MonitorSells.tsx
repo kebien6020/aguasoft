@@ -108,7 +108,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
     const { classes } = props
     return (
       <React.Fragment>
-        <Typography variant='title' className={classes.title}>
+        <Typography variant='h6' className={classes.title}>
           Ventas del Dia
         </Typography>
         <MyDatePicker
@@ -118,19 +118,19 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
         <Grid container spacing={24} className={classes.summary}>
           <Grid item xs={12} lg={5}>
             <Paper className={classes.paper}>
-              <Typography variant='body1'>Venta efectivo: {money(this.calcSell(true))}</Typography>
+              <Typography variant='body2'>Venta efectivo: {money(this.calcSell(true))}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} lg={5}>
             <Paper className={classes.paper}>
-              <Typography variant='body1'>Venta pago post-fechado: {money(this.calcSell(false))}</Typography>
+              <Typography variant='body2'>Venta pago post-fechado: {money(this.calcSell(false))}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} lg={2}>
             <Paper className={classes.paper}>
               <Button
                 onClick={() => this.updateContents(state.date)}
-                variant='raised'
+                variant='contained'
                 color='secondary'
                 className={classes.updateButton}
               >

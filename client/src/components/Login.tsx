@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { withStyles, /*Theme,*/ StyleRulesCallback } from '@material-ui/core/styles'
 
 import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -140,7 +140,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
         <Grid item xs={12} md={12} lg={4} className={classes.elemContainer}>
           <Button
             size='large'
-            variant='raised'
+            variant='contained'
             color='primary'
             fullWidth
             className={classes.button}
@@ -154,7 +154,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback = (/*theme: Theme*/) => ({
   container: {
     marginTop: 0,
   },

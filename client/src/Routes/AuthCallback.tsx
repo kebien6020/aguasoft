@@ -32,7 +32,7 @@ class AuthCallback extends React.Component<AuthCallbackProps> {
       <Layout>
         <div style={style}>
           <div style={{marginBottom: '16px'}}><CircularProgress /></div>
-          <Typography  variant="title">Iniciando sesión...</Typography>
+          <Typography  variant="h6">Iniciando sesión...</Typography>
         </div>
       </Layout>
     );

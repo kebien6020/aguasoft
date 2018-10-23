@@ -88,7 +88,7 @@ const SqIconButton = ({ children, onClick }: SqIconButtonProps) => (
     disableRipple
     onClick={onClick}
     size='small'
-    variant='raised'
+    variant='contained'
     color='secondary'
   >
     {children}
@@ -322,7 +322,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     return (
       <Layout>
         <Paper elevation={8} className={classes.paper}>
-          <Typography variant="title" className={classes.title}>
+          <Typography variant="h6" className={classes.title}>
             Registrar Venta
         </Typography>
           <Grid container>
@@ -436,7 +436,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
             <Grid item xs={12}>
               <Button
                 size='large'
-                variant='raised'
+                variant='contained'
                 color='primary'
                 fullWidth
                 className={classes.button}

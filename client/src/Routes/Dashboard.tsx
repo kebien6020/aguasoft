@@ -26,7 +26,7 @@ interface DashboardState {
 
 const Title = (props: any) => (
   <div className={props.classes.title}>
-    <Typography variant='title'>{props.children}</Typography>
+    <Typography variant='h6'>{props.children}</Typography>
   </div>
 )
 

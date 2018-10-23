@@ -70,7 +70,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
         <Layout>
           <div style={style}>
             <div style={{marginBottom: '16px'}}><CircularProgress /></div>
-            <Typography variant="title">
+            <Typography variant="h6">
               Intentando autenticación automática...
             </Typography>
           </div>

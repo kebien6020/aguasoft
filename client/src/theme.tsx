@@ -18,7 +18,7 @@ export default createMuiTheme({
   },
   typography: {
     htmlFontSize: 10, // This makes the font really big
-    useNextVariants: true, // Temporal fix while migrating to typography v2
+    useNextVariants: true,
   },
   overrides: {
     MuiTableCell: {
