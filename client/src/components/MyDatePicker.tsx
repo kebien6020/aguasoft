@@ -20,7 +20,7 @@ const MyDatePicker = (props : MyDatePickerPropsAll) => (
       //            from the tsconfig.json
       className={props.classes.datePicker}
       value={props.date}
-      format='D-MMM-YYYY'
+      format='d-MMM-yyyy'
       disableFuture
       onChange={(date) => handleDateChange(date, props.date, props.onDateChange)}
     />
