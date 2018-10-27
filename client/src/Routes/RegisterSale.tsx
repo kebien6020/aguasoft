@@ -297,7 +297,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     this.setState({products})
   }
 
-  handleDefaultCashChange = (event: any, checked: boolean) => {
+  handleDefaultCashChange = (_event: any, checked: boolean) => {
     this.setState({cash: !checked})
   }
 
