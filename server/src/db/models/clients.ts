@@ -19,6 +19,7 @@ export default function(sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
+      primaryKey: true,
     },
     name: {
       type: DataTypes.STRING,
