@@ -17,7 +17,7 @@ import * as moment from 'moment'
 import 'moment/locale/es'
 moment.locale('es')
 
-interface Sell {
+export interface Sell {
   Client: {name: string},
   Product: {name: string},
   User: {name: string; code: string},
@@ -39,6 +39,8 @@ interface SellsState {
 interface SellsProps {
   day: Moment
   auth: Auth
+
+  onSellsChanged?: (sells: Sell[]) => any
 }
 
 type SellsPropsAll = SellsProps & PropClasses
@@ -61,6 +63,9 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
     )
 
     this.setState({sells})
+
+    if (this.props.onSellsChanged)
+      this.props.onSellsChanged(sells)
   }
 
   render() {

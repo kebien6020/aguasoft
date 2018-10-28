@@ -7,8 +7,9 @@ import Grid from '@material-ui/core/Grid'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
-import Sells from '../components/Sells'
+import Sells, { Sell } from '../components/Sells'
 import MyDatePicker from '../components/MyDatePicker'
+import DayOverview from '../components/DayOverview'
 
 import { Redirect } from 'react-router-dom'
 import * as moment from 'moment'
@@ -22,6 +23,7 @@ interface DashboardProps extends PropClasses, AuthRouteComponentProps<{}> {
 interface DashboardState {
   gotoSell: boolean
   date: moment.Moment
+  sells: Sell[]
 }
 
 const Title = (props: any) => (
@@ -34,6 +36,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
   state = {
     gotoSell: false,
     date: moment().startOf('day'),
+    sells: [] as Sell[],
   }
 
   handleLogin = () => {
@@ -42,6 +45,11 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   handleDateChange = (date: Date) => {
     this.setState({date: moment(date)})
+  }
+
+  handleSellsChanged = (sells: Sell[]) => {
+    if (this.state.sells.length !== sells.length)
+      this.setState({sells})
   }
 
   render() {
@@ -65,10 +73,15 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
               date={state.date.toDate()}
               onDateChange={this.handleDateChange}
             />
-            <Sells day={state.date} auth={props.auth} />
+            <Sells
+              day={state.date}
+              auth={props.auth}
+              onSellsChanged={this.handleSellsChanged}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
             <Title classes={classes}>Resumen</Title>
+            <DayOverview sells={state.sells} />
           </Grid>
         </Grid>
       </div>
