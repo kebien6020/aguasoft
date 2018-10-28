@@ -44,7 +44,7 @@ class App extends React.Component {
   }
 }
 
-const styles = (theme: Theme) => ({
+const styles : StyleRulesCallback = (theme: Theme) => ({
   "@global": {
     html: {
       fontSize: 12,
