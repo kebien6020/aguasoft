@@ -9,6 +9,8 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import * as colors from '@material-ui/core/colors'
 
+import Alert from './Alert'
+
 import { fetchJsonAuth, money } from '../utils'
 import Auth from '../Auth'
 
@@ -80,6 +82,9 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
         classes.sellCardPost
       )
 
+      if (sell.deleted)
+        classNames.push(classes.sellCardDeleted)
+
       return classNames.join(' ')
     }
 
@@ -93,12 +98,15 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
       userColorLookup[userCode] || colors.grey[500]
     )
 
+    const getBasePrice = (sell: Sell) =>
+      Number(sell.Prices.filter(p => p.name === 'Base')[0].value)
+
     const isBasePrice = (sell: Sell) => {
       const price = sell.value / sell.quantity
-      const basePrice = sell.Prices.filter(p => p.name === 'Base')
+      const basePrice = getBasePrice(sell)
 
       if (basePrice.length !== 0) {
-        return Math.floor(price) === Math.floor(Number(basePrice))
+        return Math.floor(price) === Math.floor(basePrice)
       } else {
         console.error('Couldn\'t get base price of the sell ', sell)
         return true
@@ -138,6 +146,15 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
                       {moment(sell.updatedAt).format('hh:mm a')}
                       ({moment(sell.updatedAt).fromNow()})
                     </Typography>
+                    {sell.deleted &&
+                      <Alert type='error' message='Esta venta fue eliminada' />
+                    }
+                    {!isBasePrice(sell) &&
+                      <Alert
+                        type='warning'
+                        message={`Venta por un precio diferente al precio base (que es ${money(getBasePrice(sell))})`}
+                      />
+                    }
                   </CardContent>
                 </div>
                 <div className={classes.cardPrices}>
@@ -186,7 +203,14 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     borderLeftColor: colors.blue[500],
   },
   sellCardPost: {
-    borderLeftColor: colors.orange[500],
+    borderLeftColor: colors.deepOrange[500],
+  },
+  sellCardDeleted: {
+    backgroundColor: colors.grey[500],
+    borderLeftColor: colors.red['A700'],
+    '& $cardPrice': {
+      backgroundColor: colors.grey[700] + ' !important',
+    },
   },
   sellCardWarning: {
     backgroundColor: colors.orange[300],
