@@ -3,6 +3,7 @@ import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
 export interface ClientAttributes {
   name: string
   code: string
+  id: number
 
   // Deafult for the UI selection of "this client pays in cash"
   defaultCash: boolean

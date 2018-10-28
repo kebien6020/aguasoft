@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import models, { Sequelize } from '../db/models'
-import { SellModel } from '../db/models/sells'
+import { SellModel, SellAttributes } from '../db/models/sells'
+import { PriceModel } from '../db/models/prices'
 
 const Sells = models.Sells as SellModel
+const Prices = models.Prices as PriceModel
 const { gt } = Sequelize.Op
 
 export async function list(req: Request, res: Response, next: NextFunction) {
@@ -109,21 +111,49 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
       include: [
         {
           model: models.Products,
-          attributes: ['name'],
+          attributes: ['name', 'basePrice', 'id'],
         },
         {
           model: models.Clients,
-          attributes: ['name'],
+          attributes: ['name', 'id'],
         },
         {
           model: models.Users,
-          attributes: ['name'],
+          attributes: ['name', 'code'],
         },
       ],
       order: [['updatedAt', 'DESC']]
     })
 
-    res.json(sells)
+    const allPrices = await Prices.findAll({
+      attributes: ['name', 'value', 'productId', 'clientId']
+    })
+
+    // Convert to array of plain objects so that we can
+    // add extra members to it
+    interface ResponseElem extends SellAttributes {
+      Prices?: {name: string, value: string}[]
+    }
+
+    const sellsPlain : ResponseElem[] = sells.map(s => s.toJSON())
+
+    for (const sell of sellsPlain) {
+      const prices = allPrices.filter(price =>
+        price.clientId === sell.Client.id &&
+        price.productId === sell.Product.id
+      )
+
+      if (prices.length !== 0) {
+        sell.Prices = prices.map(p => ({name: p.name, value: p.value}))
+      } else {
+        sell.Prices = [{
+          'name': 'Base',
+          'value': sell.Product.basePrice
+        }]
+      }
+    }
+
+    res.json(sellsPlain)
   } catch (e) {
     next(e)
   }

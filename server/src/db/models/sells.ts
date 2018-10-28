@@ -1,4 +1,6 @@
 import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { ProductInstance } from './products'
+import { ClientInstance } from './clients'
 
 export interface SellAttributes {
   id: number
@@ -11,6 +13,9 @@ export interface SellAttributes {
   clientId: number
   productId: number
   deleted: boolean
+
+  Product: ProductInstance | undefined
+  Client: ClientInstance | undefined
 }
 
 export type SellInstance = Instance<SellAttributes> & SellAttributes

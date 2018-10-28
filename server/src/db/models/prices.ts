@@ -2,8 +2,8 @@ import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
 
 export interface PriceAttributes {
   value: string
-  clientId: string
-  productId: string
+  clientId: number
+  productId: number
   name: string
 }
 

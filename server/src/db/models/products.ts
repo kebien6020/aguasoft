@@ -4,6 +4,7 @@ export interface ProductAttributes {
   name: string
   code: string
   basePrice: string
+  id: number
 }
 
 export type ProductInstance = Instance<ProductAttributes> & ProductAttributes
