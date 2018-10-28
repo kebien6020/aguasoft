@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
 import { MuiThemeProvider } from '@material-ui/core/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+
 import theme from './theme'
 import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider'
 import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils'
@@ -42,4 +44,18 @@ class App extends React.Component {
   }
 }
 
-export default App
+const styles = (theme: Theme) => ({
+  "@global": {
+    html: {
+      fontSize: 12,
+      [theme.breakpoints.up("sm")]: {
+        fontSize: 16,
+      },
+      [theme.breakpoints.up("md")]: {
+        fontSize: 18,
+      },
+    }
+  }
+})
+
+export default withStyles(styles)(App)
