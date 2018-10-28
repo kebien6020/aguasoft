@@ -7,7 +7,10 @@ import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
+import IconButton from '@material-ui/core/IconButton'
 import * as colors from '@material-ui/core/colors'
+
+import DeleteIcon from '@material-ui/icons/Delete'
 
 import Alert from './Alert'
 
@@ -68,6 +71,24 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
 
     if (this.props.onSellsChanged)
       this.props.onSellsChanged(sells)
+  }
+
+  handleClickDelete = async (sellId: number) => {
+    const { auth } = this.props
+
+    const result = await fetchJsonAuth('/api/sells/' + sellId, auth, {
+      method: 'delete',
+    })
+
+    if (result && result.success) {
+      const sells = [...this.state.sells]
+      const sell = sells.find(s => s.id === sellId)
+      sell.deleted = true
+
+      this.setState({sells})
+    } else {
+      console.error(result)
+    }
   }
 
   render() {
@@ -151,7 +172,13 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
                       />
                     }
                   </CardContent>
-
+                  <IconButton
+                    className={classes.deleteButton}
+                    onClick={() => this.handleClickDelete(sell.id)}
+                    disabled={sell.deleted}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
                 </div>
                 <div className={classes.cardPrices}>
                   <div className={classes.cardPrice}>
@@ -217,6 +244,7 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
   cardMain: {
     flex: '3',
+    position: 'relative',
   },
   cardHeader: {
 
@@ -246,6 +274,12 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     flex: '1',
     fontSize: '1.75rem',
     lineHeight: '3.5rem',
+  },
+  deleteButton: {
+    color: 'red',
+    position: 'absolute',
+    bottom: '0',
+    right: '0',
   },
 })
 
