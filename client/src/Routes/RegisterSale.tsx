@@ -15,7 +15,7 @@ import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
-import CheckBox from '@material-ui/core/CheckBox'
+import Checkbox from '@material-ui/core/Checkbox'
 import Typography from '@material-ui/core/Typography'
 import AddIcon from '@material-ui/icons/Add'
 import RemoveIcon from '@material-ui/icons/Remove'
@@ -423,7 +423,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
             <Grid item xs={12} className={classes.credit}>
               <FormControlLabel
                 control={
-                  <CheckBox
+                  <Checkbox
                     checked={!state.cash}
                     onChange={this.handleDefaultCashChange}
                     value="credit"
