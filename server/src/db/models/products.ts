@@ -13,6 +13,11 @@ export type ProductModel = Model<ProductInstance, ProductAttributes>
 
 export default function (sequelize: Sequelize, DataTypes: DataTypes) {
   var Products = sequelize.define<ProductInstance, ProductAttributes>('Products', {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,

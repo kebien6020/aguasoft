@@ -15,6 +15,11 @@ export type ClientModel = Model<ClientInstance, ClientAttributes>
 
 export default function(sequelize: Sequelize, DataTypes: DataTypes) {
   var Clients = sequelize.define<ClientInstance, ClientAttributes>('Clients', {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,

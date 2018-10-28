@@ -14,8 +14,8 @@ export interface SellAttributes {
   productId: number
   deleted: boolean
 
-  Product: ProductInstance | undefined
-  Client: ClientInstance | undefined
+  Product?: ProductInstance
+  Client?: ClientInstance
 }
 
 export type SellInstance = Instance<SellAttributes> & SellAttributes
@@ -23,7 +23,12 @@ export type SellInstance = Instance<SellAttributes> & SellAttributes
 export type SellModel = Model<SellInstance, SellAttributes>
 
 export default function (sequelize: Sequelize, DataTypes: DataTypes) {
-  var Sells = sequelize.define('Sells', {
+  var Sells = sequelize.define<SellInstance, SellAttributes>('Sells', {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+    },
     date: {
       type: DataTypes.DATEONLY,
       allowNull: false,
