@@ -105,12 +105,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
       const price = sell.value / sell.quantity
       const basePrice = getBasePrice(sell)
 
-      if (basePrice.length !== 0) {
-        return Math.floor(price) === Math.floor(basePrice)
-      } else {
-        console.error('Couldn\'t get base price of the sell ', sell)
-        return true
-      }
+      return Math.floor(price) === Math.floor(basePrice)
     }
 
     return (
@@ -156,6 +151,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
                       />
                     }
                   </CardContent>
+
                 </div>
                 <div className={classes.cardPrices}>
                   <div className={classes.cardPrice}>
