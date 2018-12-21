@@ -30,12 +30,11 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     paddingTop: theme.spacing.unit * 2,
   },
   paper: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translateX(-50%) translateY(-50%)',
     minHeight: '80vh',
     width: '90%',
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
     [theme.breakpoints.down('sm')]: {
       width: '98%',
     },
