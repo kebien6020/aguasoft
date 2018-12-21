@@ -67,6 +67,10 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
       return <Redirect to='/sell' />
     }
 
+    if (state.gotoAddClient) {
+      return <Redirect to='/clients/new' />
+    }
+
     return (
       <div className={classes.layout}>
         <Title classes={classes}>Registrar Venta</Title>
