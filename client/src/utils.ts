@@ -60,3 +60,14 @@ export function money(num: number, decimals: number = 0, decSep: string = ',', t
   const j = i.length > 3 ? i.length % 3 : 0;
   return '$ ' + s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(Number(n) - Number(i)).toFixed(c).slice(2) : "");
 }
+
+export function parseParams(str: string) : {[idx: string]: string | undefined} {
+  return str
+    .slice(1)
+    .split('&')
+    .map((pairStr: string) => pairStr.split('='))
+    .reduce((obj: {[key:string]: string}, pair: string[]) => {
+      obj[pair[0]] = pair[1]
+      return obj
+    }, {})
+}

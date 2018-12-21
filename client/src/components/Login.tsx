@@ -16,12 +16,15 @@ interface User {
   id: number
   name: string
   code: string
+  role: string
 }
 
 interface LoginProps {
   auth: Auth
   onSuccess?: () => any
   onFailure?: () => any
+  adminOnly?: boolean
+  text?: string
 }
 
 type LoginPropsAll = LoginProps & PropClasses
@@ -50,7 +53,11 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
   }
 
   async componentWillMount() {
-    const users: User[] = await fetchJsonAuth('/api/users', this.props.auth)
+    let users: User[] = await fetchJsonAuth('/api/users', this.props.auth)
+
+    if (this.props.adminOnly === true) {
+      users = users.filter(user => user.role === 'admin')
+    }
 
     this.setState({users, userId: users[0].id})
   }
@@ -97,7 +104,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
   }
 
   render() {
-    const { state } = this
+    const { state, props } = this
     const { classes } = this.props
     return (
       <Grid container spacing={24} className={classes.container}>
@@ -146,7 +153,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
             className={classes.button}
             onClick={this.handleSubmit}
           >
-            Registrar
+            {props.text || 'Registrar'}
           </Button>
         </Grid>
       </Grid>
