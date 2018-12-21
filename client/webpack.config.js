@@ -1,4 +1,5 @@
 const path = require('path')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 const relPath = (p) => path.join(__dirname, p)
 
@@ -22,7 +23,9 @@ module.exports = {
        test: /\.tsx?$/,
        loader: 'ts-loader',
        options: {
-         configFile: relPath('tsconfig.json')
+         configFile: relPath('tsconfig.json'),
+         // disable type checker - we will use it in fork plugin
+         transpileOnly: true,
        }
      },
      {
@@ -32,5 +35,10 @@ module.exports = {
        ]
      },
    ]
- }
+ },
+ plugins: [
+   new ForkTsCheckerWebpackPlugin({
+     tsconfig: relPath('tsconfig.json'),
+   })
+ ]
 };

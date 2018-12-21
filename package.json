@@ -27,6 +27,7 @@
     "copyfiles": "^2.1.0",
     "eslint": "^5.7.0",
     "file-loader": "^2.0.0",
+    "fork-ts-checker-webpack-plugin": "^0.5.2",
     "material-ui-pickers": "1.0.0-rc.17",
     "moment": "^2.22.2",
     "nodemon": "^1.18.4",
