@@ -1,17 +1,22 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
-import Button from 'material-ui/Button'
-import { FormControl, FormControlLabel } from 'material-ui/Form'
-import Grid from 'material-ui/Grid'
-// import IconButton from 'material-ui/IconButton'
-import Input, { InputLabel } from 'material-ui/Input'
-import { MenuItem } from 'material-ui/Menu'
-import Paper from 'material-ui/Paper'
-import Select from 'material-ui/Select'
-import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table'
-import CheckBox from 'material-ui/CheckBox'
-import Typography from 'material-ui/Typography'
+import Button from '@material-ui/core/Button'
+import FormControl from '@material-ui/core/FormControl'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Grid from '@material-ui/core/Grid'
+import Input from '@material-ui/core/Input'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import Paper from '@material-ui/core/Paper'
+import Select from '@material-ui/core/Select'
+import Table from '@material-ui/core/Table'
+import TableRow from '@material-ui/core/TableRow'
+import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import TableBody from '@material-ui/core/TableBody'
+import Checkbox from '@material-ui/core/Checkbox'
+import Typography from '@material-ui/core/Typography'
 import AddIcon from '@material-ui/icons/Add'
 import RemoveIcon from '@material-ui/icons/Remove'
 
@@ -83,7 +88,7 @@ const SqIconButton = ({ children, onClick }: SqIconButtonProps) => (
     disableRipple
     onClick={onClick}
     size='small'
-    variant='raised'
+    variant='contained'
     color='secondary'
   >
     {children}
@@ -292,7 +297,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     this.setState({products})
   }
 
-  handleDefaultCashChange = (event: any, checked: boolean) => {
+  handleDefaultCashChange = (_event: any, checked: boolean) => {
     this.setState({cash: !checked})
   }
 
@@ -317,7 +322,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     return (
       <Layout>
         <Paper elevation={8} className={classes.paper}>
-          <Typography variant="title" className={classes.title}>
+          <Typography variant="h6" className={classes.title}>
             Registrar Venta
         </Typography>
           <Grid container>
@@ -418,7 +423,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
             <Grid item xs={12} className={classes.credit}>
               <FormControlLabel
                 control={
-                  <CheckBox
+                  <Checkbox
                     checked={!state.cash}
                     onChange={this.handleDefaultCashChange}
                     value="credit"
@@ -431,7 +436,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
             <Grid item xs={12}>
               <Button
                 size='large'
-                variant='raised'
+                variant='contained'
                 color='primary'
                 fullWidth
                 className={classes.button}

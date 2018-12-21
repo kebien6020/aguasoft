@@ -1,9 +1,10 @@
 import * as React from 'react'
-import { CircularProgress } from 'material-ui/Progress'
-import Typography from 'material-ui/Typography'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Typography from '@material-ui/core/Typography'
 import Layout from '../components/Layout'
 
 import Auth from '../Auth'
+import * as logo from '../logo.png'
 
 import { RouteComponentProps } from 'react-router-dom'
 
@@ -31,8 +32,9 @@ class AuthCallback extends React.Component<AuthCallbackProps> {
     return (
       <Layout>
         <div style={style}>
+          <img src={logo} style={{marginBottom: '32px'}} />
           <div style={{marginBottom: '16px'}}><CircularProgress /></div>
-          <Typography  variant="title">Iniciando sesión...</Typography>
+          <Typography  variant="h6">Iniciando sesión...</Typography>
         </div>
       </Layout>
     );

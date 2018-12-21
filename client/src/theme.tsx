@@ -1,4 +1,4 @@
-import { createMuiTheme } from 'material-ui/styles'
+import { createMuiTheme } from '@material-ui/core/styles'
 
 export default createMuiTheme({
   palette: {
@@ -17,7 +17,8 @@ export default createMuiTheme({
     },
   },
   typography: {
-    htmlFontSize: 10 // This makes the font really big
+    htmlFontSize: 10, // This makes the font really big
+    useNextVariants: true,
   },
   overrides: {
     MuiTableCell: {

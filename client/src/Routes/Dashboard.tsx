@@ -1,13 +1,15 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
-import Typography from 'material-ui/Typography'
-import Paper from 'material-ui/Paper'
-import Grid from 'material-ui/Grid'
+import Typography from '@material-ui/core/Typography'
+import Paper from '@material-ui/core/Paper'
+import Grid from '@material-ui/core/Grid'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
-import Sells from '../components/Sells'
+import Sells, { Sell } from '../components/Sells'
+import MyDatePicker from '../components/MyDatePicker'
+import DayOverview from '../components/DayOverview'
 
 import { Redirect } from 'react-router-dom'
 import * as moment from 'moment'
@@ -20,26 +22,39 @@ interface DashboardProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 interface DashboardState {
   gotoSell: boolean
+  date: moment.Moment
+  sells: Sell[]
 }
 
 const Title = (props: any) => (
   <div className={props.classes.title}>
-    <Typography variant='title'>{props.children}</Typography>
+    <Typography variant='h6'>{props.children}</Typography>
   </div>
 )
 
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
   state = {
-    gotoSell: false
+    gotoSell: false,
+    date: moment().startOf('day'),
+    sells: [] as Sell[],
   }
 
   handleLogin = () => {
     this.setState({gotoSell: true})
   }
+
+  handleDateChange = (date: Date) => {
+    this.setState({date: moment(date)})
+  }
+
+  handleSellsChanged = (sells: Sell[]) => {
+    if (this.state.sells.length !== sells.length)
+      this.setState({sells})
+  }
+
   render() {
     const { state, props } = this
     const { classes } = this.props
-    const today = moment().startOf('day')
 
     if (state.gotoSell) {
       return <Redirect to='/sell' />
@@ -54,10 +69,19 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         <Grid container className={classes.bottomSection}>
           <Grid item xs={12} md={8}>
             <Title classes={classes}>Ventas del Día</Title>
-            <Sells day={today} auth={props.auth} />
+            <MyDatePicker
+              date={state.date.toDate()}
+              onDateChange={this.handleDateChange}
+            />
+            <Sells
+              day={state.date}
+              auth={props.auth}
+              onSellsChanged={this.handleSellsChanged}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
             <Title classes={classes}>Resumen</Title>
+            <DayOverview sells={state.sells} />
           </Grid>
         </Grid>
       </div>

@@ -1,13 +1,13 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
+import { withStyles, /*Theme,*/ StyleRulesCallback } from '@material-ui/core/styles'
 
-import { FormControl } from 'material-ui/Form'
-import { InputLabel } from 'material-ui/Input'
-import { MenuItem } from 'material-ui/Menu'
-import Select from 'material-ui/Select'
-import TextField from 'material-ui/TextField'
-import Button from 'material-ui/Button'
-import Grid from 'material-ui/Grid'
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import Select from '@material-ui/core/Select'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
 
 import { fetchJsonAuth } from '../utils'
 import Auth from '../Auth'
@@ -140,7 +140,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
         <Grid item xs={12} md={12} lg={4} className={classes.elemContainer}>
           <Button
             size='large'
-            variant='raised'
+            variant='contained'
             color='primary'
             fullWidth
             className={classes.button}
@@ -154,7 +154,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback = (/*theme: Theme*/) => ({
   container: {
     marginTop: 0,
   },
@@ -168,7 +168,4 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-// Explicit LoginProps type (note it is not LoginPropsAll) which lets
-// users of this component know the props this accepts, without including
-// the classes prop wich is injected right here
-export default withStyles(styles)<LoginProps>(Login)
+export default withStyles(styles)(Login)

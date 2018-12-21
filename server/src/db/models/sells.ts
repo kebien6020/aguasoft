@@ -1,6 +1,9 @@
 import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { ProductInstance } from './products'
+import { ClientInstance } from './clients'
 
 export interface SellAttributes {
+  id: number
   date: string
   cash: boolean
   priceOverride: number
@@ -10,6 +13,9 @@ export interface SellAttributes {
   clientId: number
   productId: number
   deleted: boolean
+
+  Product?: ProductInstance
+  Client?: ClientInstance
 }
 
 export type SellInstance = Instance<SellAttributes> & SellAttributes
@@ -17,7 +23,13 @@ export type SellInstance = Instance<SellAttributes> & SellAttributes
 export type SellModel = Model<SellInstance, SellAttributes>
 
 export default function (sequelize: Sequelize, DataTypes: DataTypes) {
-  var Sells = sequelize.define('Sells', {
+  var Sells = sequelize.define<SellInstance, SellAttributes>('Sells', {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     date: {
       type: DataTypes.DATEONLY,
       allowNull: false,

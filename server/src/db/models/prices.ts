@@ -2,8 +2,8 @@ import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
 
 export interface PriceAttributes {
   value: string
-  clientId: string
-  productId: string
+  clientId: number
+  productId: number
   name: string
 }
 
@@ -21,6 +21,14 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'Base',
+    },
+    clientId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   });
   Prices.associate = function(models: Models) {

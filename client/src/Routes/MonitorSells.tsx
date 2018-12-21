@@ -1,18 +1,22 @@
 import * as React from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
-import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
-import { isSameDay } from 'date-fns'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import { fetchJsonAuth, money } from '../utils'
 
-import Typography from 'material-ui/Typography'
-import Table, { TableRow, TableCell, TableHead, TableBody } from 'material-ui/Table'
-import DatePicker from 'material-ui-pickers/DatePicker'
-import IconButton from 'material-ui/IconButton'
-import DeleteIcon from 'material-ui-icons/Delete'
-import Button from 'material-ui/Button'
-import UpdateIcon from 'material-ui-icons/Update'
-import Grid from 'material-ui/Grid'
-import Paper from 'material-ui/Paper'
+import Typography from '@material-ui/core/Typography'
+import Table from '@material-ui/core/Table'
+import TableRow from '@material-ui/core/TableRow'
+import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import TableBody from '@material-ui/core/TableBody'
+import IconButton from '@material-ui/core/IconButton'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import DeleteIcon from '@material-ui/icons/Delete'
+import UpdateIcon from '@material-ui/icons/Update'
+
+import MyDatePicker from '../components/MyDatePicker'
 
 import * as moment from 'moment'
 import 'moment/locale/es'
@@ -52,10 +56,8 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
   }
 
   handleDateChange = (date: Date) => {
-    if (!isSameDay(date, this.state.date)) {
-      this.setState({date})
-      this.updateContents(date)
-    }
+    this.setState({date})
+    this.updateContents(date)
   }
 
   handleClickDelete = async (sellId: number) => {
@@ -106,34 +108,29 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
     const { classes } = props
     return (
       <React.Fragment>
-        <Typography variant='title' className={classes.title}>
+        <Typography variant='h6' className={classes.title}>
           Ventas del Dia
         </Typography>
-        <div className={classes.datePickerContainer}>
-          <DatePicker
-            className={classes.datePicker}
-            value={state.date}
-            format='D-MMM-YYYY'
-            disableFuture
-            onChange={this.handleDateChange}
-          />
-        </div>
+        <MyDatePicker
+          date={state.date}
+          onDateChange={this.handleDateChange}
+        />
         <Grid container spacing={24} className={classes.summary}>
           <Grid item xs={12} lg={5}>
             <Paper className={classes.paper}>
-              <Typography variant='body1'>Venta efectivo: {money(this.calcSell(true))}</Typography>
+              <Typography variant='body2'>Venta efectivo: {money(this.calcSell(true))}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} lg={5}>
             <Paper className={classes.paper}>
-              <Typography variant='body1'>Venta pago post-fechado: {money(this.calcSell(false))}</Typography>
+              <Typography variant='body2'>Venta pago post-fechado: {money(this.calcSell(false))}</Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} lg={2}>
             <Paper className={classes.paper}>
               <Button
                 onClick={() => this.updateContents(state.date)}
-                variant='raised'
+                variant='contained'
                 color='secondary'
                 className={classes.updateButton}
               >
@@ -205,17 +202,6 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   title: {
     textAlign: 'center',
     marginTop: theme.spacing.unit * 2,
-  },
-  datePickerContainer: {
-    display: 'block',
-    textAlign: 'center',
-    marginTop: theme.spacing.unit * 1,
-    marginBottom: theme.spacing.unit * 2,
-  },
-  datePicker: {
-    '& input': {
-      textAlign: 'center',
-    },
   },
   deleteButton: {
     color: 'red',

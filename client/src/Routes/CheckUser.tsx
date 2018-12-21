@@ -1,15 +1,15 @@
 import * as React from 'react'
 import { Redirect } from 'react-router-dom'
-import { withStyles, Theme, StyleRulesCallback } from 'material-ui/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
-import Button from 'material-ui/Button'
-import { FormControl } from 'material-ui/Form'
-import { InputLabel } from 'material-ui/Input'
-import { MenuItem } from 'material-ui/Menu'
-import Modal from 'material-ui/Modal'
-import Select from 'material-ui/Select'
-import TextField from 'material-ui/TextField'
-import Typography from 'material-ui/Typography'
+import Button from '@material-ui/core/Button'
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import Modal from '@material-ui/core/Modal'
+import Select from '@material-ui/core/Select'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
 
 import Layout from '../components/Layout'
 import { fetchJsonAuth } from '../utils'
@@ -126,7 +126,7 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
           onKeyPress={(event) => event.key === 'Enter' && this.handleContinue()}
         >
           <div className={classes.paper}>
-            <Typography variant="title" className={classes.title}>
+            <Typography variant="h6" className={classes.title}>
               Usuario
           </Typography>
             <FormControl fullWidth className={classes.formControl}>
@@ -163,7 +163,7 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
             </FormControl>
             <Button
               size='large'
-              variant='raised'
+              variant='contained'
               color='primary'
               fullWidth
               className={classes.button}

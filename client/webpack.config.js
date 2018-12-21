@@ -6,6 +6,7 @@ const { CheckerPlugin } = require('awesome-typescript-loader')
 const relPath = (p) => path.join(__dirname, p)
 
 module.exports = {
+  mode: 'development',
   entry: relPath('./src/index.tsx'),
   output: {
     path: relPath('./dist'),
@@ -19,14 +20,20 @@ module.exports = {
   devtool: 'source-map',
   // Add the loader for .ts files.
  module: {
-   loaders: [
+   rules: [
      {
        test: /\.tsx?$/,
        loader: 'awesome-typescript-loader',
        options: {
          configFileName: relPath('tsconfig.json')
        }
-     }
+     },
+     {
+       test: /\.(png|svg|jpg|gif)$/,
+       use: [
+         'file-loader'
+       ]
+     },
    ]
  },
  plugins: [
