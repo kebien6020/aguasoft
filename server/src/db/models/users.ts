@@ -4,6 +4,7 @@ export interface UserAttributes {
   name: string
   code: string
   password: string
+  role: string
 }
 
 export type UserInstance = Instance<UserAttributes> & UserAttributes
@@ -23,6 +24,11 @@ export default function makeUsers(sequelize: Sequelize, DataTypes: DataTypes) {
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM('seller', 'admin'),
+      allowNull: false,
+      defaultValue: 'seller',
     },
   }, {
     classMethods: {
