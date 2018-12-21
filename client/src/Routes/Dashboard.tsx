@@ -68,7 +68,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
 
     if (state.gotoAddClient) {
-      return <Redirect to='/clients/new' />
+      return <Redirect to='/check?next=/clients/new&admin=true' />
     }
 
     return (
