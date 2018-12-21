@@ -45,7 +45,7 @@ export async function getCurrent(req: Request, res: Response, next: NextFunction
 
     // Find all of the user info from the id
     const user = await Users.findById(req.session.userId, {
-      attributes: ['name', 'code', 'id']
+      attributes: ['name', 'code', 'id', 'role']
     })
 
     res.json(user)
