@@ -4,6 +4,7 @@ import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
+import Button from '@material-ui/core/Button'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
@@ -22,6 +23,7 @@ interface DashboardProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 interface DashboardState {
   gotoSell: boolean
+  gotoAddClient: boolean
   date: moment.Moment
   sells: Sell[]
 }
@@ -35,6 +37,7 @@ const Title = (props: any) => (
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
   state = {
     gotoSell: false,
+    gotoAddClient: false,
     date: moment().startOf('day'),
     sells: [] as Sell[],
   }
@@ -50,6 +53,10 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
   handleSellsChanged = (sells: Sell[]) => {
     if (this.state.sells.length !== sells.length)
       this.setState({sells})
+  }
+
+  handleAddClient = () => {
+    this.setState({gotoAddClient: true})
   }
 
   render() {
@@ -82,6 +89,17 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
           <Grid item xs={12} md={4}>
             <Title classes={classes}>Resumen</Title>
             <DayOverview sells={state.sells} />
+            <Title classes={classes}>Admin</Title>
+            <div className={classes.sidebarElement}>
+              <Button
+                variant='contained'
+                color='primary'
+                fullWidth={true}
+                onClick={this.handleAddClient}
+              >
+                Agregar cliente
+              </Button>
+            </div>
           </Grid>
         </Grid>
       </div>
@@ -114,6 +132,13 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     [theme.breakpoints.up('md')]: {
       flexDirection: 'row',
     },
+  },
+  sidebarElement: {
+    width: '90%',
+    padding: '12px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    display: 'block',
   },
 })
 
