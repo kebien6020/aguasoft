@@ -27,7 +27,13 @@ module.exports = {
        options: {
          configFileName: relPath('tsconfig.json')
        }
-     }
+     },
+     {
+       test: /\.(png|svg|jpg|gif)$/,
+       use: [
+         'file-loader'
+       ]
+     },
    ]
  },
  plugins: [

@@ -4,6 +4,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Typography from '@material-ui/core/Typography'
 import Layout from './components/Layout'
 import Auth from './Auth'
+import * as logo from './logo.png'
 const auth  = new Auth()
 
 const isAuthenticated = () => auth.isAuthenticated()
@@ -69,6 +70,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
       return (
         <Layout>
           <div style={style}>
+            <img src={logo} style={{marginBottom: '32px'}} />
             <div style={{marginBottom: '16px'}}><CircularProgress /></div>
             <Typography variant="h6">
               Intentando autenticación automática...
