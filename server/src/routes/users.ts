@@ -8,7 +8,7 @@ const Users = models.Users as UserModel
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
     const users = await Users.findAll({
-      attributes: ['id', 'name', 'code']
+      attributes: ['id', 'name', 'code', 'role']
     })
 
     res.json(users)
