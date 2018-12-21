@@ -1,7 +1,4 @@
 const path = require('path')
-// `CheckerPlugin` is optional. Use it if you want async error reporting.
-// We need this plugin to detect a `--watch` mode.
-const { CheckerPlugin } = require('awesome-typescript-loader')
 
 const relPath = (p) => path.join(__dirname, p)
 
@@ -23,9 +20,9 @@ module.exports = {
    rules: [
      {
        test: /\.tsx?$/,
-       loader: 'awesome-typescript-loader',
+       loader: 'ts-loader',
        options: {
-         configFileName: relPath('tsconfig.json')
+         configFile: relPath('tsconfig.json')
        }
      },
      {
@@ -35,8 +32,5 @@ module.exports = {
        ]
      },
    ]
- },
- plugins: [
-     new CheckerPlugin()
- ]
+ }
 };
