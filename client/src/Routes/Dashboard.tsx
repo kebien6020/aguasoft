@@ -64,11 +64,11 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     const { classes } = this.props
 
     if (state.gotoSell) {
-      return <Redirect to='/sell' />
+      return <Redirect to='/sell' push />
     }
 
     if (state.gotoAddClient) {
-      return <Redirect to='/check?next=/clients/new&admin=true' />
+      return <Redirect to='/check?next=/clients/new&admin=true' push />
     }
 
     return (
