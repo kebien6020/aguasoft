@@ -14,9 +14,9 @@ type MyDatePickerPropsAll = MyDatePickerProps & PropClasses
 
 const MyDatePicker = (props : MyDatePickerPropsAll) => (
   <div className={props.classes.datePickerContainer}>
-    // @ts-ignore This is neccesary while material-ui-pickers releases
-    //            a new version. Remeber to also remove skipLibCheck
-    //            from the tsconfig.json
+
+    {/*
+    // @ts-ignore */}
     <DatePicker
       className={props.classes.datePicker}
       value={props.date}
