@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography'
 import Layout from '../components/Layout'
 
 import Auth from '../Auth'
-import * as logo from '../logo.png'
+const logo = require('../logo.png')
 
 import { RouteComponentProps } from 'react-router-dom'
 

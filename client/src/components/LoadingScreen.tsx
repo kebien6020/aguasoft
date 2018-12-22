@@ -4,7 +4,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Typography from '@material-ui/core/Typography'
 
 import Layout from '../components/Layout'
-import * as logo from '../logo.png'
+const logo = require('../logo.png')
 
 const style: React.CSSProperties = {
   display: 'flex',
