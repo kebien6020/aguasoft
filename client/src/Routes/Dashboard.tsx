@@ -101,7 +101,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 fullWidth={true}
                 onClick={this.handleAddClient}
               >
-                Agregar cliente
+                Crear cliente
               </Button>
             </div>
           </Grid>
