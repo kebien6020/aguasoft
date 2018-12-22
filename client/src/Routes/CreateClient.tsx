@@ -1,10 +1,21 @@
 import * as React from 'react'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
 import { Redirect } from 'react-router-dom'
+
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import TextField from '@material-ui/core/TextField'
+import FormControl from '@material-ui/core/FormControl'
+import InputLabel from '@material-ui/core/InputLabel'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
 import { fetchJsonAuth } from '../utils'
+import Layout from '../components/Layout'
+import ResponsiveContainer from '../components/ResponsiveContainer'
 
 interface User {
   id: number
@@ -21,6 +32,12 @@ interface CreateClientState {
   user: User
 }
 
+const Title = (props: any) => (
+  <div className={props.classes.title}>
+    <Typography variant='h6'>{props.children}</Typography>
+  </div>
+)
+
 class CreateClient extends React.Component<CreateClientProps, CreateClientState> {
 
   state = {
@@ -36,7 +53,7 @@ class CreateClient extends React.Component<CreateClientProps, CreateClientState>
   }
 
   render() {
-    const { state } = this
+    const { state, props } = this
     if (state.user === null) {
       return <LoadingScreen text='Verificando usuario...' />
     }
@@ -45,8 +62,58 @@ class CreateClient extends React.Component<CreateClientProps, CreateClientState>
       return <Redirect to='/check?next=/clients/new&admin=true' push={false} />
     }
 
-    return <p>Hit</p>
+    const { classes } = props
+
+    return (
+      <Layout>
+        <ResponsiveContainer variant='wide'>
+          <Paper>
+            <Title {...props}>Crear Nuevo Cliente</Title>
+            <form className={classes.form} autoComplete='off'>
+              <TextField
+                id='name'
+                label='Nombre'
+                margin='normal'
+                fullWidth
+              />
+              <TextField
+                id='code'
+                label='Código'
+                margin='normal'
+                fullWidth
+              />
+              <FormControl fullWidth>
+                <InputLabel htmlFor='defaultCash'>Pago</InputLabel>
+                <Select
+                  inputProps={{
+                    name: 'defaultCash',
+                    id: 'defaultCash',
+                  }}
+                >
+                  <MenuItem value='false'>Pago Postfechado</MenuItem>
+                  <MenuItem value='true'>Pago en Efectivo</MenuItem>
+                </Select>
+              </FormControl>
+            </form>
+          </Paper>
+        </ResponsiveContainer>
+      </Layout>
+    )
   }
 }
 
-export default CreateClient
+const styles: StyleRulesCallback = (theme: Theme) => ({
+  title: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+    '& > *': {
+      textAlign: 'center',
+    },
+  },
+  form: {
+    paddingLeft: theme.spacing.unit * 4,
+    paddingRight: theme.spacing.unit * 4,
+  }
+})
+
+export default withStyles(styles)(CreateClient)
