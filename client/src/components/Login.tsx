@@ -99,6 +99,12 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     })
   }
 
+  handleEnterAnywhere = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      this.handleSubmit()
+    }
+  }
+
   getDisplayName = (user: User) => {
     return `(${user.code}) ${user.name}`
   }
@@ -107,7 +113,8 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     const { state, props } = this
     const { classes } = this.props
     return (
-      <Grid container spacing={24} className={classes.container}>
+      <Grid container spacing={24} className={classes.container}
+        onKeyPress={this.handleEnterAnywhere}>
         <Grid item xs={12} md={6} lg={4} className={classes.elemContainer}>
           <FormControl fullWidth className={classes.formControl} margin='dense'>
             <InputLabel>Usuario</InputLabel>
