@@ -250,8 +250,8 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       body: JSON.stringify({sells})
     })
 
-    // After submitting go back to the user selection screen
-    this.props.history.push('/check')
+    // After submitting go back to the dashboard
+    this.props.history.push('/')
   }
 
   handleClientChange = async (event: InputEvent) => {
