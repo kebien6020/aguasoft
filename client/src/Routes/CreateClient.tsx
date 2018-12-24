@@ -28,11 +28,11 @@ interface ClientDefaults {
   code: string
 }
 
-interface CreateClientProps extends PropClasses, AuthRouteComponentProps<{}> {
+interface Props extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
-interface CreateClientState {
+interface State {
   user: User
   code: string
 }
@@ -43,7 +43,7 @@ const Title = (props: any) => (
   </div>
 )
 
-class CreateClient extends React.Component<CreateClientProps, CreateClientState> {
+class CreateClient extends React.Component<Props, State> {
 
   state = {
     user: null as User,
@@ -67,8 +67,9 @@ class CreateClient extends React.Component<CreateClientProps, CreateClientState>
     }
   }
 
-  handleChange = (name: keyof CreateClientState) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState((prevState: CreateClientState) => ({
+  handleChange = (name: keyof State) =>
+                 (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState((prevState: State) => ({
         ...prevState,
         [name]: event.target.value,
     }))
