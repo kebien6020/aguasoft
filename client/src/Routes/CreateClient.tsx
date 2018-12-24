@@ -10,6 +10,7 @@ import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
+import Button from '@material-ui/core/Button'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
@@ -136,6 +137,15 @@ class CreateClient extends React.Component<Props, State> {
           </Paper>
           <Paper className={classes.paper}>
             <PricePicker />
+          </Paper>
+          <Paper className={classes.paper}>
+            <Button
+              variant='contained'
+              color='primary'
+              fullWidth={true}
+            >
+              Crear Cliente
+            </Button>
           </Paper>
         </ResponsiveContainer>
       </Layout>
