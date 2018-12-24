@@ -28,7 +28,6 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
     // since the ordering is code DESC, this is the largest
     // three digit code
     const lastCode = clients.find(cl => /\d{3}/.test(cl.code)).code
-    console.log(lastCode)
 
     // Utility pad function
     const pad = (num: string, digits: number, padChar: string  = '0') =>
