@@ -99,7 +99,7 @@ class CreateClient extends React.Component<Props, State> {
 
     return (
       <Layout>
-        <ResponsiveContainer variant='wide'>
+        <ResponsiveContainer variant='normal'>
           <Paper className={classes.paper}>
             <Title {...props}>Crear Nuevo Cliente</Title>
             <form className={classes.form} autoComplete='off'>
