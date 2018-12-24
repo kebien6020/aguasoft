@@ -35,6 +35,7 @@ interface Props extends PropClasses, AuthRouteComponentProps<{}> {
 interface State {
   user: User
   code: string
+  name: string
 }
 
 const Title = (props: any) => (
@@ -47,7 +48,8 @@ class CreateClient extends React.Component<Props, State> {
 
   state = {
     user: null as User,
-    code: ''
+    code: '',
+    name: '',
   }
 
   async componentWillMount() {
@@ -74,7 +76,6 @@ class CreateClient extends React.Component<Props, State> {
     const value = event.target.value
     this.setState((prevState: State) => ({
         ...prevState,
-        [name]: event.target.value,
         [name]: value,
     }))
   }
@@ -110,6 +111,8 @@ class CreateClient extends React.Component<Props, State> {
                 label='Nombre'
                 margin='normal'
                 fullWidth
+                value={state.name}
+                onChange={this.handleChange('name')}
               />
               <FormControl fullWidth>
                 <InputLabel htmlFor='defaultCash'>Pago</InputLabel>
