@@ -13,6 +13,7 @@ users.get('/getCurrent', userHandlers.getCurrent)
 
 export const clients = Router()
 clients.get('/', clientHandlers.list)
+clients.get('/defaultsForNew', clientHandlers.defaultsForNew)
 
 export const products = Router()
 products.get('/', productHandlers.list)
