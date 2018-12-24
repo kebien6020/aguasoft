@@ -24,12 +24,17 @@ interface User {
   role: string
 }
 
+interface ClientDefaults {
+  code: string
+}
+
 interface CreateClientProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
 interface CreateClientState {
   user: User
+  code: string
 }
 
 const Title = (props: any) => (
@@ -41,15 +46,32 @@ const Title = (props: any) => (
 class CreateClient extends React.Component<CreateClientProps, CreateClientState> {
 
   state = {
-    user: null as User
+    user: null as User,
+    code: ''
   }
 
   async componentWillMount() {
     const { props } = this
-    const user: User = await fetchJsonAuth('/api/users/getCurrent', props.auth)
+    const promises : [Promise<User>, Promise<ClientDefaults>] = [
+      fetchJsonAuth('/api/users/getCurrent', props.auth),
+      fetchJsonAuth('/api/clients/defaultsForNew', props.auth),
+    ]
+    const [ user, defaults ] = await Promise.all(promises)
+
     if (user) {
       this.setState({user})
     }
+
+    if (defaults) {
+      this.setState({code: defaults.code})
+    }
+  }
+
+  handleChange = (name: keyof CreateClientState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState((prevState: CreateClientState) => ({
+        ...prevState,
+        [name]: event.target.value,
+    }))
   }
 
   render() {
@@ -71,14 +93,16 @@ class CreateClient extends React.Component<CreateClientProps, CreateClientState>
             <Title {...props}>Crear Nuevo Cliente</Title>
             <form className={classes.form} autoComplete='off'>
               <TextField
-                id='name'
-                label='Nombre'
-                margin='normal'
-                fullWidth
-              />
-              <TextField
                 id='code'
                 label='Código'
+                margin='normal'
+                fullWidth
+                value={state.code}
+                onChange={this.handleChange('code')}
+              />
+              <TextField
+                id='name'
+                label='Nombre'
                 margin='normal'
                 fullWidth
               />
