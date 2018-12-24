@@ -69,9 +69,13 @@ class CreateClient extends React.Component<Props, State> {
 
   handleChange = (name: keyof State) =>
                  (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Save value to a variable because it may change (synthetic events
+    // may be re-used by react)
+    const value = event.target.value
     this.setState((prevState: State) => ({
         ...prevState,
         [name]: event.target.value,
+        [name]: value,
     }))
   }
 
