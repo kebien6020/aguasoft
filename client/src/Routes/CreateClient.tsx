@@ -18,6 +18,7 @@ import { fetchJsonAuth } from '../utils'
 import Layout from '../components/Layout'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import PricePicker from '../components/PricePicker'
+import { Product } from '../models'
 
 interface User {
   id: number
@@ -39,6 +40,7 @@ interface State {
   code: string
   name: string
   defaultCash: 'true' | 'false'
+  products: Product[]
 }
 
 const Title = (props: any) => (
@@ -56,15 +58,21 @@ class CreateClient extends React.Component<Props, State> {
     code: '',
     name: '',
     defaultCash: 'false',
+    products: [],
   } as State // because reasons
 
   async componentWillMount() {
     const { props } = this
-    const promises : [Promise<User>, Promise<ClientDefaults>] = [
+    const promises : [
+      Promise<User>,
+      Promise<ClientDefaults>,
+      Promise<Product[]>
+    ] = [
       fetchJsonAuth('/api/users/getCurrent', props.auth),
       fetchJsonAuth('/api/clients/defaultsForNew', props.auth),
+      fetchJsonAuth('/api/products/', props.auth),
     ]
-    const [ user, defaults ] = await Promise.all(promises)
+    const [ user, defaults, products ] = await Promise.all(promises)
 
     if (user) {
       this.setState({user})
@@ -72,6 +80,10 @@ class CreateClient extends React.Component<Props, State> {
 
     if (defaults) {
       this.setState({code: defaults.code})
+    }
+
+    if (products) {
+      this.setState({products})
     }
   }
 
@@ -89,6 +101,10 @@ class CreateClient extends React.Component<Props, State> {
     const { state, props } = this
     if (state.user === null) {
       return <LoadingScreen text='Verificando usuario...' />
+    }
+
+    if (state.products.length === 0) {
+      return <LoadingScreen text='Cargando productos...' />
     }
 
     if (state.user.role !== 'admin') {
@@ -136,7 +152,7 @@ class CreateClient extends React.Component<Props, State> {
             </form>
           </Paper>
           <Paper className={classes.paper}>
-            <PricePicker />
+            <PricePicker clientName={state.name} products={state.products} />
           </Paper>
           <Paper className={classes.paper}>
             <Button
