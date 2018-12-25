@@ -21,6 +21,7 @@ import ResponsiveContainer from '../components/ResponsiveContainer'
 import PricePicker from '../components/PricePicker'
 import { IncompletePrice } from '../components/PricePicker'
 import { Product } from '../models'
+import Alert from '../components/Alert'
 
 interface User {
   id: number
@@ -44,6 +45,8 @@ interface State {
   defaultCash: 'true' | 'false'
   products: Product[]
   prices: IncompletePrice[]
+  done: boolean
+  errorCreating: boolean
 }
 
 const Title = (props: any) => (
@@ -60,9 +63,11 @@ class CreateClient extends React.Component<Props, State> {
     user: null as User,
     code: '',
     name: '',
-    defaultCash: 'false' as 'false',
+    defaultCash: 'false' as 'true' | 'false',
     products: [] as Product[],
     prices: [] as IncompletePrice[],
+    done: false,
+    errorCreating: false,
   }
 
   async componentWillMount() {
@@ -107,6 +112,27 @@ class CreateClient extends React.Component<Props, State> {
     })
   }
 
+  handleCreate = async () => {
+    const { props, state } = this
+    const res = await fetchJsonAuth('/api/clients/create', props.auth, {
+      method: 'post',
+      body: JSON.stringify({
+        name: state.name,
+        code: state.code,
+        defaultCash: state.defaultCash === 'true',
+        prices: state.prices,
+      })
+    })
+
+    if (!res.success) {
+      this.setState({errorCreating: true})
+      console.error(res)
+      return
+    }
+
+    this.setState({done: true})
+  }
+
   render() {
     const { state, props } = this
     if (state.user === null) {
@@ -121,6 +147,10 @@ class CreateClient extends React.Component<Props, State> {
       return <Redirect to='/check?next=/clients/new&admin=true' push={false} />
     }
 
+    if (state.done) {
+      return <Redirect to='/' push />
+    }
+
     const { classes } = props
 
     return (
@@ -128,6 +158,12 @@ class CreateClient extends React.Component<Props, State> {
         <ResponsiveContainer variant='normal'>
           <Paper className={classes.paper}>
             <Title {...props}>Crear Nuevo Cliente</Title>
+            {state.errorCreating &&
+              <Alert
+                type='error'
+                message='Error creando el cliente favor intentarlo nuevamente'
+              />
+            }
             <form className={classes.form} autoComplete='off'>
               <TextField
                 id='code'
@@ -184,6 +220,7 @@ class CreateClient extends React.Component<Props, State> {
               variant='contained'
               color='primary'
               fullWidth={true}
+              onClick={this.handleCreate}
             >
               Crear Cliente
             </Button>
