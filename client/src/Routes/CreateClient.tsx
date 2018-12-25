@@ -11,13 +11,15 @@ import InputLabel from '@material-ui/core/InputLabel'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
+import Divider from '@material-ui/core/Divider'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
-import { fetchJsonAuth } from '../utils'
+import { fetchJsonAuth, money } from '../utils'
 import Layout from '../components/Layout'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import PricePicker from '../components/PricePicker'
+import { IncompletePrice } from '../components/PricePicker'
 import { Product } from '../models'
 
 interface User {
@@ -41,6 +43,7 @@ interface State {
   name: string
   defaultCash: 'true' | 'false'
   products: Product[]
+  prices: IncompletePrice[]
 }
 
 const Title = (props: any) => (
@@ -54,12 +57,13 @@ type ValChangeEvent = { target: { value: string } }
 class CreateClient extends React.Component<Props, State> {
 
   state = {
-    user: null,
+    user: null as User,
     code: '',
     name: '',
-    defaultCash: 'false',
-    products: [],
-  } as State // because reasons
+    defaultCash: 'false' as 'false',
+    products: [] as Product[],
+    prices: [] as IncompletePrice[],
+  }
 
   async componentWillMount() {
     const { props } = this
@@ -95,6 +99,12 @@ class CreateClient extends React.Component<Props, State> {
         ...prevState,
         [name]: value,
     }))
+  }
+
+  handleNewPrice = (price: IncompletePrice) => {
+    this.setState({
+      prices: [...this.state.prices, price]
+    })
   }
 
   render() {
@@ -151,9 +161,24 @@ class CreateClient extends React.Component<Props, State> {
               </FormControl>
             </form>
           </Paper>
-          <Paper className={classes.paper}>
-            <PricePicker clientName={state.name} products={state.products} />
-          </Paper>
+          <>
+            {state.prices.map((pr, idx) => (
+              <Paper className={classes.paper} key={idx}>
+                {pr.name !== 'Base' && <>
+                  <Typography variant='subtitle2'>{pr.name}</Typography>
+                  <Divider />
+                </>}
+                <Typography variant='body1'>
+                  {state.products.find(p => p.id === pr.productId).name} a {money(Number(pr.value))}
+                </Typography>
+              </Paper>
+            ))}
+          </>
+          <PricePicker
+            clientName={state.name}
+            products={state.products}
+            onNewPrice={this.handleNewPrice}
+          />
           <Paper className={classes.paper}>
             <Button
               variant='contained'

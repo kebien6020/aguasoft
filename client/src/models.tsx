@@ -4,3 +4,10 @@ export interface Product {
   code: string
   basePrice: string
 }
+
+export interface Price {
+  value: string
+  clientId: number
+  productId: number
+  name: string
+}
