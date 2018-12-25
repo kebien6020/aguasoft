@@ -79,7 +79,6 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     if (!Array.isArray(req.body.prices)) paramError('prices', 'array')
     for (const price of req.body.prices) {
       if (typeof price.name !== 'string') paramError('prices[].name', 'string')
-      if (typeof price.clientId !== 'number') paramError('prices[].clientId', 'number')
       if (typeof price.productId !== 'number') paramError('prices[].productId', 'number')
       if (typeof price.value !== 'string') paramError('prices[].value', 'string')
     }
