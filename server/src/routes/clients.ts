@@ -88,13 +88,13 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
     type IncompleteClient =
       Pick<ClientAttributes, 'name' | 'code' | 'defaultCash'>
-      & { prices: IncompletePrice[] }
+      & { 'Prices': IncompletePrice[] }
 
     const client : IncompleteClient = {
       name: req.body.name,
       code: req.body.code,
       defaultCash: req.body.defaultCash,
-      prices: req.body.prices
+      'Prices': req.body.prices
     }
 
     await Clients.create(client as any, { include: [Prices] })

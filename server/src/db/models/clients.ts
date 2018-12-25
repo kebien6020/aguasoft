@@ -39,7 +39,7 @@ export default function(sequelize: Sequelize, DataTypes: DataTypes) {
   Clients.associate = function(models: Models) {
     // associations can be defined here
     Clients.hasMany(models.Sells)
-    Clients.hasMany(models.Prices)
+    Clients.hasMany(models.Prices, { foreignKey: 'clientId' })
   }
   return Clients;
 };
