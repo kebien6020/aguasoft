@@ -14,6 +14,7 @@ users.get('/getCurrent', userHandlers.getCurrent)
 export const clients = Router()
 clients.get('/', clientHandlers.list)
 clients.get('/defaultsForNew', clientHandlers.defaultsForNew)
+clients.post('/create', clientHandlers.create)
 
 export const products = Router()
 products.get('/', productHandlers.list)
