@@ -12,6 +12,7 @@ export async function fetchJsonAuth(
   auth: Auth,
   options: FetchAuthOptions = {}
 ) : Promise<any> {
+
   const fetch = options.fetch || window.fetch
 
   const baseHeaders = {
@@ -29,8 +30,15 @@ export async function fetchJsonAuth(
   const response = await fetch(apiUrl + url, allOpts)
   const data = await response.json()
 
+  const invalidToken = !auth.isAuthenticated()
+  const authError =
+    data.success === false
+    && data.error
+    && data.error.errors
+    && data.error.errors.name === 'UnauthorizedError'
+
   // In case of token error try renewing it with silentAuth and retry
-  if (data.success === false && data.error.name === 'UnauthorizedError') {
+  if (invalidToken || authError) {
 
     const success = await auth.renew()
 
