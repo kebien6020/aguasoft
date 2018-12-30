@@ -38,6 +38,10 @@ interface Props extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
+function isUserError(u: User | UserError): u is UserError {
+  return (u as UserError).success === false
+}
+
 interface State {
   user: User
   code: string
@@ -47,6 +51,7 @@ interface State {
   prices: IncompletePrice[]
   done: boolean
   errorCreating: boolean
+  errorNoUser: boolean
 }
 
 const Title = (props: any) => (
@@ -68,12 +73,13 @@ class CreateClient extends React.Component<Props, State> {
     prices: [] as IncompletePrice[],
     done: false,
     errorCreating: false,
+    errorNoUser: false,
   }
 
   async componentWillMount() {
     const { props } = this
     const promises : [
-      Promise<User>,
+      Promise<User | UserError>,
       Promise<ClientDefaults>,
       Promise<Product[]>
     ] = [
@@ -84,6 +90,11 @@ class CreateClient extends React.Component<Props, State> {
     const [ user, defaults, products ] = await Promise.all(promises)
 
     if (user) {
+      if (isUserError(user)) {
+        this.setState({errorNoUser: true})
+        return
+      }
+
       this.setState({user})
     }
 
@@ -135,6 +146,14 @@ class CreateClient extends React.Component<Props, State> {
 
   render() {
     const { state, props } = this
+
+    const redirectToLogin = () =>
+      <Redirect to='/check?next=/clients/new&admin=true' push={false} />
+
+    if (state.errorNoUser) {
+      return redirectToLogin()
+    }
+
     if (state.user === null) {
       return <LoadingScreen text='Verificando usuario...' />
     }
@@ -145,6 +164,7 @@ class CreateClient extends React.Component<Props, State> {
 
     if (state.user.role !== 'admin') {
       return <Redirect to='/check?next=/clients/new&admin=true' push={false} />
+      return redirectToLogin()
     }
 
     if (state.done) {
