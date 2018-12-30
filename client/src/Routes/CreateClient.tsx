@@ -17,6 +17,9 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogActions from '@material-ui/core/DialogActions'
+import IconButton from '@material-ui/core/IconButton'
+
+import DeleteIcon from '@material-ui/icons/Delete'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
@@ -164,6 +167,8 @@ class CreateClient extends React.Component<Props, State> {
   }
 
   handleNewPrice = (price: IncompletePrice) => {
+    price.productId = Number(price.productId)
+    price.value = String(price.value)
     const prevPrices = this.state.prices
     const duplicated = prevPrices.findIndex(pr =>
       pr.name === price.name && pr.productId === price.productId
@@ -205,6 +210,15 @@ class CreateClient extends React.Component<Props, State> {
     }
 
     this.setState({done: true})
+  }
+
+  handlePriceDelete = (priceIndex: number) => {
+    const prevPrices = this.state.prices
+
+    this.setState({ prices: [
+      ...prevPrices.slice(0, priceIndex),
+      ...prevPrices.slice(priceIndex + 1),
+    ]})
   }
 
   render() {
@@ -293,6 +307,12 @@ class CreateClient extends React.Component<Props, State> {
                 <Typography variant='body1'>
                   {state.products.find(p => p.id === pr.productId).name} a {money(Number(pr.value))}
                 </Typography>
+                <IconButton
+                  className={classes.deleteButton}
+                  onClick={() => this.handlePriceDelete(idx)}
+                >
+                  <DeleteIcon />
+                </IconButton>
               </Paper>
             ))}
           </>
@@ -332,7 +352,16 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     paddingBottom: theme.spacing.unit * 4,
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
-  }
+    position: 'relative'
+  },
+  deleteButton: {
+    color: 'red',
+    position: 'absolute',
+    right: '0',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    marginRight: theme.spacing.unit * 4,
+  },
 })
 
 export default withStyles(styles)(CreateClient)
