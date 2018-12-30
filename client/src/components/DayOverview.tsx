@@ -24,6 +24,20 @@ const calcSell = (sells: Sell[], cash: boolean) : number => {
   }, 0)
 }
 
+const aggregateProducts = (sells: Sell[]) => {
+  const productNames = sells
+    .map(s => s.Product.name)
+    .filter((p, idx, self) => self.indexOf(p) === idx)
+
+  const countProd = (sells: Sell[], pn: string) =>
+    sells
+      .filter(s => s.Product.name === pn)
+      .reduce((acc, s) => acc + s.quantity, 0)
+
+  return productNames
+    .map(pn => [pn, countProd(sells, pn)] as [string, number])
+}
+
 const DayOverview = (props : DayOverviewProps) => (
 
   <Grid container spacing={24} className={props.classes.summary}>
@@ -35,6 +49,16 @@ const DayOverview = (props : DayOverviewProps) => (
     <Grid item xs={12}>
       <Paper className={props.classes.paper}>
         <Typography variant='body2'>Venta pago post-fechado: {money(calcSell(props.sells, false))}</Typography>
+      </Paper>
+    </Grid>
+    <Grid item xs={12}>
+      <Paper className={props.classes.paper}>
+        <Typography variant='subtitle2'>Productos vendidos en el día</Typography>
+        {aggregateProducts(props.sells).map(([name, qty]) =>
+          <Typography variant='body2' key={name}>
+            {name}: {qty}
+          </Typography>
+        )}
       </Paper>
     </Grid>
   </Grid>
