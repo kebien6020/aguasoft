@@ -12,6 +12,11 @@ import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
 import Divider from '@material-ui/core/Divider'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogActions from '@material-ui/core/DialogActions'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
@@ -38,6 +43,19 @@ interface Props extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
+interface PriceError {
+  priceName: string
+  productName: string
+}
+
+interface UserError {
+  success: false
+  error: {
+    message: string
+    code: string
+  }
+}
+
 function isUserError(u: User | UserError): u is UserError {
   return (u as UserError).success === false
 }
@@ -51,6 +69,7 @@ interface State {
   prices: IncompletePrice[]
   done: boolean
   errorCreating: boolean
+  errorDuplicatedPrice: PriceError | null
   errorNoUser: boolean
 }
 
@@ -58,6 +77,32 @@ const Title = (props: any) => (
   <div className={props.classes.title}>
     <Typography variant='h6'>{props.children}</Typography>
   </div>
+)
+
+interface DuplicatedPriceDialogProps {
+  priceError: PriceError | null
+  onClose: () => void
+}
+
+const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => (
+  props.priceError !== null ?
+    <Dialog
+      open={props.priceError !== null}
+      onClose={props.onClose}
+    >
+      <DialogTitle>Precio Duplicado</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Ya existe un precio llamado "{props.priceError.priceName}"
+          para el producto {props.priceError.productName}, por favor elimine
+          el precio anterior si desea cambiarlo.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.onClose} color='primary'>Aceptar</Button>
+      </DialogActions>
+    </Dialog>
+    : null
 )
 
 type ValChangeEvent = { target: { value: string } }
@@ -73,6 +118,7 @@ class CreateClient extends React.Component<Props, State> {
     prices: [] as IncompletePrice[],
     done: false,
     errorCreating: false,
+    errorDuplicatedPrice: null as PriceError,
     errorNoUser: false,
   }
 
@@ -118,8 +164,25 @@ class CreateClient extends React.Component<Props, State> {
   }
 
   handleNewPrice = (price: IncompletePrice) => {
+    const prevPrices = this.state.prices
+    const duplicated = prevPrices.findIndex(pr =>
+      pr.name === price.name && pr.productId === price.productId
+    ) !== -1
+
+    if (duplicated) {
+      const products = this.state.products
+      const productName = products.find(p => p.id === price.productId).name
+
+      this.setState({errorDuplicatedPrice: {
+        priceName: price.name,
+        productName: productName,
+      }})
+
+      return
+    }
+
     this.setState({
-      prices: [...this.state.prices, price]
+      prices: [...prevPrices, price]
     })
   }
 
@@ -163,7 +226,6 @@ class CreateClient extends React.Component<Props, State> {
     }
 
     if (state.user.role !== 'admin') {
-      return <Redirect to='/check?next=/clients/new&admin=true' push={false} />
       return redirectToLogin()
     }
 
@@ -175,6 +237,10 @@ class CreateClient extends React.Component<Props, State> {
 
     return (
       <Layout>
+        <DuplicatedPriceDialog
+          priceError={state.errorDuplicatedPrice}
+          onClose={() => this.setState({errorDuplicatedPrice: null})}
+        />
         <ResponsiveContainer variant='normal'>
           <Paper className={classes.paper}>
             <Title {...props}>Crear Nuevo Cliente</Title>
