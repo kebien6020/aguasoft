@@ -39,9 +39,15 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
 
 export async function getCurrent(req: Request, res: Response, next: NextFunction) {
   try {
-    // If there is no user logged in simply return null
+    // If there is no user logged in return an error
     if (!req.session.userId)
-      return res.json(null)
+      return res.json({
+        success: false,
+        error: {
+          message: 'There is not an active session',
+          code: 'no_user',
+        },
+      })
 
     // Find all of the user info from the id
     const user = await Users.findById(req.session.userId, {

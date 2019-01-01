@@ -3,6 +3,7 @@ import models from '../db/models'
 import { ClientModel, ClientAttributes } from '../db/models/clients'
 import { UserModel } from '../db/models/users'
 import { PriceModel, PriceAttributes } from '../db/models/prices'
+import { sequelize } from '../db/models'
 
 const Clients = models.Clients as ClientModel
 const Users = models.Users as UserModel
@@ -97,7 +98,12 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       'Prices': req.body.prices
     }
 
-    await Clients.create(client as any, { include: [Prices] })
+    await sequelize.transaction(t => {
+      return Clients.create(client as any, {
+        include: [Prices],
+        transaction: t
+      })
+    })
 
     res.json({success: true})
 
