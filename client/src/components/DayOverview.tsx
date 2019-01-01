@@ -32,6 +32,7 @@ const aggregateProducts = (sells: Sell[]) => {
   const countProd = (sells: Sell[], pn: string) =>
     sells
       .filter(s => s.Product.name === pn)
+      .filter(s => s.deleted === false)
       .reduce((acc, s) => acc + s.quantity, 0)
 
   return productNames
