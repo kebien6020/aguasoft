@@ -1,12 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
 import { ClientModel, ClientAttributes } from '../db/models/clients'
-import { UserModel } from '../db/models/users'
 import { PriceModel, PriceAttributes } from '../db/models/prices'
 import { sequelize } from '../db/models'
 
 const Clients = models.Clients as ClientModel
-const Users = models.Users as UserModel
 const Prices = models.Prices as PriceModel
 
 export async function list(_req: Request, res: Response, next: NextFunction) {
@@ -54,20 +52,6 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    if (!req.session.userId) {
-      const e = Error('User is not logged in')
-      e.name = 'user_check_error'
-      throw e
-    }
-
-    const user = await Users.findById(req.session.userId)
-
-    if (user.role !== 'admin') {
-      const e = Error('Client create is admin only')
-      e.name = 'unauthorized'
-      throw e
-    }
-
     const paramError = (name: string, reqType: string) => {
       const e = Error(`Param ${name} should be a ${reqType}`)
       e.name = 'parameter_error'

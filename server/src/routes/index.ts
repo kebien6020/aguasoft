@@ -6,6 +6,8 @@ import * as productHandlers from './products'
 import * as priceHandlers from './prices'
 import * as sellHandlers from './sells'
 
+import adminOnly from '../utils/adminOnly'
+
 export const users = Router()
 users.get('/', userHandlers.list)
 users.post('/check', userHandlers.checkUser)
@@ -14,7 +16,7 @@ users.get('/getCurrent', userHandlers.getCurrent)
 export const clients = Router()
 clients.get('/', clientHandlers.list)
 clients.get('/defaultsForNew', clientHandlers.defaultsForNew)
-clients.post('/create', clientHandlers.create)
+clients.post('/create', adminOnly, clientHandlers.create)
 
 export const products = Router()
 products.get('/', productHandlers.list)
