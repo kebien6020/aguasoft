@@ -30,13 +30,7 @@ import PricePicker from '../components/PricePicker'
 import { IncompletePrice } from '../components/PricePicker'
 import { Product } from '../models'
 import Alert from '../components/Alert'
-
-interface User {
-  id: number
-  name: string
-  code: string
-  role: string
-}
+import adminOnly from '../hoc/adminOnly'
 
 interface ClientDefaults {
   code: string
@@ -51,20 +45,7 @@ interface PriceError {
   productName: string
 }
 
-interface UserError {
-  success: false
-  error: {
-    message: string
-    code: string
-  }
-}
-
-function isUserError(u: User | UserError): u is UserError {
-  return (u as UserError).success === false
-}
-
 interface State {
-  user: User
   code: string
   name: string
   defaultCash: 'true' | 'false'
@@ -73,7 +54,6 @@ interface State {
   done: boolean
   errorCreating: boolean
   errorDuplicatedPrice: PriceError | null
-  errorNoUser: boolean
 }
 
 const Title = (props: any) => (
@@ -113,7 +93,6 @@ type ValChangeEvent = { target: { value: string } }
 class CreateClient extends React.Component<Props, State> {
 
   state = {
-    user: null as User,
     code: '',
     name: '',
     defaultCash: 'false' as 'true' | 'false',
@@ -128,24 +107,13 @@ class CreateClient extends React.Component<Props, State> {
   async componentWillMount() {
     const { props } = this
     const promises : [
-      Promise<User | UserError>,
       Promise<ClientDefaults>,
       Promise<Product[]>
     ] = [
-      fetchJsonAuth('/api/users/getCurrent', props.auth),
       fetchJsonAuth('/api/clients/defaultsForNew', props.auth),
       fetchJsonAuth('/api/products/', props.auth),
     ]
-    const [ user, defaults, products ] = await Promise.all(promises)
-
-    if (user) {
-      if (isUserError(user)) {
-        this.setState({errorNoUser: true})
-        return
-      }
-
-      this.setState({user})
-    }
+    const [ defaults, products ] = await Promise.all(promises)
 
     if (defaults) {
       this.setState({code: defaults.code})
@@ -224,23 +192,8 @@ class CreateClient extends React.Component<Props, State> {
   render() {
     const { state, props } = this
 
-    const redirectToLogin = () =>
-      <Redirect to='/check?next=/clients/new&admin=true' push={false} />
-
-    if (state.errorNoUser) {
-      return redirectToLogin()
-    }
-
-    if (state.user === null) {
-      return <LoadingScreen text='Verificando usuario...' />
-    }
-
     if (state.products.length === 0) {
       return <LoadingScreen text='Cargando productos...' />
-    }
-
-    if (state.user.role !== 'admin') {
-      return redirectToLogin()
     }
 
     if (state.done) {
@@ -364,4 +317,4 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-export default withStyles(styles)(CreateClient)
+export default adminOnly(withStyles(styles)(CreateClient))
