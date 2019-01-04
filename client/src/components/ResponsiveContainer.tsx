@@ -4,7 +4,7 @@ import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
 interface ResponsiveContainerProps extends PropClasses {
   variant?: 'normal' | 'wide'
-  children?: JSX.Element | JSX.Element[]
+  children?: React.ReactNode | React.ReactNodeArray
 }
 
 function ResponsiveContainer(props: ResponsiveContainerProps) {
