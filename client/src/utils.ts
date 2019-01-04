@@ -57,6 +57,20 @@ export async function fetchJsonAuth(
   return data
 }
 
+export interface ErrorResponse {
+  success: false
+  error: {
+    message: string
+    code: string
+  }
+}
+
+export function isErrorResponse(
+  data: object | ErrorResponse): data is ErrorResponse
+{
+  return (data as ErrorResponse).success === false
+}
+
 // Adapted from https://stackoverflow.com/a/149099/4992717
 export function money(num: number, decimals: number = 0, decSep: string = ',', thouSep: string = ','): string {
   let n: (string|number) = num

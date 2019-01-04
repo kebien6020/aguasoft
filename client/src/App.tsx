@@ -16,6 +16,7 @@ import Logout from './Routes/Logout'
 import MonitorSells from './Routes/MonitorSells'
 import Dashboard from './Routes/Dashboard'
 import CreateClient from './Routes/CreateClient'
+import ListClients from './Routes/ListClients'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 
@@ -37,6 +38,8 @@ class App extends React.Component {
               <Route exact private path='/monitor/sells' component={MonitorSells} />
               <Route exact private path='/check' component={CheckUser} />
               <Route exact private path='/sell' component={RegisterSale} />
+
+              <Route exact private path='/clients' component={ListClients} />
               <Route exact private path='/clients/new' component={CreateClient} />
             </Switch>
         </MuiThemeProvider>
