@@ -90,7 +90,7 @@ const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => (
 
 type ValChangeEvent = { target: { value: string } }
 
-class CreateClient extends React.Component<Props, State> {
+class ClientCreate extends React.Component<Props, State> {
 
   state = {
     code: '',
@@ -325,4 +325,4 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-export default adminOnly(withStyles(styles)(CreateClient))
+export default adminOnly(withStyles(styles)(ClientCreate))

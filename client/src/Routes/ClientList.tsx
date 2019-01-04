@@ -21,7 +21,7 @@ interface State {
 
 type ClientsResponse = Client[] | ErrorResponse
 
-class ListClients extends React.Component<Props, State> {
+class ClientList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -87,4 +87,4 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-export default adminOnly(withStyles(styles)(ListClients))
+export default adminOnly(withStyles(styles)(ClientList))

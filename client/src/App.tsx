@@ -15,8 +15,8 @@ import SilentAuth from './Routes/SilentAuth'
 import Logout from './Routes/Logout'
 import MonitorSells from './Routes/MonitorSells'
 import Dashboard from './Routes/Dashboard'
-import CreateClient from './Routes/CreateClient'
-import ListClients from './Routes/ListClients'
+import ClientCreate from './Routes/ClientCreate'
+import ClientList from './Routes/ClientList'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 
@@ -39,8 +39,8 @@ class App extends React.Component {
               <Route exact private path='/check' component={CheckUser} />
               <Route exact private path='/sell' component={RegisterSale} />
 
-              <Route exact private path='/clients' component={ListClients} />
-              <Route exact private path='/clients/new' component={CreateClient} />
+              <Route exact private path='/clients' component={ClientList} />
+              <Route exact private path='/clients/new' component={ClientCreate} />
             </Switch>
         </MuiThemeProvider>
       </MuiPickersUtilsProvider>
