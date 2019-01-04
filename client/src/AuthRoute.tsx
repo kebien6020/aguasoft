@@ -16,7 +16,7 @@ const AuthStatus = {
 }
 
 interface AuthRouteProps extends RouteProps {
-  component?: React.ComponentClass | React.StatelessComponent
+  component: React.ComponentType
   private?: boolean
 }
 

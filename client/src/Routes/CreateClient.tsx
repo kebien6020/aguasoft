@@ -100,7 +100,7 @@ class CreateClient extends React.Component<Props, State> {
     prices: [] as IncompletePrice[],
     done: false,
     errorCreating: false,
-    errorDuplicatedPrice: null as PriceError,
+    errorDuplicatedPrice: null,
     errorNoUser: false,
   }
 
@@ -144,11 +144,11 @@ class CreateClient extends React.Component<Props, State> {
 
     if (duplicated) {
       const products = this.state.products
-      const productName = products.find(p => p.id === price.productId).name
+      const product = products.find(p => p.id === price.productId) as Product
 
       this.setState({errorDuplicatedPrice: {
         priceName: price.name,
-        productName: productName,
+        productName: product.name,
       }})
 
       return
@@ -201,6 +201,14 @@ class CreateClient extends React.Component<Props, State> {
     }
 
     const { classes } = props
+
+    const getProductName = (id: number) => {
+      const product = state.products.find(p => p.id === id)
+      if (product) {
+        return product.name
+      }
+      return 'Producto con id ' + id
+    }
 
     return (
       <Layout>
@@ -258,7 +266,7 @@ class CreateClient extends React.Component<Props, State> {
                   <Divider />
                 </>}
                 <Typography variant='body1'>
-                  {state.products.find(p => p.id === pr.productId).name} a {money(Number(pr.value))}
+                  {getProductName(pr.productId)} a {money(Number(pr.value))}
                 </Typography>
                 <IconButton
                   className={classes.deleteButton}

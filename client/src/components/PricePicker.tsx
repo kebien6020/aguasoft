@@ -98,8 +98,10 @@ class PricePicker extends React.Component<Props, State> {
     const currentProduct = products.find(pr =>
       String(pr.id) === event.target.value
     )
-    this.setState({currentPrice: currentProduct.basePrice})
-
+    
+    if (currentProduct) {
+      this.setState({currentPrice: currentProduct.basePrice})
+    }
   }
 
   handleNewPrice = () => {

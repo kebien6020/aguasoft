@@ -28,7 +28,7 @@ interface MonitorSellsProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 interface MonitorSellsState {
   date: Date,
-  sells: Sell[],
+  sells: Sell[] | null,
 }
 
 interface Sell {
@@ -61,6 +61,8 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
   }
 
   handleClickDelete = async (sellId: number) => {
+    if (!this.state.sells) return // This should never happen
+
     const { auth } = this.props
 
     const result = await fetchJsonAuth('/api/sells/' + sellId, auth, {
@@ -69,7 +71,8 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
 
     if (result && result.success) {
       const sells = [...this.state.sells]
-      const sell = sells.find(s => s.id === sellId)
+      // Guaranteed to exist
+      const sell = sells.find(s => s.id === sellId) as Sell
       sell.deleted = true
 
       this.setState({sells})

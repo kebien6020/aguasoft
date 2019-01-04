@@ -38,7 +38,7 @@ export interface Sell {
 }
 
 interface SellsState {
-  sells?: Sell[]
+  sells?: Sell[] | null
 }
 
 interface SellsProps {
@@ -74,6 +74,8 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
   }
 
   handleClickDelete = async (sellId: number) => {
+    if (!this.state.sells) return
+
     const { auth } = this.props
 
     const result = await fetchJsonAuth('/api/sells/' + sellId, auth, {
@@ -83,6 +85,10 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
     if (result && result.success) {
       const sells = [...this.state.sells]
       const sell = sells.find(s => s.id === sellId)
+      if (!sell) {
+        console.error('Trying to mutate unknown sellId', sellId)
+        return
+      }
       sell.deleted = true
 
       this.setState({sells})

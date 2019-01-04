@@ -170,10 +170,10 @@ interface Price {
 }
 
 interface RegisterSaleState {
-  clientId: number
-  clients: Client[]
-  user: User
-  products: DetailedProduct[]
+  clientId: number | null
+  clients: Client[] | null
+  user: User | null
+  products: DetailedProduct[] | null
   disableButton: boolean
   cash: boolean
 }
@@ -235,6 +235,9 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     this.setState({disableButton: true})
 
     const date = new Date()
+
+    if (!state.products) return
+
     const sells = state.products.map(product => ({
       date,
       clientId: state.clientId,
@@ -255,6 +258,9 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   }
 
   handleClientChange = async (event: InputEvent) => {
+
+    if (!this.state.products) return
+
     const { auth } = this.props
     const clientId = event.target.value === 'none' ?
       null :
@@ -287,6 +293,9 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     if (qty < 0) return
 
     const { state } = this
+
+    if (!state.products) return
+
     const products = state.products
     const product = products.find(p => p.id === productId)
     if (product) {
@@ -301,11 +310,16 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   }
 
   handlePriceChange = (productId: number, priceName: string) => {
+
+    if (!this.state.products) return
+
     const modProducts = this.state.products.map(p => {
+      const selectedPrice =
+        p.prices.find(pr => pr.name === priceName) as SimplePrice
       if (p.id === productId) {
         return {
           ...p,
-          selectedPrice: p.prices.find(pr => pr.name === priceName)
+          selectedPrice,
         }
       } else {
         return p

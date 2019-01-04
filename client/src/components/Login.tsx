@@ -30,9 +30,9 @@ interface LoginProps {
 type LoginPropsAll = LoginProps & PropClasses
 
 interface LoginState {
-  userId: number
+  userId: number | null
   checked: boolean
-  users: User[]
+  users: User[] | null
   password: string
   errorLogin: boolean
 }

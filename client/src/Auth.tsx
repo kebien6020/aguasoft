@@ -28,7 +28,8 @@ export default class Auth {
           console.log(err)
           return reject(err)
         }
-        return resolve(authResult)
+        // !err implies authResult !== null
+        return resolve(authResult as auth0.Auth0DecodedHash)
       })
     })
   }
@@ -58,10 +59,16 @@ export default class Auth {
 
   setSession(authResult: auth0.Auth0DecodedHash) {
     // Set the time that the access token will expire at
-    const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime())
-    localStorage.setItem('access_token', authResult.accessToken)
-    localStorage.setItem('id_token', authResult.idToken)
-    localStorage.setItem('expires_at', expiresAt)
+    if (authResult.expiresIn) {
+      const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime())
+      localStorage.setItem('expires_at', expiresAt)
+    }
+
+    if (authResult.accessToken)
+      localStorage.setItem('access_token', authResult.accessToken)
+
+    if (authResult.idToken)
+      localStorage.setItem('id_token', authResult.idToken)
   }
 
   logout() {
@@ -74,8 +81,12 @@ export default class Auth {
   isAuthenticated() {
     // Check whether the current time is past the
     // access token's expiry time
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at'))
-    return new Date().getTime() < expiresAt
+    if (localStorage['expires_at']) {
+      const expiresAt = JSON.parse(localStorage['expires_at'])
+      return new Date().getTime() < expiresAt
+    }
+
+    return false
   }
 
   getAccessToken() {
