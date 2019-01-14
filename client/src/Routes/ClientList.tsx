@@ -2,6 +2,8 @@ import * as React from 'react'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import Card from '@material-ui/core/Card'
+import CardHeader from '@material-ui/core/CardHeader'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -13,14 +15,27 @@ import Alert from '../components/Alert'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import normalFont from '../hoc/normalFont'
 
+interface ClientCardProps {
+  client: Client
+  className: string
+}
+
+const ClientCard = (props: ClientCardProps) => (
+  <Card className={props.className}>
+    <CardHeader
+      title={props.client.name}
+    />
+  </Card>
+)
+
+type ClientsResponse = Client[] | ErrorResponse
+
 type Props = AuthRouteComponentProps<any> & PropClasses
 
 interface State {
   clientsError: boolean
   clients: Client[] | null
 }
-
-type ClientsResponse = Client[] | ErrorResponse
 
 class ClientList extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -53,6 +68,7 @@ class ClientList extends React.Component<Props, State> {
 
   render() {
     const { props, state } = this
+    const { classes } = props
 
     if (state.clients === null) {
       return <LoadingScreen text='Cargando clientes…' />
@@ -60,8 +76,8 @@ class ClientList extends React.Component<Props, State> {
 
     return (
       <Layout>
-        <div className={props.classes.title}>
-          <Typography variant='h6'>Clientes</Typography>
+        <div className={classes.title}>
+          <Typography variant='h1'>Clientes</Typography>
         </div>
         <ResponsiveContainer variant='normal'>
           {state.clientsError &&
@@ -69,7 +85,7 @@ class ClientList extends React.Component<Props, State> {
           }
           {state.clients &&
             state.clients.map(cl =>
-              <p key={cl.id}>Nombre: {cl.name}</p>
+              <ClientCard key={cl.id} client={cl} className={classes.card}/>
             )
           }
         </ResponsiveContainer>
@@ -86,6 +102,10 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
       textAlign: 'center',
     },
   },
+  card: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+  }
 })
 
 export default
