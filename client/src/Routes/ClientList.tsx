@@ -11,6 +11,7 @@ import { Client } from '../models'
 import LoadingScreen from '../components/LoadingScreen'
 import Alert from '../components/Alert'
 import ResponsiveContainer from '../components/ResponsiveContainer'
+import normalFont from '../hoc/normalFont'
 
 type Props = AuthRouteComponentProps<any> & PropClasses
 
@@ -87,4 +88,8 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-export default adminOnly(withStyles(styles)(ClientList))
+export default
+  adminOnly(
+  withStyles(styles)(
+  normalFont(
+    ClientList)))
