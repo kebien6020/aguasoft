@@ -28,7 +28,7 @@ import Layout from '../components/Layout'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import PricePicker from '../components/PricePicker'
 import { IncompletePrice } from '../components/PricePicker'
-import { Product } from '../models'
+import { Product, Client, Price } from '../models'
 import Alert from '../components/Alert'
 import adminOnly from '../hoc/adminOnly'
 
@@ -36,7 +36,27 @@ interface ClientDefaults {
   code: string
 }
 
-interface Props extends PropClasses, AuthRouteComponentProps<{}> {
+interface ClientWithPrices extends Client {
+  Prices: Price[]
+}
+
+interface ClientError {
+  success: false
+  error: {
+    message: string
+    code: string
+  }
+}
+
+function isClientError(u: Client | ClientDefaults | ClientError): u is ClientError {
+  return (u as ClientError).success === false
+}
+
+interface Params {
+  id?: string
+}
+
+interface Props extends PropClasses, AuthRouteComponentProps<Params> {
 
 }
 
@@ -54,6 +74,9 @@ interface State {
   done: boolean
   errorCreating: boolean
   errorDuplicatedPrice: PriceError | null
+  mode: 'CREATE' | 'EDIT'
+  editId: string | null
+  error: string | null // Generic error occured
 }
 
 const Title = (props: any) => (
@@ -90,33 +113,70 @@ const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => (
 
 type ValChangeEvent = { target: { value: string } }
 
-class ClientCreate extends React.Component<Props, State> {
+class ClientEditor extends React.Component<Props, State> {
 
-  state = {
-    code: '',
-    name: '',
-    defaultCash: 'false' as 'true' | 'false',
-    products: [] as Product[],
-    prices: [] as IncompletePrice[],
-    done: false,
-    errorCreating: false,
-    errorDuplicatedPrice: null,
-    errorNoUser: false,
+  constructor(props: Props) {
+    super(props)
+
+    const { params } = this.props.match
+
+    const mode = params.id === undefined ? 'CREATE' : 'EDIT'
+    const editId = params.id !== undefined ? params.id : null
+
+    this.state = {
+      code: '',
+      name: '',
+      defaultCash: 'false' as 'true' | 'false',
+      products: [] as Product[],
+      prices: [] as IncompletePrice[],
+      done: false,
+      errorCreating: false,
+      errorDuplicatedPrice: null,
+      mode,
+      editId,
+      error: null,
+    }
   }
 
-  async componentWillMount() {
-    const { props } = this
-    const promises : [
-      Promise<ClientDefaults>,
-      Promise<Product[]>
-    ] = [
-      fetchJsonAuth('/api/clients/defaultsForNew', props.auth),
-      fetchJsonAuth('/api/products/', props.auth),
+
+  async componentDidMount() {
+    const { props, state } = this
+    const promises: [Promise<ClientDefaults|Client|ClientError>, Promise<Product[]>] = [
+      state.mode === 'CREATE' ?
+        fetchJsonAuth('/api/clients/defaultsForNew', props.auth) as Promise<ClientDefaults|ClientError> :
+        fetchJsonAuth('/api/clients/' + state.editId, props.auth) as Promise<ClientWithPrices|ClientError>,
+
+      fetchJsonAuth('/api/products/', props.auth) as Promise<Product[]>,
     ]
     const [ defaults, products ] = await Promise.all(promises)
 
+
     if (defaults) {
-      this.setState({code: defaults.code})
+      if (isClientError(defaults)) {
+        const error = defaults.error
+        console.log(error)
+        if (error.code === 'not_found') {
+          const msg = 'No se encontró el cliente que se buscaba'
+                    + `, (nota: id = ${state.editId}).`
+          this.setState({error: msg})
+        } else {
+          this.setState({error: error.message})
+        }
+
+      }
+      if (state.mode === 'CREATE') {
+        const createDefaults = defaults as ClientDefaults
+        this.setState({code: createDefaults.code})
+      } else {
+        const editDefaults = defaults as ClientWithPrices
+        this.setState({
+          code: editDefaults.code,
+          name: editDefaults.name,
+          defaultCash: editDefaults.defaultCash ? 'true' : 'false',
+          prices: editDefaults.Prices,
+        })
+      }
+
     }
 
     if (products) {
@@ -216,83 +276,95 @@ class ClientCreate extends React.Component<Props, State> {
           priceError={state.errorDuplicatedPrice}
           onClose={() => this.setState({errorDuplicatedPrice: null})}
         />
-        <ResponsiveContainer variant='normal'>
-          <Paper className={classes.paper}>
-            <Title {...props}>Crear Nuevo Cliente</Title>
-            {state.errorCreating &&
-              <Alert
-                type='error'
-                message='Error creando el cliente favor intentarlo nuevamente'
-              />
-            }
-            <form className={classes.form} autoComplete='off'>
-              <TextField
-                id='code'
-                label='Código'
-                margin='normal'
-                fullWidth
-                value={state.code}
-                onChange={this.handleChange('code')}
-              />
-              <TextField
-                id='name'
-                label='Nombre'
-                margin='normal'
-                fullWidth
-                value={state.name}
-                onChange={this.handleChange('name')}
-              />
-              <FormControl fullWidth margin='normal'>
-                <InputLabel htmlFor='defaultCash'>Pago</InputLabel>
-                <Select
-                  inputProps={{
-                    name: 'defaultCash',
-                    id: 'defaultCash',
-                  }}
-                  onChange={this.handleChange('defaultCash')}
-                  value={state.defaultCash}
-                >
-                  <MenuItem value='false'>Pago Postfechado</MenuItem>
-                  <MenuItem value='true'>Pago en Efectivo</MenuItem>
-                </Select>
-              </FormControl>
-            </form>
-          </Paper>
-          <>
-            {state.prices.map((pr, idx) => (
-              <Paper className={classes.paper} key={idx}>
-                {pr.name !== 'Base' && <>
-                  <Typography variant='subtitle2'>{pr.name}</Typography>
-                  <Divider />
-                </>}
-                <Typography variant='body1'>
-                  {getProductName(pr.productId)} a {money(Number(pr.value))}
-                </Typography>
-                <IconButton
-                  className={classes.deleteButton}
-                  onClick={() => this.handlePriceDelete(idx)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Paper>
-            ))}
-          </>
-          <PricePicker
-            clientName={state.name}
-            products={state.products}
-            onNewPrice={this.handleNewPrice}
-          />
-          <Paper className={classes.paper}>
-            <Button
-              variant='contained'
-              color='primary'
-              fullWidth={true}
-              onClick={this.handleCreate}
-            >
-              Crear Cliente
-            </Button>
-          </Paper>
-        </ResponsiveContainer>
+        {state.error ?
+          <Alert
+            type='error'
+            message={state.error}
+          /> :
+
+          <ResponsiveContainer variant='normal'>
+            <Paper className={classes.paper}>
+              <Title {...props}>
+                {state.mode === 'CREATE' ?
+                  'Crear Nuevo Cliente' :
+                  `Editando Cliente ${state.name}`
+                }
+              </Title>
+              {state.errorCreating &&
+                <Alert
+                  type='error'
+                  message='Error creando el cliente favor intentarlo nuevamente'
+                />
+              }
+              <form className={classes.form} autoComplete='off'>
+                <TextField
+                  id='code'
+                  label='Código'
+                  margin='normal'
+                  fullWidth
+                  value={state.code}
+                  onChange={this.handleChange('code')}
+                />
+                <TextField
+                  id='name'
+                  label='Nombre'
+                  margin='normal'
+                  fullWidth
+                  value={state.name}
+                  onChange={this.handleChange('name')}
+                />
+                <FormControl fullWidth margin='normal'>
+                  <InputLabel htmlFor='defaultCash'>Pago</InputLabel>
+                  <Select
+                    inputProps={{
+                      name: 'defaultCash',
+                      id: 'defaultCash',
+                    }}
+                    onChange={this.handleChange('defaultCash')}
+                    value={state.defaultCash}
+                  >
+                    <MenuItem value='false'>Pago Postfechado</MenuItem>
+                    <MenuItem value='true'>Pago en Efectivo</MenuItem>
+                  </Select>
+                </FormControl>
+              </form>
+            </Paper>
+            <>
+              {state.prices.map((pr, idx) => (
+                <Paper className={classes.paper} key={idx}>
+                  {pr.name !== 'Base' && <>
+                    <Typography variant='subtitle2'>{pr.name}</Typography>
+                    <Divider />
+                  </>}
+                  <Typography variant='body1'>
+                    {getProductName(pr.productId)} a {money(Number(pr.value))}
+                  </Typography>
+                  <IconButton
+                    className={classes.deleteButton}
+                    onClick={() => this.handlePriceDelete(idx)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Paper>
+              ))}
+            </>
+            <PricePicker
+              clientName={state.name}
+              products={state.products}
+              onNewPrice={this.handleNewPrice}
+            />
+            <Paper className={classes.paper}>
+              <Button
+                variant='contained'
+                color='primary'
+                fullWidth={true}
+                onClick={this.handleCreate}
+              >
+                Crear Cliente
+              </Button>
+            </Paper>
+          </ResponsiveContainer>
+        }
       </Layout>
     )
   }
@@ -325,4 +397,4 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
 })
 
-export default adminOnly(withStyles(styles)(ClientCreate))
+export default adminOnly(withStyles(styles)(ClientEditor))
