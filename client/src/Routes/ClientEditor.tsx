@@ -268,7 +268,7 @@ class ClientEditor extends React.Component<Props, State> {
     }
 
     if (state.done) {
-      return <Redirect to='/' push />
+      return <Redirect to='/clients' push />
     }
 
     const { classes } = props
