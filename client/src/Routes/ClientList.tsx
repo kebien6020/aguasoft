@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Redirect } from 'react-router-dom'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -111,6 +112,9 @@ interface State {
   clientDialogOpen: boolean
   selectedClient: Client | null
   clientDeleteDialogOpen: boolean
+  redirectToEdit: boolean
+  deletedClient: string | null // Client name if not null
+  errorDeleting: boolean
 }
 
 class ClientList extends React.Component<Props, State> {
@@ -122,6 +126,9 @@ class ClientList extends React.Component<Props, State> {
       clientDialogOpen: false,
       selectedClient: null,
       clientDeleteDialogOpen: false,
+      redirectToEdit: false,
+      deletedClient: null,
+      errorDeleting: false,
     }
   }
 
@@ -174,11 +181,41 @@ class ClientList extends React.Component<Props, State> {
     })
   }
 
-  handleClientDelete = () => {
-    const client = this.state.selectedClient
+  handleClientDelete = async () => {
+    const { state, props } = this
+
+    if (!state.clients) return
+    const client = state.selectedClient
     if (!client) return
 
-    console.log('Eliminando cliente', this.state.selectedClient)
+    const res = await fetchJsonAuth(`/api/clients/${client.id}`, props.auth, {
+      'method': 'DELETE',
+    })
+
+    if (res.success) {
+      // remove client from the list and show success message
+      const clients = state.clients.filter(cl => cl.id !== client.id)
+      this.setState({
+        clients,
+        errorDeleting: false,
+        deletedClient: client.name,
+      })
+    } else {
+      console.log(res)
+      this.setState({
+        errorDeleting: true,
+        deletedClient: null,
+      })
+    }
+
+    this.setState({clientDeleteDialogOpen: false})
+    window.scroll(0, 0)
+  }
+
+  handleClientEdit = () => {
+    if (!this.state.selectedClient) return
+
+    this.setState({redirectToEdit: true})
   }
 
   render() {
@@ -189,6 +226,10 @@ class ClientList extends React.Component<Props, State> {
       return <LoadingScreen text='Cargando clientes…' />
     }
 
+    if (state.redirectToEdit && state.selectedClient) {
+      return <Redirect push to={`/clients/${state.selectedClient.id}`} />
+    }
+
     return (
       <Layout>
         {state.clientDialogOpen && state.selectedClient &&
@@ -196,7 +237,7 @@ class ClientList extends React.Component<Props, State> {
             open={true}
             onClose={this.handleClientDialogClose}
             client={state.selectedClient}
-            onClientEdit={console.log}
+            onClientEdit={this.handleClientEdit}
             onClientDelete={this.handleClientTryDelete}
           />
         }
@@ -229,6 +270,15 @@ class ClientList extends React.Component<Props, State> {
         <ResponsiveContainer variant='normal'>
           {state.clientsError &&
             <Alert type='error' message='Error cargando lista de clientes' />
+          }
+          {state.errorDeleting &&
+            <Alert type='error' message='Error eliminado cliente' />
+          }
+          {state.deletedClient &&
+            <Alert
+              type='success'
+              message={`Cliente ${state.deletedClient} eliminado exitosamente.`}
+            />
           }
           <List>
             {state.clients &&
