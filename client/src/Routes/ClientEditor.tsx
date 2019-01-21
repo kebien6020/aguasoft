@@ -223,15 +223,25 @@ class ClientEditor extends React.Component<Props, State> {
 
   handleSubmit = async () => {
     const { props, state } = this
-    const res = await fetchJsonAuth('/api/clients/create', props.auth, {
-      method: 'post',
-      body: JSON.stringify({
-        name: state.name,
-        code: state.code,
-        defaultCash: state.defaultCash === 'true',
-        prices: state.prices,
-      })
+    let res = null
+    const body = JSON.stringify({
+      name: state.name,
+      code: state.code,
+      defaultCash: state.defaultCash === 'true',
+      prices: state.prices,
     })
+
+    if (state.mode === 'CREATE') {
+      res = await fetchJsonAuth('/api/clients/create', props.auth, {
+        method: 'post',
+        body,
+      })
+    } else {
+      res = await fetchJsonAuth('/api/clients/' + state.editId, props.auth, {
+        method: 'PATCH',
+        body,
+      })
+    }
 
     if (!res.success) {
       this.setState({errorSubmitting: true})
