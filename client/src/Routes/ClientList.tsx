@@ -2,8 +2,23 @@ import * as React from 'react'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import ListItemAvatar from '@material-ui/core/ListItemAvatar'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogActions from '@material-ui/core/DialogActions'
+import Avatar from '@material-ui/core/Avatar'
+import Divider from '@material-ui/core/Divider'
+import Button from '@material-ui/core/Button'
+import PersonIcon from '@material-ui/icons/person'
+import EditIcon from '@material-ui/icons/edit'
+import DeleteIcon from '@material-ui/icons/delete'
+import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -13,20 +28,78 @@ import { Client } from '../models'
 import LoadingScreen from '../components/LoadingScreen'
 import Alert from '../components/Alert'
 import ResponsiveContainer from '../components/ResponsiveContainer'
-import normalFont from '../hoc/normalFont'
 
-interface ClientCardProps {
+interface ClientItemProps extends PropClasses {
   client: Client
   className: string
+  onClick?: () => any
 }
 
-const ClientCard = (props: ClientCardProps) => (
-  <Card className={props.className}>
-    <CardHeader
-      title={props.client.name}
-    />
-  </Card>
+const ClientItemRaw = ({classes, client, className, onClick}: ClientItemProps) => (
+  <>
+    <ListItem className={className} button onClick={onClick}>
+      <ListItemAvatar>
+        <Avatar className={client.defaultCash ? classes.cash : classes.post}>
+          <PersonIcon />
+        </Avatar>
+      </ListItemAvatar>
+      <ListItemText
+        primary={client.name}
+      />
+    </ListItem>
+    <Divider />
+  </>
 )
+
+const clientStyles = {
+  cash: {
+    backgroundColor: colors.blue[500],
+  },
+  post: {
+    backgroundColor: colors.deepOrange[500],
+  },
+}
+
+const ClientItem = withStyles(clientStyles)(ClientItemRaw)
+
+interface ClientDialogProps extends PropClasses {
+  client: Client
+  open: boolean
+  onClose: () => any
+  onClientEdit: (cl: Client) => any
+  onClientDelete: (cl: Client) => any
+}
+
+const ClientDialogRaw = (props: ClientDialogProps) => (
+  <Dialog open={props.open} onClose={props.onClose} fullWidth>
+    <DialogTitle>{props.client.name}</DialogTitle>
+    <List>
+      <ListItem button onClick={() => props.onClientEdit(props.client)}>
+        <ListItemIcon>
+          <EditIcon className={props.classes.editIcon} />
+        </ListItemIcon>
+        <ListItemText primary='Editar' />
+      </ListItem>
+      <ListItem button onClick={() => props.onClientDelete(props.client)}>
+        <ListItemIcon>
+          <DeleteIcon className={props.classes.deleteIcon} />
+        </ListItemIcon>
+        <ListItemText primary='Eliminar' />
+      </ListItem>
+    </List>
+  </Dialog>
+)
+
+const clientDialogStyles : StyleRulesCallback = (theme: Theme) => ({
+  editIcon: {
+    color: theme.palette.primary.main,
+  },
+  deleteIcon: {
+    color: colors.red[500],
+  },
+})
+
+const ClientDialog = withStyles(clientDialogStyles)(ClientDialogRaw)
 
 type ClientsResponse = Client[] | ErrorResponse
 
@@ -35,6 +108,9 @@ type Props = AuthRouteComponentProps<any> & PropClasses
 interface State {
   clientsError: boolean
   clients: Client[] | null
+  clientDialogOpen: boolean
+  selectedClient: Client | null
+  clientDeleteDialogOpen: boolean
 }
 
 class ClientList extends React.Component<Props, State> {
@@ -43,6 +119,9 @@ class ClientList extends React.Component<Props, State> {
     this.state = {
       clientsError: false,
       clients: null,
+      clientDialogOpen: false,
+      selectedClient: null,
+      clientDeleteDialogOpen: false,
     }
   }
 
@@ -66,6 +145,42 @@ class ClientList extends React.Component<Props, State> {
     }
   }
 
+  handleClientClick = (client: Client) => {
+    this.setState({
+      clientDialogOpen: true,
+      selectedClient: client,
+    })
+  }
+
+  handleClientDialogClose = () => {
+    this.setState({
+      clientDialogOpen: false,
+      selectedClient: null,
+    })
+  }
+
+  handleClientTryDelete = (client: Client) => {
+    this.setState({
+      clientDialogOpen: false,
+      clientDeleteDialogOpen: true,
+      selectedClient: client
+    })
+  }
+
+  handleClientDeleteDialogClose = () => {
+    this.setState({
+      clientDeleteDialogOpen: false,
+      selectedClient: null,
+    })
+  }
+
+  handleClientDelete = () => {
+    const client = this.state.selectedClient
+    if (!client) return
+
+    console.log('Eliminando cliente', this.state.selectedClient)
+  }
+
   render() {
     const { props, state } = this
     const { classes } = props
@@ -76,6 +191,38 @@ class ClientList extends React.Component<Props, State> {
 
     return (
       <Layout>
+        {state.clientDialogOpen && state.selectedClient &&
+          <ClientDialog
+            open={true}
+            onClose={this.handleClientDialogClose}
+            client={state.selectedClient}
+            onClientEdit={console.log}
+            onClientDelete={this.handleClientTryDelete}
+          />
+        }
+        {state.clientDeleteDialogOpen && state.selectedClient &&
+          <Dialog
+            open={true}
+            onClose={this.handleClientDeleteDialogClose}
+          >
+            <DialogTitle>Eliminar {state.selectedClient.name}</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                ¿Desea eliminar permanentemente el
+                cliente {state.selectedClient.name} y <strong>todas</strong> las
+                ventas y precios asociados?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleClientDeleteDialogClose} color="primary">
+                Cancelar
+              </Button>
+              <Button onClick={this.handleClientDelete} className={classes.deleteButton}>
+                Eliminar
+              </Button>
+            </DialogActions>
+          </Dialog>
+        }
         <div className={classes.title}>
           <Typography variant='h1'>Clientes</Typography>
         </div>
@@ -83,11 +230,18 @@ class ClientList extends React.Component<Props, State> {
           {state.clientsError &&
             <Alert type='error' message='Error cargando lista de clientes' />
           }
-          {state.clients &&
-            state.clients.map(cl =>
-              <ClientCard key={cl.id} client={cl} className={classes.card}/>
-            )
-          }
+          <List>
+            {state.clients &&
+              state.clients.map(cl =>
+                <ClientItem
+                  key={cl.id}
+                  client={cl}
+                  className={classes.item}
+                  onClick={() => this.handleClientClick(cl)}
+                />
+              )
+            }
+          </List>
         </ResponsiveContainer>
       </Layout>
     )
@@ -101,15 +255,18 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
     '& > *': {
       textAlign: 'center',
     },
+    '& h1': {
+      fontSize: '32px',
+    },
   },
-  card: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
-  }
+  item: {},
+  deleteButton: {
+    color: colors.red[500],
+    fontWeight: 'bold',
+  },
 })
 
 export default
   adminOnly(
   withStyles(styles)(
-  normalFont(
-    ClientList)))
+    ClientList))
