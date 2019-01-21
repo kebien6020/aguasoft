@@ -317,7 +317,8 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
       textAlign: 'center',
     },
     '& h1': {
-      fontSize: '32px',
+      fontSize: '48px',
+      fontWeight: 400,
     },
   },
   item: {},
