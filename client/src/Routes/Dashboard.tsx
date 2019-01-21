@@ -12,7 +12,7 @@ import Sells, { Sell } from '../components/Sells'
 import MyDatePicker from '../components/MyDatePicker'
 import DayOverview from '../components/DayOverview'
 
-import { Redirect } from 'react-router-dom'
+import { Redirect, Link } from 'react-router-dom'
 import * as moment from 'moment'
 import 'moment/locale/es'
 moment.locale('es')
@@ -23,7 +23,6 @@ interface DashboardProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 interface DashboardState {
   gotoSell: boolean
-  gotoAddClient: boolean
   date: moment.Moment
   sells: Sell[]
 }
@@ -37,7 +36,6 @@ const Title = (props: any) => (
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
   state = {
     gotoSell: false,
-    gotoAddClient: false,
     date: moment().startOf('day'),
     sells: [] as Sell[],
   }
@@ -55,9 +53,8 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
       this.setState({sells})
   }
 
-  handleAddClient = () => {
-    this.setState({gotoAddClient: true})
-  }
+  renderLinkClients = (props: any) => <Link to='/clients' {...props} />
+
 
   render() {
     const { state, props } = this
@@ -65,10 +62,6 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
     if (state.gotoSell) {
       return <Redirect to='/sell' push />
-    }
-
-    if (state.gotoAddClient) {
-      return <Redirect to='/check?next=/clients/new&admin=true' push />
     }
 
     return (
@@ -99,9 +92,9 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 variant='contained'
                 color='primary'
                 fullWidth={true}
-                onClick={this.handleAddClient}
+                component={this.renderLinkClients}
               >
-                Crear cliente
+                Administrar clientes
               </Button>
             </div>
           </Grid>
