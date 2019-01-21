@@ -16,6 +16,10 @@ import DialogActions from '@material-ui/core/DialogActions'
 import Avatar from '@material-ui/core/Avatar'
 import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import IconButton from '@material-ui/core/IconButton'
+import BackIcon from '@material-ui/icons/ArrowBack'
 import PersonIcon from '@material-ui/icons/Person'
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -73,7 +77,9 @@ interface ClientDialogProps extends PropClasses {
 
 const ClientDialogRaw = (props: ClientDialogProps) => (
   <Dialog open={props.open} onClose={props.onClose} fullWidth>
-    <DialogTitle>{props.client.name}</DialogTitle>
+    <DialogTitle className={props.classes.title}>
+      {props.client.name}
+    </DialogTitle>
     <List>
       <ListItem button onClick={() => props.onClientEdit(props.client)}>
         <ListItemIcon>
@@ -98,6 +104,9 @@ const clientDialogStyles : StyleRulesCallback = (theme: Theme) => ({
   deleteIcon: {
     color: colors.red[500],
   },
+  title: {
+    paddingBottom: 0,
+  }
 })
 
 const ClientDialog = withStyles(clientDialogStyles)(ClientDialogRaw)
@@ -153,6 +162,8 @@ class ClientList extends React.Component<Props, State> {
   }
 
   renderLinkToNew = (props: any) => <Link to='/clients/new' {...props} />
+
+  renderLinkBack = (props: any) => <Link to='/' {...props} />
 
   handleClientClick = (client: Client) => {
     this.setState({
@@ -234,6 +245,27 @@ class ClientList extends React.Component<Props, State> {
 
     return (
       <Layout>
+        <AppBar position='static' className={classes.appbar}>
+          <Toolbar>
+            <IconButton
+              className={classes.backButton}
+              color='inherit'
+              aria-label='Back'
+              component={this.renderLinkBack}
+            >
+              <BackIcon />
+            </IconButton>
+            <Typography variant='h6' color='inherit' className={classes.title}>
+              Clientes
+            </Typography>
+            <Button
+              component={this.renderLinkToNew}
+              color='inherit'
+            >
+              Nuevo
+            </Button>
+          </Toolbar>
+        </AppBar>
         {state.clientDialogOpen && state.selectedClient &&
           <ClientDialog
             open={true}
@@ -266,18 +298,9 @@ class ClientList extends React.Component<Props, State> {
             </DialogActions>
           </Dialog>
         }
-        <div className={classes.title}>
-          <Typography variant='h1'>Clientes</Typography>
-        </div>
         <ResponsiveContainer variant='normal'>
           <div className={classes.newClientButtonContainer}>
-            <Button
-              component={this.renderLinkToNew}
-              color='primary'
-              variant='contained'
-            >
-              Crear nuevo cliente
-            </Button>
+
           </div>
           {state.clientsError &&
             <Alert type='error' message='Error cargando lista de clientes' />
@@ -309,14 +332,17 @@ class ClientList extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback = (theme: Theme) => ({
+const styles : StyleRulesCallback = (_theme: Theme) => ({
+  appbar: {
+    flexGrow: 1,
+  },
+  backButton: {
+    marginLeft: -12,
+    marginRight: 20,
+  },
   title: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
-    '& > *': {
-      textAlign: 'center',
-    },
-    '& h1': {
+    flexGrow: 1,
+    '& h6': {
       fontSize: '48px',
       fontWeight: 400,
     },
