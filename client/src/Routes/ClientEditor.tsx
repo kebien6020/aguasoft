@@ -150,6 +150,9 @@ class ClientEditor extends React.Component<Props, State> {
     ]
     const [ defaults, products ] = await Promise.all(promises)
 
+    if (products) {
+      this.setState({products})
+    }
 
     if (defaults) {
       if (isClientError(defaults)) {
@@ -162,7 +165,7 @@ class ClientEditor extends React.Component<Props, State> {
         } else {
           this.setState({error: error.message})
         }
-
+        return
       }
       if (state.mode === 'CREATE') {
         const createDefaults = defaults as ClientDefaults
@@ -179,10 +182,6 @@ class ClientEditor extends React.Component<Props, State> {
         })
       }
 
-    }
-
-    if (products) {
-      this.setState({products})
     }
   }
 
