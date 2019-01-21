@@ -148,7 +148,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
       }, {transaction: t})
 
       // Create new prices
-      Prices.bulkCreate(newPrices, {
+      return Prices.bulkCreate(newPrices, {
         fields: ['name', 'value', 'productId', 'clientId'],
       })
     })
