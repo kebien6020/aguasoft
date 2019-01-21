@@ -19,6 +19,7 @@ clients.get('/defaultsForNew', clientHandlers.defaultsForNew)
 clients.post('/create', adminOnly, clientHandlers.create)
 clients.patch('/:id', adminOnly, clientHandlers.update)
 clients.get('/:id', clientHandlers.detail)
+clients.delete('/:id', adminOnly, clientHandlers.remove)
 
 export const products = Router()
 products.get('/', productHandlers.list)

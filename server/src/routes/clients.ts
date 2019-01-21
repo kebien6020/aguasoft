@@ -189,3 +189,42 @@ export async function detail(req: Request, res: Response, next: NextFunction) {
     next(e)
   }
 }
+
+export async function remove(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = Number(req.params.id)
+
+    if (isNaN(id)) {
+      const e = Error(':id in the url should be numeric')
+      e.name = 'bad_request'
+      throw e
+    }
+
+    const client = await Clients.findByPk(id)
+
+    if (!client) {
+      const e = Error(`Client with id ${id} doesn't exist in the database`)
+      e.name = 'not_found'
+      throw e
+    }
+
+    await sequelize.transaction(async t => {
+      // FK constraint should remove all prices but let's not
+      // rely on it, (if by an offchance it casuses problems
+      // in the future and has to be disabled)
+      await Prices.destroy({
+        where: {
+          clientId: client.id,
+        },
+        transaction: t,
+      })
+
+      // Actually remove client
+      return client.destroy({transaction: t})
+    })
+
+    res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
