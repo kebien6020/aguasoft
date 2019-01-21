@@ -17,6 +17,7 @@ export const clients = Router()
 clients.get('/', clientHandlers.list)
 clients.get('/defaultsForNew', clientHandlers.defaultsForNew)
 clients.post('/create', adminOnly, clientHandlers.create)
+clients.get('/:id', clientHandlers.detail)
 
 export const products = Router()
 products.get('/', productHandlers.list)

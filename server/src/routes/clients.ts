@@ -95,3 +95,32 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     next(e)
   }
 }
+
+export async function detail(req: Request, res: Response, next: NextFunction) {
+  try {
+    const id = Number(req.params.id)
+
+    if (isNaN(id)) {
+      const e = Error(':id in the url should be numeric')
+      e.name = 'bad_request'
+      throw e
+    }
+
+    const client = await Clients.findByPk(id, {
+      include: [{
+        model: Prices,
+        attributes: ['name', 'productId', 'value'],
+      }]
+    })
+    if (!client) {
+      const e = Error(`Client with id ${id} doesn't exist in the database`)
+      e.name = 'not_found'
+      throw e
+    }
+
+    res.json(client)
+
+  } catch (e) {
+    next(e)
+  }
+}
