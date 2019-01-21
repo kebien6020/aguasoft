@@ -11,3 +11,17 @@ export interface Price {
   productId: number
   name: string
 }
+
+export interface User {
+  id: number
+  name: string
+  code: string
+  role: string
+}
+
+export interface Client {
+  id: number
+  name: string
+  code: string
+  defaultCash: boolean
+}
