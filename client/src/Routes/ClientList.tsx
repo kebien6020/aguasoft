@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Redirect } from 'react-router-dom'
+import { Redirect, Link } from 'react-router-dom'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
@@ -15,7 +15,7 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogActions from '@material-ui/core/DialogActions'
 import Avatar from '@material-ui/core/Avatar'
 import Divider from '@material-ui/core/Divider'
-import Button from '@material-ui/core/Button'
+import Button, { ButtonProps } from '@material-ui/core/Button'
 import PersonIcon from '@material-ui/icons/Person'
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -152,6 +152,8 @@ class ClientList extends React.Component<Props, State> {
     }
   }
 
+  renderLinkToNew = (props: any) => <Link to='/clients/new' {...props} />
+
   handleClientClick = (client: Client) => {
     this.setState({
       clientDialogOpen: true,
@@ -268,6 +270,15 @@ class ClientList extends React.Component<Props, State> {
           <Typography variant='h1'>Clientes</Typography>
         </div>
         <ResponsiveContainer variant='normal'>
+          <div className={classes.newClientButtonContainer}>
+            <Button
+              component={this.renderLinkToNew}
+              color='primary'
+              variant='contained'
+            >
+              Crear nuevo cliente
+            </Button>
+          </div>
           {state.clientsError &&
             <Alert type='error' message='Error cargando lista de clientes' />
           }
@@ -313,6 +324,9 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
   deleteButton: {
     color: colors.red[500],
     fontWeight: 'bold',
+  },
+  newClientButtonContainer: {
+    textAlign: 'center',
   },
 })
 
