@@ -72,7 +72,7 @@ interface State {
   products: Product[]
   prices: IncompletePrice[]
   done: boolean
-  errorCreating: boolean
+  errorSubmitting: boolean
   errorDuplicatedPrice: PriceError | null
   mode: 'CREATE' | 'EDIT'
   editId: string | null
@@ -130,7 +130,7 @@ class ClientEditor extends React.Component<Props, State> {
       products: [] as Product[],
       prices: [] as IncompletePrice[],
       done: false,
-      errorCreating: false,
+      errorSubmitting: false,
       errorDuplicatedPrice: null,
       mode,
       editId,
@@ -219,7 +219,7 @@ class ClientEditor extends React.Component<Props, State> {
     })
   }
 
-  handleCreate = async () => {
+  handleSubmit = async () => {
     const { props, state } = this
     const res = await fetchJsonAuth('/api/clients/create', props.auth, {
       method: 'post',
@@ -232,7 +232,7 @@ class ClientEditor extends React.Component<Props, State> {
     })
 
     if (!res.success) {
-      this.setState({errorCreating: true})
+      this.setState({errorSubmitting: true})
       console.error(res)
       return
     }
@@ -290,10 +290,14 @@ class ClientEditor extends React.Component<Props, State> {
                   `Editando Cliente ${state.name}`
                 }
               </Title>
-              {state.errorCreating &&
+              {state.errorSubmitting &&
                 <Alert
                   type='error'
-                  message='Error creando el cliente favor intentarlo nuevamente'
+                  message={
+                    'Error ' +
+                    state.mode === 'CREATE' ? 'creando' : 'actualizando' +
+                    ' el cliente favor intentarlo nuevamente'
+                  }
                 />
               }
               <form className={classes.form} autoComplete='off'>
@@ -358,9 +362,12 @@ class ClientEditor extends React.Component<Props, State> {
                 variant='contained'
                 color='primary'
                 fullWidth={true}
-                onClick={this.handleCreate}
+                onClick={this.handleSubmit}
               >
-                Crear Cliente
+                {state.mode === 'CREATE' ?
+                  'Crear Cliente' :
+                  'Actualizar Cliente'
+                }
               </Button>
             </Paper>
           </ResponsiveContainer>
