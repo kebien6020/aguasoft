@@ -50,23 +50,34 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
   }
 }
 
+// Throws an error if anything is wrong
+function checkCreateEditInput(body: any) {
+  const paramError = (name: string, reqType: string) => {
+    const e = Error(`Param ${name} should be a ${reqType}`)
+    e.name = 'parameter_error'
+    throw e
+  }
+
+  if (typeof body.name !== 'string') paramError('name', 'string')
+  if (typeof body.code !== 'string') paramError('code', 'string')
+  if (typeof body.defaultCash !== 'boolean') paramError('defaultCash', 'boolean')
+  if (!Array.isArray(body.prices)) paramError('prices', 'array')
+  for (const price of body.prices) {
+    const allowedKeys = ['name', 'productId', 'value']
+    for (const key in price) {
+      if (allowedKeys.indexOf(key) === -1) {
+        delete price[key]
+      }
+    }
+    if (typeof price.name !== 'string') paramError('prices[].name', 'string')
+    if (typeof price.productId !== 'number') paramError('prices[].productId', 'number')
+    if (typeof price.value !== 'string') paramError('prices[].value', 'string')
+  }
+}
+
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
-    const paramError = (name: string, reqType: string) => {
-      const e = Error(`Param ${name} should be a ${reqType}`)
-      e.name = 'parameter_error'
-      throw e
-    }
-
-    if (typeof req.body.name !== 'string') paramError('name', 'string')
-    if (typeof req.body.code !== 'string') paramError('code', 'string')
-    if (typeof req.body.defaultCash !== 'boolean') paramError('defaultCash', 'boolean')
-    if (!Array.isArray(req.body.prices)) paramError('prices', 'array')
-    for (const price of req.body.prices) {
-      if (typeof price.name !== 'string') paramError('prices[].name', 'string')
-      if (typeof price.productId !== 'number') paramError('prices[].productId', 'number')
-      if (typeof price.value !== 'string') paramError('prices[].value', 'string')
-    }
+    checkCreateEditInput(req.body)
 
     type IncompletePrice =
       Pick<PriceAttributes, 'name' | 'productId' | 'value'>
@@ -86,6 +97,59 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       return Clients.create(client as any, {
         include: [Prices],
         transaction: t
+      })
+    })
+
+    res.json({success: true})
+
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function update(req: Request, res: Response, next: NextFunction) {
+  try {
+    checkCreateEditInput(req.body)
+
+    const id = Number(req.params.id)
+
+    if (isNaN(id)) {
+      const e = Error(':id in the url should be numeric')
+      e.name = 'bad_request'
+      throw e
+    }
+
+    const client = await Clients.findByPk(id)
+
+    if (!client) {
+      const e = Error(`Client with id ${id} doesn't exist in the database`)
+      e.name = 'not_found'
+      throw e
+    }
+
+    const newPrices = (req.body.prices as Array<any>).map(pr =>
+      Object.assign({}, pr, {clientId: client.id})
+    )
+
+    await sequelize.transaction(async t => {
+      // Delete all previous prices
+      await Prices.destroy({
+        where: {
+          clientId: client.id
+        },
+        transaction :t
+      })
+
+      // Update attributes
+      await client.update({
+        name: req.body.name,
+        code: req.body.code,
+        defaultCash: req.body.defaultCash,
+      }, {transaction: t})
+
+      // Create new prices
+      Prices.bulkCreate(newPrices, {
+        fields: ['name', 'value', 'productId', 'clientId'],
       })
     })
 
