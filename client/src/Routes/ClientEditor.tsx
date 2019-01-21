@@ -160,7 +160,7 @@ class ClientEditor extends React.Component<Props, State> {
         console.log(error)
         if (error.code === 'not_found') {
           const msg = 'No se encontró el cliente que se buscaba'
-                    + `, (nota: id = ${state.editId}).`
+                    + `, (Nota: id = ${state.editId}).`
           this.setState({error: msg})
         } else {
           this.setState({error: error.message})
