@@ -306,7 +306,7 @@ class ClientEditor extends React.Component<Props, State> {
                   type='error'
                   message={
                     'Error ' +
-                    state.mode === 'CREATE' ? 'creando' : 'actualizando' +
+                    (state.mode === 'CREATE' ? 'creando' : 'actualizando') +
                     ' el cliente favor intentarlo nuevamente'
                   }
                 />
