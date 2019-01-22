@@ -4,9 +4,10 @@ import { MuiThemeProvider } from '@material-ui/core/styles'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
 import theme from './theme'
-import MuiPickersUtilsProvider from 'material-ui-pickers/utils/MuiPickersUtilsProvider'
-import DateFnsUtils from 'material-ui-pickers/utils/date-fns-utils'
-import * as esCoLocale from 'date-fns/locale/es'
+import MuiPickersUtilsProvider from 'material-ui-pickers/MuiPickersUtilsProvider'
+import MomentUtils from '@date-io/moment'
+import * as moment from 'moment'
+import 'moment/locale/es'
 
 import CheckUser from './Routes/CheckUser'
 import RegisterSale from './Routes/RegisterSale'
@@ -22,11 +23,13 @@ import CssBaseline from '@material-ui/core/CssBaseline'
 
 import Route from './AuthRoute'
 
+moment.locale('es')
+
 class App extends React.Component {
   render() {
     return (
-      <BrowserRouter>
-        <MuiPickersUtilsProvider utils={DateFnsUtils} locale={esCoLocale}>
+      <MuiPickersUtilsProvider utils={MomentUtils}>
+        <BrowserRouter>
           <MuiThemeProvider theme={theme}>
             <CssBaseline />
             <Switch>
@@ -43,9 +46,9 @@ class App extends React.Component {
               <Route exact private path='/clients/new' component={ClientEditor} />
               <Route exact private path='/clients/:id' component={ClientEditor} />
             </Switch>
-        </MuiThemeProvider>
+          </MuiThemeProvider>
+        </BrowserRouter>
       </MuiPickersUtilsProvider>
-      </BrowserRouter>
     )
   }
 }

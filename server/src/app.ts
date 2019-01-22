@@ -80,7 +80,7 @@ function checkUser(req: Request, res: Response, next: NextFunction) {
 app.get('/sell', checkUser)
 
 // Serve the SPA for any unhandled route (it handles 404)
-app.get('*', (req, res) => {
+app.get('*', (_req, res) => {
   res.sendFile(INDEX_FILE)
 })
 

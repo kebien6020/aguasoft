@@ -35,9 +35,9 @@ interface State {
 
 type ValChangeEvent = { target: { value: string } }
 
-interface NumFormatProps {
-  inputRef: React.Ref<Element>
-  onChange: (event: ValChangeEvent) => void
+interface NumFormatProps extends NumberFormat.NumberFormatProps {
+  inputRef?: React.Ref<Element>
+  onChange?: (event: ValChangeEvent) => void
 }
 
 function NumberFormatCustom(props: NumFormatProps) {
@@ -53,6 +53,7 @@ function NumberFormatCustom(props: NumFormatProps) {
       thousandSeparator='.'
       decimalSeparator=','
       onValueChange={(values: any) => {
+        if (!onChange) return
         onChange({
           target: {
             value: values.value,
@@ -98,7 +99,7 @@ class PricePicker extends React.Component<Props, State> {
     const currentProduct = products.find(pr =>
       String(pr.id) === event.target.value
     )
-    
+
     if (currentProduct) {
       this.setState({currentPrice: currentProduct.basePrice})
     }

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import DatePicker from 'material-ui-pickers/DatePicker'
-import { isSameDay } from 'date-fns'
+import * as moment from 'moment'
 
 type DateChangeHandler = (date: Date) => any
 
@@ -20,7 +20,7 @@ const MyDatePicker = (props : MyDatePickerPropsAll) => (
     <DatePicker
       className={props.classes.datePicker}
       value={props.date}
-      format='d-MMM-yyyy'
+      format='DD-MMM-YYYY'
       disableFuture
       onChange={(date) => handleDateChange(date, props.date, props.onDateChange)}
     />
@@ -33,7 +33,7 @@ function handleDateChange(
   onDateChange: DateChangeHandler)
 {
   // Ignore change when same day is selected
-  if (!isSameDay(date, previousDate)) {
+  if (!moment(date).isSame(previousDate, 'day')) {
     onDateChange(date)
   }
 }

@@ -7,7 +7,7 @@ const Sells = models.Sells as SellModel
 const Prices = models.Prices as PriceModel
 const { gt } = Sequelize.Op
 
-export async function list(req: Request, res: Response, next: NextFunction) {
+export async function list(_req: Request, res: Response, next: NextFunction) {
   try {
     const sells = await Sells.findAll({
       attributes: [
@@ -204,7 +204,7 @@ export async function listFrom(req: Request, res: Response, next: NextFunction) 
 export async function del(req: Request, res: Response, next: NextFunction) {
   try {
     const sellId = req.params.id
-    const sell = await Sells.findById(sellId)
+    const sell = await Sells.findByPk(sellId)
     sell.deleted = true
     await sell.save({silent: true}) // Do not touch updatedAt
 
