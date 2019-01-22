@@ -401,7 +401,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                             onChange={(qty)=> this.handleProductQtyChange(product.id, qty)}
                           />
                         </TableCell>
-                        <TableCell numeric>
+                        <TableCell align='right'>
                           <Select
                             id={`price-product-${product.id}`}
                             fullWidth
@@ -418,7 +418,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                           }
                           </Select>
                         </TableCell>
-                        <TableCell numeric>{money(product.selectedPrice.value * product.qty)}</TableCell>
+                        <TableCell align='right'>{money(product.selectedPrice.value * product.qty)}</TableCell>
                       </TableRow>
                     ))
                   }
