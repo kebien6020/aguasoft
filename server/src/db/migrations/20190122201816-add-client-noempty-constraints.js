@@ -26,9 +26,10 @@ module.exports = {
     })
 
     const sequelize = queryInterface.sequelize
+    const trans = (t, obj) => Object.assign(obj, {transaction: t})
     return sequelize.transaction(t =>
-      queryInterface.addConstraint('Clients', ['code'], checkNoEmptyCode).then(() =>
-        queryInterface.addConstraint('Clients', ['name'], checkNoEmptyName)
+      queryInterface.addConstraint('Clients', ['code'], trans(t, checkNoEmptyCode)).then(() =>
+        queryInterface.addConstraint('Clients', ['name'], trans(t, checkNoEmptyName))
       )
     )
   },
@@ -37,8 +38,8 @@ module.exports = {
     const sequelize = queryInterface.sequelize
 
     return sequelize.transaction(t =>
-      queryInterface.removeConstraint('Clients', NAME_CK).then(() =>
-        queryInterface.removeConstraint('Clients', CODE_CK)
+      queryInterface.removeConstraint('Clients', NAME_CK, {transaction: t}).then(() =>
+        queryInterface.removeConstraint('Clients', CODE_CK, {transaction: t})
       )
     )
   }

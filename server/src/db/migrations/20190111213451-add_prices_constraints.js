@@ -45,8 +45,8 @@ module.exports = {
     const sequelize = queryInterface.sequelize
 
     return sequelize.transaction(t =>
-      queryInterface.removeConstraint('Prices', PRODUCT_FKEY).then(() =>
-        queryInterface.removeConstraint('Prices', CLIENT_FKEY)
+      queryInterface.removeConstraint('Prices', PRODUCT_FKEY, {transaction: t}).then(() =>
+        queryInterface.removeConstraint('Prices', CLIENT_FKEY, {transaction: t})
       )
     )
   }
