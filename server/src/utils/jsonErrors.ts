@@ -6,7 +6,7 @@ export default function jsonErrorHandler(
   error: any,
   req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ) {
   try {
     interface ErrorResponse {

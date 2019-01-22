@@ -32,7 +32,7 @@ export default function makeUsers(sequelize: Sequelize, DataTypes: DataTypes) {
     },
   }, {
     classMethods: {
-      associate: function(models: Models) {
+      associate: function(_models: Models) {
         // associations can be defined here
       }
     }

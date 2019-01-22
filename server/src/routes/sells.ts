@@ -7,7 +7,7 @@ const Sells = models.Sells as SellModel
 const Prices = models.Prices as PriceModel
 const { gt } = Sequelize.Op
 
-export async function list(req: Request, res: Response, next: NextFunction) {
+export async function list(_req: Request, res: Response, next: NextFunction) {
   try {
     const sells = await Sells.findAll({
       attributes: [
