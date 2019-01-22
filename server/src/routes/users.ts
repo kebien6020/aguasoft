@@ -22,7 +22,7 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
     const userId = req.body.id
     const providedPass = req.body.password
 
-    const user = await Users.findById(userId)
+    const user = await Users.findByPk(userId)
     if (!user) return res.json({result: false})
 
     const savedHash = user.password
@@ -50,7 +50,7 @@ export async function getCurrent(req: Request, res: Response, next: NextFunction
       })
 
     // Find all of the user info from the id
-    const user = await Users.findById(req.session.userId, {
+    const user = await Users.findByPk(req.session.userId, {
       attributes: ['name', 'code', 'id', 'role']
     })
 

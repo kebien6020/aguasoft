@@ -204,7 +204,7 @@ export async function listFrom(req: Request, res: Response, next: NextFunction) 
 export async function del(req: Request, res: Response, next: NextFunction) {
   try {
     const sellId = req.params.id
-    const sell = await Sells.findById(sellId)
+    const sell = await Sells.findByPk(sellId)
     sell.deleted = true
     await sell.save({silent: true}) // Do not touch updatedAt
 
