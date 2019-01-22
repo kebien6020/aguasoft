@@ -14,7 +14,6 @@
     "@material-ui/core": "^3.3.0",
     "@material-ui/icons": "^3.0.1",
     "@types/auth0-js": "^8.11.6",
-    "@types/bcrypt": "^1.0.0",
     "@types/bcryptjs": "^2.4.1",
     "@types/cors": "^2.8.3",
     "@types/debug": "^0.0.30",
