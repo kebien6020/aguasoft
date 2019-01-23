@@ -77,6 +77,8 @@ interface State {
   mode: 'CREATE' | 'EDIT'
   editId: string | null
   error: string | null // Generic error occured
+  errorEmptyName: boolean
+  errorEmptyCode: boolean
 }
 
 const Title = (props: any) => (
@@ -135,6 +137,8 @@ class ClientEditor extends React.Component<Props, State> {
       mode,
       editId,
       error: null,
+      errorEmptyName: false,
+      errorEmptyCode: false,
     }
   }
 
@@ -193,6 +197,14 @@ class ClientEditor extends React.Component<Props, State> {
         ...prevState,
         [name]: value,
     }))
+
+    if (name === 'name') {
+      this.setState({errorEmptyName: false})
+    }
+
+    if (name === 'code') {
+      this.setState({errorEmptyCode: false})
+    }
   }
 
   handleNewPrice = (price: IncompletePrice) => {
@@ -223,6 +235,17 @@ class ClientEditor extends React.Component<Props, State> {
   handleSubmit = async () => {
     const { props, state } = this
     let res = null
+
+    if (state.name === '') {
+      this.setState({errorEmptyName: true})
+    }
+
+    if (state.code === '') {
+      this.setState({errorEmptyCode: true})
+    }
+
+    if (state.code === '' || state.name === '') return
+
     const body = JSON.stringify({
       name: state.name,
       code: state.code,
@@ -319,6 +342,8 @@ class ClientEditor extends React.Component<Props, State> {
                   fullWidth
                   value={state.code}
                   onChange={this.handleChange('code')}
+                  error={state.errorEmptyCode}
+                  helperText={state.errorEmptyCode ? 'Especifique un código' : null}
                 />
                 <TextField
                   id='name'
@@ -327,6 +352,8 @@ class ClientEditor extends React.Component<Props, State> {
                   fullWidth
                   value={state.name}
                   onChange={this.handleChange('name')}
+                  error={state.errorEmptyName}
+                  helperText={state.errorEmptyName ? 'Especifique un nombre' : null}
                 />
                 <FormControl fullWidth margin='normal'>
                   <InputLabel htmlFor='defaultCash'>Pago</InputLabel>
