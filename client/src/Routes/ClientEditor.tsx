@@ -79,6 +79,7 @@ interface State {
   error: string | null // Generic error occured
   errorEmptyName: boolean
   errorEmptyCode: boolean
+  errorDuplicatedField: 'name' | 'code' | null
 }
 
 const Title = (props: any) => (
@@ -139,6 +140,7 @@ class ClientEditor extends React.Component<Props, State> {
       error: null,
       errorEmptyName: false,
       errorEmptyCode: false,
+      errorDuplicatedField: null,
     }
   }
 
@@ -200,10 +202,16 @@ class ClientEditor extends React.Component<Props, State> {
 
     if (name === 'name') {
       this.setState({errorEmptyName: false})
+      if (this.state.errorDuplicatedField === 'name') {
+        this.setState({errorDuplicatedField: null})
+      }
     }
 
     if (name === 'code') {
       this.setState({errorEmptyCode: false})
+      if (this.state.errorDuplicatedField === 'code') {
+        this.setState({errorDuplicatedField: null})
+      }
     }
   }
 
@@ -266,6 +274,13 @@ class ClientEditor extends React.Component<Props, State> {
     }
 
     if (!res.success) {
+      if (res.error.code === 'validation_error') {
+        const field = res.error.errors[0].path
+        if (field === 'name' || field === 'code') {
+          this.setState({errorDuplicatedField: field})
+        }
+        return
+      }
       this.setState({errorSubmitting: true})
       console.error(res)
       return
@@ -304,6 +319,14 @@ class ClientEditor extends React.Component<Props, State> {
       return 'Producto con id ' + id
     }
 
+    const displayName = {
+      name: 'nombre',
+      code: 'código'
+    }
+
+    const getFieldDesc = (field: 'name' | 'code') =>
+      `${displayName[field]} ${state[field]}`
+
     return (
       <Layout>
         <DuplicatedPriceDialog
@@ -331,6 +354,15 @@ class ClientEditor extends React.Component<Props, State> {
                     'Error ' +
                     (state.mode === 'CREATE' ? 'creando' : 'actualizando') +
                     ' el cliente favor intentarlo nuevamente'
+                  }
+                />
+              }
+              {state.errorDuplicatedField &&
+                <Alert
+                  type='error'
+                  message={
+                    'Error: El ' + getFieldDesc(state.errorDuplicatedField) +
+                    ' ya existe.'
                   }
                 />
               }
