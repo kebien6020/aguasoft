@@ -23,6 +23,8 @@ import BackIcon from '@material-ui/icons/ArrowBack'
 import PersonIcon from '@material-ui/icons/Person'
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete'
+import VisibilityIcon from '@material-ui/icons/Visibility'
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
@@ -72,6 +74,7 @@ interface ClientDialogProps extends PropClasses {
   open: boolean
   onClose: () => any
   onClientEdit: (cl: Client) => any
+  onClientHide: (cl: Client) => any
   onClientDelete: (cl: Client) => any
 }
 
@@ -86,6 +89,15 @@ const ClientDialogRaw = (props: ClientDialogProps) => (
           <EditIcon className={props.classes.editIcon} />
         </ListItemIcon>
         <ListItemText primary='Editar' />
+      </ListItem>
+      <ListItem button onClick={() => props.onClientHide(props.client)}>
+        <ListItemIcon>
+          {props.client.hidden ?
+            <VisibilityOffIcon /> :
+            <VisibilityIcon />
+          }
+        </ListItemIcon>
+        <ListItemText primary='Ocultar' />
       </ListItem>
       <ListItem button onClick={() => props.onClientDelete(props.client)}>
         <ListItemIcon>
@@ -231,6 +243,31 @@ class ClientList extends React.Component<Props, State> {
     this.setState({redirectToEdit: true})
   }
 
+  handleClientHide = async () => {
+    const { state, props } = this
+
+    if (!state.clients) return
+    const client = state.selectedClient
+    if (!client) return
+
+    const res = await fetchJsonAuth(`/api/clients/${client.id}/hide`, props.auth, {
+      'method': 'POST',
+    })
+
+    if (res.success) {
+      const newClients = state.clients.map(cl => {
+        if (cl === client) {
+          return {...cl, hidden: true}
+        }
+        return cl
+      })
+
+      this.setState({clients: newClients, clientDialogOpen: false})
+    }
+
+    // TODO: Show some error if we fail to hide the client
+  }
+
   render() {
     const { props, state } = this
     const { classes } = props
@@ -272,6 +309,7 @@ class ClientList extends React.Component<Props, State> {
             onClose={this.handleClientDialogClose}
             client={state.selectedClient}
             onClientEdit={this.handleClientEdit}
+            onClientHide={this.handleClientHide}
             onClientDelete={this.handleClientTryDelete}
           />
         }
@@ -316,7 +354,7 @@ class ClientList extends React.Component<Props, State> {
           }
           <List>
             {state.clients &&
-              state.clients.map(cl =>
+              state.clients.filter(cl => !cl.hidden).map(cl =>
                 <ClientItem
                   key={cl.id}
                   client={cl}

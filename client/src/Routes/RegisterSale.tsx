@@ -23,6 +23,7 @@ import RemoveIcon from '@material-ui/icons/Remove'
 import Layout from '../components/Layout'
 import { fetchJsonAuth, money } from '../utils'
 import { AuthRouteComponentProps } from '../AuthRoute'
+import { Client } from '../models'
 
 const styles: StyleRulesCallback = (theme: Theme) => ({
   title: {
@@ -130,13 +131,6 @@ interface RegisterSaleProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
-interface Client {
-  id: number
-  code:string
-  name: string
-  defaultCash: boolean
-}
-
 interface User {
   id: number
   code:string
@@ -202,9 +196,10 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     return undefined
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const auth = this.props.auth
-    const clients: Client[] = await fetchJsonAuth('/api/clients', auth)
+    let clients: Client[] = await fetchJsonAuth('/api/clients', auth)
+    clients = clients.filter(cl => !cl.hidden)
     this.setState({clients, clientId: clients[0].id, cash: clients[0].defaultCash})
 
     const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clients[0].id, auth)
