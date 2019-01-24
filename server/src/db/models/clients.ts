@@ -4,9 +4,9 @@ export interface ClientAttributes {
   name: string
   code: string
   id: number
-
   // Deafult for the UI selection of "this client pays in cash"
   defaultCash: boolean
+  hidden: boolean
 }
 
 export type ClientInstance = Instance<ClientAttributes> & ClientAttributes
@@ -33,7 +33,12 @@ export default function(sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
-    }
+    },
+    hidden: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   });
 
   Clients.associate = function(models: Models) {
