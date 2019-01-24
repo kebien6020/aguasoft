@@ -107,7 +107,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function getClient(idParam: string) {
+async function getClient(idParam: string, includePrices: boolean = false) {
   const id = Number(idParam)
 
   if (isNaN(id)) {
@@ -116,7 +116,17 @@ async function getClient(idParam: string) {
     throw e
   }
 
-  const client = await Clients.findByPk(id)
+  let options = {}
+  if (includePrices) {
+    options = {
+      include: [{
+        model: Prices,
+        attributes: ['name', 'productId', 'value'],
+      }]
+    }
+  }
+
+  const client = await Clients.findByPk(id, options)
 
   if (!client) {
     const e = Error(`Client with id ${id} doesn't exist in the database`)
@@ -169,7 +179,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function detail(req: Request, res: Response, next: NextFunction) {
   try {
-    const client = await getClient(req.params.id)
+    const client = await getClient(req.params.id, true)
 
     res.json(client)
 
