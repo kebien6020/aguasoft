@@ -10,7 +10,7 @@ const Prices = models.Prices as PriceModel
 export async function list(_req: Request, res: Response, next: NextFunction) {
   try {
     const clients = await Clients.findAll({
-      attributes: ['id', 'name', 'code', 'defaultCash'],
+      attributes: ['id', 'name', 'code', 'defaultCash', 'hidden'],
       order: ['code']
     })
 
@@ -107,25 +107,31 @@ export async function create(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+async function getClient(idParam: string) {
+  const id = Number(idParam)
+
+  if (isNaN(id)) {
+    const e = Error(':id in the url should be numeric')
+    e.name = 'bad_request'
+    throw e
+  }
+
+  const client = await Clients.findByPk(id)
+
+  if (!client) {
+    const e = Error(`Client with id ${id} doesn't exist in the database`)
+    e.name = 'not_found'
+    throw e
+  }
+
+  return client
+}
+
 export async function update(req: Request, res: Response, next: NextFunction) {
   try {
     checkCreateEditInput(req.body)
 
-    const id = Number(req.params.id)
-
-    if (isNaN(id)) {
-      const e = Error(':id in the url should be numeric')
-      e.name = 'bad_request'
-      throw e
-    }
-
-    const client = await Clients.findByPk(id)
-
-    if (!client) {
-      const e = Error(`Client with id ${id} doesn't exist in the database`)
-      e.name = 'not_found'
-      throw e
-    }
+    const client = await getClient(req.params.id)
 
     const newPrices = (req.body.prices as Array<any>).map(pr =>
       Object.assign({}, pr, {clientId: client.id})
@@ -163,25 +169,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
 export async function detail(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = Number(req.params.id)
-
-    if (isNaN(id)) {
-      const e = Error(':id in the url should be numeric')
-      e.name = 'bad_request'
-      throw e
-    }
-
-    const client = await Clients.findByPk(id, {
-      include: [{
-        model: Prices,
-        attributes: ['name', 'productId', 'value'],
-      }]
-    })
-    if (!client) {
-      const e = Error(`Client with id ${id} doesn't exist in the database`)
-      e.name = 'not_found'
-      throw e
-    }
+    const client = await getClient(req.params.id)
 
     res.json(client)
 
@@ -192,21 +180,7 @@ export async function detail(req: Request, res: Response, next: NextFunction) {
 
 export async function remove(req: Request, res: Response, next: NextFunction) {
   try {
-    const id = Number(req.params.id)
-
-    if (isNaN(id)) {
-      const e = Error(':id in the url should be numeric')
-      e.name = 'bad_request'
-      throw e
-    }
-
-    const client = await Clients.findByPk(id)
-
-    if (!client) {
-      const e = Error(`Client with id ${id} doesn't exist in the database`)
-      e.name = 'not_found'
-      throw e
-    }
+    const client = await getClient(req.params.id)
 
     await sequelize.transaction(async t => {
       // FK constraint should remove all prices but let's not
@@ -222,6 +196,30 @@ export async function remove(req: Request, res: Response, next: NextFunction) {
       // Actually remove client
       return client.destroy({transaction: t})
     })
+
+    res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function hide(req: Request, res: Response, next: NextFunction) {
+  try {
+    const client = await getClient(req.params.id)
+
+    await client.update({hidden: true})
+
+    res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function unhide(req: Request, res: Response, next: NextFunction) {
+  try {
+    const client = await getClient(req.params.id)
+
+    await client.update({hidden: false})
 
     res.json({success: true})
   } catch (e) {
