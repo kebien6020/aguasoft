@@ -24,4 +24,5 @@ export interface Client {
   name: string
   code: string
   defaultCash: boolean
+  hidden: boolean
 }

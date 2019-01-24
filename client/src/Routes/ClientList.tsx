@@ -19,10 +19,16 @@ import Button from '@material-ui/core/Button'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import Checkbox from '@material-ui/core/Checkbox'
 import BackIcon from '@material-ui/icons/ArrowBack'
 import PersonIcon from '@material-ui/icons/Person'
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete'
+import VisibilityIcon from '@material-ui/icons/Visibility'
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
 import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
@@ -44,12 +50,18 @@ const ClientItemRaw = ({classes, client, className, onClick}: ClientItemProps) =
   <>
     <ListItem className={className} button onClick={onClick}>
       <ListItemAvatar>
-        <Avatar className={client.defaultCash ? classes.cash : classes.post}>
+        <Avatar className={client.hidden ?
+          classes.hiddenIcon :
+          (client.defaultCash ? classes.cash : classes.post)
+        }>
           <PersonIcon />
         </Avatar>
       </ListItemAvatar>
       <ListItemText
         primary={client.name}
+        primaryTypographyProps={{
+          className: client.hidden ? classes.hiddenText : ''
+        }}
       />
     </ListItem>
     <Divider />
@@ -63,6 +75,12 @@ const clientStyles = {
   post: {
     backgroundColor: colors.deepOrange[500],
   },
+  hiddenText: {
+    color: colors.grey[500],
+  },
+  hiddenIcon: {
+    backgroundColor: colors.grey[500],
+  },
 }
 
 const ClientItem = withStyles(clientStyles)(ClientItemRaw)
@@ -72,6 +90,8 @@ interface ClientDialogProps extends PropClasses {
   open: boolean
   onClose: () => any
   onClientEdit: (cl: Client) => any
+  onClientHide: (cl: Client) => any
+  onClientUnhide: (cl: Client) => any
   onClientDelete: (cl: Client) => any
 }
 
@@ -86,6 +106,23 @@ const ClientDialogRaw = (props: ClientDialogProps) => (
           <EditIcon className={props.classes.editIcon} />
         </ListItemIcon>
         <ListItemText primary='Editar' />
+      </ListItem>
+      <ListItem button onClick={() => props.client.hidden ?
+        props.onClientUnhide(props.client) :
+        props.onClientHide(props.client)
+      }>
+        <ListItemIcon>
+          {props.client.hidden ?
+            <VisibilityOffIcon /> :
+            <VisibilityIcon />
+          }
+        </ListItemIcon>
+        <ListItemText
+          primary={props.client.hidden ?
+            'Desocultar' :
+            'Ocultar'
+          }
+        />
       </ListItem>
       <ListItem button onClick={() => props.onClientDelete(props.client)}>
         <ListItemIcon>
@@ -124,6 +161,8 @@ interface State {
   redirectToEdit: boolean
   deletedClient: string | null // Client name if not null
   errorDeleting: boolean
+  menuAnchor: HTMLElement | null
+  showHidden: boolean
 }
 
 class ClientList extends React.Component<Props, State> {
@@ -138,6 +177,8 @@ class ClientList extends React.Component<Props, State> {
       redirectToEdit: false,
       deletedClient: null,
       errorDeleting: false,
+      menuAnchor: null,
+      showHidden: false,
     }
   }
 
@@ -231,6 +272,66 @@ class ClientList extends React.Component<Props, State> {
     this.setState({redirectToEdit: true})
   }
 
+  handleClientHide = async () => {
+    const { state, props } = this
+
+    if (!state.clients) return
+    const client = state.selectedClient
+    if (!client) return
+
+    const res = await fetchJsonAuth(`/api/clients/${client.id}/hide`, props.auth, {
+      'method': 'POST',
+    })
+
+    if (res.success) {
+      const newClients = state.clients.map(cl => {
+        if (cl === client) {
+          return {...cl, hidden: true}
+        }
+        return cl
+      })
+
+      this.setState({clients: newClients, clientDialogOpen: false})
+    }
+
+    // TODO: Show some error if we fail to hide the client
+  }
+
+  handleClientUnhide = async () => {
+    const { state, props } = this
+
+    if (!state.clients) return
+    const client = state.selectedClient
+    if (!client) return
+
+    const res = await fetchJsonAuth(`/api/clients/${client.id}/unhide`, props.auth, {
+      'method': 'POST',
+    })
+
+    if (res.success) {
+      const newClients = state.clients.map(cl => {
+        if (cl === client) {
+          return {...cl, hidden: false}
+        }
+        return cl
+      })
+
+      this.setState({clients: newClients, clientDialogOpen: false})
+    }
+
+    // TODO: Show some error if we fail to unhide the client
+  }
+
+  handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => this.setState({menuAnchor: event.currentTarget})
+  handleMenuClose = () => this.setState({menuAnchor: null})
+
+  toggleHidden = () => {
+    this.setState({
+      showHidden: !this.state.showHidden,
+      menuAnchor: null,
+    })
+  }
+
   render() {
     const { props, state } = this
     const { classes } = props
@@ -242,6 +343,10 @@ class ClientList extends React.Component<Props, State> {
     if (state.redirectToEdit && state.selectedClient) {
       return <Redirect push to={`/clients/${state.selectedClient.id}`} />
     }
+
+    const clients = state.showHidden ?
+      state.clients :
+      state.clients.filter(cl => !cl.hidden)
 
     return (
       <Layout>
@@ -264,6 +369,29 @@ class ClientList extends React.Component<Props, State> {
             >
               Nuevo
             </Button>
+            <IconButton
+              aria-label='Menu'
+              aria-owns={open ? 'menu' : undefined}
+              aria-haspopup='true'
+              onClick={this.handleMenuOpen}
+              color='inherit'
+            >
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              id='menu'
+              anchorEl={state.menuAnchor}
+              open={Boolean(state.menuAnchor)}
+              onClose={this.handleMenuClose}
+            >
+              <MenuItem onClick={this.toggleHidden}>
+                Ver ocultos
+                <Checkbox
+                  checked={state.showHidden}
+                  onChange={this.toggleHidden}
+                />
+              </MenuItem>
+            </Menu>
           </Toolbar>
         </AppBar>
         {state.clientDialogOpen && state.selectedClient &&
@@ -272,6 +400,8 @@ class ClientList extends React.Component<Props, State> {
             onClose={this.handleClientDialogClose}
             client={state.selectedClient}
             onClientEdit={this.handleClientEdit}
+            onClientHide={this.handleClientHide}
+            onClientUnhide={this.handleClientUnhide}
             onClientDelete={this.handleClientTryDelete}
           />
         }
@@ -315,8 +445,7 @@ class ClientList extends React.Component<Props, State> {
             />
           }
           <List>
-            {state.clients &&
-              state.clients.map(cl =>
+            {clients.map(cl =>
                 <ClientItem
                   key={cl.id}
                   client={cl}
