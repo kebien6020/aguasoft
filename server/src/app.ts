@@ -7,6 +7,7 @@ import * as bodyParser from 'body-parser'
 import * as cors from 'cors'
 import * as session from 'express-session'
 import * as ConnectSessionSequelize from 'connect-session-sequelize'
+import * as compression from 'compression'
 import * as routes from './routes'
 import jsonErrorHandler from './utils/jsonErrors'
 import { sequelize } from './db/models'
@@ -44,6 +45,7 @@ const app = express()
 // app.use('*', (req:any, res: any, next: any) => {console.log(req); next()})
 
 // Common middleware
+app.use(compression()) // Use gzip to compress all requests
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
@@ -51,7 +53,7 @@ app.use(sessionMiddleware)
 
 // Serve static assets
 const STATIC_FOLDER = path.resolve(__dirname, '../../client/dist')
-const INDEX_FILE = path.resolve(__dirname, '../../client/index.html')
+const INDEX_FILE = path.resolve(__dirname, '../../client/dist/index.html')
 app.use(express.static(STATIC_FOLDER))
 
 // API routes

@@ -3,10 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "jsx": "react",
-    "target": "es5",
+    "target": "esNext",
     "lib": ["es5", "es6", "dom"],
     "skipLibCheck": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "module": "ESNext",
+    "moduleResolution": "Node"
   },
   "include": [
       "src/**/*"

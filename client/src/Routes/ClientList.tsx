@@ -350,7 +350,7 @@ class ClientList extends React.Component<Props, State> {
 
     return (
       <Layout>
-        <AppBar position='fixed' className={classes.appbar}>
+        <AppBar position='static' className={classes.appbar}>
           <Toolbar>
             <IconButton
               className={classes.backButton}

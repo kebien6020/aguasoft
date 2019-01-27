@@ -1,3 +1,6 @@
+@echo Building the client in production mode
+call yarn build
+
 @echo Backing up the database
 ssh -i "%USERPROFILE%\.ssh\id_rsa" -t kevin@kevinpena.com "cd /var/www/aguasoft && node scripts/backup"
 
@@ -12,7 +15,6 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 --perms --chmod=775 ^
 --include="/client/" ^
---include="/client/index.html" ^
 --include="/client/dist/" ^
 --include="/client/dist/**" ^
 --include="/server/" ^

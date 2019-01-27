@@ -17,7 +17,7 @@ async function adminOnly(req: Request, _res: Response, next: NextFunction) {
       throw e
     }
 
-    const user = await Users.findById(req.session.userId)
+    const user = await Users.findByPk(req.session.userId)
 
     if (user.role !== 'admin') {
       const e = Error(req.path + ' is admin only')

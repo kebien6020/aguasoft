@@ -16,7 +16,7 @@ const AuthStatus = {
 }
 
 interface AuthRouteProps extends RouteProps {
-  component: React.ComponentType
+  component: React.ComponentType<any>
   private?: boolean
 }
 
