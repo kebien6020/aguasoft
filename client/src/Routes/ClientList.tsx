@@ -40,8 +40,12 @@ import LoadingScreen from '../components/LoadingScreen'
 import Alert from '../components/Alert'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 
+interface ClientWithNotes extends Client {
+  notes: string
+}
+
 interface ClientItemProps extends PropClasses {
-  client: Client
+  client: ClientWithNotes
   className: string
   onClick?: () => any
 }
@@ -86,13 +90,13 @@ const clientStyles = {
 const ClientItem = withStyles(clientStyles)(ClientItemRaw)
 
 interface ClientDialogProps extends PropClasses {
-  client: Client
+  client: ClientWithNotes
   open: boolean
   onClose: () => any
-  onClientEdit: (cl: Client) => any
-  onClientHide: (cl: Client) => any
-  onClientUnhide: (cl: Client) => any
-  onClientDelete: (cl: Client) => any
+  onClientEdit: (cl: ClientWithNotes) => any
+  onClientHide: (cl: ClientWithNotes) => any
+  onClientUnhide: (cl: ClientWithNotes) => any
+  onClientDelete: (cl: ClientWithNotes) => any
 }
 
 const ClientDialogRaw = (props: ClientDialogProps) => (
@@ -148,15 +152,15 @@ const clientDialogStyles : StyleRulesCallback = (theme: Theme) => ({
 
 const ClientDialog = withStyles(clientDialogStyles)(ClientDialogRaw)
 
-type ClientsResponse = Client[] | ErrorResponse
+type ClientsResponse = ClientWithNotes[] | ErrorResponse
 
 type Props = AuthRouteComponentProps<any> & PropClasses
 
 interface State {
   clientsError: boolean
-  clients: Client[] | null
+  clients: ClientWithNotes[] | null
   clientDialogOpen: boolean
-  selectedClient: Client | null
+  selectedClient: ClientWithNotes | null
   clientDeleteDialogOpen: boolean
   redirectToEdit: boolean
   deletedClient: string | null // Client name if not null
@@ -187,7 +191,7 @@ class ClientList extends React.Component<Props, State> {
     let clients = null
     try {
       clients =
-        await fetchJsonAuth('/api/clients', props.auth) as ClientsResponse
+        await fetchJsonAuth('/api/clients?includeNotes=true', props.auth) as ClientsResponse
     } catch (e) {
       this.setState({clientsError: true})
     }
@@ -206,7 +210,7 @@ class ClientList extends React.Component<Props, State> {
 
   renderLinkBack = (props: any) => <Link to='/' {...props} />
 
-  handleClientClick = (client: Client) => {
+  handleClientClick = (client: ClientWithNotes) => {
     this.setState({
       clientDialogOpen: true,
       selectedClient: client,
@@ -220,7 +224,7 @@ class ClientList extends React.Component<Props, State> {
     })
   }
 
-  handleClientTryDelete = (client: Client) => {
+  handleClientTryDelete = (client: ClientWithNotes) => {
     this.setState({
       clientDialogOpen: false,
       clientDeleteDialogOpen: true,
