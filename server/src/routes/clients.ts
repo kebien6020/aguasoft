@@ -61,6 +61,7 @@ function checkCreateEditInput(body: any) {
   if (typeof body.name !== 'string') paramError('name', 'string')
   if (typeof body.code !== 'string') paramError('code', 'string')
   if (typeof body.defaultCash !== 'boolean') paramError('defaultCash', 'boolean')
+  if (typeof body.notes !== 'string') paramError('defaultCash', 'string')
   if (!Array.isArray(body.prices)) paramError('prices', 'array')
   for (const price of body.prices) {
     const allowedKeys = ['name', 'productId', 'value']
@@ -83,13 +84,14 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       Pick<PriceAttributes, 'name' | 'productId' | 'value'>
 
     type IncompleteClient =
-      Pick<ClientAttributes, 'name' | 'code' | 'defaultCash'>
+      Pick<ClientAttributes, 'name' | 'code' | 'defaultCash' | 'notes'>
       & { 'Prices': IncompletePrice[] }
 
     const client : IncompleteClient = {
       name: req.body.name,
       code: req.body.code,
       defaultCash: req.body.defaultCash,
+      notes: req.body.notes,
       'Prices': req.body.prices
     }
 
@@ -161,6 +163,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         name: req.body.name,
         code: req.body.code,
         defaultCash: req.body.defaultCash,
+        notes: req.body.notes,
       }, {transaction: t})
 
       // Create new prices
