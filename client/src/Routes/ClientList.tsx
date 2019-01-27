@@ -66,6 +66,7 @@ const ClientItemRaw = ({classes, client, className, onClick}: ClientItemProps) =
         primaryTypographyProps={{
           className: client.hidden ? classes.hiddenText : ''
         }}
+        secondary={client.notes && client.notes.split('\n')[0]}
       />
     </ListItem>
     <Divider />
