@@ -29,6 +29,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
+import NoteIcon from '@material-ui/icons/Chat'
 import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
@@ -98,6 +99,7 @@ interface ClientDialogProps extends PropClasses {
   onClientHide: (cl: ClientWithNotes) => any
   onClientUnhide: (cl: ClientWithNotes) => any
   onClientDelete: (cl: ClientWithNotes) => any
+  onClientShowNotes: (cl: ClientWithNotes) => any
 }
 
 const ClientDialogRaw = (props: ClientDialogProps) => (
@@ -112,6 +114,14 @@ const ClientDialogRaw = (props: ClientDialogProps) => (
         </ListItemIcon>
         <ListItemText primary='Editar' />
       </ListItem>
+      {props.client.notes &&
+        <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
+          <ListItemIcon>
+            <NoteIcon />
+          </ListItemIcon>
+          <ListItemText primary='Ver info. de contacto' />
+        </ListItem>
+      }
       <ListItem button onClick={() => props.client.hidden ?
         props.onClientUnhide(props.client) :
         props.onClientHide(props.client)
@@ -168,6 +178,7 @@ interface State {
   errorDeleting: boolean
   menuAnchor: HTMLElement | null
   showHidden: boolean
+  notesDialogOpen: boolean
 }
 
 class ClientList extends React.Component<Props, State> {
@@ -184,6 +195,7 @@ class ClientList extends React.Component<Props, State> {
       errorDeleting: false,
       menuAnchor: null,
       showHidden: false,
+      notesDialogOpen: false,
     }
   }
 
@@ -337,6 +349,13 @@ class ClientList extends React.Component<Props, State> {
     })
   }
 
+  handleClientShowNotes = () => {
+    if (!this.state.selectedClient) return
+
+    this.setState({notesDialogOpen: true, clientDialogOpen: false})
+  }
+  handleNotesDialogClose = () => this.setState({notesDialogOpen: false})
+
   render() {
     const { props, state } = this
     const { classes } = props
@@ -408,6 +427,7 @@ class ClientList extends React.Component<Props, State> {
             onClientHide={this.handleClientHide}
             onClientUnhide={this.handleClientUnhide}
             onClientDelete={this.handleClientTryDelete}
+            onClientShowNotes={this.handleClientShowNotes}
           />
         }
         {state.clientDeleteDialogOpen && state.selectedClient &&
@@ -429,6 +449,30 @@ class ClientList extends React.Component<Props, State> {
               </Button>
               <Button onClick={this.handleClientDelete} className={classes.deleteButton}>
                 Eliminar
+              </Button>
+            </DialogActions>
+          </Dialog>
+        }
+        {state.notesDialogOpen && state.selectedClient &&
+          <Dialog
+            open={true}
+            onClose={this.handleNotesDialogClose}
+          >
+            <DialogTitle style={{marginBottom: 0}}>
+              {state.selectedClient.name}: Informacion de Contacto
+            </DialogTitle>
+            <DialogContent>
+              {state.selectedClient.notes &&
+                state.selectedClient.notes.split('\n').map((note, idx) =>
+                  <DialogContentText key={idx}>
+                    {note}
+                  </DialogContentText>
+                )
+              }
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleNotesDialogClose} autoFocus color='primary'>
+                Cerrar
               </Button>
             </DialogActions>
           </Dialog>
