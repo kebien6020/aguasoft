@@ -7,10 +7,14 @@ import { sequelize } from '../db/models'
 const Clients = models.Clients as ClientModel
 const Prices = models.Prices as PriceModel
 
-export async function list(_req: Request, res: Response, next: NextFunction) {
+export async function list(req: Request, res: Response, next: NextFunction) {
   try {
+    const attributes = ['id', 'name', 'code', 'defaultCash', 'hidden']
+    if (req.query.includeNotes = 'true') {
+      attributes.push('notes')
+    }
     const clients = await Clients.findAll({
-      attributes: ['id', 'name', 'code', 'defaultCash', 'hidden'],
+      attributes,
       order: ['code']
     })
 
