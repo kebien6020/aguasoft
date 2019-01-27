@@ -18,7 +18,7 @@ const style: React.CSSProperties = {
 export default (props: {text: string}) => (
   <Layout>
     <div style={style}>
-      <img src={'/' + logo} style={{marginBottom: '32px'}} />
+      <img src={logo} style={{marginBottom: '32px'}} />
       <div style={{marginBottom: '16px'}}><CircularProgress /></div>
       <Typography  variant="h6">{props.text}</Typography>
     </div>
