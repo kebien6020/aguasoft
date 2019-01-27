@@ -70,7 +70,6 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
     let { sells } = req.body
 
     sells = sells.map((s: any) => Object.assign(s, {userId: req.session.userId}))
-    console.log(sells)
     await Sells.bulkCreate(sells, {
       // Only allow user input to control these attributes
       fields: [
