@@ -7,6 +7,7 @@ export interface ClientAttributes {
   // Deafult for the UI selection of "this client pays in cash"
   defaultCash: boolean
   hidden: boolean
+  notes: string
 }
 
 export type ClientInstance = Instance<ClientAttributes> & ClientAttributes
@@ -38,6 +39,10 @@ export default function(sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    notes: {
+      type: DataTypes.TEXT,
+      defaultValue: null,
     },
   });
 

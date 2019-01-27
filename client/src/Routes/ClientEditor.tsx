@@ -36,8 +36,9 @@ interface ClientDefaults {
   code: string
 }
 
-interface ClientWithPrices extends Client {
+interface DetailedClient extends Client {
   Prices: Price[]
+  notes: string
 }
 
 interface ClientError {
@@ -69,6 +70,7 @@ interface State {
   code: string
   name: string
   defaultCash: 'true' | 'false'
+  notes: string
   products: Product[]
   prices: IncompletePrice[]
   done: boolean
@@ -130,6 +132,7 @@ class ClientEditor extends React.Component<Props, State> {
       code: '',
       name: '',
       defaultCash: 'false' as 'true' | 'false',
+      notes: '',
       products: [] as Product[],
       prices: [] as IncompletePrice[],
       done: false,
@@ -150,7 +153,7 @@ class ClientEditor extends React.Component<Props, State> {
     const promises: [Promise<ClientDefaults|Client|ClientError>, Promise<Product[]>] = [
       state.mode === 'CREATE' ?
         fetchJsonAuth('/api/clients/defaultsForNew', props.auth) as Promise<ClientDefaults|ClientError> :
-        fetchJsonAuth('/api/clients/' + state.editId, props.auth) as Promise<ClientWithPrices|ClientError>,
+        fetchJsonAuth('/api/clients/' + state.editId, props.auth) as Promise<DetailedClient|ClientError>,
 
       fetchJsonAuth('/api/products/', props.auth) as Promise<Product[]>,
     ]
@@ -177,11 +180,12 @@ class ClientEditor extends React.Component<Props, State> {
         const createDefaults = defaults as ClientDefaults
         this.setState({code: createDefaults.code})
       } else {
-        const editDefaults = defaults as ClientWithPrices
+        const editDefaults = defaults as DetailedClient
         this.setState({
           code: editDefaults.code,
           name: editDefaults.name,
           defaultCash: editDefaults.defaultCash ? 'true' : 'false',
+          notes: editDefaults.notes,
           prices: editDefaults.Prices.map(pr =>
             Object.assign({}, pr, {value: String(pr.value)})
           ),
@@ -258,6 +262,7 @@ class ClientEditor extends React.Component<Props, State> {
       name: state.name,
       code: state.code,
       defaultCash: state.defaultCash === 'true',
+      notes: state.notes,
       prices: state.prices,
     })
 
@@ -386,6 +391,17 @@ class ClientEditor extends React.Component<Props, State> {
                   onChange={this.handleChange('name')}
                   error={state.errorEmptyName}
                   helperText={state.errorEmptyName ? 'Especifique un nombre' : null}
+                />
+                <TextField
+                  id='notes'
+                  label='Informacion de Contacto'
+                  margin='normal'
+                  fullWidth
+                  multiline
+                  rows={3}
+                  variant='outlined'
+                  value={state.notes}
+                  onChange={this.handleChange('notes')}
                 />
                 <FormControl fullWidth margin='normal'>
                   <InputLabel htmlFor='defaultCash'>Pago</InputLabel>

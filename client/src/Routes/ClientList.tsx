@@ -29,6 +29,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
+import NoteIcon from '@material-ui/icons/Chat'
 import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
@@ -40,8 +41,12 @@ import LoadingScreen from '../components/LoadingScreen'
 import Alert from '../components/Alert'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 
+interface ClientWithNotes extends Client {
+  notes: string
+}
+
 interface ClientItemProps extends PropClasses {
-  client: Client
+  client: ClientWithNotes
   className: string
   onClick?: () => any
 }
@@ -62,6 +67,7 @@ const ClientItemRaw = ({classes, client, className, onClick}: ClientItemProps) =
         primaryTypographyProps={{
           className: client.hidden ? classes.hiddenText : ''
         }}
+        secondary={client.notes && client.notes.split('\n')[0]}
       />
     </ListItem>
     <Divider />
@@ -86,13 +92,14 @@ const clientStyles = {
 const ClientItem = withStyles(clientStyles)(ClientItemRaw)
 
 interface ClientDialogProps extends PropClasses {
-  client: Client
+  client: ClientWithNotes
   open: boolean
   onClose: () => any
-  onClientEdit: (cl: Client) => any
-  onClientHide: (cl: Client) => any
-  onClientUnhide: (cl: Client) => any
-  onClientDelete: (cl: Client) => any
+  onClientEdit: (cl: ClientWithNotes) => any
+  onClientHide: (cl: ClientWithNotes) => any
+  onClientUnhide: (cl: ClientWithNotes) => any
+  onClientDelete: (cl: ClientWithNotes) => any
+  onClientShowNotes: (cl: ClientWithNotes) => any
 }
 
 const ClientDialogRaw = (props: ClientDialogProps) => (
@@ -107,6 +114,14 @@ const ClientDialogRaw = (props: ClientDialogProps) => (
         </ListItemIcon>
         <ListItemText primary='Editar' />
       </ListItem>
+      {props.client.notes &&
+        <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
+          <ListItemIcon>
+            <NoteIcon />
+          </ListItemIcon>
+          <ListItemText primary='Ver info. de contacto' />
+        </ListItem>
+      }
       <ListItem button onClick={() => props.client.hidden ?
         props.onClientUnhide(props.client) :
         props.onClientHide(props.client)
@@ -148,21 +163,22 @@ const clientDialogStyles : StyleRulesCallback = (theme: Theme) => ({
 
 const ClientDialog = withStyles(clientDialogStyles)(ClientDialogRaw)
 
-type ClientsResponse = Client[] | ErrorResponse
+type ClientsResponse = ClientWithNotes[] | ErrorResponse
 
 type Props = AuthRouteComponentProps<any> & PropClasses
 
 interface State {
   clientsError: boolean
-  clients: Client[] | null
+  clients: ClientWithNotes[] | null
   clientDialogOpen: boolean
-  selectedClient: Client | null
+  selectedClient: ClientWithNotes | null
   clientDeleteDialogOpen: boolean
   redirectToEdit: boolean
   deletedClient: string | null // Client name if not null
   errorDeleting: boolean
   menuAnchor: HTMLElement | null
   showHidden: boolean
+  notesDialogOpen: boolean
 }
 
 class ClientList extends React.Component<Props, State> {
@@ -179,6 +195,7 @@ class ClientList extends React.Component<Props, State> {
       errorDeleting: false,
       menuAnchor: null,
       showHidden: false,
+      notesDialogOpen: false,
     }
   }
 
@@ -187,7 +204,7 @@ class ClientList extends React.Component<Props, State> {
     let clients = null
     try {
       clients =
-        await fetchJsonAuth('/api/clients', props.auth) as ClientsResponse
+        await fetchJsonAuth('/api/clients?includeNotes=true', props.auth) as ClientsResponse
     } catch (e) {
       this.setState({clientsError: true})
     }
@@ -206,7 +223,7 @@ class ClientList extends React.Component<Props, State> {
 
   renderLinkBack = (props: any) => <Link to='/' {...props} />
 
-  handleClientClick = (client: Client) => {
+  handleClientClick = (client: ClientWithNotes) => {
     this.setState({
       clientDialogOpen: true,
       selectedClient: client,
@@ -220,7 +237,7 @@ class ClientList extends React.Component<Props, State> {
     })
   }
 
-  handleClientTryDelete = (client: Client) => {
+  handleClientTryDelete = (client: ClientWithNotes) => {
     this.setState({
       clientDialogOpen: false,
       clientDeleteDialogOpen: true,
@@ -332,6 +349,13 @@ class ClientList extends React.Component<Props, State> {
     })
   }
 
+  handleClientShowNotes = () => {
+    if (!this.state.selectedClient) return
+
+    this.setState({notesDialogOpen: true, clientDialogOpen: false})
+  }
+  handleNotesDialogClose = () => this.setState({notesDialogOpen: false})
+
   render() {
     const { props, state } = this
     const { classes } = props
@@ -403,6 +427,7 @@ class ClientList extends React.Component<Props, State> {
             onClientHide={this.handleClientHide}
             onClientUnhide={this.handleClientUnhide}
             onClientDelete={this.handleClientTryDelete}
+            onClientShowNotes={this.handleClientShowNotes}
           />
         }
         {state.clientDeleteDialogOpen && state.selectedClient &&
@@ -424,6 +449,30 @@ class ClientList extends React.Component<Props, State> {
               </Button>
               <Button onClick={this.handleClientDelete} className={classes.deleteButton}>
                 Eliminar
+              </Button>
+            </DialogActions>
+          </Dialog>
+        }
+        {state.notesDialogOpen && state.selectedClient &&
+          <Dialog
+            open={true}
+            onClose={this.handleNotesDialogClose}
+          >
+            <DialogTitle style={{marginBottom: 0}}>
+              {state.selectedClient.name}: Informacion de Contacto
+            </DialogTitle>
+            <DialogContent>
+              {state.selectedClient.notes &&
+                state.selectedClient.notes.split('\n').map((note, idx) =>
+                  <DialogContentText key={idx}>
+                    {note}
+                  </DialogContentText>
+                )
+              }
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleNotesDialogClose} autoFocus color='primary'>
+                Cerrar
               </Button>
             </DialogActions>
           </Dialog>
