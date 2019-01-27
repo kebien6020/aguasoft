@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Suspense, lazy } from 'react'
 import { BrowserRouter, Switch } from 'react-router-dom'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
@@ -9,19 +10,20 @@ import MomentUtils from '@date-io/moment'
 import * as moment from 'moment'
 import 'moment/locale/es'
 
-import CheckUser from './Routes/CheckUser'
-import RegisterSale from './Routes/RegisterSale'
-import AuthCallback from './Routes/AuthCallback'
-import SilentAuth from './Routes/SilentAuth'
-import Logout from './Routes/Logout'
-import MonitorSells from './Routes/MonitorSells'
-import Dashboard from './Routes/Dashboard'
-import ClientEditor from './Routes/ClientEditor'
-import ClientList from './Routes/ClientList'
-
 import CssBaseline from '@material-ui/core/CssBaseline'
 
-import Route from './AuthRoute'
+import LoadingScreen from './components/LoadingScreen'
+
+const Route =        lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
+const CheckUser =    lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
+const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/RegisterSale'))
+const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
+const SilentAuth =   lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
+const Logout =       lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
+const MonitorSells = lazy(() => import(/* webpackChunkName: "monitor-sells" */ './Routes/MonitorSells'))
+const Dashboard =    lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/Dashboard'))
+const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
+const ClientList =   lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
 
 moment.locale('es')
 
@@ -32,20 +34,22 @@ class App extends React.Component {
         <BrowserRouter>
           <MuiThemeProvider theme={theme}>
             <CssBaseline />
-            <Switch>
-              <Route exact path='/authCallback' component={AuthCallback} />
-              <Route exact path='/silentAuth' component={SilentAuth} />
-              <Route exact path='/logout' component={Logout} />
+            <Suspense fallback={<LoadingScreen text='Cargando página...'/>}>
+              <Switch>
+                <Route exact path='/authCallback' component={AuthCallback} />
+                <Route exact path='/silentAuth' component={SilentAuth} />
+                <Route exact path='/logout' component={Logout} />
 
-              <Route exact private path='/' component={Dashboard} />
-              <Route exact private path='/monitor/sells' component={MonitorSells} />
-              <Route exact private path='/check' component={CheckUser} />
-              <Route exact private path='/sell' component={RegisterSale} />
+                <Route exact private path='/' component={Dashboard} />
+                <Route exact private path='/monitor/sells' component={MonitorSells} />
+                <Route exact private path='/check' component={CheckUser} />
+                <Route exact private path='/sell' component={RegisterSale} />
 
-              <Route exact private path='/clients' component={ClientList} />
-              <Route exact private path='/clients/new' component={ClientEditor} />
-              <Route exact private path='/clients/:id' component={ClientEditor} />
-            </Switch>
+                <Route exact private path='/clients' component={ClientList} />
+                <Route exact private path='/clients/new' component={ClientEditor} />
+                <Route exact private path='/clients/:id' component={ClientEditor} />
+              </Switch>
+            </Suspense>
           </MuiThemeProvider>
         </BrowserRouter>
       </MuiPickersUtilsProvider>
