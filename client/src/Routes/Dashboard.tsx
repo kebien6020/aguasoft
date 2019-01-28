@@ -23,6 +23,7 @@ interface DashboardProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 interface DashboardState {
   gotoSell: boolean
+  gotoPayment: boolean
   date: moment.Moment
   sells: Sell[]
 }
@@ -34,14 +35,23 @@ const Title = (props: any) => (
 )
 
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
-  state = {
-    gotoSell: false,
-    date: moment().startOf('day'),
-    sells: [] as Sell[],
+
+  constructor(props: DashboardProps) {
+    super(props)
+    this.state = {
+      gotoSell: false,
+      gotoPayment: false,
+      date: moment().startOf('day'),
+      sells: [] as Sell[],
+    }
   }
 
   handleLogin = () => {
     this.setState({gotoSell: true})
+  }
+
+  handleLoginPayment = () => {
+    this.setState({gotoPayment: true})
   }
 
   handleDateChange = (date: Date) => {
@@ -64,11 +74,19 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
       return <Redirect to='/sell' push />
     }
 
+    if (state.gotoPayment) {
+      return <Redirect to='/payment' push />
+    }
+
     return (
       <div className={classes.layout}>
         <Title classes={classes}>Registrar Venta</Title>
         <Paper className={classes.login}>
           <Login onSuccess={this.handleLogin} auth={props.auth} />
+        </Paper>
+        <Title classes={classes}>Registrar Pago</Title>
+        <Paper className={classes.login}>
+          <Login onSuccess={this.handleLoginPayment} auth={props.auth} />
         </Paper>
         <Grid container className={classes.bottomSection}>
           <Grid item xs={12} md={8}>
