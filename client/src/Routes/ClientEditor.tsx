@@ -279,7 +279,7 @@ class ClientEditor extends React.Component<Props, State> {
     }
 
     if (!res.success) {
-      if (res.error.code === 'validation_error') {
+      if (res.error.code === 'validation_error' && res.error.errors && res.error.errors[0]) {
         const field = res.error.errors[0].path
         if (field === 'name' || field === 'code') {
           this.setState({errorDuplicatedField: field})
