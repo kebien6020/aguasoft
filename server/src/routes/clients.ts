@@ -65,7 +65,7 @@ function checkCreateEditInput(body: any) {
   if (typeof body.name !== 'string') paramError('name', 'string')
   if (typeof body.code !== 'string') paramError('code', 'string')
   if (typeof body.defaultCash !== 'boolean') paramError('defaultCash', 'boolean')
-  if (typeof body.notes !== 'string') paramError('defaultCash', 'string')
+  if (typeof body.notes !== 'string') paramError('notes', 'string')
   if (!Array.isArray(body.prices)) paramError('prices', 'array')
   for (const price of body.prices) {
     const allowedKeys = ['name', 'productId', 'value']
@@ -84,6 +84,8 @@ export async function create(req: Request, res: Response, next: NextFunction) {
   try {
     checkCreateEditInput(req.body)
 
+    const notes = req.body.notes === '' ? null : req.body.notes
+
     type IncompletePrice =
       Pick<PriceAttributes, 'name' | 'productId' | 'value'>
 
@@ -95,7 +97,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       name: req.body.name,
       code: req.body.code,
       defaultCash: req.body.defaultCash,
-      notes: req.body.notes,
+      notes: notes,
       'Prices': req.body.prices
     }
 
@@ -147,6 +149,8 @@ export async function update(req: Request, res: Response, next: NextFunction) {
   try {
     checkCreateEditInput(req.body)
 
+    const notes = req.body.notes === '' ? null : req.body.notes
+
     const client = await getClient(req.params.id)
 
     const newPrices = (req.body.prices as Array<any>).map(pr =>
@@ -167,7 +171,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         name: req.body.name,
         code: req.body.code,
         defaultCash: req.body.defaultCash,
-        notes: req.body.notes,
+        notes: notes,
       }, {transaction: t})
 
       // Create new prices
