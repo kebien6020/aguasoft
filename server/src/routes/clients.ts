@@ -15,7 +15,10 @@ export async function list(req: Request, res: Response, next: NextFunction) {
     }
     const clients = await Clients.findAll({
       attributes,
-      order: ['code']
+      order: [
+        sequelize.literal('CASE WHEN `code` = \'001\' THEN 0 ELSE 1 END'),
+        'name'
+      ],
     })
 
     res.json(clients)
