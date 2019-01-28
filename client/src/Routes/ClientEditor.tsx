@@ -185,7 +185,7 @@ class ClientEditor extends React.Component<Props, State> {
           code: editDefaults.code,
           name: editDefaults.name,
           defaultCash: editDefaults.defaultCash ? 'true' : 'false',
-          notes: editDefaults.notes,
+          notes: editDefaults.notes || '',
           prices: editDefaults.Prices.map(pr =>
             Object.assign({}, pr, {value: String(pr.value)})
           ),
