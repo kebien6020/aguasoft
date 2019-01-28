@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+node scripts/backup.js
+NODE_PATH=./scripts node -r tinker.js -i --experimental-repl-await
