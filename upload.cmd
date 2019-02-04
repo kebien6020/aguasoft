@@ -36,4 +36,4 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 )
 
 @echo Installing packages and running migrations
-ssh -i "%USERPROFILE%\.ssh\id_rsa" -t kevin@kevinpena.com "cd /var/www/aguasoft && yarn --production && sequelize db:migrate --env production"
+ssh -i "%USERPROFILE%\.ssh\id_rsa" -t kevin@kevinpena.com "cd /var/www/aguasoft && yarn --production && yarn migrate-prod"
