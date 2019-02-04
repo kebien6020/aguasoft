@@ -1,15 +1,17 @@
 {
   "scripts": {
     "build-server-js": "copyfiles -f ./server/src/db/config.json ./server/dist/db && tsc -p server",
-    "watch-server-js": "yarn build-server-js -- -w",
+    "watch-server-js": "yarn build-server-js -w",
     "start-server": "node server/dist/index.js",
     "start-server-autoreload": "nodemon server/dist/index.js -w server/dist",
     "dev-server": "npm-run-all -p watch-server-js start-server-autoreload",
     "build-client-dev": "webpack --config client/webpack.dev.js",
     "build": "webpack --config client/webpack.prod.js",
-    "watch-client-js": "yarn build-client-dev -- -w",
+    "watch-client-js": "yarn build-client-dev -w",
     "dev": "npm-run-all -p dev-server watch-client-js",
-    "analyze": "webpack-bundle-analyzer ./client/dist/stats.json"
+    "analyze": "webpack-bundle-analyzer ./client/dist/stats.json",
+    "migrate": "sequelize db:migrate",
+    "migrate-prod": "sequelize db:migrate --env production"
   },
   "devDependencies": {
     "@date-io/moment": "^1.0.1",
@@ -59,6 +61,7 @@
     "express-session": "^1.15.6",
     "jwks-rsa": "^1.2.1",
     "sequelize": "^4.36.0",
+    "sequelize-cli": "^5.4.0",
     "sqlite3": "^4.0.4"
   }
 }
