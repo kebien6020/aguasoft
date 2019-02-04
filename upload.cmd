@@ -25,6 +25,8 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 --include="/server/src/db/migration-utils.js" ^
 --include="/server/src/db/migrations/" ^
 --include="/server/src/db/migrations/**" ^
+--include="/scripts/" ^
+--include="/scripts/**" ^
 --include=".sequelizerc" ^
 --include="package.json" ^
 --include="yarn.lock" ^
