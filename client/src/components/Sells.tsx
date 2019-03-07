@@ -117,8 +117,8 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
 
     const userColorLookup : {[index:string] : string} = {
       '001': colors.blue[500],
-      '002': colors.green[500],
-      '003': colors.pink[500],
+      '002': colors.pink[500],
+      '003': colors.green[500],
     }
 
     const getUserColor = (userCode: string) => (
