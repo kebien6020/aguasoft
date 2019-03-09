@@ -114,7 +114,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
         },
         {
           model: models.Clients,
-          attributes: ['name', 'id'],
+          attributes: ['name', 'id', 'defaultCash'],
         },
         {
           model: models.Users,
