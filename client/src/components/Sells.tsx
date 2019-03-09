@@ -23,7 +23,7 @@ import 'moment/locale/es'
 moment.locale('es')
 
 export interface Sell {
-  Client: {name: string},
+  Client: {name: string, id: number, defaultCash: boolean},
   Product: {name: string},
   User: {name: string; code: string},
   Prices: {name: string; value: string}[],
