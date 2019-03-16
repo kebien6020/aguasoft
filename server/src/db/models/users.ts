@@ -35,7 +35,8 @@ export default function makeUsers(sequelize: Sequelize, DataTypes: DataTypes) {
       associate: function(_models: Models) {
         // associations can be defined here
       }
-    }
+    },
+    paranoid: true,
   });
   return Users;
 };

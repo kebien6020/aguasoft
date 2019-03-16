@@ -25,6 +25,8 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 --include="/server/src/db/migration-utils.js" ^
 --include="/server/src/db/migrations/" ^
 --include="/server/src/db/migrations/**" ^
+--include="/scripts/" ^
+--include="/scripts/**" ^
 --include=".sequelizerc" ^
 --include="package.json" ^
 --include="yarn.lock" ^
@@ -34,4 +36,4 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 )
 
 @echo Installing packages and running migrations
-ssh -i "%USERPROFILE%\.ssh\id_rsa" -t kevin@kevinpena.com "cd /var/www/aguasoft && yarn --production && sequelize db:migrate --env production"
+ssh -i "%USERPROFILE%\.ssh\id_rsa" -t kevin@kevinpena.com "cd /var/www/aguasoft && yarn --production && yarn migrate-prod"
