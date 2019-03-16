@@ -4,6 +4,7 @@ export interface PaymentAttributes {
   id: number
   value: string
   clientId: number
+  userId: number
   date: Date
   dateFrom: Date
   dateTo: Date
@@ -29,6 +30,10 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       allowNull: false,
     },
     clientId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -61,6 +66,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
   Payments.associate = function(models: Models) {
     // associations can be defined here
     Payments.belongsTo(models.Clients)
+    Payments.belongsTo(models.Users)
   }
   return Payments;
 }
