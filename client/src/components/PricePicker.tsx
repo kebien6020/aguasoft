@@ -14,7 +14,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
 
-import * as NumberFormat from 'react-number-format'
+import PriceField from './PriceField'
 
 import { Product, Price } from '../models'
 
@@ -34,39 +34,6 @@ interface State {
 }
 
 type ValChangeEvent = { target: { value: string } }
-
-interface NumFormatProps extends NumberFormat.NumberFormatProps {
-  inputRef?: React.Ref<Element>
-  onChange?: (event: ValChangeEvent) => void
-}
-
-function NumberFormatCustom(props: NumFormatProps) {
-  const { inputRef, onChange, ...other } = props;
-
-  return (
-
-    // @ts-ignore Weird typing error requiring esModuleInterop in the tsconfig
-    //            which breaks the rest of the code
-    <NumberFormat
-      {...other}
-      getInputRef={inputRef}
-      thousandSeparator='.'
-      decimalSeparator=','
-      onValueChange={(values: any) => {
-        if (!onChange) return
-        onChange({
-          target: {
-            value: values.value,
-          },
-        });
-      }}
-      prefix='$'
-      decimalScale={4}
-      isNumericString
-    />
-  )
-}
-
 
 class PricePicker extends React.Component<Props, State> {
   state = {
@@ -173,11 +140,8 @@ class PricePicker extends React.Component<Props, State> {
                 }
               </Select>
             </FormControl>
-            <TextField
+            <PriceField
               label='Valor'
-              margin='normal'
-              fullWidth
-              InputProps={{inputComponent: NumberFormatCustom}}
               onChange={this.handleChange('currentPrice')}
               value={state.currentPrice}
             />
