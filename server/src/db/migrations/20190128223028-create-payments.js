@@ -60,7 +60,11 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
     }, {logging: console.log});
   },
   down: (queryInterface, Sequelize) => {

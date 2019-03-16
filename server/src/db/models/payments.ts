@@ -62,7 +62,9 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       allowNull: false,
       defaultValue: true,
     },
-  }, {})
+  }, {
+    paranoid: true,
+  })
   Payments.associate = function(models: Models) {
     // associations can be defined here
     Payments.belongsTo(models.Clients)
