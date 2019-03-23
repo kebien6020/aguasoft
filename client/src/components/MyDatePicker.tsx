@@ -1,13 +1,16 @@
 import * as React from 'react'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import DatePicker from 'material-ui-pickers/DatePicker'
+import { DatePickerProps } from 'material-ui-pickers/DatePicker'
 import * as moment from 'moment'
 
 type DateChangeHandler = (date: Date) => any
 
 interface MyDatePickerProps {
+  label?: React.ReactNode
   date: Date
   onDateChange: DateChangeHandler
+  DatePickerProps?: Partial<DatePickerProps>
 }
 
 type MyDatePickerPropsAll = MyDatePickerProps & PropClasses
@@ -18,11 +21,13 @@ const MyDatePicker = (props : MyDatePickerPropsAll) => (
     {/*
     // @ts-ignore */}
     <DatePicker
+      label={props.label}
       className={props.classes.datePicker}
       value={props.date}
       format='DD-MMM-YYYY'
       disableFuture
       onChange={(date) => handleDateChange(date, props.date, props.onDateChange)}
+      {...props.DatePickerProps}
     />
   </div>
 )
