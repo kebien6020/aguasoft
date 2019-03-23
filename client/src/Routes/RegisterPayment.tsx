@@ -20,6 +20,8 @@ import {
   Theme,
 } from '@material-ui/core/styles'
 
+import * as moment from 'moment'
+
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
 import ResponsiveContainer from '../components/ResponsiveContainer'
@@ -38,10 +40,10 @@ interface State {
   selectedClientId: string | null
   moneyAmount: string
   invoiceEnabled: boolean
-  invoiceDate: Date
+  invoiceDate: moment.Moment
   datesEnabled: boolean
-  startDate: Date
-  endDate: Date
+  startDate: moment.Moment
+  endDate: moment.Moment
 }
 
 type ValChangeEvent = { target: { value: string } }
@@ -57,10 +59,10 @@ class RegisterPayment extends React.Component<Props, State> {
       clients: null,
       moneyAmount: '',
       invoiceEnabled: false,
-      invoiceDate: new Date(),
+      invoiceDate: moment().startOf('day'),
       datesEnabled: false,
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: moment().startOf('day'),
+      endDate: moment().startOf('day'),
     }
   }
 
@@ -97,7 +99,7 @@ class RegisterPayment extends React.Component<Props, State> {
     }))
   }
 
-  handleChangeDate = (name: keyof State) => (date: Date) => {
+  handleChangeDate = (name: keyof State) => (date: moment.Moment) => {
     this.setState((prevState: State) => ({
         ...prevState,
         [name]: date,

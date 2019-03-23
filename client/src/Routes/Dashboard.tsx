@@ -54,8 +54,8 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     this.setState({gotoPayment: true})
   }
 
-  handleDateChange = (date: Date) => {
-    this.setState({date: moment(date)})
+  handleDateChange = (date: moment.Moment) => {
+    this.setState({date})
   }
 
   handleSellsChanged = (sells: Sell[]) => {
@@ -92,7 +92,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
           <Grid item xs={12} md={8}>
             <Title classes={classes}>Ventas del Día</Title>
             <MyDatePicker
-              date={state.date.toDate()}
+              date={state.date}
               onDateChange={this.handleDateChange}
             />
             <Sells

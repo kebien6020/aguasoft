@@ -4,11 +4,11 @@ import DatePicker from 'material-ui-pickers/DatePicker'
 import { DatePickerProps } from 'material-ui-pickers/DatePicker'
 import * as moment from 'moment'
 
-type DateChangeHandler = (date: Date) => any
+type DateChangeHandler = (date: moment.Moment) => any
 
 interface MyDatePickerProps {
   label?: React.ReactNode
-  date: Date
+  date: moment.Moment
   onDateChange: DateChangeHandler
   DatePickerProps?: Partial<DatePickerProps>
 }
@@ -33,12 +33,12 @@ const MyDatePicker = (props : MyDatePickerPropsAll) => (
 )
 
 function handleDateChange(
-  date: Date,
-  previousDate: Date,
+  date: moment.Moment,
+  previousDate: moment.Moment,
   onDateChange: DateChangeHandler)
 {
   // Ignore change when same day is selected
-  if (!moment(date).isSame(previousDate, 'day')) {
+  if (!date.isSame(previousDate, 'day')) {
     onDateChange(date)
   }
 }
