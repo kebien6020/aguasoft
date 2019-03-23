@@ -41,9 +41,14 @@ interface State {
   moneyAmount: string
   invoiceEnabled: boolean
   invoiceDate: moment.Moment
+  invoiceNumber: string
   datesEnabled: boolean
   startDate: moment.Moment
   endDate: moment.Moment
+
+  moneyAmountError: string | null
+  invoiceNumberError: string | null
+  datesError: string | null
 }
 
 type ValChangeEvent = { target: { value: string } }
@@ -60,9 +65,14 @@ class RegisterPayment extends React.Component<Props, State> {
       moneyAmount: '',
       invoiceEnabled: false,
       invoiceDate: moment().startOf('day'),
+      invoiceNumber: '',
       datesEnabled: false,
       startDate: moment().startOf('day'),
       endDate: moment().startOf('day'),
+
+      moneyAmountError: null,
+      invoiceNumberError: null,
+      datesError: null,
     }
   }
 
@@ -89,6 +99,15 @@ class RegisterPayment extends React.Component<Props, State> {
         ...prevState,
         [name]: value,
     }))
+
+    // Error clearing
+    const { state } = this
+    if (name === 'moneyAmount' && state.moneyAmountError !== null) {
+      this.setState({moneyAmountError: null})
+    }
+    if (name === 'invoiceNumber' && state.invoiceNumberError !== null) {
+      this.setState({invoiceNumberError: null})
+    }
   }
 
   handleChangeChecked = (name: keyof State) => (event: CheckedChangeEvent) => {
@@ -104,6 +123,47 @@ class RegisterPayment extends React.Component<Props, State> {
         ...prevState,
         [name]: date,
     }))
+
+    // Error clearing
+    const { state } = this
+    if ((name === 'startDate' || name === 'endDate') && state.datesError !== null) {
+      this.setState({datesError: null})
+    }
+  }
+
+  validateForm = () => {
+    const { state } = this
+    let ok = true
+    if (state.moneyAmount === '') {
+      this.setState({moneyAmountError: 'Obligatorio'})
+      ok = false
+    } else if (Number(state.moneyAmount) === 0) {
+      this.setState({moneyAmountError: 'El dinero recibido no puede ser $0'})
+      ok = false
+    }
+
+    if (state.invoiceEnabled) {
+      if (state.invoiceNumber === '') {
+        this.setState({invoiceNumberError: 'Obligatorio'})
+        ok = false
+      }
+    }
+
+    if (state.datesEnabled) {
+      if (state.startDate.isAfter(state.endDate)) {
+        const msg = 'La fecha de inicio debe ser anterior a la fecha final'
+        this.setState({datesError: msg})
+        ok = false
+      }
+    }
+
+    return ok
+  }
+
+  handleSubmit = () => {
+    const valid = this.validateForm()
+    if (!valid) return
+
   }
 
   render() {
@@ -150,6 +210,10 @@ class RegisterPayment extends React.Component<Props, State> {
                       label='Dinero recibido'
                       onChange={this.handleChange('moneyAmount')}
                       value={state.moneyAmount}
+                      TextFieldProps={{
+                        error: state.moneyAmountError !== null,
+                        helperText: state.moneyAmountError,
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -185,6 +249,10 @@ class RegisterPayment extends React.Component<Props, State> {
                             variant='standard'
                             inputProps={{min: 0}}
                             fullWidth
+                            onChange={this.handleChange('invoiceNumber')}
+                            value={state.invoiceNumber}
+                            error={state.invoiceNumberError !== null}
+                            helperText={state.invoiceNumberError}
                           />
                         </div>
                       </Grid>
@@ -211,6 +279,8 @@ class RegisterPayment extends React.Component<Props, State> {
                           onDateChange={this.handleChangeDate('startDate')}
                           DatePickerProps={{
                             fullWidth: true,
+                            error: state.datesError !== null,
+                            helperText: state.datesError,
                           }}
                         />
                       </Grid>
@@ -233,6 +303,7 @@ class RegisterPayment extends React.Component<Props, State> {
                       variant='contained'
                       color='primary'
                       fullWidth
+                      onClick={this.handleSubmit}
                     >
                       Registrar Pago
                     </Button>
