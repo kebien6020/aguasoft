@@ -30,7 +30,7 @@ import Alert from '../components/Alert'
 import LoadingScreen from '../components/LoadingScreen'
 import PriceField from '../components/PriceField'
 import DatePicker from '../components/MyDatePicker'
-import { Client } from '../models'
+import { Client, User } from '../models'
 import { fetchJsonAuth, isErrorResponse, ErrorResponse } from '../utils'
 
 interface Props extends AuthRouteComponentProps<{}>, PropClasses { }
@@ -45,6 +45,9 @@ interface State {
   datesEnabled: boolean
   startDate: moment.Moment
   endDate: moment.Moment
+  localPayment: boolean
+
+  userIsAdmin: boolean
 
   moneyAmountError: string | null
   invoiceNumberError: string | null
@@ -69,6 +72,9 @@ class RegisterPayment extends React.Component<Props, State> {
       datesEnabled: false,
       startDate: moment().startOf('day'),
       endDate: moment().startOf('day'),
+      localPayment: true,
+
+      userIsAdmin: false,
 
       moneyAmountError: null,
       invoiceNumberError: null,
@@ -86,9 +92,21 @@ class RegisterPayment extends React.Component<Props, State> {
       return
     }
 
+    const activeClients = clients.filter(cl => !cl.hidden)
+
     const selectedClientId = clients[0] ? String(clients[0].id) : null
 
-    this.setState({clients, selectedClientId})
+    this.setState({clients: activeClients, selectedClientId})
+
+    const user : User | ErrorResponse =
+      await fetchJsonAuth('/api/users/getCurrent', props.auth)
+
+    if (isErrorResponse(user)) {
+      console.error(user.error)
+      return
+    }
+
+    this.setState({userIsAdmin: user.role === 'admin'})
   }
 
   handleChange = (name: keyof State) => (event: ValChangeEvent) => {
@@ -298,6 +316,17 @@ class RegisterPayment extends React.Component<Props, State> {
                       </Grid>
                     </Grid>
                   </Collapse>
+                  {state.userIsAdmin &&
+                    <Grid item xs={12}>
+                      <Typography variant='body2'>
+                        Pago en planta
+                        <Switch
+                          checked={state.localPayment}
+                          onChange={this.handleChangeChecked('localPayment')}
+                        />
+                      </Typography>
+                    </Grid>
+                  }
                   <Grid item xs={12} className={classes.buttonContainer}>
                     <Button
                       variant='contained'
