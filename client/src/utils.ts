@@ -65,6 +65,10 @@ export interface ErrorResponse {
   }
 }
 
+export interface SuccessResponse {
+  success: true
+}
+
 export function isErrorResponse(
   data: object | ErrorResponse): data is ErrorResponse
 {

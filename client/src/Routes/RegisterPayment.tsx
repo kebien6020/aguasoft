@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { Redirect } from 'react-router-dom'
 import {
   Paper,
   FormControl,
@@ -31,7 +32,12 @@ import LoadingScreen from '../components/LoadingScreen'
 import PriceField from '../components/PriceField'
 import DatePicker from '../components/MyDatePicker'
 import { Client, User } from '../models'
-import { fetchJsonAuth, isErrorResponse, ErrorResponse } from '../utils'
+import {
+  fetchJsonAuth,
+  isErrorResponse,
+  ErrorResponse,
+  SuccessResponse
+} from '../utils'
 
 interface Props extends AuthRouteComponentProps<{}>, PropClasses { }
 interface State {
@@ -45,13 +51,16 @@ interface State {
   datesEnabled: boolean
   startDate: moment.Moment
   endDate: moment.Moment
-  localPayment: boolean
+  directPayment: boolean
 
   userIsAdmin: boolean
 
   moneyAmountError: string | null
   invoiceNumberError: string | null
   datesError: string | null
+  submitionError: string | null
+
+  redirectToHome: boolean
 }
 
 type ValChangeEvent = { target: { value: string } }
@@ -72,13 +81,16 @@ class RegisterPayment extends React.Component<Props, State> {
       datesEnabled: false,
       startDate: moment().startOf('day'),
       endDate: moment().startOf('day'),
-      localPayment: true,
+      directPayment: true,
 
       userIsAdmin: false,
 
       moneyAmountError: null,
       invoiceNumberError: null,
       datesError: null,
+      submitionError: null,
+
+      redirectToHome: false,
     }
   }
 
@@ -92,9 +104,9 @@ class RegisterPayment extends React.Component<Props, State> {
       return
     }
 
-    const activeClients = clients.filter(cl => !cl.hidden)
+    const activeClients = clients.filter(cl => !cl.hidden && !cl.defaultCash)
 
-    const selectedClientId = clients[0] ? String(clients[0].id) : null
+    const selectedClientId = activeClients[0] ? String(activeClients[0].id) : null
 
     this.setState({clients: activeClients, selectedClientId})
 
@@ -178,10 +190,52 @@ class RegisterPayment extends React.Component<Props, State> {
     return ok
   }
 
-  handleSubmit = () => {
+  handleSubmit = async () => {
     const valid = this.validateForm()
     if (!valid) return
 
+    const { state, props } = this
+    interface Payload {
+      value: number
+      clientId: number
+      dateFrom?: string
+      dateTo?: string
+      invoiceNo?: string
+      invoiceDate?: string
+      directPayment?: boolean
+    }
+    const payload : Payload = {
+      value: Number(state.moneyAmount),
+      clientId: Number(state.selectedClientId),
+    }
+
+    if (state.datesEnabled) {
+      payload.dateFrom = state.startDate.format('YYYY-MM-DD')
+      payload.dateTo = state.endDate.format('YYYY-MM-DD')
+    }
+
+    if (state.invoiceEnabled) {
+      payload.invoiceNo = state.invoiceNumber
+      payload.invoiceDate = state.invoiceDate.format('YYYY-MM-DD')
+    }
+
+    if (state.userIsAdmin) {
+      payload.directPayment = state.directPayment
+    }
+
+    const response : SuccessResponse | ErrorResponse =
+      await fetchJsonAuth('/api/payments/new', props.auth, {
+        method: 'post',
+        body: JSON.stringify(payload),
+      })
+
+    if (isErrorResponse(response)) {
+      this.setState({submitionError: 'Error al intentar registrar el pago.'})
+      console.error(response.error)
+      return
+    }
+
+    this.setState({redirectToHome: true})
   }
 
   render() {
@@ -192,11 +246,18 @@ class RegisterPayment extends React.Component<Props, State> {
       return <LoadingScreen text='Cargando clientes' />
     }
 
+    if (state.redirectToHome) {
+      return <Redirect to='/' push />
+    }
+
     return (
       <Layout>
         <ResponsiveContainer>
           <Paper className={classes.paper}>
             <Title>Registrar Pago</Title>
+            {state.submitionError !== null &&
+              <Alert message={state.submitionError} type='error' />
+            }
             {state.selectedClientId ?
               <form>
                 <Grid container spacing={0} justify='space-between'>
@@ -321,8 +382,8 @@ class RegisterPayment extends React.Component<Props, State> {
                       <Typography variant='body2'>
                         Pago en planta
                         <Switch
-                          checked={state.localPayment}
-                          onChange={this.handleChangeChecked('localPayment')}
+                          checked={state.directPayment}
+                          onChange={this.handleChangeChecked('directPayment')}
                         />
                       </Typography>
                     </Grid>
