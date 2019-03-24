@@ -65,6 +65,7 @@ app.use('/api/clients', routes.clients)
 app.use('/api/products', routes.products)
 app.use('/api/prices', routes.prices)
 app.use('/api/sells', routes.sells)
+app.use('/api/payments', routes.payments)
 
 // Error handler for any error thrown
 // in any route or middleware

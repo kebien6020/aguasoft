@@ -5,6 +5,7 @@ import * as clientHandlers from './clients'
 import * as productHandlers from './products'
 import * as priceHandlers from './prices'
 import * as sellHandlers from './sells'
+import * as paymentHandlers from './payments'
 
 import adminOnly from '../utils/adminOnly'
 
@@ -36,3 +37,6 @@ sells.post('/bulkNew', sellHandlers.bulkCreate)
 sells.get('/listDay', sellHandlers.listDay)
 sells.get('/listFrom', sellHandlers.listFrom)
 sells.delete('/:id', sellHandlers.del)
+
+export const payments = Router()
+payments.post('/new', paymentHandlers.create)

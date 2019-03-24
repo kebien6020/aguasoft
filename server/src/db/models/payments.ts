@@ -43,19 +43,19 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
     },
     dateFrom: {
       type: DataTypes.DATEONLY,
-      allowNull: false,
+      allowNull: true,
     },
     dateTo: {
       type: DataTypes.DATEONLY,
-      allowNull: false,
+      allowNull: true,
     },
     invoiceNo: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     invoiceDate: {
       type: DataTypes.DATEONLY,
-      allowNull: false,
+      allowNull: true,
     },
     directPayment: {
       type: DataTypes.BOOLEAN,
@@ -64,6 +64,13 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
     },
   }, {
     paranoid: true,
+    validate: {
+      bothDatesOrNone() {
+        if ((this.dateFrom === null) !== (this.dateTo === null)) {
+          throw new Error('Specify both dates or neither')
+        }
+      },
+    },
   })
   Payments.associate = function(models: Models) {
     // associations can be defined here

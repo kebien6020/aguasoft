@@ -34,19 +34,19 @@ module.exports = {
       },
       dateFrom: {
         type: Sequelize.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       dateTo: {
         type: Sequelize.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       invoiceNo: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       invoiceDate: {
         type: Sequelize.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       directPayment: {
         type: Sequelize.BOOLEAN,
