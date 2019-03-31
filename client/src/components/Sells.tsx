@@ -14,13 +14,9 @@ import DeleteIcon from '@material-ui/icons/Delete'
 
 import Alert from './Alert'
 
-import { fetchJsonAuth, money } from '../utils'
-import Auth from '../Auth'
+import { money } from '../utils'
 
-import { Moment } from 'moment'
 import * as moment from 'moment'
-import 'moment/locale/es'
-moment.locale('es')
 
 export interface Sell {
   Client: {name: string, id: number, defaultCash: boolean},
@@ -38,67 +34,20 @@ export interface Sell {
 }
 
 interface SellsState {
-  sells?: Sell[] | null
+
 }
 
 interface SellsProps {
-  day: Moment
-  auth: Auth
-
-  onSellsChanged?: (sells: Sell[]) => any
+  sells: Sell[]
+  onDeleteSell: (sellId: number) => any
 }
 
 type SellsPropsAll = SellsProps & PropClasses
 
 class Sells extends React.Component<SellsPropsAll, SellsState> {
-  componentWillMount() {
-    this.updateContents(this.props.day)
-  }
-
-  componentWillReceiveProps(props: SellsPropsAll) {
-    this.updateContents(props.day)
-  }
-
-  updateContents = async (date: Moment) => {
-    const { auth } = this.props
-    this.setState({sells: null})
-    const sells: Sell[] = await fetchJsonAuth(
-      '/api/sells/listDay?day=' + date.format('YYYY-MM-DD'),
-      auth
-    )
-
-    this.setState({sells})
-
-    if (this.props.onSellsChanged)
-      this.props.onSellsChanged(sells)
-  }
-
-  handleClickDelete = async (sellId: number) => {
-    if (!this.state.sells) return
-
-    const { auth } = this.props
-
-    const result = await fetchJsonAuth('/api/sells/' + sellId, auth, {
-      method: 'delete',
-    })
-
-    if (result && result.success) {
-      const sells = [...this.state.sells]
-      const sell = sells.find(s => s.id === sellId)
-      if (!sell) {
-        console.error('Trying to mutate unknown sellId', sellId)
-        return
-      }
-      sell.deleted = true
-
-      this.setState({sells})
-    } else {
-      console.error(result)
-    }
-  }
 
   render() {
-    const { state } = this
+    const { props } = this
     const { classes } = this.props
 
     const getCardClass = (sell: Sell) => {
@@ -137,15 +86,15 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
 
     return (
       <Grid container spacing={16}>
-        {state.sells && state.sells.length === 0 &&
+        {props.sells && props.sells.length === 0 &&
           <Grid item xs={12}>
             <Typography variant='h5'>
               No se registaron ventas este día.
             </Typography>
           </Grid>
         }
-        {state.sells ?
-          state.sells.map((sell, key) => (
+        {props.sells ?
+          props.sells.map((sell, key) => (
             <Grid item xs={12} key={key}>
               <Card className={getCardClass(sell)}>
                 <div className={classes.cardMain}>
@@ -180,7 +129,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
                   </CardContent>
                   <IconButton
                     className={classes.deleteButton}
-                    onClick={() => this.handleClickDelete(sell.id)}
+                    onClick={() => props.onDeleteSell(sell.id)}
                     disabled={sell.deleted}
                   >
                     <DeleteIcon />

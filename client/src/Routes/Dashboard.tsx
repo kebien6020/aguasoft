@@ -11,9 +11,12 @@ import Login from '../components/Login'
 import Sells, { Sell } from '../components/Sells'
 import MyDatePicker from '../components/MyDatePicker'
 import DayOverview from '../components/DayOverview'
+import LoadingScreen from '../components/LoadingScreen'
+import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
 
 import { Redirect, Link } from 'react-router-dom'
 import * as moment from 'moment'
+import { Moment } from 'moment'
 import 'moment/locale/es'
 moment.locale('es')
 
@@ -25,7 +28,7 @@ interface DashboardState {
   gotoSell: boolean
   gotoPayment: boolean
   date: moment.Moment
-  sells: Sell[]
+  sells: Sell[] | null
 }
 
 const Title = (props: any) => (
@@ -42,7 +45,25 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
       gotoSell: false,
       gotoPayment: false,
       date: moment().startOf('day'),
-      sells: [] as Sell[],
+      sells: null,
+    }
+  }
+
+  componentDidMount() {
+    this.updateSells(this.state.date)
+  }
+
+  updateSells = async (date: Moment) => {
+    const { props } = this
+    const sells: ErrorResponse | Sell[] = await fetchJsonAuth(
+      '/api/sells/listDay?day=' + date.format('YYYY-MM-DD'),
+      props.auth
+    )
+
+    if (!isErrorResponse(sells)) {
+      this.setState({sells})
+    } else {
+      console.error(sells.error)
     }
   }
 
@@ -55,12 +76,33 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
   }
 
   handleDateChange = (date: moment.Moment) => {
+    this.updateSells(date)
     this.setState({date})
   }
 
-  handleSellsChanged = (sells: Sell[]) => {
-    if (this.state.sells.length !== sells.length)
+  handleDeleteSell = async (sellId: number) => {
+    if (!this.state.sells) return
+
+    const { props } = this
+
+    const result : ErrorResponse | SuccessResponse = await
+      fetchJsonAuth('/api/sells/' + sellId, props.auth, {
+        method: 'delete',
+      })
+
+    if (!isErrorResponse(result)) {
+      const sells = [...this.state.sells]
+      const sell = sells.find(s => s.id === sellId)
+      if (!sell) {
+        console.error('Trying to mutate unknown sellId', sellId)
+        return
+      }
+      sell.deleted = true
+
       this.setState({sells})
+    } else {
+      console.error(result)
+    }
   }
 
   renderLinkClients = (props: any) => <Link to='/clients' {...props} />
@@ -69,6 +111,10 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
   render() {
     const { state, props } = this
     const { classes } = this.props
+
+    if (state.sells === null) {
+      return <LoadingScreen text='Cargando ventas' />
+    }
 
     if (state.gotoSell) {
       return <Redirect to='/sell' push />
@@ -101,9 +147,8 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
           <Grid item xs={12} md={8}>
             <Title classes={classes}>Ventas del Día</Title>
             <Sells
-              day={state.date}
-              auth={props.auth}
-              onSellsChanged={this.handleSellsChanged}
+              sells={state.sells}
+              onDeleteSell={this.handleDeleteSell}
             />
           </Grid>
           <Grid item xs={12} md={4}>
