@@ -11,12 +11,13 @@ interface MyDatePickerProps {
   date: moment.Moment
   onDateChange: DateChangeHandler
   DatePickerProps?: Partial<DatePickerProps>
+  className?: string
 }
 
 type MyDatePickerPropsAll = MyDatePickerProps & PropClasses
 
 const MyDatePicker = (props : MyDatePickerPropsAll) => (
-  <div className={props.classes.datePickerContainer}>
+  <div className={[props.classes.datePickerContainer, props.className].join(' ')}>
 
     {/*
     // @ts-ignore */}
