@@ -88,13 +88,18 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         <Paper className={classes.login}>
           <Login onSuccess={this.handleLoginPayment} auth={props.auth} />
         </Paper>
+        <MyDatePicker
+          date={state.date}
+          className={classes.datePicker}
+          onDateChange={this.handleDateChange}
+          DatePickerProps={{
+            variant: 'outlined',
+            label: 'Fecha',
+          }}
+        />
         <Grid container className={classes.bottomSection}>
           <Grid item xs={12} md={8}>
             <Title classes={classes}>Ventas del Día</Title>
-            <MyDatePicker
-              date={state.date}
-              onDateChange={this.handleDateChange}
-            />
             <Sells
               day={state.date}
               auth={props.auth}
@@ -154,6 +159,10 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     display: 'block',
+  },
+  datePicker: {
+    marginTop: theme.spacing.unit * 4,
+    marginBottom: theme.spacing.unit * 0,
   },
 })
 
