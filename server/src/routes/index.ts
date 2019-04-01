@@ -40,3 +40,4 @@ sells.delete('/:id', sellHandlers.del)
 
 export const payments = Router()
 payments.post('/new', paymentHandlers.create)
+payments.get('/listDay', paymentHandlers.listDay)

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
+import { Op } from 'sequelize'
 import models from '../db/models'
 import { PaymentModel } from '../db/models/payments'
 import { UserModel } from '../db/models/users'
@@ -51,6 +52,50 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     })
 
     res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function listDay(req: Request, res: Response, next: NextFunction) {
+  try {
+    const day = moment(req.query.day).startOf('day')
+    const payments = await Payments.findAll({
+      attributes: [
+        'id',
+        'value',
+        'date',
+        'dateFrom',
+        'dateTo',
+        'invoiceNo',
+        'invoiceDate',
+        'directPayment',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+      ],
+      where: {
+        date: {
+          [Op.gte]: day.toISOString(),
+          [Op.lt]: day.add(1, 'day').toISOString(),
+        }
+      },
+      include: [
+        {
+          model: models.Clients,
+          attributes: ['name', 'id'],
+        },
+        {
+          model: models.Users,
+          attributes: ['name', 'code'],
+          paranoid: false,
+        },
+      ],
+      order: [['updatedAt', 'DESC']],
+      paranoid: false,
+    })
+
+    res.json(payments)
   } catch (e) {
     next(e)
   }
