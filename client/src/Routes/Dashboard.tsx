@@ -1,10 +1,16 @@
 import * as React from 'react'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
-import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogContent from '@material-ui/core/DialogContent'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Tooltip from '@material-ui/core/Tooltip'
+import Typography from '@material-ui/core/Typography'
+import * as colors from '@material-ui/core/colors'
+
+import { AttachMoney as MoneyIcon } from '@material-ui/icons'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
@@ -26,12 +32,18 @@ interface DashboardProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
+type LoginNextOptions = 'payments' | null
+
 interface DashboardState {
   gotoSell: boolean
   gotoPayment: boolean
+
   date: moment.Moment
   sells: Sell[] | null
   payments: Payment[] | null
+
+  loginDialogOpen: boolean
+  loginDialogNext: LoginNextOptions
 }
 
 const Title = (props: any) => (
@@ -50,6 +62,8 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
       date: moment().startOf('day'),
       sells: null,
       payments: null,
+      loginDialogOpen: false,
+      loginDialogNext: null,
     }
   }
 
@@ -90,8 +104,24 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     this.setState({gotoSell: true})
   }
 
-  handleLoginPayment = () => {
-    this.setState({gotoPayment: true})
+  handleLoginDialogOpen = (next: LoginNextOptions) => () => {
+    this.setState({loginDialogOpen: true, loginDialogNext: next})
+  }
+
+  handleLoginDialogClose = () => {
+    this.setState({loginDialogOpen: false, loginDialogNext: null})
+  }
+
+  handleLoginDialogSubmit = () => {
+    if (this.state.loginDialogNext === null) {
+      console.error('Login destination not set')
+      return
+    }
+    switch (this.state.loginDialogNext) {
+      case 'payments':
+        this.setState({gotoPayment: true})
+        break
+    }
   }
 
   handleDateChange = (date: moment.Moment) => {
@@ -177,13 +207,31 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
     return (
       <div className={classes.layout}>
+        <Dialog
+          open={state.loginDialogOpen}
+          onClose={this.handleLoginDialogClose}
+          fullWidth
+          maxWidth='xl'
+        >
+          <DialogContent>
+            <Login onSuccess={this.handleLoginDialogSubmit} auth={props.auth} />
+          </DialogContent>
+        </Dialog>
         <Title classes={classes}>Registrar Venta</Title>
         <Paper className={classes.login}>
           <Login onSuccess={this.handleLogin} auth={props.auth} />
         </Paper>
-        <Title classes={classes}>Registrar Pago</Title>
-        <Paper className={classes.login}>
-          <Login onSuccess={this.handleLoginPayment} auth={props.auth} />
+        <Title classes={classes}>Registrar Otros</Title>
+        <Paper className={classes.others}>
+          <Tooltip title='Pagos'>
+            <Button
+              variant='outlined'
+              className={classes.icon}
+              onClick={this.handleLoginDialogOpen('payments')}
+            >
+              <MoneyIcon />
+            </Button>
+          </Tooltip>
         </Paper>
         <MyDatePicker
           date={state.date}
@@ -264,6 +312,20 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   datePicker: {
     marginTop: theme.spacing.unit * 4,
     marginBottom: theme.spacing.unit * 0,
+  },
+  others: {
+    display: 'flex',
+    justifyItems: 'start',
+    padding: theme.spacing.unit,
+  },
+  icon: {
+    width: theme.spacing.unit * 12,
+    height: theme.spacing.unit * 12,
+    color: colors.green[500],
+    borderColor: colors.green[500],
+    '& svg': {
+      fontSize: theme.spacing.unit * 8,
+    }
   },
 })
 
