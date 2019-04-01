@@ -100,3 +100,15 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
     next(e)
   }
 }
+
+export async function del(req: Request, res: Response, next: NextFunction) {
+  try {
+    const paymentId = req.params.id
+    const payment = await Payments.findByPk(paymentId)
+    await payment.destroy()
+
+    res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
