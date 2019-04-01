@@ -26,3 +26,25 @@ export interface Client {
   defaultCash: boolean
   hidden: boolean
 }
+
+export interface Payment {
+  id: number
+  value: number
+  Client: {
+    id: number
+    name: string
+  }
+  User: {
+    id: number
+    name: string
+  }
+  date: string
+  dateFrom: string | null
+  dateTo: string | null
+  invoiceNo: string | null
+  invoiceDate: string | null
+  directPayment: boolean
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}

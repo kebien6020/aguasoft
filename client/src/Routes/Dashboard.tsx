@@ -9,10 +9,12 @@ import Button from '@material-ui/core/Button'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
 import Sells, { Sell } from '../components/Sells'
+import Payments from '../components/Payments'
 import MyDatePicker from '../components/MyDatePicker'
 import DayOverview from '../components/DayOverview'
 import LoadingScreen from '../components/LoadingScreen'
 import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
+import { Payment } from '../models'
 
 import { Redirect, Link } from 'react-router-dom'
 import * as moment from 'moment'
@@ -29,6 +31,7 @@ interface DashboardState {
   gotoPayment: boolean
   date: moment.Moment
   sells: Sell[] | null
+  payments: Payment[] | null
 }
 
 const Title = (props: any) => (
@@ -46,11 +49,13 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
       gotoPayment: false,
       date: moment().startOf('day'),
       sells: null,
+      payments: null,
     }
   }
 
   componentDidMount() {
     this.updateSells(this.state.date)
+    this.updatePayments(this.state.date)
   }
 
   updateSells = async (date: Moment) => {
@@ -67,6 +72,20 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
   }
 
+  updatePayments = async (date: Moment) => {
+    const { props } = this
+    const payments: ErrorResponse | Payment[] = await fetchJsonAuth(
+      '/api/payments/listDay?day=' + date.format('YYYY-MM-DD'),
+      props.auth
+    )
+
+    if (!isErrorResponse(payments)) {
+      this.setState({payments})
+    } else {
+      console.error(payments.error)
+    }
+  }
+
   handleLogin = () => {
     this.setState({gotoSell: true})
   }
@@ -77,6 +96,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   handleDateChange = (date: moment.Moment) => {
     this.updateSells(date)
+    this.updatePayments(date)
     this.setState({date})
   }
 
@@ -105,6 +125,33 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
   }
 
+  handleDeletePayment = async (paymentId: number) => {
+    if (!this.state.payments) return
+
+    const { props } = this
+
+    const result : ErrorResponse | SuccessResponse = await
+      fetchJsonAuth('/api/payments/' + paymentId, props.auth, {
+        method: 'delete',
+      })
+
+    if (!isErrorResponse(result)) {
+      const payments = [...this.state.payments]
+      const payment = payments.find(p => p.id === paymentId)
+
+      if (!payment) {
+        console.error('Trying to mutate unknown paymentId', paymentId)
+        return
+      }
+
+      payment.deletedAt = moment().toISOString()
+
+      this.setState({payments})
+    } else {
+      console.error(result.error)
+    }
+  }
+
   renderLinkClients = (props: any) => <Link to='/clients' {...props} />
 
 
@@ -114,6 +161,10 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
     if (state.sells === null) {
       return <LoadingScreen text='Cargando ventas' />
+    }
+
+    if (state.payments === null) {
+      return <LoadingScreen text='Cargando pagos' />
     }
 
     if (state.gotoSell) {
@@ -145,6 +196,11 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         />
         <Grid container className={classes.bottomSection}>
           <Grid item xs={12} md={8}>
+            <Title classes={classes}>Pagos del Día</Title>
+            <Payments
+              payments={state.payments}
+              onDeletePayment={this.handleDeletePayment}
+            />
             <Title classes={classes}>Ventas del Día</Title>
             <Sells
               sells={state.sells}
