@@ -4,6 +4,7 @@ export interface PaymentAttributes {
   id: number
   value: string
   clientId: number
+  userId: number
   date: Date
   dateFrom: Date
   dateTo: Date
@@ -32,35 +33,49 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     date: {
       type: DataTypes.DATE,
       allowNull: false,
     },
     dateFrom: {
       type: DataTypes.DATEONLY,
-      allowNull: false,
+      allowNull: true,
     },
     dateTo: {
       type: DataTypes.DATEONLY,
-      allowNull: false,
+      allowNull: true,
     },
     invoiceNo: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     invoiceDate: {
       type: DataTypes.DATEONLY,
-      allowNull: false,
+      allowNull: true,
     },
     directPayment: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
     },
-  }, {})
+  }, {
+    paranoid: true,
+    validate: {
+      bothDatesOrNone() {
+        if ((this.dateFrom === null) !== (this.dateTo === null)) {
+          throw new Error('Specify both dates or neither')
+        }
+      },
+    },
+  })
   Payments.associate = function(models: Models) {
     // associations can be defined here
     Payments.belongsTo(models.Clients)
+    Payments.belongsTo(models.Users)
   }
   return Payments;
 }

@@ -26,6 +26,7 @@ import LoadingScreen from '../components/LoadingScreen'
 import { fetchJsonAuth, money } from '../utils'
 import Layout from '../components/Layout'
 import ResponsiveContainer from '../components/ResponsiveContainer'
+import Title from '../components/Title'
 import PricePicker from '../components/PricePicker'
 import { IncompletePrice } from '../components/PricePicker'
 import { Product, Client, Price } from '../models'
@@ -83,12 +84,6 @@ interface State {
   errorEmptyCode: boolean
   errorDuplicatedField: 'name' | 'code' | null
 }
-
-const Title = (props: any) => (
-  <div className={props.classes.title}>
-    <Typography variant='h6'>{props.children}</Typography>
-  </div>
-)
 
 interface DuplicatedPriceDialogProps {
   priceError: PriceError | null
@@ -346,7 +341,7 @@ class ClientEditor extends React.Component<Props, State> {
 
           <ResponsiveContainer variant='normal'>
             <Paper className={classes.paper}>
-              <Title {...props}>
+              <Title>
                 {state.mode === 'CREATE' ?
                   'Crear Nuevo Cliente' :
                   `Editando Cliente ${state.name}`

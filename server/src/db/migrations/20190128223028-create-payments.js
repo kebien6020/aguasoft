@@ -20,25 +20,33 @@ module.exports = {
           key: 'id',
         },
       },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Users',
+          key: 'id',
+        },
+      },
       date: {
         type: Sequelize.DATE,
         allowNull: false,
       },
       dateFrom: {
         type: Sequelize.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       dateTo: {
         type: Sequelize.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       invoiceNo: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       invoiceDate: {
         type: Sequelize.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       directPayment: {
         type: Sequelize.BOOLEAN,
@@ -52,7 +60,11 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      },
+      deletedAt: {
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
     }, {logging: console.log});
   },
   down: (queryInterface, Sequelize) => {

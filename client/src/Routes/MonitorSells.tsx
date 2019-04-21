@@ -27,7 +27,7 @@ interface MonitorSellsProps extends PropClasses, AuthRouteComponentProps<{}> {
 }
 
 interface MonitorSellsState {
-  date: Date,
+  date: moment.Moment,
   sells: Sell[] | null,
 }
 
@@ -50,12 +50,12 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
   constructor(props: MonitorSellsProps) {
     super(props)
     this.state = {
-      date: new Date(),
+      date: moment(),
       sells: null,
     }
   }
 
-  handleDateChange = (date: Date) => {
+  handleDateChange = (date: moment.Moment) => {
     this.setState({date})
     this.updateContents(date)
   }
@@ -82,14 +82,14 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
   }
 
   componentWillMount() {
-    this.updateContents(new Date())
+    this.updateContents(moment())
   }
 
-  updateContents = async (date: Date) => {
+  updateContents = async (date: moment.Moment) => {
     const { auth } = this.props
     this.setState({sells: null})
     const sells: Sell[] = await fetchJsonAuth(
-      '/api/sells/listDay?day=' + moment(date).format('YYYY-MM-DD'),
+      '/api/sells/listDay?day=' + date.format('YYYY-MM-DD'),
       auth
     )
 
