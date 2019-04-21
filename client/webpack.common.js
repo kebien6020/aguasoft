@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const webpack = require('webpack')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin')
 
 const relPath = (p) => path.join(__dirname, p)
 
@@ -37,12 +38,13 @@ module.exports = {
     ]
   },
   plugins: [
+    new MomentLocalesPlugin({
+      localesToKeep: ['es'],
+    }),
     new CleanWebpackPlugin(relPath('./dist')),
     new HtmlWebpackPlugin({
       template: relPath('./index.html'),
     }),
-    // Ignore moment locale files, import them manually
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new BundleAnalyzerPlugin({
       analyzerMode: 'disabled', // use yarn analyze
       generateStatsFile: true,
