@@ -4,9 +4,9 @@
 
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
-import { UserModel } from '../db/models/users'
+import { UserStatic } from '../db/models/users'
 
-const Users = models.Users as UserModel
+const Users = models.Users as UserStatic
 
 export default
 async function adminOnly(req: Request, _res: Response, next: NextFunction) {

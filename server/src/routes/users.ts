@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
-import { UserModel } from '../db/models/users'
+import { UserStatic } from '../db/models/users'
 import * as bcrypt from 'bcryptjs'
 
-const Users = models.Users as UserModel
+const Users = models.Users as UserStatic
 
 export async function list(_req: Request, res: Response, next: NextFunction) {
   try {

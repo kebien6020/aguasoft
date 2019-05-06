@@ -1,18 +1,20 @@
-import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { ModelStatic } from './type-utils'
 
-export interface ProductAttributes {
-  name: string
-  code: string
-  basePrice: string
-  id: number
+export interface Product extends Model {
+  readonly name: string
+
+  readonly code: string
+
+  readonly basePrice: string
+
+  readonly id: number
 }
 
-export type ProductInstance = Instance<ProductAttributes> & ProductAttributes
+export type ProductStatic = ModelStatic<Product>
 
-export type ProductModel = Model<ProductInstance, ProductAttributes>
-
-export default function (sequelize: Sequelize, DataTypes: DataTypes) {
-  var Products = sequelize.define<ProductInstance, ProductAttributes>('Products', {
+export default function (sequelize: Sequelize) {
+  var Products = <ProductStatic> sequelize.define('Products', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -33,7 +35,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
     },
   });
 
-  Products.associate = function(models: Models) {
+  Products.associate = function(models) {
     // associations can be defined here
     Products.hasMany(models.Sells)
   }

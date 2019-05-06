@@ -2,7 +2,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as makeDegub from 'debug'
-import * as Sequelize from 'sequelize'
+import { Sequelize } from 'sequelize'
+import { ModelStatic } from './type-utils'
 const debug = makeDegub('app:db')
 
 const thisFile = path.basename(module.filename)
@@ -21,7 +22,7 @@ config.operatorsAliases = false
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
 // Here will be placed all the model classes
-const models: Sequelize.Models = {}
+const models: {[idx: string]: ModelStatic} = {}
 // Load all models in this folder (remember to exclude this file)
 fs
   .readdirSync(__dirname)
@@ -29,7 +30,7 @@ fs
   .map(function(file) {
       // Models have to be in a specific way for them to be
       // able to be imported by Sequelize.prototype.import
-    const model = sequelize.import(path.join(__dirname, file))
+    const model = sequelize.import<ModelStatic>(path.join(__dirname, file))
       // Log all added models
     debug(`adding ${model.name} to models`)
       // Actually add them to the db object
@@ -40,7 +41,7 @@ fs
   .forEach(model => {
     if (model.associate) {
       debug(`setting up ${model.name} associations`)
-      model.associate(models as Sequelize.Models)
+      model.associate(models)
     }
   })
 

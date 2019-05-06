@@ -1,21 +1,26 @@
-import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { ModelStatic } from './type-utils'
 
-export interface ClientAttributes {
-  name: string
-  code: string
-  id: number
+export interface Client extends Model {
+
+  readonly name: string
+
+  readonly code: string
+
+  readonly id: number
+
   // Deafult for the UI selection of "this client pays in cash"
-  defaultCash: boolean
-  hidden: boolean
-  notes: string
+  readonly defaultCash: boolean
+
+  readonly hidden: boolean
+
+  readonly notes: string
 }
 
-export type ClientInstance = Instance<ClientAttributes> & ClientAttributes
+export type ClientStatic = ModelStatic<Client>
 
-export type ClientModel = Model<ClientInstance, ClientAttributes>
-
-export default function(sequelize: Sequelize, DataTypes: DataTypes) {
-  var Clients = sequelize.define<ClientInstance, ClientAttributes>('Clients', {
+export default function(sequelize: Sequelize) {
+  const Clients = <ClientStatic> sequelize.define('Clients', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -46,7 +51,7 @@ export default function(sequelize: Sequelize, DataTypes: DataTypes) {
     },
   });
 
-  Clients.associate = function(models: Models) {
+  Clients.associate = function(models) {
     // associations can be defined here
     Clients.hasMany(models.Sells)
     Clients.hasMany(models.Prices, { foreignKey: 'clientId' })

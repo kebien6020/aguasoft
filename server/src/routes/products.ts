@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
+import { ProductStatic } from '../db/models/products'
 
-const Products = models.Products
+const Products = models.Products as ProductStatic
 
 export async function list(_req: Request, res: Response, next: NextFunction) {
   try {

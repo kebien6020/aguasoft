@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import models, { Sequelize } from '../db/models'
-import { SellModel, SellAttributes } from '../db/models/sells'
-import { PriceModel } from '../db/models/prices'
+import models from '../db/models'
+import { SellStatic, Sell } from '../db/models/sells'
+import { PriceStatic } from '../db/models/prices'
+import { Op, Includeable } from 'sequelize'
 
-const Sells = models.Sells as SellModel
-const Prices = models.Prices as PriceModel
-const { gt } = Sequelize.Op
+const Sells = models.Sells as SellStatic
+const Prices = models.Prices as PriceStatic
 
 export async function list(_req: Request, res: Response, next: NextFunction) {
   try {
@@ -120,7 +120,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
           model: models.Users,
           attributes: ['name', 'code'],
           paranoid: false,
-        },
+        } as Includeable,
       ],
       order: [['updatedAt', 'DESC']]
     })
@@ -131,11 +131,11 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
 
     // Convert to array of plain objects so that we can
     // add extra members to it
-    interface ResponseElem extends SellAttributes {
+    interface ResponseElem extends Sell {
       Prices?: {name: string, value: string}[]
     }
 
-    const sellsPlain : ResponseElem[] = sells.map(s => s.toJSON())
+    const sellsPlain : ResponseElem[] = sells.map(s => s.toJSON() as Sell)
 
     for (const sell of sellsPlain) {
       const prices = allPrices.filter(price =>
@@ -175,7 +175,7 @@ export async function listFrom(req: Request, res: Response, next: NextFunction) 
       ],
       where: {
         id: {
-          [gt]: fromId,
+          [Op.gt]: fromId,
         },
       },
       include: [
@@ -191,7 +191,7 @@ export async function listFrom(req: Request, res: Response, next: NextFunction) 
           model: models.Users,
           attributes: ['name'],
           paranoid: false,
-        },
+        } as Includeable,
       ],
       order: [['id', 'ASC']]
     })
@@ -206,7 +206,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
   try {
     const sellId = req.params.id
     const sell = await Sells.findByPk(sellId)
-    sell.deleted = true
+    sell.set('deleted', true)
     await sell.save({silent: true}) // Do not touch updatedAt
 
     res.json({success: true})
