@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
-import { Op } from 'sequelize'
+import { Op, Includeable } from 'sequelize'
 import models from '../db/models'
-import { PaymentModel } from '../db/models/payments'
-import { UserModel } from '../db/models/users'
+import { PaymentStatic } from '../db/models/payments'
+import { UserStatic } from '../db/models/users'
 import * as moment from 'moment'
 
-const Payments = models.Payments as PaymentModel
-const Users = models.Users as UserModel
+const Payments = models.Payments as PaymentStatic
+const Users = models.Users as UserStatic
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -89,7 +89,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
           model: models.Users,
           attributes: ['name', 'code'],
           paranoid: false,
-        },
+        } as Includeable,
       ],
       order: [['updatedAt', 'DESC']],
       paranoid: false,

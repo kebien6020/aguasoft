@@ -1,24 +1,32 @@
-import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { ModelStatic } from '../type-utils'
 
-export interface PaymentAttributes {
-  id: number
-  value: string
-  clientId: number
-  userId: number
-  date: Date
-  dateFrom: Date
-  dateTo: Date
-  invoiceNo: string
-  invoiceDate: Date
-  directPayment: boolean
+export interface Payment extends Model {
+  readonly id: number
+
+  readonly value: string
+
+  readonly clientId: number
+
+  readonly userId: number
+
+  readonly date: Date
+
+  readonly dateFrom: Date
+
+  readonly dateTo: Date
+
+  readonly invoiceNo: string
+
+  readonly invoiceDate: Date
+
+  readonly directPayment: boolean
 }
 
-export type PaymentInstance = Instance<PaymentAttributes> & PaymentAttributes
+export type PaymentStatic = ModelStatic<Payment>
 
-export type PaymentModel = Model<PaymentInstance, PaymentAttributes>
-
-export default function (sequelize: Sequelize, DataTypes: DataTypes) {
-  const Payments = sequelize.define<PaymentInstance, PaymentAttributes>('Payments', {
+export default function (sequelize: Sequelize) {
+  const Payments = <PaymentStatic> sequelize.define('Payments', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -72,7 +80,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       },
     },
   })
-  Payments.associate = function(models: Models) {
+  Payments.associate = function(models) {
     // associations can be defined here
     Payments.belongsTo(models.Clients)
     Payments.belongsTo(models.Users)

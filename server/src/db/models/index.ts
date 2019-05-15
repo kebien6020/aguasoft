@@ -2,7 +2,8 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as makeDegub from 'debug'
-import * as Sequelize from 'sequelize'
+import { Sequelize } from 'sequelize'
+import { ModelStatic } from '../type-utils'
 const debug = makeDegub('app:db')
 
 const thisFile = path.basename(module.filename)
@@ -15,21 +16,20 @@ const config = require(path.resolve(__dirname, '../config.json'))[env]
 debug(`Using ${config.dialect} database, in storage ${config.storage}`)
 // Set logger for sql querys done by sequelize
 config.logging = require('debug')('app:sql')
-// Disable deprecated operator aliases
-config.operatorsAliases = false
 // Connect
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
 // Here will be placed all the model classes
-const models: Sequelize.Models = {}
+const models: {[idx: string]: ModelStatic} = {}
 // Load all models in this folder (remember to exclude this file)
 fs
   .readdirSync(__dirname)
   .filter(file => (file.indexOf('.') !== 0) && (file !== thisFile) && (file.slice(-3) === '.js'))
   .map(function(file) {
+    debug(`trying to Sequelize.import ${file}`)
       // Models have to be in a specific way for them to be
       // able to be imported by Sequelize.prototype.import
-    const model = sequelize.import(path.join(__dirname, file))
+    const model = sequelize.import<ModelStatic>(path.join(__dirname, file))
       // Log all added models
     debug(`adding ${model.name} to models`)
       // Actually add them to the db object
@@ -40,7 +40,7 @@ fs
   .forEach(model => {
     if (model.associate) {
       debug(`setting up ${model.name} associations`)
-      model.associate(models as Sequelize.Models)
+      model.associate(models)
     }
   })
 

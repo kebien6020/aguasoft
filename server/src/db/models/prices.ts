@@ -1,18 +1,20 @@
-import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { ModelStatic } from '../type-utils'
 
-export interface PriceAttributes {
-  value: string
-  clientId: number
-  productId: number
-  name: string
+export interface Price extends Model {
+  readonly value: string
+
+  readonly clientId: number
+
+  readonly productId: number
+
+  readonly name: string
 }
 
-export type PriceInstance = Instance<PriceAttributes> & PriceAttributes
+export type PriceStatic = ModelStatic<Price>
 
-export type PriceModel = Model<PriceInstance, PriceAttributes>
-
-export default function (sequelize: Sequelize, DataTypes: DataTypes) {
-  var Prices = sequelize.define<PriceInstance, PriceAttributes>('Prices', {
+export default function (sequelize: Sequelize) {
+  var Prices = <PriceStatic> sequelize.define('Prices', {
     value: {
       type: DataTypes.DECIMAL(20, 8),
       allowNull: false,
@@ -31,7 +33,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       allowNull: false,
     },
   });
-  Prices.associate = function(models: Models) {
+  Prices.associate = function(models) {
     // associations can be defined here
     Prices.belongsTo(models.Clients)
     Prices.belongsTo(models.Products)

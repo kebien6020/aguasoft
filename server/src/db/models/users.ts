@@ -1,18 +1,17 @@
-import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { ModelStatic } from '../type-utils'
 
-export interface UserAttributes {
+export interface User extends Model {
   name: string
   code: string
   password: string
   role: string
 }
 
-export type UserInstance = Instance<UserAttributes> & UserAttributes
+export type UserStatic = ModelStatic<User>
 
-export type UserModel = Model<UserInstance, UserAttributes>
-
-export default function makeUsers(sequelize: Sequelize, DataTypes: DataTypes) {
-  const Users = sequelize.define<UserInstance, UserAttributes>('Users', {
+export default function makeUsers(sequelize: Sequelize) {
+  const Users = <UserStatic> sequelize.define('Users', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -30,12 +29,8 @@ export default function makeUsers(sequelize: Sequelize, DataTypes: DataTypes) {
       allowNull: false,
       defaultValue: 'seller',
     },
-  }, {
-    classMethods: {
-      associate: function(_models: Models) {
-        // associations can be defined here
-      }
-    },
+  },
+  {
     paranoid: true,
   });
   return Users;

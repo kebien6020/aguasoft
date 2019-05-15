@@ -1,18 +1,20 @@
-import { Sequelize, DataTypes, Model, Instance } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { ModelStatic } from '../type-utils'
 
-export interface SessionAttributes {
-  sid: string
-  userId: string
-  expires: Date
-  data: string
+export interface Session extends Model {
+  readonly sid: string
+
+  readonly userId: string
+
+  readonly expires: Date
+
+  readonly data: string
 }
 
-export type SessionInstance = Instance<SessionAttributes> & SessionAttributes
+export type SessionStatic = ModelStatic<Session>
 
-export type SessionModel = Model<SessionInstance, SessionAttributes>
-
-export default function(sequelize: Sequelize, DataTypes: DataTypes) {
-  var Session = sequelize.define<SessionInstance, SessionAttributes>('Session', {
+export default function(sequelize: Sequelize) {
+  var Session = <SessionStatic> sequelize.define('Session', {
     sid: {
       type: DataTypes.STRING,
       primaryKey: true

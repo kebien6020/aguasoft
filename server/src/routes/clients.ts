@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
-import { ClientModel, ClientAttributes } from '../db/models/clients'
-import { PriceModel, PriceAttributes } from '../db/models/prices'
-import { sequelize } from '../db/models'
+import { Client, ClientStatic } from '../db/models/clients'
+import { Price, PriceStatic } from '../db/models/prices'
+import { sequelize, Sequelize } from '../db/models'
 
-const Clients = models.Clients as ClientModel
-const Prices = models.Prices as PriceModel
+const Clients = models.Clients as ClientStatic
+const Prices = models.Prices as PriceStatic
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
@@ -16,7 +16,7 @@ export async function list(req: Request, res: Response, next: NextFunction) {
     const clients = await Clients.findAll({
       attributes,
       order: [
-        sequelize.literal('CASE WHEN `code` = \'001\' THEN 0 ELSE 1 END'),
+        Sequelize.literal('CASE WHEN `code` = \'001\' THEN 0 ELSE 1 END'),
         'name'
       ],
     })
@@ -90,10 +90,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     const notes = req.body.notes === '' ? null : req.body.notes
 
     type IncompletePrice =
-      Pick<PriceAttributes, 'name' | 'productId' | 'value'>
+      Pick<Price, 'name' | 'productId' | 'value'>
 
     type IncompleteClient =
-      Pick<ClientAttributes, 'name' | 'code' | 'defaultCash' | 'notes'>
+      Pick<Client, 'name' | 'code' | 'defaultCash' | 'notes'>
       & { 'Prices': IncompletePrice[] }
 
     const client : IncompleteClient = {

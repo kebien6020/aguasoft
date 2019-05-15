@@ -1,29 +1,39 @@
-import { Sequelize, DataTypes, Model, Models, Instance } from 'sequelize'
-import { ProductInstance } from './products'
-import { ClientInstance } from './clients'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { ModelStatic } from '../type-utils'
+import { Product } from './products'
+import { Client } from './clients'
 
-export interface SellAttributes {
-  id: number
-  date: string
-  cash: boolean
-  priceOverride: number
-  quantity: number
-  value: number
-  userId: number
-  clientId: number
-  productId: number
-  deleted: boolean
+export interface Sell extends Model {
+  readonly id: number
 
-  Product?: ProductInstance
-  Client?: ClientInstance
+  readonly date: string
+
+  readonly cash: boolean
+
+  readonly priceOverride: number
+
+  readonly quantity: number
+
+  readonly value: number
+
+  readonly userId: number
+
+  readonly clientId: number
+
+  readonly productId: number
+
+  readonly deleted: boolean
+
+
+  readonly Product?: Product
+
+  readonly Client?: Client
 }
 
-export type SellInstance = Instance<SellAttributes> & SellAttributes
+export type SellStatic = ModelStatic<Sell>
 
-export type SellModel = Model<SellInstance, SellAttributes>
-
-export default function (sequelize: Sequelize, DataTypes: DataTypes) {
-  var Sells = sequelize.define<SellInstance, SellAttributes>('Sells', {
+export default function (sequelize: Sequelize) {
+  var Sells = <SellStatic> sequelize.define('Sells', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -70,7 +80,7 @@ export default function (sequelize: Sequelize, DataTypes: DataTypes) {
       defaultValue: false,
     },
   });
-  Sells.associate = function(models: Models) {
+  Sells.associate = function(models) {
     // associations can be defined here
     Sells.belongsTo(models.Users)
     Sells.belongsTo(models.Clients)

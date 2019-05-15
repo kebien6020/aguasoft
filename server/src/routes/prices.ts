@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
-import { PriceModel } from '../db/models/prices'
+import { PriceStatic } from '../db/models/prices'
 
-const Prices = models.Prices as PriceModel
+const Prices = models.Prices as PriceStatic
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
