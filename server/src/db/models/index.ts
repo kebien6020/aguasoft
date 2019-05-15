@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as makeDegub from 'debug'
 import { Sequelize } from 'sequelize'
-import { ModelStatic } from './type-utils'
+import { ModelStatic } from '../type-utils'
 const debug = makeDegub('app:db')
 
 const thisFile = path.basename(module.filename)
@@ -28,6 +28,7 @@ fs
   .readdirSync(__dirname)
   .filter(file => (file.indexOf('.') !== 0) && (file !== thisFile) && (file.slice(-3) === '.js'))
   .map(function(file) {
+    debug(`trying to Sequelize.import ${file}`)
       // Models have to be in a specific way for them to be
       // able to be imported by Sequelize.prototype.import
     const model = sequelize.import<ModelStatic>(path.join(__dirname, file))

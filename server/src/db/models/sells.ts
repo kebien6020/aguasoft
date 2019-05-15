@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { ModelStatic } from './type-utils'
+import { ModelStatic } from '../type-utils'
 import { Product } from './products'
 import { Client } from './clients'
 

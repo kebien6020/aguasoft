@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { ModelStatic } from './type-utils'
+import { ModelStatic } from '../type-utils'
 
 export interface Payment extends Model {
   readonly id: number
