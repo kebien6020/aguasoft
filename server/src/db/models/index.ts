@@ -16,8 +16,6 @@ const config = require(path.resolve(__dirname, '../config.json'))[env]
 debug(`Using ${config.dialect} database, in storage ${config.storage}`)
 // Set logger for sql querys done by sequelize
 config.logging = require('debug')('app:sql')
-// Disable deprecated operator aliases
-config.operatorsAliases = false
 // Connect
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
