@@ -41,7 +41,7 @@ module.exports = {
     new MomentLocalesPlugin({
       localesToKeep: ['es'],
     }),
-    new CleanWebpackPlugin(relPath('./dist')),
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: relPath('./index.html'),
     }),
