@@ -9,7 +9,7 @@
     "build": "webpack --config client/webpack.prod.js",
     "watch-client-js": "yarn build-client-dev -w",
     "dev": "npm-run-all -p dev-server watch-client-js",
-    "analyze": "webpack-bundle-analyzer ./client/dist/stats.json",
+    "analyze": "webpack-bundle-analyzer ./client/stats.json",
     "migrate": "sequelize db:migrate",
     "migrate-prod": "sequelize db:migrate --env production"
   },

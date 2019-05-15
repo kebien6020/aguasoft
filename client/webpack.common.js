@@ -48,6 +48,7 @@ module.exports = {
     new BundleAnalyzerPlugin({
       analyzerMode: 'disabled', // use yarn analyze
       generateStatsFile: true,
+      statsFilename: '../stats.json'
     }),
   ],
   optimization: {
