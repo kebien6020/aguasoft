@@ -25,6 +25,7 @@ const Dashboard =       lazy(() => import(/* webpackChunkName: "dashboard" */ '.
 const ClientEditor =    lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
 const ClientList =      lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
 const RegisterPayment = lazy(() => import(/* webpackChunkName: "register-payment" */ './Routes/RegisterPayment'))
+const PaymentList =     lazy(() => import(/* webpackChunkName: "all-payments" */ './Routes/PaymentList'))
 
 moment.locale('es')
 
@@ -50,6 +51,8 @@ class App extends React.Component {
                 <Route exact private path='/clients' component={ClientList} />
                 <Route exact private path='/clients/new' component={ClientEditor} />
                 <Route exact private path='/clients/:id' component={ClientEditor} />
+
+                <Route exact private path='/payments' component={PaymentList} />
               </Switch>
             </Suspense>
           </MuiThemeProvider>
