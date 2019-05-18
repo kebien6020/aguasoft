@@ -101,6 +101,45 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+export async function listRecent(req: Request, res: Response, next: NextFunction) {
+  try {
+    const amount = req.params.amount || 3
+    const payments = await Payments.findAll({
+      attributes: [
+        'id',
+        'value',
+        'date',
+        'dateFrom',
+        'dateTo',
+        'invoiceNo',
+        'invoiceDate',
+        'directPayment',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+      ],
+      order: [['updatedAt', 'DESC']],
+      include: [
+        {
+          model: models.Clients,
+          attributes: ['name', 'id'],
+        },
+        {
+          model: models.Users,
+          attributes: ['name', 'code'],
+          paranoid: false,
+        } as Includeable,
+      ],
+      paranoid: false,
+      limit: amount,
+    })
+
+    res.json(payments)
+  } catch (e) {
+    next(e)
+  }
+}
+
 export async function del(req: Request, res: Response, next: NextFunction) {
   try {
     const paymentId = req.params.id
