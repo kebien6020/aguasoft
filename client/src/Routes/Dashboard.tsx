@@ -69,7 +69,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   componentDidMount() {
     this.updateSells(this.state.date)
-    this.updatePayments(this.state.date)
+    this.updatePayments()
   }
 
   updateSells = async (date: Moment) => {
@@ -86,10 +86,10 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
   }
 
-  updatePayments = async (date: Moment) => {
+  updatePayments = async () => {
     const { props } = this
     const payments: ErrorResponse | Payment[] = await fetchJsonAuth(
-      '/api/payments/listDay?day=' + date.format('YYYY-MM-DD'),
+      '/api/payments/recent',
       props.auth
     )
 
@@ -126,7 +126,6 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   handleDateChange = (date: moment.Moment) => {
     this.updateSells(date)
-    this.updatePayments(date)
     this.setState({date})
   }
 
@@ -244,7 +243,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         />
         <Grid container className={classes.bottomSection}>
           <Grid item xs={12} md={8}>
-            <Title classes={classes}>Pagos del Día</Title>
+            <Title classes={classes}>Pagos Recientes</Title>
             <Payments
               payments={state.payments}
               onDeletePayment={this.handleDeletePayment}
