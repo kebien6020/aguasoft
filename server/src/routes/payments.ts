@@ -57,6 +57,62 @@ export async function create(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+export async function paginate(req: Request, res: Response, next: NextFunction) {
+  try {
+    let limit = Number(req.query.limit)
+    let offset = Number(req.query.offset)
+
+    if (isNaN(limit)) {
+      const e = Error('limit should be a number')
+      e.name = 'bad_request'
+      throw e
+    }
+
+    if (isNaN(offset)) {
+      const e = Error('offset should be a number')
+      e.name = 'bad_request'
+      throw e
+    }
+
+    const payments = await Payments.findAll({
+      attributes: [
+        'id',
+        'value',
+        'date',
+        'dateFrom',
+        'dateTo',
+        'invoiceNo',
+        'invoiceDate',
+        'directPayment',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+      ],
+      include: [
+        {
+          model: models.Clients,
+          attributes: ['name', 'id'],
+        },
+        {
+          model: models.Users,
+          attributes: ['name', 'code'],
+          paranoid: false,
+        } as Includeable,
+      ],
+      order: [['date', 'DESC'], ['updatedAt', 'DESC']],
+      paranoid: false,
+      limit: limit,
+      offset: offset,
+    })
+
+    const totalCount = await Payments.count()
+
+    res.json({payments, totalCount})
+  } catch (e) {
+    next(e)
+  }
+}
+
 export async function listDay(req: Request, res: Response, next: NextFunction) {
   try {
     const day = moment(req.query.day).startOf('day')
@@ -103,7 +159,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
 
 export async function listRecent(req: Request, res: Response, next: NextFunction) {
   try {
-    const amount = req.params.amount || 3
+    const amount = req.query.amount || 3
     const payments = await Payments.findAll({
       attributes: [
         'id',
