@@ -120,7 +120,11 @@ class Payments extends React.Component<Props> {
                   </Typography>
                   <Divider />
                   <Typography variant='body2'>
-                    {moment(payment.updatedAt).format('DD/MMM hh:mm a') + ' '}
+                    Pagado el: {moment(payment.date).format('DD/MMM/YYYY')}
+                  </Typography>
+                  <Divider />
+                  <Typography variant='body2'>
+                    {moment(payment.updatedAt).format('hh:mm a') + ' '}
                     ({moment(payment.updatedAt).fromNow()})
                   </Typography>
                   {payment.deletedAt !== null &&
