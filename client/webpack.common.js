@@ -6,6 +6,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin')
 
 const relPath = (p) => path.join(__dirname, p)
+const BUILD_WITH_STATS = process.env.BUILD_WITH_STATS || false
 
 module.exports = {
   entry: relPath('./src/index.tsx'),
@@ -45,12 +46,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: relPath('./index.html'),
     }),
+  ].concat(BUILD_WITH_STATS ? [
     new BundleAnalyzerPlugin({
       analyzerMode: 'disabled', // use yarn analyze
       generateStatsFile: true,
       statsFilename: '../stats.json'
     }),
-  ],
+  ] : []),
   optimization: {
     splitChunks: {
       chunks: 'all'

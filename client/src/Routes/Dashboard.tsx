@@ -69,7 +69,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   componentDidMount() {
     this.updateSells(this.state.date)
-    this.updatePayments(this.state.date)
+    this.updatePayments()
   }
 
   updateSells = async (date: Moment) => {
@@ -86,10 +86,10 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
   }
 
-  updatePayments = async (date: Moment) => {
+  updatePayments = async () => {
     const { props } = this
     const payments: ErrorResponse | Payment[] = await fetchJsonAuth(
-      '/api/payments/listDay?day=' + date.format('YYYY-MM-DD'),
+      '/api/payments/recent',
       props.auth
     )
 
@@ -126,7 +126,6 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   handleDateChange = (date: moment.Moment) => {
     this.updateSells(date)
-    this.updatePayments(date)
     this.setState({date})
   }
 
@@ -184,6 +183,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   renderLinkClients = (props: any) => <Link to='/clients' {...props} />
 
+  renderLinkPayments = (props: any) => <Link to='/payments' {...props} />
 
   render() {
     const { state, props } = this
@@ -244,11 +244,20 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         />
         <Grid container className={classes.bottomSection}>
           <Grid item xs={12} md={8}>
-            <Title classes={classes}>Pagos del Día</Title>
+            <Title classes={classes}>Pagos Recientes</Title>
             <Payments
               payments={state.payments}
               onDeletePayment={this.handleDeletePayment}
             />
+            <div className={classes.seeMoreContainer}>
+              <Button
+                variant='outlined'
+                color='primary'
+                component={this.renderLinkPayments}
+              >
+                Ver mas...
+              </Button>
+            </div>
             <Title classes={classes}>Ventas del Día</Title>
             <Sells
               sells={state.sells}
@@ -326,6 +335,11 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     '& svg': {
       fontSize: theme.spacing.unit * 8,
     }
+  },
+  seeMoreContainer: {
+    paddingTop: '8px',
+    paddingBottom: '8px',
+    textAlign: 'center',
   },
 })
 
