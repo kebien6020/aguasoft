@@ -183,6 +183,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
   renderLinkClients = (props: any) => <Link to='/clients' {...props} />
 
+  renderLinkPayments = (props: any) => <Link to='/payments' {...props} />
 
   render() {
     const { state, props } = this
@@ -248,6 +249,15 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
               payments={state.payments}
               onDeletePayment={this.handleDeletePayment}
             />
+            <div className={classes.seeMoreContainer}>
+              <Button
+                variant='outlined'
+                color='primary'
+                component={this.renderLinkPayments}
+              >
+                Ver mas...
+              </Button>
+            </div>
             <Title classes={classes}>Ventas del Día</Title>
             <Sells
               sells={state.sells}
@@ -325,6 +335,11 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     '& svg': {
       fontSize: theme.spacing.unit * 8,
     }
+  },
+  seeMoreContainer: {
+    paddingTop: '8px',
+    paddingBottom: '8px',
+    textAlign: 'center',
   },
 })
 
