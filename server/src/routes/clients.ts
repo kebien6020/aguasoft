@@ -2,10 +2,16 @@ import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
 import { Client, ClientStatic } from '../db/models/clients'
 import { Price, PriceStatic } from '../db/models/prices'
+import { PaymentStatic } from '../db/models/payments'
+import { SellStatic } from '../db/models/sells'
 import { sequelize, Sequelize } from '../db/models'
+import * as moment from 'moment'
+import { Moment } from 'moment'
 
 const Clients = models.Clients as ClientStatic
 const Prices = models.Prices as PriceStatic
+const Payments = models.Payments as PaymentStatic
+const Sells = models.Sells as SellStatic
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
@@ -246,6 +252,50 @@ export async function unhide(req: Request, res: Response, next: NextFunction) {
     await client.update({hidden: false})
 
     res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function balance(req: Request, res: Response, next: NextFunction) {
+  try {
+    const client = await getClient(req.params.id)
+
+    const payments = await Payments.findAll({
+      where: {
+        clientId: client.id,
+      },
+    })
+
+    const sells = await Sells.findAll({
+      where: {
+        clientId: client.id,
+        deleted: false,
+      },
+    })
+
+    interface Change {
+      date: Moment
+      value: number
+      type: 'sell' | 'payment'
+    }
+
+    const changes: Array<Change> = []
+      .concat(sells.map(s => ({
+        date: moment(s.date),
+        value: Number(s.value),
+        type: 'sell',
+        id: s.id,
+      })))
+      .concat(payments.map(p => ({
+        date: moment(p.date),
+        value: Number(p.value),
+        type: 'payment',
+        id: p.id,
+      })))
+      .sort((a: Change, b: Change) => a.date.valueOf() - b.date.valueOf())
+
+    res.json({changes})
   } catch (e) {
     next(e)
   }
