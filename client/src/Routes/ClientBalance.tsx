@@ -15,6 +15,7 @@ import adminOnly from '../hoc/adminOnly'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
 import ResponsiveContainer from '../components/ResponsiveContainer'
+import { Client } from '../models'
 import { fetchJsonAuth, ErrorResponse, isErrorResponse, money } from '../utils'
 
 import { Moment } from 'moment'
@@ -28,6 +29,7 @@ type Props = AuthRouteComponentProps<Params> & PropClasses
 
 interface State {
   changeGroups: ChangeGroup[] | null
+  client: Client | null
 }
 
 interface Change {
@@ -51,6 +53,8 @@ interface ChangeGroup extends IncompleteChangeGroup {
 
 type ChangesResponse = { changes: Change[] } | ErrorResponse
 
+type ClientResponse = Client | ErrorResponse
+
 class ClientBalance extends React.Component<Props, State> {
 
   constructor(props: Props) {
@@ -58,6 +62,7 @@ class ClientBalance extends React.Component<Props, State> {
 
     this.state = {
       changeGroups: null,
+      client: null,
     }
   }
 
@@ -130,6 +135,16 @@ class ClientBalance extends React.Component<Props, State> {
     } else {
       console.error(response.error)
     }
+
+    const clResponse: ClientResponse =
+      await fetchJsonAuth(`/api/clients/${clientId}`, props.auth)
+
+    if (!isErrorResponse(clResponse)) {
+      const client = clResponse
+      this.setState({client})
+    } else {
+      console.error(clResponse.error)
+    }
   }
 
   renderLinkBack = (props: any) => <Link to='/clients' {...props} />
@@ -172,6 +187,10 @@ class ClientBalance extends React.Component<Props, State> {
       return <LoadingScreen text='Cargando balance...' />
     }
 
+    if (state.client === null) {
+      return <LoadingScreen text='Cargando cliente...' />
+    }
+
     return (
       <Layout>
         <AppBar position='static' className={classes.appbar}>
@@ -185,7 +204,7 @@ class ClientBalance extends React.Component<Props, State> {
               <BackIcon />
             </IconButton>
             <Typography variant='h6' color='inherit' className={classes.title}>
-              Balance Cliente:
+              Balance Cliente: {state.client.name}
             </Typography>
           </Toolbar>
         </AppBar>
