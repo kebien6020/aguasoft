@@ -271,6 +271,7 @@ export async function balance(req: Request, res: Response, next: NextFunction) {
       where: {
         clientId: client.id,
         deleted: false,
+        cash: false,
       },
     })
 
