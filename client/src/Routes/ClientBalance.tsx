@@ -233,15 +233,19 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
     marginTop: theme.spacing.unit * 2,
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
-    '& > div': {
-      width: '15%',
-    },
+  },
+  cardDate: {
+    overflow: 'hidden',
+    width: '20%',
+  },
+  cardType: {
+    width: '10%',
   },
   cardValue: {
-    width: '35% !important',
+    width: '35%',
   },
   cardBalance: {
-    width: '35% !important',
+    width: '35%',
   },
   sell: {
     color: colors.green[500],
