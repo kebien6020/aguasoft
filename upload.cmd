@@ -15,11 +15,7 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 --perms --chmod=775 ^
 --include="/client/" ^
---include="/client/dist/" ^
---include="/client/dist/**" ^
 --include="/server/" ^
---include="/server/dist/" ^
---include="/server/dist/**" ^
 --include="/server/src/" ^
 --include="/server/src/db/" ^
 --include="/server/src/db/migration-utils.js" ^
@@ -34,6 +30,19 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 --progress ^
 "./" "kevin@kevinpena.com:/var/www/aguasoft/"
 )
+
+@echo Syncing dist folders
+rsync -avzr -e --delete-after "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
+--perms --chmod=775 ^
+--include="/client/" ^
+--include="/client/dist/" ^
+--include="/client/dist/**" ^
+--include="/server/" ^
+--include="/server/dist/" ^
+--include="/server/dist/**" ^
+--exclude="*" ^
+--progress ^
+"./" "kevin@kevinpena.com:/var/www/aguasoft/"
 
 @echo Installing packages and running migrations
 ssh -i "%USERPROFILE%\.ssh\id_rsa" -t kevin@kevinpena.com "cd /var/www/aguasoft && yarn --production && yarn migrate-prod"
