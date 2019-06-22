@@ -30,6 +30,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import NoteIcon from '@material-ui/icons/Chat'
+import { AttachMoney as MoneyIcon } from '@material-ui/icons'
 import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
@@ -100,6 +101,7 @@ interface ClientDialogProps extends PropClasses {
   onClientUnhide: (cl: ClientWithNotes) => any
   onClientDelete: (cl: ClientWithNotes) => any
   onClientShowNotes: (cl: ClientWithNotes) => any
+  onClientShowBalance: (cl: ClientWithNotes) => any
 }
 
 const ClientDialogRaw = (props: ClientDialogProps) => (
@@ -113,6 +115,12 @@ const ClientDialogRaw = (props: ClientDialogProps) => (
           <EditIcon className={props.classes.editIcon} />
         </ListItemIcon>
         <ListItemText primary='Editar' />
+      </ListItem>
+      <ListItem button onClick={() => props.onClientShowBalance(props.client)}>
+        <ListItemIcon>
+          <MoneyIcon className={props.classes.balanceIcon} />
+        </ListItemIcon>
+        <ListItemText primary='Ver balance' />
       </ListItem>
       {props.client.notes &&
         <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
@@ -153,6 +161,9 @@ const clientDialogStyles : StyleRulesCallback = (theme: Theme) => ({
   editIcon: {
     color: theme.palette.primary.main,
   },
+  balanceIcon: {
+    color: colors.green[500],
+  },
   deleteIcon: {
     color: colors.red[500],
   },
@@ -174,6 +185,7 @@ interface State {
   selectedClient: ClientWithNotes | null
   clientDeleteDialogOpen: boolean
   redirectToEdit: boolean
+  redirectToBalance: boolean
   deletedClient: string | null // Client name if not null
   errorDeleting: boolean
   menuAnchor: HTMLElement | null
@@ -191,6 +203,7 @@ class ClientList extends React.Component<Props, State> {
       selectedClient: null,
       clientDeleteDialogOpen: false,
       redirectToEdit: false,
+      redirectToBalance: false,
       deletedClient: null,
       errorDeleting: false,
       menuAnchor: null,
@@ -356,6 +369,12 @@ class ClientList extends React.Component<Props, State> {
   }
   handleNotesDialogClose = () => this.setState({notesDialogOpen: false})
 
+  handleClientShowBalance = () => {
+    if (!this.state.selectedClient) return
+
+    this.setState({redirectToBalance: true})
+  }
+
   render() {
     const { props, state } = this
     const { classes } = props
@@ -366,6 +385,10 @@ class ClientList extends React.Component<Props, State> {
 
     if (state.redirectToEdit && state.selectedClient) {
       return <Redirect push to={`/clients/${state.selectedClient.id}`} />
+    }
+
+    if (state.redirectToBalance && state.selectedClient) {
+      return <Redirect push to={`/clients/${state.selectedClient.id}/balance`} />
     }
 
     const clients = state.showHidden ?
@@ -428,6 +451,7 @@ class ClientList extends React.Component<Props, State> {
             onClientUnhide={this.handleClientUnhide}
             onClientDelete={this.handleClientTryDelete}
             onClientShowNotes={this.handleClientShowNotes}
+            onClientShowBalance={this.handleClientShowBalance}
           />
         }
         {state.clientDeleteDialogOpen && state.selectedClient &&

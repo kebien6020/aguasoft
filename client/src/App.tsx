@@ -24,6 +24,7 @@ const MonitorSells =    lazy(() => import(/* webpackChunkName: "monitor-sells" *
 const Dashboard =       lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/Dashboard'))
 const ClientEditor =    lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
 const ClientList =      lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
+const ClientBalance =   lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/ClientBalance'))
 const RegisterPayment = lazy(() => import(/* webpackChunkName: "register-payment" */ './Routes/RegisterPayment'))
 const PaymentList =     lazy(() => import(/* webpackChunkName: "all-payments" */ './Routes/PaymentList'))
 
@@ -51,6 +52,7 @@ class App extends React.Component {
                 <Route exact private path='/clients' component={ClientList} />
                 <Route exact private path='/clients/new' component={ClientEditor} />
                 <Route exact private path='/clients/:id' component={ClientEditor} />
+                <Route exact private path='/clients/:id/balance' component={ClientBalance} />
 
                 <Route exact private path='/payments' component={PaymentList} />
               </Switch>
