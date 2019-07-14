@@ -67,7 +67,7 @@ class SpendingList extends React.Component<Props, State> {
     }
   }
 
-  handleDeletePayment = async (spendingId: number) => {
+  handleDeleteSpending = async (spendingId: number) => {
     if (!this.state.spendings) return
 
     const { props } = this
@@ -96,7 +96,7 @@ class SpendingList extends React.Component<Props, State> {
 
   handlePageChange = async (_event: any, offset: number) => {
     this.setState({disablePagination: true})
-    await this.updatePayments(offset)
+    await this.updateSpendings(offset)
     this.setState({offset, disablePagination: false})
   }
 
@@ -142,7 +142,7 @@ class SpendingList extends React.Component<Props, State> {
           {this.renderPagination()}
           <Spendings
             spendings={state.spendings}
-            onDeletePayment={this.handleDeletePayment}
+            onDeleteSpending={this.handleDeleteSpending}
           />
           {this.renderPagination()}
         </ResponsiveContainer>
