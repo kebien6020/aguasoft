@@ -44,6 +44,7 @@ interface State {
   clients: Client[] | null
 
   selectedClientId: string | null
+  date: moment.Moment
   moneyAmount: string
   invoiceEnabled: boolean
   invoiceDate: moment.Moment
@@ -73,6 +74,7 @@ class RegisterPayment extends React.Component<Props, State> {
 
     this.state = {
       selectedClientId: null,
+      date: moment().startOf('day'),
       clients: null,
       moneyAmount: '',
       invoiceEnabled: false,
@@ -203,6 +205,7 @@ class RegisterPayment extends React.Component<Props, State> {
       invoiceNo?: string
       invoiceDate?: string
       directPayment?: boolean
+      date?: string
     }
     const payload : Payload = {
       value: Number(state.moneyAmount),
@@ -221,6 +224,7 @@ class RegisterPayment extends React.Component<Props, State> {
 
     if (state.userIsAdmin) {
       payload.directPayment = state.directPayment
+      payload.date = state.date.toISOString()
     }
 
     const response : SuccessResponse | ErrorResponse =
@@ -261,6 +265,18 @@ class RegisterPayment extends React.Component<Props, State> {
             {state.selectedClientId ?
               <form>
                 <Grid container spacing={0} justify='space-between'>
+                {state.userIsAdmin &&
+                  <Grid item xs={12}>
+                    <DatePicker
+                      label='Fecha del pago'
+                      date={state.date}
+                      onDateChange={this.handleChangeDate('date')}
+                      DatePickerProps={{
+                        fullWidth: true,
+                      }}
+                    />
+                  </Grid>
+                }
                   {/*
                   // @ts-ignore grid-md-6 is missing in type system*/}
                   <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>

@@ -22,10 +22,10 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
     if (user.role !== 'admin') {
       body.directPayment = false
+      body.date = moment().toISOString()
     }
 
     body.userId = req.session.userId
-    body.date = moment().toISOString()
 
     // Normalize dates
     if (body.dateFrom) {
