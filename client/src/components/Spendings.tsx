@@ -20,6 +20,7 @@ import {
 
 import {
   Delete as DeleteIcon,
+  ShoppingCart as CartIcon,
 } from '@material-ui/icons'
 
 import * as colors from '@material-ui/core/colors'
@@ -74,17 +75,17 @@ class Spendings extends React.Component<Props> {
                     <Avatar
                       className={classes.avatar}
                     >
-                      $
+                      <CartIcon />
                     </Avatar>
                   }
                 />
                 <CardContent>
                   <Typography variant='body2'>
-                    Registrado por {spending.User.name}
+                    Fecha salida: {moment(spending.date).format('DD/MMM/YYYY')}
                   </Typography>
                   <Divider />
                   <Typography variant='body2'>
-                    Fecha salida: {moment(spending.date).format('DD/MMM/YYYY')}
+                    Registrado por {spending.User.name}
                   </Typography>
                   <Divider />
                   <Typography variant='body2'>
