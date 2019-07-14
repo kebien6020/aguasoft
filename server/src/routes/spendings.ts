@@ -111,7 +111,7 @@ export async function listRecent(req: Request, res: Response, next: NextFunction
         'updatedAt',
         'deletedAt',
       ],
-      order: [['updatedAt', 'DESC']],
+      order: [['date', 'DESC'], ['updatedAt', 'DESC']],
       include: [
         {
           model: models.Users,

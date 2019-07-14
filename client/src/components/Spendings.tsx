@@ -92,6 +92,12 @@ class Spendings extends React.Component<Props> {
                     Registrado el: {moment(spending.updatedAt).format('DD/MM/YYYY hh:mm a') + ' '}
                     ({moment(spending.updatedAt).fromNow()})
                   </Typography>
+                  {moment(spending.date).isSame(moment(), 'day') &&
+                    <Alert
+                      type='success'
+                      message='Salida de hoy'
+                    />
+                  }
                   {spending.deletedAt !== null &&
                     <Alert
                       type='error'
