@@ -6,6 +6,7 @@ import * as productHandlers from './products'
 import * as priceHandlers from './prices'
 import * as sellHandlers from './sells'
 import * as paymentHandlers from './payments'
+import * as spendingHandlers from './spendings'
 
 import adminOnly from '../utils/adminOnly'
 
@@ -45,3 +46,8 @@ payments.get('/paginate', paymentHandlers.paginate)
 payments.get('/listDay', paymentHandlers.listDay)
 payments.get('/recent', paymentHandlers.listRecent)
 payments.delete('/:id', paymentHandlers.del)
+
+export const spendings = Router()
+spendings.get('/paginate', spendingHandlers.paginate)
+spendings.get('/listDay', spendingHandlers.listDay)
+spendings.delete('/:id', spendingHandlers.del)
