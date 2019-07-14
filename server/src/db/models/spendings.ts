@@ -7,6 +7,7 @@ import {
 } from 'sequelize'
 
 export interface Spending extends Model {
+  readonly id: number
   // The date the spending was performed
   readonly date: Date
 
