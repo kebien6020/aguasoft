@@ -32,7 +32,7 @@ rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 )
 
 @echo Syncing dist folders
-rsync -avzr -e --delete-after "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
+rsync -avzr -e "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 --perms --chmod=775 ^
 --include="/client/" ^
 --include="/client/dist/" ^
@@ -42,7 +42,7 @@ rsync -avzr -e --delete-after "ssh -i \"%USERPROFILE%\.ssh\id_rsa\"" ^
 --include="/server/dist/**" ^
 --exclude="*" ^
 --progress ^
-"./" "kevin@kevinpena.com:/var/www/aguasoft/"
+"./" "kevin@kevinpena.com:/var/www/aguasoft/" --delete-after
 
 @echo Installing packages and running migrations
 ssh -i "%USERPROFILE%\.ssh\id_rsa" -t kevin@kevinpena.com "cd /var/www/aguasoft && yarn --production && yarn migrate-prod"
