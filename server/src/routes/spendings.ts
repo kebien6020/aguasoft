@@ -96,6 +96,39 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+export async function listRecent(req: Request, res: Response, next: NextFunction) {
+  try {
+    const amount = req.query.amount || 3
+    const spendings = await Spendings.findAll({
+      attributes: [
+        'id',
+        'date',
+        'description',
+        'value',
+        'fromCash',
+        'isTransfer',
+        'createdAt',
+        'updatedAt',
+        'deletedAt',
+      ],
+      order: [['updatedAt', 'DESC']],
+      include: [
+        {
+          model: models.Users,
+          attributes: ['name', 'code'],
+          paranoid: false,
+        } as Includeable,
+      ],
+      paranoid: false,
+      limit: amount,
+    })
+
+    res.json(spendings)
+  } catch (e) {
+    next(e)
+  }
+}
+
 export async function del(req: Request, res: Response, next: NextFunction) {
   try {
     const spendingId = req.params.id
