@@ -48,6 +48,7 @@ payments.get('/recent', paymentHandlers.listRecent)
 payments.delete('/:id', paymentHandlers.del)
 
 export const spendings = Router()
+spendings.post('/new', spendingHandlers.create)
 spendings.get('/paginate', spendingHandlers.paginate)
 spendings.get('/listDay', spendingHandlers.listDay)
 spendings.get('/recent', spendingHandlers.listRecent)

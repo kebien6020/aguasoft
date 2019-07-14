@@ -8,6 +8,42 @@ import * as moment from 'moment'
 const Spendings = models.Spendings as SpendingStatic
 const Users = models.Users as UserStatic
 
+export async function create(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = req.body
+
+    if (!req.session.userId) {
+      const e = Error('User is not logged in')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const user = await Users.findByPk(req.session.userId)
+
+    if (user.role !== 'admin') {
+      body.date = moment().toISOString()
+    }
+
+    body.userId = req.session.userId
+
+    await Spendings.create(body, {
+      // Only allow user input to control these attributes
+      fields: [
+        'description',
+        'value',
+        'userId',
+        'date',
+        'fromCash',
+        'isTransfer',
+      ],
+    })
+
+    res.json({success: true})
+  } catch (e) {
+    next(e)
+  }
+}
+
 export async function paginate(req: Request, res: Response, next: NextFunction) {
   try {
     let limit = Number(req.query.limit)
