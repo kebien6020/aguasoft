@@ -10,17 +10,20 @@ import Tooltip from '@material-ui/core/Tooltip'
 import Typography from '@material-ui/core/Typography'
 import * as colors from '@material-ui/core/colors'
 
-import { AttachMoney as MoneyIcon } from '@material-ui/icons'
+import {
+  AttachMoney as MoneyIcon,
+  ShoppingCart as CartIcon } from '@material-ui/icons'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
 import Sells, { Sell } from '../components/Sells'
 import Payments from '../components/Payments'
+import Spendings from '../components/Spendings'
 import MyDatePicker from '../components/MyDatePicker'
 import DayOverview from '../components/DayOverview'
 import LoadingScreen from '../components/LoadingScreen'
 import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
-import { Payment } from '../models'
+import { Payment, Spending } from '../models'
 
 import { Redirect, Link } from 'react-router-dom'
 import * as moment from 'moment'
@@ -32,15 +35,17 @@ interface DashboardProps extends PropClasses, AuthRouteComponentProps<{}> {
 
 }
 
-type LoginNextOptions = 'payments' | null
+type LoginNextOptions = 'payments'| 'spendings' | null
 
 interface DashboardState {
   gotoSell: boolean
   gotoPayment: boolean
+  gotoSpending: boolean
 
   date: moment.Moment
   sells: Sell[] | null
   payments: Payment[] | null
+  spendings: Spending[] | null
 
   loginDialogOpen: boolean
   loginDialogNext: LoginNextOptions
@@ -59,9 +64,11 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     this.state = {
       gotoSell: false,
       gotoPayment: false,
+      gotoSpending: false,
       date: moment().startOf('day'),
       sells: null,
       payments: null,
+      spendings: null,
       loginDialogOpen: false,
       loginDialogNext: null,
     }
@@ -70,6 +77,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
   componentDidMount() {
     this.updateSells(this.state.date)
     this.updatePayments()
+    this.updateSpendings()
   }
 
   updateSells = async (date: Moment) => {
@@ -100,6 +108,20 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
   }
 
+  updateSpendings = async () => {
+    const { props } = this
+    const spendings: ErrorResponse | Spending[] = await fetchJsonAuth(
+      '/api/spendings/recent',
+      props.auth
+    )
+
+    if (!isErrorResponse(spendings)) {
+      this.setState({spendings})
+    } else {
+      console.error(spendings.error)
+    }
+  }
+
   handleLogin = () => {
     this.setState({gotoSell: true})
   }
@@ -120,6 +142,9 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     switch (this.state.loginDialogNext) {
       case 'payments':
         this.setState({gotoPayment: true})
+        break
+      case 'spendings':
+        this.setState({gotoSpending: true})
         break
     }
   }
@@ -181,9 +206,38 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
   }
 
+  handleDeleteSpending = async (spendingId: number) => {
+    if (!this.state.spendings) return
+
+    const { props } = this
+
+    const result : ErrorResponse | SuccessResponse = await
+      fetchJsonAuth('/api/spendings/' + spendingId, props.auth, {
+        method: 'delete',
+      })
+
+    if (!isErrorResponse(result)) {
+      const spendings = [...this.state.spendings]
+      const spending = spendings.find(p => p.id === spendingId)
+
+      if (!spending) {
+        console.error('Trying to mutate unknown spendingId', spendingId)
+        return
+      }
+
+      spending.deletedAt = moment().toISOString()
+
+      this.setState({spendings})
+    } else {
+      console.error(result.error)
+    }
+  }
+
   renderLinkClients = (props: any) => <Link to='/clients' {...props} />
 
   renderLinkPayments = (props: any) => <Link to='/payments' {...props} />
+
+  renderLinkSpendings = (props: any) => <Link to='/spendings' {...props} />
 
   render() {
     const { state, props } = this
@@ -197,12 +251,20 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
       return <LoadingScreen text='Cargando pagos' />
     }
 
+    if (state.spendings === null) {
+      return <LoadingScreen text='Cargando salidas' />
+    }
+
     if (state.gotoSell) {
       return <Redirect to='/sell' push />
     }
 
     if (state.gotoPayment) {
       return <Redirect to='/payment' push />
+    }
+
+    if (state.gotoSpending) {
+      return <Redirect to='/spending' push />
     }
 
     return (
@@ -232,6 +294,15 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
               <MoneyIcon />
             </Button>
           </Tooltip>
+          <Tooltip title='Salidas'>
+            <Button
+              variant='outlined'
+              className={[classes.icon, classes.spendingIcon].join(' ')}
+              onClick={this.handleLoginDialogOpen('spendings')}
+            >
+              <CartIcon />
+            </Button>
+          </Tooltip>
         </Paper>
         <MyDatePicker
           date={state.date}
@@ -258,6 +329,22 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 Ver mas...
               </Button>
             </div>
+
+            <Title classes={classes}>Salidas Recientes</Title>
+            <Spendings
+              spendings={state.spendings}
+              onDeleteSpending={this.handleDeleteSpending}
+            />
+            <div className={classes.seeMoreContainer}>
+              <Button
+                variant='outlined'
+                color='primary'
+                component={this.renderLinkSpendings}
+              >
+                Ver mas...
+              </Button>
+            </div>
+
             <Title classes={classes}>Ventas del Día</Title>
             <Sells
               sells={state.sells}
@@ -332,9 +419,14 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     height: theme.spacing.unit * 12,
     color: colors.green[500],
     borderColor: colors.green[500],
+    marginRight: theme.spacing.unit * 1,
     '& svg': {
       fontSize: theme.spacing.unit * 8,
     }
+  },
+  spendingIcon: {
+    color: colors.blue['A700'],
+    borderColor: colors.blue['A700'],
   },
   seeMoreContainer: {
     paddingTop: '8px',

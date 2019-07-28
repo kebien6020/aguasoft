@@ -48,3 +48,27 @@ export interface Payment {
   updatedAt: string
   deletedAt: string | null
 }
+
+export interface Spending {
+  id: number
+  // The date the spending was performed
+  date: string
+
+  description: string
+
+  value: string
+  // Whether this was paid out of cash
+  fromCash: boolean
+  // Whether this is a transfer to our bank account
+  isTransfer: boolean
+  // timestamps
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+
+  // Possible inclusions
+  User: {
+    name: string
+    code: string
+  }
+}
