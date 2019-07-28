@@ -159,9 +159,11 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// Now should be called listDayFrom
 export async function listFrom(req: Request, res: Response, next: NextFunction) {
   try {
     const fromId: string = req.query.fromId
+    const firstSell = await Sells.findByPk(fromId)
     const sells = await Sells.findAll({
       attributes: [
         'id',
@@ -177,6 +179,8 @@ export async function listFrom(req: Request, res: Response, next: NextFunction) 
         id: {
           [Op.gt]: fromId,
         },
+        // Only get same day
+        date: firstSell.date
       },
       include: [
         {
