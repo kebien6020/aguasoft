@@ -163,7 +163,19 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
 export async function listFrom(req: Request, res: Response, next: NextFunction) {
   try {
     const fromId: string = req.query.fromId
-    const firstSell = await Sells.findByPk(fromId)
+    const firstSell = await Sells.findOne({
+      where: {
+        id: {
+          [Op.gt]: fromId,
+        },
+      }
+    })
+
+    if (!firstSell) {
+      res.json([])
+      return
+    }
+    
     const sells = await Sells.findAll({
       attributes: [
         'id',
