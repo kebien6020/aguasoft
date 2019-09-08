@@ -5,7 +5,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
 import theme from './theme'
-import MuiPickersUtilsProvider from 'material-ui-pickers/MuiPickersUtilsProvider'
+import MuiPickersUtilsProvider from '@material-ui/pickers/MuiPickersUtilsProvider'
 import MomentUtils from '@date-io/moment'
 import * as moment from 'moment'
 import 'moment/locale/es'
@@ -69,7 +69,7 @@ class App extends React.Component {
   }
 }
 
-const styles : StyleRulesCallback = (theme: Theme) => ({
+const styles :  StyleRulesCallback<Theme, {}> = theme => ({
   "@global": {
     html: {
       fontSize: 12,

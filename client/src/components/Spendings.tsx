@@ -29,12 +29,14 @@ import Alert from '../components/Alert'
 import { Spending } from '../models'
 import { money } from '../utils'
 
-interface Props extends PropClasses {
+interface Props {
   spendings: Spending[]
   onDeleteSpending: (spendingId: number) => any
 }
 
-class Spendings extends React.Component<Props> {
+type AllProps = Props & PropClasses
+
+class Spendings extends React.Component<AllProps> {
   render() {
     const { props } = this
     const { classes } = props
@@ -56,7 +58,7 @@ class Spendings extends React.Component<Props> {
     }
 
     return (
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         {props.spendings && props.spendings.length === 0 &&
           <Grid item xs={12}>
             <Typography variant='body1'>
@@ -135,7 +137,7 @@ class Spendings extends React.Component<Props> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, Props> = theme => ({
   card: {
     display: 'flex',
     flexDirection: 'row',

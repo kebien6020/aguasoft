@@ -85,7 +85,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
     }
 
     return (
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         {props.sells && props.sells.length === 0 &&
           <Grid item xs={12}>
             <Typography variant='h5'>
@@ -171,7 +171,7 @@ class Sells extends React.Component<SellsPropsAll, SellsState> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, SellsProps> = theme => ({
   sellCard: {
     borderLeft: '5px solid ' + theme.palette.grey[500],
     display: 'flex',

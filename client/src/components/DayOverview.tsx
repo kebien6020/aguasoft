@@ -21,9 +21,11 @@ import {
 
 import * as colors from '@material-ui/core/colors'
 
-interface Props extends PropClasses {
+interface Props {
   sells: Sell[]
 }
+
+type AllProps = Props & PropClasses
 
 interface State {
   clientFilter: string
@@ -55,13 +57,13 @@ const aggregateProducts = (sells: Sell[], clientId: string) => {
     .filter(([_name, qty]) => qty > 0)
 }
 
-type ValChangeEvent = { target: { value: string } }
+type ValChangeEvent = React.ChangeEvent<{ value: string }>
 type SimpleClient = {id: number, name: string, defaultCash: boolean}
 type CalculatedClient = SimpleClient & {totalSale: number}
 
-class DayOverview extends React.Component<Props, State> {
+class DayOverview extends React.Component<AllProps, State> {
 
-  constructor(props: Props) {
+  constructor(props: AllProps) {
     super(props)
 
     this.state = {
@@ -112,7 +114,7 @@ class DayOverview extends React.Component<Props, State> {
     }
 
     return (
-      <Grid container spacing={24} className={props.classes.summary}>
+      <Grid container spacing={3} className={props.classes.summary}>
         <Grid item xs={12}>
           <Paper className={props.classes.paper}>
             <Typography variant='body2'>Venta efectivo: {money(calcSell(props.sells, true))}</Typography>
@@ -168,14 +170,14 @@ class DayOverview extends React.Component<Props, State> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, Props> = theme => ({
   summary: {
     width: '90%',
     marginLeft: 'auto',
     marginRight: 'auto',
   },
   paper: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
     textAlign: 'center',
     height: '100%',
     display: 'flex',

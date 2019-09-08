@@ -5,7 +5,7 @@ import {
   CardContent,
   Typography,
 } from '@material-ui/core'
-import { withStyles, StyleRulesCallback } from '@material-ui/core/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import * as colors from '@material-ui/core/colors'
 
 import ErrorIcon from '@material-ui/icons/ErrorOutlined'
@@ -15,12 +15,14 @@ import InfoIcon from '@material-ui/icons/Info'
 
 type AlertType = 'error' | 'warning' | 'success'
 
-interface AlertProps extends PropClasses {
+interface AlertProps {
   type: AlertType
   message: string
 }
 
-function getClassName(props: AlertProps) {
+type AlertPropsAll = AlertProps & PropClasses
+
+function getClassName(props: AlertPropsAll) {
   const classNames = [props.classes.alert]
   switch (props.type) {
     case 'error': classNames.push(props.classes.error); break
@@ -31,7 +33,7 @@ function getClassName(props: AlertProps) {
   return classNames.join(' ')
 }
 
-const Alert = (props: AlertProps) => (
+const Alert = (props: AlertPropsAll) => (
   <Card className={getClassName(props)}>
     <CardContent className={props.classes.cardContent}>
       <Typography className={props.classes.typography}>
@@ -44,7 +46,7 @@ const Alert = (props: AlertProps) => (
   </Card>
 )
 
-const styles : StyleRulesCallback = () => ({
+const styles : StyleRulesCallback<Theme, AlertProps> = _theme => ({
   alert: {
     padding: '8px',
     margin: '0.5rem 0 1rem',

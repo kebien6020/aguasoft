@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import DatePicker from 'material-ui-pickers/DatePicker'
-import { DatePickerProps } from 'material-ui-pickers/DatePicker'
+import { DatePicker, DatePickerProps } from '@material-ui/pickers/DatePicker'
 import * as moment from 'moment'
 
 type DateChangeHandler = (date: moment.Moment) => any
@@ -19,8 +18,6 @@ type MyDatePickerPropsAll = MyDatePickerProps & PropClasses
 const MyDatePicker = (props : MyDatePickerPropsAll) => (
   <div className={[props.classes.datePickerContainer, props.className].join(' ')}>
 
-    {/*
-    // @ts-ignore */}
     <DatePicker
       label={props.label}
       className={props.classes.datePicker}
@@ -34,22 +31,23 @@ const MyDatePicker = (props : MyDatePickerPropsAll) => (
 )
 
 function handleDateChange(
-  date: moment.Moment,
+  date: moment.Moment | null,
   previousDate: moment.Moment,
   onDateChange: DateChangeHandler)
 {
+  date = date ? date : moment.invalid()
   // Ignore change when same day is selected
   if (!date.isSame(previousDate, 'day')) {
     onDateChange(date)
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, MyDatePickerProps> = theme => ({
   datePickerContainer: {
     display: 'block',
     textAlign: 'center',
-    marginTop: theme.spacing.unit * 1,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(2),
   },
   datePicker: {
     '& input': {

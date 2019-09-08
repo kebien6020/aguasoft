@@ -147,7 +147,7 @@ class ClientBalance extends React.Component<Props, State> {
     }
   }
 
-  renderLinkBack = (props: any) => <Link to='/clients' {...props} />
+  renderLinkBack = React.forwardRef((props: any, ref: any) => <Link to='/clients' ref={ref} {...props} />)
 
   renderChangeGroup = (ch: ChangeGroup, key: React.Key) => {
     const { classes } = this.props
@@ -218,7 +218,7 @@ class ClientBalance extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback = (theme: Theme) => ({
+const styles : StyleRulesCallback<Theme, Props> = theme => ({
   appbar: {
     flexGrow: 1,
   },
@@ -230,9 +230,9 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
     display: 'flex',
     flexFlow: 'row nowrap',
     textAlign: 'center',
-    marginTop: theme.spacing.unit * 2,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    marginTop: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
   cardDate: {
     overflow: 'hidden',

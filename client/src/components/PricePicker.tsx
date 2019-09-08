@@ -20,11 +20,13 @@ import { Product, Price } from '../models'
 
 export type IncompletePrice = Pick<Price, 'name' | 'productId' | 'value'>
 
-interface Props extends PropClasses {
+interface Props {
   clientName: string
   products: Product[]
   onNewPrice?: (price: IncompletePrice) => void
 }
+
+type PropsAll = Props & PropClasses
 
 interface State {
   dialogOpen: boolean
@@ -33,9 +35,9 @@ interface State {
   currentPrice: string
 }
 
-type ValChangeEvent = { target: { value: string } }
+type ValChangeEvent = React.ChangeEvent<{ value: string }>
 
-class PricePicker extends React.Component<Props, State> {
+class PricePicker extends React.Component<PropsAll, State> {
   state = {
     dialogOpen: false,
     name: 'Base',
@@ -49,27 +51,36 @@ class PricePicker extends React.Component<Props, State> {
     }
   }
 
-  handleChange = (name: keyof State) => (event: ValChangeEvent) => {
+  handleChangeEvent = (name: keyof State) => (event: ValChangeEvent) => {
     // Save value to a variable because it may change (synthetic events
     // may be re-used by react)
     const value = event.target.value
+    this.handleChange(name, value)
+  }
+
+  handleChange = (name: keyof State, value: string) => {
     this.setState((prevState: State) => ({
         ...prevState,
         [name]: value,
     }))
   }
 
-  handleProductChange = (event: ValChangeEvent) => {
-    this.handleChange('currentProduct')(event)
+  handleProductChange = (value: string) => {
+    this.handleChange('currentProduct', value)
 
     const { products } = this.props
     const currentProduct = products.find(pr =>
-      String(pr.id) === event.target.value
+      String(pr.id) === value
     )
 
     if (currentProduct) {
       this.setState({currentPrice: currentProduct.basePrice})
     }
+  }
+
+  handleProductChangeEvent = (event: ValChangeEvent) => {
+    const value = event.target.value
+    this.handleProductChange(value)
   }
 
   handleNewPrice = () => {
@@ -88,7 +99,7 @@ class PricePicker extends React.Component<Props, State> {
       // so that people won't think the dialog changed before actually
       // saving the values
       this.setState({name: 'Base'})
-      this.handleProductChange({target: {value: String(props.products[0].id)}})
+      this.handleProductChange(String(props.products[0].id))
     }, 200)
   }
 
@@ -119,14 +130,14 @@ class PricePicker extends React.Component<Props, State> {
               label='Nombre del Precio'
               margin='normal'
               fullWidth
-              onChange={this.handleChange('name')}
+              onChange={this.handleChangeEvent('name')}
               value={state.name}
             />
             <FormControl fullWidth margin='normal'>
               <InputLabel htmlFor='currentProduct'>Producto</InputLabel>
               <Select
                 inputProps={{id: 'currentProduct', name: 'currentProduct'}}
-                onChange={this.handleProductChange}
+                onChange={this.handleProductChangeEvent}
                 value={state.currentProduct}
               >
                 {
@@ -142,7 +153,7 @@ class PricePicker extends React.Component<Props, State> {
             </FormControl>
             <PriceField
               label='Valor'
-              onChange={this.handleChange('currentPrice')}
+              onChange={this.handleChangeEvent('currentPrice')}
               value={state.currentPrice}
             />
           </DialogContent>
@@ -161,7 +172,7 @@ class PricePicker extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback = (theme: Theme) => ({
+const styles : StyleRulesCallback<Theme, Props> = theme => ({
   button: {
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -174,7 +185,7 @@ const styles : StyleRulesCallback = (theme: Theme) => ({
     fontSize: '1.5em',
   },
   leftIcon: {
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
   },
 })
 

@@ -9,26 +9,26 @@ import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
 import { parseParams } from '../utils'
 
-const styles: StyleRulesCallback =
-  ({ palette, spacing, shadows }: Theme) => ({
+const styles: StyleRulesCallback<Theme, CheckUserProps> =
+  ({ palette, spacing, shadows }) => ({
     paper: {
       position: 'absolute',
       width: '80%',
       backgroundColor: palette.background.paper,
       boxShadow: shadows[5],
-      padding: spacing.unit * 4,
+      padding: spacing(4),
       left: '50%',
       top: '50%',
       transform: 'translateX(-50%) translateY(-50%)'
     },
     field: {
-      marginTop: spacing.unit * 2,
+      marginTop: spacing(2),
     },
     title: {
-      marginBottom: spacing.unit * 4,
+      marginBottom: spacing(4),
     },
     button: {
-      marginTop: spacing.unit * 4,
+      marginTop: spacing(4),
     },
   })
 

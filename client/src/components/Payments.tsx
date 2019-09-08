@@ -28,12 +28,14 @@ import Alert from '../components/Alert'
 import { Payment } from '../models'
 import { money } from '../utils'
 
-interface Props extends PropClasses {
+interface Props {
   payments: Payment[]
   onDeletePayment: (paymentId: number) => any
 }
 
-class Payments extends React.Component<Props> {
+type AllProps = Props & PropClasses
+
+class Payments extends React.Component<AllProps> {
   render() {
     const { props } = this
     const { classes } = props
@@ -75,7 +77,7 @@ class Payments extends React.Component<Props> {
     }
 
     return (
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         {props.payments && props.payments.length === 0 &&
           <Grid item xs={12}>
             <Typography variant='body1'>
@@ -164,7 +166,7 @@ class Payments extends React.Component<Props> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, Props> = theme => ({
   card: {
     display: 'flex',
     flexDirection: 'row',

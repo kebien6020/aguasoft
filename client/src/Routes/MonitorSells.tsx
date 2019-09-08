@@ -118,7 +118,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
           date={state.date}
           onDateChange={this.handleDateChange}
         />
-        <Grid container spacing={24} className={classes.summary}>
+        <Grid container spacing={3} className={classes.summary}>
           <Grid item xs={12} lg={5}>
             <Paper className={classes.paper}>
               <Typography variant='body2'>Venta efectivo: {money(this.calcSell(true))}</Typography>
@@ -201,10 +201,10 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, MonitorSellsProps> = theme => ({
   title: {
     textAlign: 'center',
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
   },
   deleteButton: {
     color: 'red',
@@ -221,7 +221,7 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     marginRight: 'auto',
   },
   paper: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
     textAlign: 'center',
     height: '100%',
     display: 'flex',

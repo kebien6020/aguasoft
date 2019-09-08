@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { withStyles, /*Theme,*/ StyleRulesCallback } from '@material-ui/core/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
 import FormControl from '@material-ui/core/FormControl'
 import InputLabel from '@material-ui/core/InputLabel'
@@ -113,7 +113,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     const { state, props } = this
     const { classes } = this.props
     return (
-      <Grid container spacing={24} className={classes.container}
+      <Grid container spacing={3} className={classes.container}
         onKeyPress={this.handleEnterAnywhere}>
         <Grid item xs={12} md={6} lg={4} className={classes.elemContainer}>
           <FormControl fullWidth className={classes.formControl} margin='dense'>
@@ -168,7 +168,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
   }
 }
 
-const styles: StyleRulesCallback = (/*theme: Theme*/) => ({
+const styles: StyleRulesCallback<Theme, LoginProps> = _theme => ({
   container: {
     marginTop: 0,
   },

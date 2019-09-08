@@ -111,7 +111,7 @@ const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => (
     : null
 )
 
-type ValChangeEvent = { target: { value: string } }
+type ValChangeEvent = React.ChangeEvent<{ value: string }>
 
 class ClientEditor extends React.Component<Props, State> {
 
@@ -458,7 +458,7 @@ class ClientEditor extends React.Component<Props, State> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, Props> = theme => ({
   title: {
     '& > *': {
       textAlign: 'center',
@@ -467,12 +467,12 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   form: {
   },
   paper: {
-    paddingLeft: theme.spacing.unit * 4,
-    paddingRight: theme.spacing.unit * 4,
-    paddingTop: theme.spacing.unit * 4,
-    paddingBottom: theme.spacing.unit * 4,
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
     position: 'relative'
   },
   deleteButton: {
@@ -481,7 +481,7 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     right: '0',
     top: '50%',
     transform: 'translateY(-50%)',
-    marginRight: theme.spacing.unit * 4,
+    marginRight: theme.spacing(4),
   },
 })
 

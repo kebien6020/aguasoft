@@ -2,12 +2,14 @@ import * as React from 'react'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
-interface ResponsiveContainerProps extends PropClasses {
+interface Props {
   variant?: 'normal' | 'wide'
   children?: React.ReactNode | React.ReactNodeArray
 }
 
-function ResponsiveContainer(props: ResponsiveContainerProps) {
+type AllProps = Props & PropClasses
+
+function ResponsiveContainer(props: AllProps) {
   let className : string = props.classes[props.variant || 'normal']
   className += ' ' + props.classes.common
   return (
@@ -17,7 +19,7 @@ function ResponsiveContainer(props: ResponsiveContainerProps) {
   )
 }
 
-const styles : StyleRulesCallback = (theme: Theme) => ({
+const styles : StyleRulesCallback<Theme, Props> = theme => ({
   normal: {
     width: '95%',
     [theme.breakpoints.up('sm')]: { width: '90%' },

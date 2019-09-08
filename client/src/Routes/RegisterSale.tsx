@@ -25,10 +25,10 @@ import { fetchJsonAuth, money } from '../utils'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import { Client } from '../models'
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, RegisterSaleProps> = theme => ({
   title: {
     textAlign: 'center',
-    paddingTop: theme.spacing.unit * 2,
+    paddingTop: theme.spacing(2),
   },
   paper: {
     minHeight: '80vh',
@@ -39,8 +39,8 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     [theme.breakpoints.down('sm')]: {
       width: '98%',
     },
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
   qtyCell: {
     textAlign: 'center',
@@ -54,10 +54,10 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     }
   },
   numericInput: {
-    width: theme.spacing.unit * 6,
-    marginRight: theme.spacing.unit,
+    width: theme.spacing(6),
+    marginRight: theme.spacing(1),
     [theme.breakpoints.down('md')]: {
-      width: theme.spacing.unit * 3,
+      width: theme.spacing(3),
       marginRight: 0,
       fontSize: '1em',
     },
@@ -72,7 +72,7 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
   },
   credit: {
     textAlign: 'center',
-    marginTop: theme.spacing.unit * 4,
+    marginTop: theme.spacing(4),
   },
   button: {
     color: 'white'
@@ -401,7 +401,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                             id={`price-product-${product.id}`}
                             fullWidth
                             value={product.selectedPrice.name}
-                            onChange={(event) => this.handlePriceChange(product.id, event.target.value)}
+                            onChange={(event: React.ChangeEvent<{value: string}>) => this.handlePriceChange(product.id, event.target.value)}
                           >
                           {product.prices
                             ? product.prices.map((price, key) =>

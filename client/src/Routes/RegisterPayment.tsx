@@ -64,7 +64,7 @@ interface State {
   redirectToHome: boolean
 }
 
-type ValChangeEvent = { target: { value: string } }
+type ValChangeEvent = React.ChangeEvent<{ value: string }>
 type CheckedChangeEvent = { target: { checked: boolean } }
 
 class RegisterPayment extends React.Component<Props, State> {
@@ -429,17 +429,17 @@ class RegisterPayment extends React.Component<Props, State> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, Props> = theme => ({
   paper: {
-    paddingTop: theme.spacing.unit * 4,
-    paddingRight: theme.spacing.unit * 4,
-    paddingBottom: theme.spacing.unit * 4,
-    paddingLeft: theme.spacing.unit * 4,
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    paddingTop: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
   invoiceNumberContainer: {
-    paddingTop: theme.spacing.unit,
+    paddingTop: theme.spacing(1),
     '& input': {
       '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
         '-webkit-appearance': 'none',
@@ -451,7 +451,7 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     },
   },
   buttonContainer: {
-    paddingTop: theme.spacing.unit * 4,
+    paddingTop: theme.spacing(4),
   },
   collapse: {
     width: '100%',

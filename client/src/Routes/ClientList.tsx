@@ -92,7 +92,7 @@ const clientStyles = {
 
 const ClientItem = withStyles(clientStyles)(ClientItemRaw)
 
-interface ClientDialogProps extends PropClasses {
+interface ClientDialogProps {
   client: ClientWithNotes
   open: boolean
   onClose: () => any
@@ -104,7 +104,9 @@ interface ClientDialogProps extends PropClasses {
   onClientShowBalance: (cl: ClientWithNotes) => any
 }
 
-const ClientDialogRaw = (props: ClientDialogProps) => (
+type ClientDialogAllProps = ClientDialogProps & PropClasses
+
+const ClientDialogRaw = (props: ClientDialogAllProps) => (
   <Dialog open={props.open} onClose={props.onClose} fullWidth>
     <DialogTitle className={props.classes.title}>
       {props.client.name}
@@ -157,7 +159,7 @@ const ClientDialogRaw = (props: ClientDialogProps) => (
   </Dialog>
 )
 
-const clientDialogStyles : StyleRulesCallback = (theme: Theme) => ({
+const clientDialogStyles : StyleRulesCallback<Theme, ClientDialogProps> = theme => ({
   editIcon: {
     color: theme.palette.primary.main,
   },
@@ -232,9 +234,9 @@ class ClientList extends React.Component<Props, State> {
     }
   }
 
-  renderLinkToNew = (props: any) => <Link to='/clients/new' {...props} />
+  renderLinkToNew = React.forwardRef((props: any, ref: any) => <Link to='/clients/new' ref={ref} {...props} />)
 
-  renderLinkBack = (props: any) => <Link to='/' {...props} />
+  renderLinkBack = React.forwardRef((props: any, ref: any) => <Link to='/' ref={ref} {...props} />)
 
   handleClientClick = (client: ClientWithNotes) => {
     this.setState({
@@ -534,7 +536,7 @@ class ClientList extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback = (_theme: Theme) => ({
+const styles : StyleRulesCallback<Theme, Props> = _theme => ({
   appbar: {
     flexGrow: 1,
   },

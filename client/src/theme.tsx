@@ -18,11 +18,10 @@ export default createMuiTheme({
   },
   typography: {
     htmlFontSize: 10, // This makes the font really big
-    useNextVariants: true,
   },
   overrides: {
     MuiTableCell: {
-     paddingDense: {
+     sizeSmall: {
        padding: '20px 16px 20px 8px',
        fontSize: '16px',
      },

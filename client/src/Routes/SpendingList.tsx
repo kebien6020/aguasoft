@@ -100,7 +100,7 @@ class SpendingList extends React.Component<Props, State> {
     this.setState({offset, disablePagination: false})
   }
 
-  renderLinkBack = (props: any) => <Link to='/' {...props} />
+  renderLinkBack = React.forwardRef((props: any, ref: any) => <Link to='/' ref={ref} {...props} />)
 
   renderPagination = () => (
     <Pagination
@@ -151,7 +151,7 @@ class SpendingList extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback = (_theme: Theme) => ({
+const styles : StyleRulesCallback<Theme, Props> = _theme => ({
   appbar: {
     flexGrow: 1,
   },

@@ -233,11 +233,11 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
   }
 
-  renderLinkClients = (props: any) => <Link to='/clients' {...props} />
+  renderLinkClients = React.forwardRef((props: any, ref: any) => <Link to='/clients' ref={ref} {...props} />)
 
-  renderLinkPayments = (props: any) => <Link to='/payments' {...props} />
+  renderLinkPayments = React.forwardRef((props: any, ref: any) => <Link to='/payments' ref={ref} {...props} />)
 
-  renderLinkSpendings = (props: any) => <Link to='/spendings' {...props} />
+  renderLinkSpendings = React.forwardRef((props: any, ref: any) => <Link to='/spendings' ref={ref} {...props} />)
 
   render() {
     const { state, props } = this
@@ -309,7 +309,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
           className={classes.datePicker}
           onDateChange={this.handleDateChange}
           DatePickerProps={{
-            variant: 'outlined',
+            inputVariant: 'outlined',
             label: 'Fecha',
           }}
         />
@@ -372,7 +372,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
   }
 }
 
-const styles: StyleRulesCallback = (theme: Theme) => ({
+const styles: StyleRulesCallback<Theme, DashboardProps> = theme => ({
   layout: {
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -382,14 +382,14 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     [theme.breakpoints.up('xl')]: { width: '75%', },
   },
   title: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
     '& > *': {
       textAlign: 'center',
     },
   },
   login: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
   },
   bottomSection: {
     // Put summary on top of sells on small screens
@@ -406,22 +406,22 @@ const styles: StyleRulesCallback = (theme: Theme) => ({
     display: 'block',
   },
   datePicker: {
-    marginTop: theme.spacing.unit * 4,
-    marginBottom: theme.spacing.unit * 0,
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(0),
   },
   others: {
     display: 'flex',
     justifyItems: 'start',
-    padding: theme.spacing.unit,
+    padding: theme.spacing(1),
   },
   icon: {
-    width: theme.spacing.unit * 12,
-    height: theme.spacing.unit * 12,
+    width: theme.spacing(12),
+    height: theme.spacing(12),
     color: colors.green[500],
     borderColor: colors.green[500],
-    marginRight: theme.spacing.unit * 1,
+    marginRight: theme.spacing(1),
     '& svg': {
-      fontSize: theme.spacing.unit * 8,
+      fontSize: theme.spacing(8),
     }
   },
   spendingIcon: {
