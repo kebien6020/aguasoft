@@ -68,7 +68,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
         flexDirection: 'column',
       }
       return (
-        <Layout>
+        <>
           <div style={style}>
             <img src={logo} style={{marginBottom: '32px'}} />
             <div style={{marginBottom: '16px'}}><CircularProgress /></div>
@@ -76,7 +76,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
               Intentando autenticación automática...
             </Typography>
           </div>
-        </Layout>
+        </>
       )
     }
 
