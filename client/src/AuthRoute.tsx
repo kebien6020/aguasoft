@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Route, RouteProps, RouteComponentProps } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Typography from '@material-ui/core/Typography'
-import Layout from './components/Layout'
 import Auth from './Auth'
 const logo = require('./logo.png')
 const auth  = new Auth()
@@ -16,7 +15,6 @@ const AuthStatus = {
 }
 
 interface AuthRouteProps extends RouteProps {
-  component: React.ComponentType<any>
   private?: boolean
 }
 
@@ -43,7 +41,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
   }
 
   render() {
-    const { component, children, ...outerProps } = this.props
+    const { component, children, render, ...outerProps } = this.props
     const { authStatus } = this.state
 
     // Specifying children overwrites component
@@ -52,6 +50,12 @@ class AuthRoute extends React.Component<AuthRouteProps> {
     }
 
     if (authStatus === AuthStatus.GRANTED) {
+      if (render) {
+        return <Route {...outerProps} render={render} />
+      }
+
+      if (!component) return null
+
       const Component = component
       const renderRoute = (props: any) =>
         <Component auth={auth} {...outerProps} {...props} />

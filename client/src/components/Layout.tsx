@@ -109,7 +109,7 @@ const MainDrawer = React.forwardRef(({open, onRequestClose}: MainDrawerProps, re
     <>
       <DrawerItem
         text='Ventas'
-        to='/'
+        to='/sells'
         icon={<CartPlusIcon />}
         color={colors.green[500]}
         fullWidth={open}
