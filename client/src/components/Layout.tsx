@@ -204,6 +204,7 @@ export default function Layout(props : Props) {
   }, [])
 
   const Container = container
+  const containerProps = className ? {className} : undefined
   return (
     <>
       <AppBar position='fixed' className={classes.appBar}>
@@ -224,7 +225,7 @@ export default function Layout(props : Props) {
       <MainDrawer open={drawerOpen} onRequestClose={handleDrawerClose} />
       <div className={classes.content} onClick={handleDrawerClose}>
         <div className={classes.toolbar} />
-        <Container className={className}>
+        <Container {...containerProps}>
           {children}
         </Container>
       </div>
