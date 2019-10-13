@@ -2,11 +2,6 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import AppBar from '@material-ui/core/AppBar'
-import IconButton from '@material-ui/core/IconButton'
-import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-import BackIcon from '@material-ui/icons/ArrowBack'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import adminOnly from '../hoc/adminOnly'
@@ -114,38 +109,20 @@ class PaymentList extends React.Component<Props, State> {
   )
 
   render() {
-    const { props, state } = this
-    const { classes } = props
+    const { state } = this
 
     if (state.payments === null) {
       return <LoadingScreen text='Cargando pagos...' />
     }
 
     return (
-      <Layout>
-        <AppBar position='static' className={classes.appbar}>
-          <Toolbar>
-            <IconButton
-              className={classes.backButton}
-              color='inherit'
-              aria-label='Back'
-              component={this.renderLinkBack}
-            >
-              <BackIcon />
-            </IconButton>
-            <Typography variant='h6' color='inherit' className={classes.title}>
-              Pagos
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <ResponsiveContainer>
-          {this.renderPagination()}
-          <Payments
-            payments={state.payments}
-            onDeletePayment={this.handleDeletePayment}
-          />
-          {this.renderPagination()}
-        </ResponsiveContainer>
+      <Layout title='Todos los Pagos' container={ResponsiveContainer}>
+        {this.renderPagination()}
+        <Payments
+          payments={state.payments}
+          onDeletePayment={this.handleDeletePayment}
+        />
+        {this.renderPagination()}
       </Layout>
     )
   }
