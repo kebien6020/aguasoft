@@ -29,6 +29,7 @@ const PaymentList =      lazy(() => import(/* webpackChunkName: "all-payments" *
 const RegisterSpending = lazy(() => import(/* webpackChunkName: "register-spending" */ './Routes/RegisterSpending'))
 const SpendingList =     lazy(() => import(/* webpackChunkName: "spending-list" */ './Routes/SpendingList'))
 const Sells =            lazy(() => import(/* webpackChunkName: "sells" */ './Routes/Sells'))
+const Payments =         lazy(() => import(/* webpackChunkName: "payments" */ './Routes/Payments'))
 
 moment.locale('es')
 
@@ -49,7 +50,6 @@ class App extends React.Component {
                 <Route exact private path='/monitor/sells' component={MonitorSells} />
                 <Route exact private path='/check' component={CheckUser} />
                 <Route exact private path='/sell' component={RegisterSale} />
-                <Route exact private path='/payment' component={RegisterPayment} />
                 <Route exact private path='/spending' component={RegisterSpending} />
 
                 <Route exact private path='/clients' component={ClientList} />
@@ -57,7 +57,9 @@ class App extends React.Component {
                 <Route exact private path='/clients/:id' component={ClientEditor} />
                 <Route exact private path='/clients/:id/balance' component={ClientBalance} />
 
-                <Route exact private path='/payments' component={PaymentList} />
+                <Route exact private path='/payment' component={RegisterPayment} />
+                <Route exact private path='/payments' component={Payments} />
+                <Route exact private path='/payments/list' component={PaymentList} />
 
                 <Route exact private path='/spendings' component={SpendingList} />
 
