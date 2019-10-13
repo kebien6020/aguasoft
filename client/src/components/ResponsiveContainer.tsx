@@ -6,6 +6,7 @@ interface Props {
   variant?: 'normal' | 'wide'
   children?: React.ReactNode | React.ReactNodeArray
 }
+export type ResponsiveContainerProps = Props
 
 type AllProps = Props & PropClasses
 

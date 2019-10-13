@@ -166,7 +166,7 @@ export default function Sells(props: SellsProps) {
     </Paper>
 
   return (
-    <Layout title='Ventas' className={classes.layout}>
+    <Layout title='Ventas'>
       <Title>Registrar Venta</Title>
       {loginElem}
 
@@ -190,14 +190,6 @@ export default function Sells(props: SellsProps) {
 }
 
 const useStyles = makeStyles(theme => ({
-  layout: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    width: '95%',
-    [theme.breakpoints.up('md')]: { width: '90%', },
-    [theme.breakpoints.up('lg')]: { width: '80%', },
-    [theme.breakpoints.up('xl')]: { width: '75%', },
-  },
   login: {
     padding: theme.spacing(2),
   },

@@ -22,6 +22,8 @@ import {
   Menu as MenuIcon,
 } from '@material-ui/icons'
 
+import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer';
+
 const drawerWidth = 96
 const drawerWidthFull = 256
 
@@ -183,9 +185,14 @@ interface Props {
   children: React.ReactNode
   className?: string
   title: string
+  container?: string | React.ComponentType<{className?: string}>
 }
 
-export default function Layout({children, className, title} : Props) {
+const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
+  <ResponsiveContainer variant='wide' {...props} />
+
+export default function Layout(props : Props) {
+  const {children, className, title, container = WideResponsiveContainer} = props
   const classes = useStyles()
   // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -196,6 +203,7 @@ export default function Layout({children, className, title} : Props) {
     setDrawerOpen(false)
   }, [])
 
+  const Container = container
   return (
     <>
       <AppBar position='fixed' className={classes.appBar}>
@@ -214,9 +222,11 @@ export default function Layout({children, className, title} : Props) {
         </ToolBar>
       </AppBar>
       <MainDrawer open={drawerOpen} onRequestClose={handleDrawerClose} />
-      <div className={clsx(classes.content, className)} onClick={handleDrawerClose}>
+      <div className={classes.content} onClick={handleDrawerClose}>
         <div className={classes.toolbar} />
-        {children}
+        <Container className={className}>
+          {children}
+        </Container>
       </div>
     </>
   )
