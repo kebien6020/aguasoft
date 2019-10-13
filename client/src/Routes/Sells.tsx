@@ -9,7 +9,6 @@ import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
 import Snackbar from '@material-ui/core/Snackbar'
 import SnackbarContent from '@material-ui/core/SnackbarContent'
-import * as colors from '@material-ui/core/colors'
 
 import {
   Error as ErrorIcon,
@@ -202,46 +201,8 @@ const useStyles = makeStyles(theme => ({
   login: {
     padding: theme.spacing(2),
   },
-  bottomSection: {
-    // Put summary on top of sells on small screens
-    flexDirection: 'column-reverse',
-    [theme.breakpoints.up('md')]: {
-      flexDirection: 'row',
-    },
-  },
-  sidebarElement: {
-    width: '90%',
-    padding: '12px',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    display: 'block',
-  },
   datePicker: {
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(0),
-  },
-  others: {
-    display: 'flex',
-    justifyItems: 'start',
-    padding: theme.spacing(1),
-  },
-  icon: {
-    width: theme.spacing(12),
-    height: theme.spacing(12),
-    color: colors.green[500],
-    borderColor: colors.green[500],
-    marginRight: theme.spacing(1),
-    '& svg': {
-      fontSize: theme.spacing(8),
-    }
-  },
-  spendingIcon: {
-    color: colors.blue['A700'],
-    borderColor: colors.blue['A700'],
-  },
-  seeMoreContainer: {
-    paddingTop: '8px',
-    paddingBottom: '8px',
-    textAlign: 'center',
   },
 }))
