@@ -1,21 +1,14 @@
 import * as React from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
-import clsx from 'clsx';
-import { makeStyles, Theme } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import CircularProgress from '@material-ui/core/CircularProgress'
-import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
-import Snackbar from '@material-ui/core/Snackbar'
-import SnackbarContent from '@material-ui/core/SnackbarContent'
 
-import {
-  Error as ErrorIcon,
-  Close as CloseIcon,
-} from '@material-ui/icons'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
+import { useSnackbar } from '../components/MySnackbar'
 import Login from '../components/Login'
 import SellList, { Sell } from '../components/Sells'
 import MyDatePicker from '../components/MyDatePicker'
@@ -28,53 +21,6 @@ import * as moment from 'moment'
 import { Moment } from 'moment'
 import 'moment/locale/es'
 moment.locale('es')
-
-export interface ErrorSnackbarProps {
-  className?: string
-  message?: string
-  onClose?: () => void
-}
-
-function ErrorSnackbar(props: ErrorSnackbarProps) {
-  const classes = useErrorSnackbarStyles()
-  const { className, message, onClose, ...other } = props
-
-  return (
-    <SnackbarContent
-      className={clsx('cont', className)}
-      aria-describedby='client-snackbar'
-      message={
-        <span id='client-snackbar' className={classes.message}>
-          <ErrorIcon className={clsx(classes.icon, classes.iconVariant)} />
-          {message}
-        </span>
-      }
-      action={[
-        <IconButton key='close' aria-label='close' color='inherit' onClick={onClose}>
-          <CloseIcon className={classes.icon} />
-        </IconButton>,
-      ]}
-      {...other}
-    />
-  )
-}
-
-const useErrorSnackbarStyles = makeStyles((theme: Theme) => ({
-  cont: {
-    backgroundColor: theme.palette.error.dark,
-  },
-  icon: {
-    fontSize: 20,
-  },
-  iconVariant: {
-    opacity: 0.9,
-    marginRight: theme.spacing(1),
-  },
-  message: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-}))
 
 type SellsProps = AuthRouteComponentProps<{}>
 export default function Sells(props: SellsProps) {
@@ -98,13 +44,7 @@ export default function Sells(props: SellsProps) {
     />
 
   // Snackbar
-  const [snackbarError, setSnackbarError] = useState<string|null>(null)
-  const snackbarOpen = snackbarError !== null;
-  const handleSnackbarClose = useCallback(() => setSnackbarError(null), []);
-  const snackbar =
-    <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleSnackbarClose}>
-      <ErrorSnackbar message={snackbarError || undefined} onClose={handleSnackbarClose} />
-    </Snackbar>
+  const [snackbar, setSnackbarError] = useSnackbar()
 
   // Sell List
   const [sells, setSells] = useState<Sell[]|null>(null)
