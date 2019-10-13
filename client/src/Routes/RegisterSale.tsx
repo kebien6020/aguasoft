@@ -328,7 +328,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     const { props, state } = this
     const { classes } = props
     return (
-      <Layout title='Sell'>
+      <Layout title='Registrar Venta' container={React.Fragment}>
         <Paper elevation={8} className={classes.paper}>
           <Typography variant="h6" className={classes.title}>
             Registrar Venta
