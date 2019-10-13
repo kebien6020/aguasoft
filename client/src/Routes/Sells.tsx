@@ -107,7 +107,7 @@ export default function Sells(props: SellsProps) {
     </Paper>
 
   return (
-    <Layout title='Ventas'>
+    <Layout title='Ventas' auth={auth}>
       <Title>Registrar Venta</Title>
       {loginElem}
 

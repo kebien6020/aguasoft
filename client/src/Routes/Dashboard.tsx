@@ -269,7 +269,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
 
     return (
-      <Layout className={classes.layout} title='Ventas'>
+      <Layout title='Dashboard' auth={props.auth}>
         <Dialog
           open={state.loginDialogOpen}
           onClose={this.handleLoginDialogClose}
@@ -374,14 +374,6 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 }
 
 const styles: StyleRulesCallback<Theme, DashboardProps> = theme => ({
-  layout: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    width: '95%',
-    [theme.breakpoints.up('md')]: { width: '90%', },
-    [theme.breakpoints.up('lg')]: { width: '80%', },
-    [theme.breakpoints.up('xl')]: { width: '75%', },
-  },
   title: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),

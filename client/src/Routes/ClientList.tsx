@@ -398,7 +398,7 @@ class ClientList extends React.Component<Props, State> {
       state.clients.filter(cl => !cl.hidden)
 
     return (
-      <Layout>
+      <Layout title='Lista de Clientes' auth={props.auth}>
         <AppBar position='static' className={classes.appbar}>
           <Toolbar>
             <IconButton

@@ -122,7 +122,7 @@ class SpendingList extends React.Component<Props, State> {
     }
 
     return (
-      <Layout>
+      <Layout title='Lista de salidas' auth={props.auth}>
         <AppBar position='static' className={classes.appbar}>
           <Toolbar>
             <IconButton

@@ -25,7 +25,6 @@ import * as moment from 'moment'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
-import ResponsiveContainer from '../components/ResponsiveContainer'
 import Title from '../components/Title'
 import Alert from '../components/Alert'
 import LoadingScreen from '../components/LoadingScreen'
@@ -255,7 +254,7 @@ class RegisterPayment extends React.Component<Props, State> {
     }
 
     return (
-      <Layout title='Registrar Pago'>
+      <Layout title='Registrar Pago' auth={props.auth}>
         <Paper className={classes.paper}>
           <Title>Registrar Pago</Title>
           {state.submitionError !== null &&
