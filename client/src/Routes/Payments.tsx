@@ -56,6 +56,7 @@ export default function Payments({auth}: PaymentsProps) {
   const [payments, setPayments] = useState<Payment[]|null>(null)
   useEffect(() => {
     const updatePayments = async () => {
+      setPayments(null)
       const url = '/api/payments/listDay?day=' + date.format('YYYY-MM-DD')
       const payments: ErrorResponse | Payment[] =
         await fetchJsonAuth(url, auth)
@@ -114,7 +115,7 @@ export default function Payments({auth}: PaymentsProps) {
       <Title>Pagos del día</Title>
       {payments ?
         paymentList :
-        <CircularProgress />
+        <CircularProgress className={classes.centerBlock} />
       }
 
       <div className={classes.seeMoreContainer}>
@@ -144,5 +145,10 @@ const useStyles = makeStyles(theme => ({
     paddingTop: '8px',
     paddingBottom: '8px',
     textAlign: 'center',
+  },
+  centerBlock: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    display: 'block',
   },
 }))

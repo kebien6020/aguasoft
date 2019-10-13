@@ -50,6 +50,7 @@ export default function Sells(props: SellsProps) {
   const [sells, setSells] = useState<Sell[]|null>(null)
   useEffect(() => {
     const updateSells = async () => {
+      setSells(null)
       const url = '/api/sells/listDay?day=' + date.format('YYYY-MM-DD')
       const sells: ErrorResponse | Sell[] =
         await fetchJsonAuth(url, auth)
@@ -115,13 +116,13 @@ export default function Sells(props: SellsProps) {
       <Title>Resumen</Title>
       {sells ?
         <DayOverview sells={sells} /> :
-        <CircularProgress />
+        <CircularProgress className={classes.centerBlock} />
       }
 
       <Title>Ventas del Día</Title>
       {sells ?
         sellList :
-        <CircularProgress />
+        <CircularProgress className={classes.centerBlock} />
       }
 
       {snackbar}
@@ -136,5 +137,10 @@ const useStyles = makeStyles(theme => ({
   datePicker: {
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(0),
+  },
+  centerBlock: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    display: 'block',
   },
 }))
