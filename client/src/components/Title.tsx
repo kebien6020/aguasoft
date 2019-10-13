@@ -1,4 +1,5 @@
 import * as React from 'react'
+import clsx from 'clsx'
 
 import {
   Typography
@@ -6,28 +7,30 @@ import {
 import { TypographyProps } from '@material-ui/core/Typography'
 
 import {
-  withStyles,
-  StyleRules,
+  makeStyles,
 } from '@material-ui/core/styles'
 
-interface Props extends PropClasses {
-  children: any
-  className?: string
+type DivProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+interface TitleProps extends DivProps {
   TypographyProps?: TypographyProps
 }
 
-const Title = (props: Props) => (
-  <div className={[props.classes.title, props.className].join(' ')}>
-    <Typography variant='h6' {...props.TypographyProps}>{props.children}</Typography>
-  </div>
-)
+export default function Title(props: TitleProps) {
+  const {className, children, TypographyProps, ...otherProps} = props
+  const classes = useTitleStyles()
+  return (
+    <div {...otherProps} className={clsx(classes.title, className)}>
+      <Typography variant='h6' {...TypographyProps}>{children}</Typography>
+    </div>
+  )
+}
 
-const styles: StyleRules = {
+const useTitleStyles = makeStyles(theme => ({
   title: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
     '& > *': {
       textAlign: 'center',
     },
   },
-}
-
-export default withStyles(styles)(Title)
+}))

@@ -4,22 +4,14 @@ import { useHistory } from 'react-router-dom'
 import clsx from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core/styles'
 
-import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import Paper from '@material-ui/core/Paper'
 import Snackbar from '@material-ui/core/Snackbar'
 import SnackbarContent from '@material-ui/core/SnackbarContent'
-import Tooltip from '@material-ui/core/Tooltip'
-import Typography from '@material-ui/core/Typography'
 import * as colors from '@material-ui/core/colors'
 
 import {
-  AttachMoney as MoneyIcon,
-  ShoppingCart as CartIcon,
   Error as ErrorIcon,
   Close as CloseIcon,
 } from '@material-ui/icons'
@@ -27,45 +19,16 @@ import {
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
 import SellList, { Sell } from '../components/Sells'
-import Payments from '../components/Payments'
-import Spendings from '../components/Spendings'
 import MyDatePicker from '../components/MyDatePicker'
 import DayOverview from '../components/DayOverview'
-import LoadingScreen from '../components/LoadingScreen'
 import Layout from '../components/Layout'
+import Title from '../components/Title'
 import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
-import { Payment, Spending } from '../models'
 
-import { Redirect, Link } from 'react-router-dom'
 import * as moment from 'moment'
 import { Moment } from 'moment'
 import 'moment/locale/es'
 moment.locale('es')
-
-
-interface TitleProps {
-  className?: string
-  children: React.ReactNode
-}
-
-const Title = ({className, children}: TitleProps) => {
-  const classes = useTitleStyles()
-  return (
-    <div className={clsx(classes.title, className)}>
-      <Typography variant='h6'>{children}</Typography>
-    </div>
-  )
-}
-
-const useTitleStyles = makeStyles(theme => ({
-  title: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    '& > *': {
-      textAlign: 'center',
-    },
-  },
-}))
 
 export interface ErrorSnackbarProps {
   className?: string
@@ -121,7 +84,7 @@ export default function Sells(props: SellsProps) {
 
   // Date picker
   const [date, setDate] = useState(() => moment().startOf('day'))
-  const handleDateChange = useCallback((date: moment.Moment) => {
+  const handleDateChange = useCallback((date: Moment) => {
     setDate(date)
   }, [])
   const datePicker =
