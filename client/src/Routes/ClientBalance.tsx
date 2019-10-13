@@ -1,20 +1,14 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import AppBar from '@material-ui/core/AppBar'
 import Card from '@material-ui/core/Card'
-import IconButton from '@material-ui/core/IconButton'
-import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
-import BackIcon from '@material-ui/icons/ArrowBack'
 import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import adminOnly from '../hoc/adminOnly'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
-import ResponsiveContainer from '../components/ResponsiveContainer'
 import { Client } from '../models'
 import { fetchJsonAuth, ErrorResponse, isErrorResponse, money } from '../utils'
 
@@ -147,8 +141,6 @@ class ClientBalance extends React.Component<Props, State> {
     }
   }
 
-  renderLinkBack = React.forwardRef((props: any, ref: any) => <Link to='/clients' ref={ref} {...props} />)
-
   renderChangeGroup = (ch: ChangeGroup, key: React.Key) => {
     const { classes } = this.props
     return (
@@ -192,27 +184,10 @@ class ClientBalance extends React.Component<Props, State> {
     }
 
     return (
-      <Layout title='Balance Cliente' auth={props.auth}>
-        <AppBar position='static' className={classes.appbar}>
-          <Toolbar>
-            <IconButton
-              className={classes.backButton}
-              color='inherit'
-              aria-label='Back'
-              component={this.renderLinkBack}
-            >
-              <BackIcon />
-            </IconButton>
-            <Typography variant='h6' color='inherit' className={classes.title}>
-              Balance Cliente: {state.client.name}
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <ResponsiveContainer>
-          <div className={classes.cardContainer}>
-            {state.changeGroups.map(this.renderChangeGroup)}
-          </div>
-        </ResponsiveContainer>
+      <Layout title={'Balance Cliente: ' + state.client.name} auth={props.auth}>
+        <div className={classes.cardContainer}>
+          {state.changeGroups.map(this.renderChangeGroup)}
+        </div>
       </Layout>
     )
   }
