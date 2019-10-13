@@ -20,9 +20,11 @@ import {
   ShoppingCart as CartIcon,
   AddShoppingCart as CartPlusIcon,
   Menu as MenuIcon,
+  Person as PersonIcon,
 } from '@material-ui/icons'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer';
+import Auth from '../Auth'
 
 const drawerWidth = 96
 const drawerWidthFull = 256
@@ -104,7 +106,8 @@ interface MainDrawerProps {
   onRequestClose: () => any
 }
 
-const MainDrawer = React.forwardRef(({open, onRequestClose}: MainDrawerProps, ref) => {
+const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
+  const { open, onRequestClose } = props
   const classes = useDrawerStyles()
 
   const content =
@@ -129,6 +132,13 @@ const MainDrawer = React.forwardRef(({open, onRequestClose}: MainDrawerProps, re
         to='/spendings'
         icon={<CartIcon />}
         color={colors.green[500]}
+        fullWidth={open}
+      />
+      <DrawerItem
+        text='Clientes'
+        to='/clients'
+        icon={<PersonIcon />}
+        color={colors.orange[500]}
         fullWidth={open}
       />
     </>
@@ -186,6 +196,7 @@ interface Props {
   className?: string
   title: string
   container?: string | React.ComponentType<{className?: string}>
+  auth: Auth
 }
 
 const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
@@ -222,7 +233,10 @@ export default function Layout(props : Props) {
           </Typography>
         </ToolBar>
       </AppBar>
-      <MainDrawer open={drawerOpen} onRequestClose={handleDrawerClose} />
+      <MainDrawer
+        open={drawerOpen}
+        onRequestClose={handleDrawerClose}
+      />
       <div className={classes.content} onClick={handleDrawerClose}>
         <div className={classes.toolbar} />
         <Container {...containerProps}>
