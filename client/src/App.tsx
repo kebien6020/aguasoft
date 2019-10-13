@@ -30,6 +30,7 @@ const RegisterSpending = lazy(() => import(/* webpackChunkName: "register-spendi
 const SpendingList =     lazy(() => import(/* webpackChunkName: "spending-list" */ './Routes/SpendingList'))
 const Sells =            lazy(() => import(/* webpackChunkName: "sells" */ './Routes/Sells'))
 const Payments =         lazy(() => import(/* webpackChunkName: "payments" */ './Routes/Payments'))
+const Spendings =        lazy(() => import(/* webpackChunkName: "spendings" */ './Routes/Spendings'))
 
 moment.locale('es')
 
@@ -46,11 +47,11 @@ class App extends React.Component {
                 <Route exact path='/silentAuth' component={SilentAuth} />
                 <Route exact path='/logout' component={Logout} />
 
+                <Route exact private path='/check' component={CheckUser} />
+
+                <Route exact private path='/sell' component={RegisterSale} />
                 <Route exact private path='/sells' component={Sells} />
                 <Route exact private path='/monitor/sells' component={MonitorSells} />
-                <Route exact private path='/check' component={CheckUser} />
-                <Route exact private path='/sell' component={RegisterSale} />
-                <Route exact private path='/spending' component={RegisterSpending} />
 
                 <Route exact private path='/clients' component={ClientList} />
                 <Route exact private path='/clients/new' component={ClientEditor} />
@@ -61,7 +62,9 @@ class App extends React.Component {
                 <Route exact private path='/payments' component={Payments} />
                 <Route exact private path='/payments/list' component={PaymentList} />
 
-                <Route exact private path='/spendings' component={SpendingList} />
+                <Route exact private path='/spending' component={RegisterSpending} />
+                <Route exact private path='/spendings' component={Spendings} />
+                <Route exact private path='/spendings/list' component={SpendingList} />
 
                 <Route path='/' render={() => <Redirect to='/sells' />} />
               </Switch>
