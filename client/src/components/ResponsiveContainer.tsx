@@ -1,21 +1,23 @@
 import * as React from 'react'
+import clsx from 'clsx'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
 interface Props {
   variant?: 'normal' | 'wide'
   children?: React.ReactNode | React.ReactNodeArray
+  className?: string
 }
 export type ResponsiveContainerProps = Props
 
 type AllProps = Props & PropClasses
 
 function ResponsiveContainer(props: AllProps) {
-  let className : string = props.classes[props.variant || 'normal']
-  className += ' ' + props.classes.common
+  const { className, variant, children, classes } = props
+  let variantClass : string = classes[variant || 'normal']
   return (
-    <div className={className}>
-      {props.children}
+    <div className={clsx(variantClass, classes.common, className)}>
+      {children}
     </div>
   )
 }
