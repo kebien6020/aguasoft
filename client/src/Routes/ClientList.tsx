@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Redirect, Link } from 'react-router-dom'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -16,13 +15,10 @@ import DialogActions from '@material-ui/core/DialogActions'
 import Avatar from '@material-ui/core/Avatar'
 import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Checkbox from '@material-ui/core/Checkbox'
-import BackIcon from '@material-ui/icons/ArrowBack'
 import PersonIcon from '@material-ui/icons/Person'
 import EditIcon from '@material-ui/icons/Edit'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -48,7 +44,7 @@ interface ClientWithNotes extends Client {
 
 interface ClientItemProps extends PropClasses {
   client: ClientWithNotes
-  className: string
+  className?: string
   onClick?: () => any
 }
 
@@ -397,52 +393,46 @@ class ClientList extends React.Component<Props, State> {
       state.clients :
       state.clients.filter(cl => !cl.hidden)
 
+    const appBarExtra =
+      <>
+        <Button
+          component={this.renderLinkToNew}
+          color='inherit'
+        >
+          Nuevo
+        </Button>
+        <IconButton
+          aria-label='Menu'
+          aria-owns={open ? 'menu' : undefined}
+          aria-haspopup='true'
+          onClick={this.handleMenuOpen}
+          color='inherit'
+        >
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          id='menu'
+          anchorEl={state.menuAnchor}
+          open={Boolean(state.menuAnchor)}
+          onClose={this.handleMenuClose}
+        >
+          <MenuItem onClick={this.toggleHidden}>
+            Ver ocultos
+            <Checkbox
+              checked={state.showHidden}
+              onChange={this.toggleHidden}
+            />
+          </MenuItem>
+        </Menu>
+      </>
+
     return (
-      <Layout title='Lista de Clientes' auth={props.auth}>
-        <AppBar position='static' className={classes.appbar}>
-          <Toolbar>
-            <IconButton
-              className={classes.backButton}
-              color='inherit'
-              aria-label='Back'
-              component={this.renderLinkBack}
-            >
-              <BackIcon />
-            </IconButton>
-            <Typography variant='h6' color='inherit' className={classes.title}>
-              Clientes
-            </Typography>
-            <Button
-              component={this.renderLinkToNew}
-              color='inherit'
-            >
-              Nuevo
-            </Button>
-            <IconButton
-              aria-label='Menu'
-              aria-owns={open ? 'menu' : undefined}
-              aria-haspopup='true'
-              onClick={this.handleMenuOpen}
-              color='inherit'
-            >
-              <MoreVertIcon />
-            </IconButton>
-            <Menu
-              id='menu'
-              anchorEl={state.menuAnchor}
-              open={Boolean(state.menuAnchor)}
-              onClose={this.handleMenuClose}
-            >
-              <MenuItem onClick={this.toggleHidden}>
-                Ver ocultos
-                <Checkbox
-                  checked={state.showHidden}
-                  onChange={this.toggleHidden}
-                />
-              </MenuItem>
-            </Menu>
-          </Toolbar>
-        </AppBar>
+      <Layout
+        title='Lista de Clientes'
+        auth={props.auth}
+        container={ResponsiveContainer}
+        appBarExtra={appBarExtra}
+      >
         {state.clientDialogOpen && state.selectedClient &&
           <ClientDialog
             open={true}
@@ -503,34 +493,31 @@ class ClientList extends React.Component<Props, State> {
             </DialogActions>
           </Dialog>
         }
-        <ResponsiveContainer variant='normal'>
-          <div className={classes.newClientButtonContainer}>
+        <div className={classes.newClientButtonContainer}>
 
-          </div>
-          {state.clientsError &&
-            <Alert type='error' message='Error cargando lista de clientes' />
+        </div>
+        {state.clientsError &&
+          <Alert type='error' message='Error cargando lista de clientes' />
+        }
+        {state.errorDeleting &&
+          <Alert type='error' message='Error eliminado cliente' />
+        }
+        {state.deletedClient &&
+          <Alert
+            type='success'
+            message={`Cliente ${state.deletedClient} eliminado exitosamente.`}
+          />
+        }
+        <List>
+          {clients.map(cl =>
+              <ClientItem
+                key={cl.id}
+                client={cl}
+                onClick={() => this.handleClientClick(cl)}
+              />
+            )
           }
-          {state.errorDeleting &&
-            <Alert type='error' message='Error eliminado cliente' />
-          }
-          {state.deletedClient &&
-            <Alert
-              type='success'
-              message={`Cliente ${state.deletedClient} eliminado exitosamente.`}
-            />
-          }
-          <List>
-            {clients.map(cl =>
-                <ClientItem
-                  key={cl.id}
-                  client={cl}
-                  className={classes.item}
-                  onClick={() => this.handleClientClick(cl)}
-                />
-              )
-            }
-          </List>
-        </ResponsiveContainer>
+        </List>
       </Layout>
     )
   }
@@ -540,18 +527,6 @@ const styles : StyleRulesCallback<Theme, Props> = _theme => ({
   appbar: {
     flexGrow: 1,
   },
-  backButton: {
-    marginLeft: -12,
-    marginRight: 20,
-  },
-  title: {
-    flexGrow: 1,
-    '& h6': {
-      fontSize: '48px',
-      fontWeight: 400,
-    },
-  },
-  item: {},
   deleteButton: {
     color: colors.red[500],
     fontWeight: 'bold',

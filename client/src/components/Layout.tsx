@@ -197,13 +197,14 @@ interface Props {
   title: string
   container?: string | React.ComponentType<{className?: string}>
   auth: Auth
+  appBarExtra?: React.ReactNode
 }
 
 const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
   <ResponsiveContainer variant='wide' {...props} />
 
 export default function Layout(props : Props) {
-  const {children, className, title, container = WideResponsiveContainer} = props
+  const {children, className, title, appBarExtra, container = WideResponsiveContainer} = props
   const classes = useStyles()
   // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -231,6 +232,7 @@ export default function Layout(props : Props) {
           <Typography variant='h6' color='inherit' className={classes.title}>
             {title}
           </Typography>
+          {appBarExtra}
         </ToolBar>
       </AppBar>
       <MainDrawer
