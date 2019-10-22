@@ -49,7 +49,7 @@ export default class Auth {
           return resolve(authResult)
         }
       )
-    })
+    }) as Promise<auth0.Auth0DecodedHash>
   }
 
   handleAuthentication = async() => {
