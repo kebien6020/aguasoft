@@ -115,12 +115,12 @@ class DayOverview extends React.Component<AllProps, State> {
 
     return (
       <Grid container spacing={3} className={props.classes.summary}>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <Paper className={props.classes.paper}>
             <Typography variant='body2'>Venta efectivo: {money(calcSell(props.sells, true))}</Typography>
           </Paper>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <Paper className={props.classes.paper}>
             <Typography variant='body2'>Venta pago post-fechado: {money(calcSell(props.sells, false))}</Typography>
           </Paper>

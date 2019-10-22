@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Suspense, lazy } from 'react'
-import { BrowserRouter, Switch } from 'react-router-dom'
+import { BrowserRouter, Switch, Redirect } from 'react-router-dom'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
@@ -21,7 +21,6 @@ const AuthCallback =     lazy(() => import(/* webpackChunkName: "auth-callback" 
 const SilentAuth =       lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout =           lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
 const MonitorSells =     lazy(() => import(/* webpackChunkName: "monitor-sells" */ './Routes/MonitorSells'))
-const Dashboard =        lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/Dashboard'))
 const ClientEditor =     lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
 const ClientList =       lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
 const ClientBalance =    lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/ClientBalance'))
@@ -29,6 +28,9 @@ const RegisterPayment =  lazy(() => import(/* webpackChunkName: "register-paymen
 const PaymentList =      lazy(() => import(/* webpackChunkName: "all-payments" */ './Routes/PaymentList'))
 const RegisterSpending = lazy(() => import(/* webpackChunkName: "register-spending" */ './Routes/RegisterSpending'))
 const SpendingList =     lazy(() => import(/* webpackChunkName: "spending-list" */ './Routes/SpendingList'))
+const Sells =            lazy(() => import(/* webpackChunkName: "sells" */ './Routes/Sells'))
+const Payments =         lazy(() => import(/* webpackChunkName: "payments" */ './Routes/Payments'))
+const Spendings =        lazy(() => import(/* webpackChunkName: "spendings" */ './Routes/Spendings'))
 
 moment.locale('es')
 
@@ -45,21 +47,26 @@ class App extends React.Component {
                 <Route exact path='/silentAuth' component={SilentAuth} />
                 <Route exact path='/logout' component={Logout} />
 
-                <Route exact private path='/' component={Dashboard} />
-                <Route exact private path='/monitor/sells' component={MonitorSells} />
                 <Route exact private path='/check' component={CheckUser} />
+
                 <Route exact private path='/sell' component={RegisterSale} />
-                <Route exact private path='/payment' component={RegisterPayment} />
-                <Route exact private path='/spending' component={RegisterSpending} />
+                <Route exact private path='/sells' component={Sells} />
+                <Route exact private path='/monitor/sells' component={MonitorSells} />
 
                 <Route exact private path='/clients' component={ClientList} />
                 <Route exact private path='/clients/new' component={ClientEditor} />
                 <Route exact private path='/clients/:id' component={ClientEditor} />
                 <Route exact private path='/clients/:id/balance' component={ClientBalance} />
 
-                <Route exact private path='/payments' component={PaymentList} />
+                <Route exact private path='/payment' component={RegisterPayment} />
+                <Route exact private path='/payments' component={Payments} />
+                <Route exact private path='/payments/list' component={PaymentList} />
 
-                <Route exact private path='/spendings' component={SpendingList} />
+                <Route exact private path='/spending' component={RegisterSpending} />
+                <Route exact private path='/spendings' component={Spendings} />
+                <Route exact private path='/spendings/list' component={SpendingList} />
+
+                <Route path='/' render={() => <Redirect to='/sells' />} />
               </Switch>
             </Suspense>
           </MuiThemeProvider>

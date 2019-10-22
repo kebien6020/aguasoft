@@ -22,6 +22,7 @@ import Spendings from '../components/Spendings'
 import MyDatePicker from '../components/MyDatePicker'
 import DayOverview from '../components/DayOverview'
 import LoadingScreen from '../components/LoadingScreen'
+import Layout from '../components/Layout'
 import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
 import { Payment, Spending } from '../models'
 
@@ -268,7 +269,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
 
     return (
-      <div className={classes.layout}>
+      <Layout title='Dashboard' auth={props.auth}>
         <Dialog
           open={state.loginDialogOpen}
           onClose={this.handleLoginDialogClose}
@@ -367,20 +368,12 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
             </div>
           </Grid>
         </Grid>
-      </div>
+      </Layout>
     )
   }
 }
 
 const styles: StyleRulesCallback<Theme, DashboardProps> = theme => ({
-  layout: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    width: '95%',
-    [theme.breakpoints.up('md')]: { width: '90%', },
-    [theme.breakpoints.up('lg')]: { width: '80%', },
-    [theme.breakpoints.up('xl')]: { width: '75%', },
-  },
   title: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),

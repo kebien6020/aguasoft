@@ -192,7 +192,7 @@ class ClientBalance extends React.Component<Props, State> {
     }
 
     return (
-      <Layout>
+      <Layout title='Balance Cliente' auth={props.auth}>
         <AppBar position='static' className={classes.appbar}>
           <Toolbar>
             <IconButton

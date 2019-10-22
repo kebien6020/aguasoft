@@ -62,7 +62,7 @@ class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
     }
 
     return (
-      <Layout>
+      <Layout title='Verificación requerida' auth={props.auth}>
         <Modal
           open={true}
         >

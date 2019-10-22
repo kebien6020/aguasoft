@@ -26,5 +26,10 @@ export default createMuiTheme({
        fontSize: '16px',
      },
     },
+    MuiSvgIcon: {
+      root: {
+        fontSize: '1.8rem',
+      },
+    },
   },
 })

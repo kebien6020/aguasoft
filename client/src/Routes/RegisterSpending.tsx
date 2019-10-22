@@ -193,85 +193,83 @@ class RegisterSpending extends React.Component<Props, State> {
     }
 
     return (
-      <Layout>
-        <ResponsiveContainer>
-          <Paper className={classes.paper}>
-            <Title>Registrar Salida</Title>
-            {state.submitionError !== null &&
-              <Alert message={state.submitionError} type='error' />
-            }
-            <form>
-              <Grid container spacing={0} justify='space-between'>
-                {state.userIsAdmin &&
-                  <Grid item xs={12}>
-                    <DatePicker
-                      label='Fecha de la salida'
-                      date={state.date}
-                      onDateChange={this.handleChangeDate('date')}
-                      DatePickerProps={{
-                        fullWidth: true,
-                      }}
-                    />
-                  </Grid>
-                }
-                {/*
-                // @ts-ignore grid-md-6 is missing in type system*/}
-                <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                  <TextField
-                    label='Descripción'
-                    onChange={this.handleChange('description')}
-                    value={state.description}
-                    error={state.descriptionError !== null}
-                    helperText={state.descriptionError}
-                    margin='normal'
-                    fullWidth
-                  />
-                </Grid>
-                {/*
-                // @ts-ignore grid-md-6 is missing in type system*/}
-                <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                  <PriceField
-                    label='Dinero de salida'
-                    onChange={this.handleChange('moneyAmount')}
-                    value={state.moneyAmount}
-                    TextFieldProps={{
-                      error: state.moneyAmountError !== null,
-                      helperText: state.moneyAmountError,
+      <Layout title='Registrar Salida' container={ResponsiveContainer} auth={props.auth}>
+        <Paper className={classes.paper}>
+          <Title>Registrar Salida</Title>
+          {state.submitionError !== null &&
+            <Alert message={state.submitionError} type='error' />
+          }
+          <form>
+            <Grid container spacing={0} justify='space-between'>
+              {state.userIsAdmin &&
+                <Grid item xs={12}>
+                  <DatePicker
+                    label='Fecha de la salida'
+                    date={state.date}
+                    onDateChange={this.handleChangeDate('date')}
+                    DatePickerProps={{
+                      fullWidth: true,
                     }}
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  <Typography variant='body2'>
-                    De ganacias del día
-                    <Switch
-                      checked={state.fromCash}
-                      onChange={this.handleChangeChecked('fromCash')}
-                    />
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant='body2'>
-                    Es transferencia a Bogotá
-                    <Switch
-                      checked={state.isTransfer}
-                      onChange={this.handleChangeChecked('isTransfer')}
-                    />
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} className={classes.buttonContainer}>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    fullWidth
-                    onClick={this.handleSubmit}
-                  >
-                    Registrar Salida
-                  </Button>
-                </Grid>
+              }
+              {/*
+              // @ts-ignore grid-md-6 is missing in type system*/}
+              <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                <TextField
+                  label='Descripción'
+                  onChange={this.handleChange('description')}
+                  value={state.description}
+                  error={state.descriptionError !== null}
+                  helperText={state.descriptionError}
+                  margin='normal'
+                  fullWidth
+                />
               </Grid>
-            </form>
-          </Paper>
-        </ResponsiveContainer>
+              {/*
+              // @ts-ignore grid-md-6 is missing in type system*/}
+              <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                <PriceField
+                  label='Dinero de salida'
+                  onChange={this.handleChange('moneyAmount')}
+                  value={state.moneyAmount}
+                  TextFieldProps={{
+                    error: state.moneyAmountError !== null,
+                    helperText: state.moneyAmountError,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant='body2'>
+                  De ganacias del día
+                  <Switch
+                    checked={state.fromCash}
+                    onChange={this.handleChangeChecked('fromCash')}
+                  />
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant='body2'>
+                  Es transferencia a Bogotá
+                  <Switch
+                    checked={state.isTransfer}
+                    onChange={this.handleChangeChecked('isTransfer')}
+                  />
+                </Typography>
+              </Grid>
+              <Grid item xs={12} className={classes.buttonContainer}>
+                <Button
+                  variant='contained'
+                  color='primary'
+                  fullWidth
+                  onClick={this.handleSubmit}
+                >
+                  Registrar Salida
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </Paper>
       </Layout>
     )
   }

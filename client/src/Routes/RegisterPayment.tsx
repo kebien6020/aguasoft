@@ -25,7 +25,6 @@ import * as moment from 'moment'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
-import ResponsiveContainer from '../components/ResponsiveContainer'
 import Title from '../components/Title'
 import Alert from '../components/Alert'
 import LoadingScreen from '../components/LoadingScreen'
@@ -255,175 +254,173 @@ class RegisterPayment extends React.Component<Props, State> {
     }
 
     return (
-      <Layout>
-        <ResponsiveContainer>
-          <Paper className={classes.paper}>
-            <Title>Registrar Pago</Title>
-            {state.submitionError !== null &&
-              <Alert message={state.submitionError} type='error' />
-            }
-            {state.selectedClientId ?
-              <form>
-                <Grid container spacing={0} justify='space-between'>
+      <Layout title='Registrar Pago' auth={props.auth}>
+        <Paper className={classes.paper}>
+          <Title>Registrar Pago</Title>
+          {state.submitionError !== null &&
+            <Alert message={state.submitionError} type='error' />
+          }
+          {state.selectedClientId ?
+            <form>
+              <Grid container spacing={0} justify='space-between'>
+              {state.userIsAdmin &&
+                <Grid item xs={12}>
+                  <DatePicker
+                    label='Fecha del pago'
+                    date={state.date}
+                    onDateChange={this.handleChangeDate('date')}
+                    DatePickerProps={{
+                      fullWidth: true,
+                    }}
+                  />
+                </Grid>
+              }
+                {/*
+                // @ts-ignore grid-md-6 is missing in type system*/}
+                <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                  <FormControl fullWidth margin='normal'>
+                    <InputLabel htmlFor='clientId'>Cliente</InputLabel>
+                    <Select
+                      inputProps={{
+                        name: 'clientId',
+                        id: 'clientId',
+                      }}
+                      onChange={this.handleChange('selectedClientId')}
+                      value={state.selectedClientId}
+                    >
+                      {state.clients.map((cl, idx) =>
+                        <MenuItem key={idx} value={cl.id}>
+                          ({cl.code}) {cl.name}
+                        </MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                {/*
+                // @ts-ignore grid-md-6 is missing in type system*/}
+                <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                  <PriceField
+                    label='Dinero recibido'
+                    onChange={this.handleChange('moneyAmount')}
+                    value={state.moneyAmount}
+                    TextFieldProps={{
+                      error: state.moneyAmountError !== null,
+                      helperText: state.moneyAmountError,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant='body2'>
+                    Incluir detalles de la Factura
+                    <Switch
+                      checked={state.invoiceEnabled}
+                      onChange={this.handleChangeChecked('invoiceEnabled')}
+                    />
+                  </Typography>
+                </Grid>
+                <Collapse in={state.invoiceEnabled} className={classes.collapse}>
+                  <Grid container spacing={0} justify='space-between'>
+                    {/*
+                    // @ts-ignore grid-md-6 is missing in type system*/}
+                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                      <DatePicker
+                        label='Fecha de la factura'
+                        date={state.invoiceDate}
+                        onDateChange={this.handleChangeDate('invoiceDate')}
+                        DatePickerProps={{
+                          fullWidth: true,
+                        }}
+                      />
+                    </Grid>
+                    {/*
+                    // @ts-ignore grid-md-6 is missing in type system*/}
+                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                      <div className={classes.invoiceNumberContainer}>
+                        <TextField
+                          label='No. Factura'
+                          type='number'
+                          variant='standard'
+                          inputProps={{min: 0}}
+                          fullWidth
+                          onChange={this.handleChange('invoiceNumber')}
+                          value={state.invoiceNumber}
+                          error={state.invoiceNumberError !== null}
+                          helperText={state.invoiceNumberError}
+                        />
+                      </div>
+                    </Grid>
+                  </Grid>
+                </Collapse>
+                <Grid item xs={12}>
+                  <Typography variant='body2'>
+                    Incluir periodo de pago
+                    <Switch
+                      checked={state.datesEnabled}
+                      onChange={this.handleChangeChecked('datesEnabled')}
+                      value='datesEnabled'
+                    />
+                  </Typography>
+                </Grid>
+                <Collapse in={state.datesEnabled} className={classes.collapse}>
+                  <Grid container spacing={0} justify='space-between'>
+                    {/*
+                    // @ts-ignore grid-md-6 is missing in type system */}
+                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                      <DatePicker
+                        label='Inicio'
+                        date={state.startDate}
+                        onDateChange={this.handleChangeDate('startDate')}
+                        DatePickerProps={{
+                          fullWidth: true,
+                          error: state.datesError !== null,
+                          helperText: state.datesError,
+                        }}
+                      />
+                    </Grid>
+                    {/*
+                    // @ts-ignore grid-md-6 is missing in type system */}
+                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                      <DatePicker
+                        label='Finalizacion'
+                        date={state.endDate}
+                        onDateChange={this.handleChangeDate('endDate')}
+                        DatePickerProps={{
+                          fullWidth: true,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Collapse>
                 {state.userIsAdmin &&
                   <Grid item xs={12}>
-                    <DatePicker
-                      label='Fecha del pago'
-                      date={state.date}
-                      onDateChange={this.handleChangeDate('date')}
-                      DatePickerProps={{
-                        fullWidth: true,
-                      }}
-                    />
+                    <Typography variant='body2'>
+                      Pago en planta
+                      <Switch
+                        checked={state.directPayment}
+                        onChange={this.handleChangeChecked('directPayment')}
+                      />
+                    </Typography>
                   </Grid>
                 }
-                  {/*
-                  // @ts-ignore grid-md-6 is missing in type system*/}
-                  <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                    <FormControl fullWidth margin='normal'>
-                      <InputLabel htmlFor='clientId'>Cliente</InputLabel>
-                      <Select
-                        inputProps={{
-                          name: 'clientId',
-                          id: 'clientId',
-                        }}
-                        onChange={this.handleChange('selectedClientId')}
-                        value={state.selectedClientId}
-                      >
-                        {state.clients.map((cl, idx) =>
-                          <MenuItem key={idx} value={cl.id}>
-                            ({cl.code}) {cl.name}
-                          </MenuItem>
-                        )}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  {/*
-                  // @ts-ignore grid-md-6 is missing in type system*/}
-                  <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                    <PriceField
-                      label='Dinero recibido'
-                      onChange={this.handleChange('moneyAmount')}
-                      value={state.moneyAmount}
-                      TextFieldProps={{
-                        error: state.moneyAmountError !== null,
-                        helperText: state.moneyAmountError,
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant='body2'>
-                      Incluir detalles de la Factura
-                      <Switch
-                        checked={state.invoiceEnabled}
-                        onChange={this.handleChangeChecked('invoiceEnabled')}
-                      />
-                    </Typography>
-                  </Grid>
-                  <Collapse in={state.invoiceEnabled} className={classes.collapse}>
-                    <Grid container spacing={0} justify='space-between'>
-                      {/*
-                      // @ts-ignore grid-md-6 is missing in type system*/}
-                      <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                        <DatePicker
-                          label='Fecha de la factura'
-                          date={state.invoiceDate}
-                          onDateChange={this.handleChangeDate('invoiceDate')}
-                          DatePickerProps={{
-                            fullWidth: true,
-                          }}
-                        />
-                      </Grid>
-                      {/*
-                      // @ts-ignore grid-md-6 is missing in type system*/}
-                      <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                        <div className={classes.invoiceNumberContainer}>
-                          <TextField
-                            label='No. Factura'
-                            type='number'
-                            variant='standard'
-                            inputProps={{min: 0}}
-                            fullWidth
-                            onChange={this.handleChange('invoiceNumber')}
-                            value={state.invoiceNumber}
-                            error={state.invoiceNumberError !== null}
-                            helperText={state.invoiceNumberError}
-                          />
-                        </div>
-                      </Grid>
-                    </Grid>
-                  </Collapse>
-                  <Grid item xs={12}>
-                    <Typography variant='body2'>
-                      Incluir periodo de pago
-                      <Switch
-                        checked={state.datesEnabled}
-                        onChange={this.handleChangeChecked('datesEnabled')}
-                        value='datesEnabled'
-                      />
-                    </Typography>
-                  </Grid>
-                  <Collapse in={state.datesEnabled} className={classes.collapse}>
-                    <Grid container spacing={0} justify='space-between'>
-                      {/*
-                      // @ts-ignore grid-md-6 is missing in type system */}
-                      <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                        <DatePicker
-                          label='Inicio'
-                          date={state.startDate}
-                          onDateChange={this.handleChangeDate('startDate')}
-                          DatePickerProps={{
-                            fullWidth: true,
-                            error: state.datesError !== null,
-                            helperText: state.datesError,
-                          }}
-                        />
-                      </Grid>
-                      {/*
-                      // @ts-ignore grid-md-6 is missing in type system */}
-                      <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
-                        <DatePicker
-                          label='Finalizacion'
-                          date={state.endDate}
-                          onDateChange={this.handleChangeDate('endDate')}
-                          DatePickerProps={{
-                            fullWidth: true,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Collapse>
-                  {state.userIsAdmin &&
-                    <Grid item xs={12}>
-                      <Typography variant='body2'>
-                        Pago en planta
-                        <Switch
-                          checked={state.directPayment}
-                          onChange={this.handleChangeChecked('directPayment')}
-                        />
-                      </Typography>
-                    </Grid>
-                  }
-                  <Grid item xs={12} className={classes.buttonContainer}>
-                    <Button
-                      variant='contained'
-                      color='primary'
-                      fullWidth
-                      onClick={this.handleSubmit}
-                    >
-                      Registrar Pago
-                    </Button>
-                  </Grid>
+                <Grid item xs={12} className={classes.buttonContainer}>
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    fullWidth
+                    onClick={this.handleSubmit}
+                  >
+                    Registrar Pago
+                  </Button>
                 </Grid>
-              </form>
-              :
-              <Alert
-                type='error'
-                message='Error interno en cliente seleccionado'
-              />
-            }
-          </Paper>
-        </ResponsiveContainer>
+              </Grid>
+            </form>
+            :
+            <Alert
+              type='error'
+              message='Error interno en cliente seleccionado'
+            />
+          }
+        </Paper>
       </Layout>
     )
   }
