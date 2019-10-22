@@ -104,8 +104,8 @@ interface MinusButtonProps { onClick: () => any }
 const MinusButton = (props: MinusButtonProps) => (
   <SqIconButton onClick={props.onClick}><RemoveIcon /></SqIconButton>
 )
-const handleNumericFocus = (event: React.FocusEvent<HTMLDivElement>) => {
-  const inputElement = event.target as any as HTMLInputElement // Trust me this is fine
+const handleNumericFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+  const inputElement = event.target
   inputElement.select()
 }
 
