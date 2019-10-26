@@ -21,6 +21,7 @@ import {
   AddShoppingCart as CartPlusIcon,
   Menu as MenuIcon,
   Person as PersonIcon,
+  Dns as BoxesIcon,
 } from '@material-ui/icons'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer';
@@ -132,6 +133,13 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         to='/spendings'
         icon={<CartIcon />}
         color={colors.green[500]}
+        fullWidth={open}
+      />
+      <DrawerItem
+        text='Inventario'
+        to='/inventory'
+        icon={<BoxesIcon />}
+        color={colors.blue['A700']}
         fullWidth={open}
       />
       <DrawerItem

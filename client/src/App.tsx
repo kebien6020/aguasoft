@@ -31,6 +31,7 @@ const SpendingList =     lazy(() => import(/* webpackChunkName: "spending-list" 
 const Sells =            lazy(() => import(/* webpackChunkName: "sells" */ './Routes/Sells'))
 const Payments =         lazy(() => import(/* webpackChunkName: "payments" */ './Routes/Payments'))
 const Spendings =        lazy(() => import(/* webpackChunkName: "spendings" */ './Routes/Spendings'))
+const Inventory =        lazy(() => import(/* webpackChunkName: "inventory" */ './Routes/Inventory'))
 
 moment.locale('es')
 
@@ -66,7 +67,9 @@ class App extends React.Component {
                 <Route exact private path='/spendings' component={Spendings} />
                 <Route exact private path='/spendings/list' component={SpendingList} />
 
-                <Route path='/' render={() => <Redirect to='/sells' />} />
+                <Route exact private path='/inventory' component={Inventory} />
+
+                <Route exact path='/' render={() => <Redirect to='/sells' />} />
               </Switch>
             </Suspense>
           </MuiThemeProvider>
