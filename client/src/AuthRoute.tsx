@@ -27,7 +27,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
     authStatus: AuthStatus.PENDING
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     const { props } = this
     const isPrivate = props.private
     if (isAuthenticated() || !isPrivate)
