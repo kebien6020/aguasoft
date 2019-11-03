@@ -16,7 +16,6 @@ export default function useUser(auth: Auth, onError?: (error: ErrorResponse["err
       if (!isErrorResponse(user)) {
         setUser(user)
       } else {
-        console.error(user.error)
         if (onError)
           onError(user.error)
       }

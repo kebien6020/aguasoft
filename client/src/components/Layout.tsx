@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, LinkProps, useLocation } from 'react-router-dom'
 import { LocationDescriptor } from 'history'
 import clsx from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core/styles'
@@ -26,6 +26,8 @@ import {
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer';
 import Auth from '../Auth'
+import useUser from '../hooks/useUser';
+import Avatar from '@material-ui/core/Avatar';
 
 const drawerWidth = 96
 const drawerWidthFull = 256
@@ -211,8 +213,19 @@ interface Props {
 const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
   <ResponsiveContainer variant='wide' {...props} />
 
+const RouterLink = React.forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => (
+  <Link innerRef={ref} {...props} />
+));
+
 export default function Layout(props : Props) {
-  const {children, className, title, appBarExtra, container = WideResponsiveContainer} = props
+  const {
+    children,
+    className,
+    title,
+    appBarExtra,
+    container = WideResponsiveContainer,
+    auth,
+  } = props
   const classes = useStyles()
   // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -222,6 +235,21 @@ export default function Layout(props : Props) {
   const handleDrawerClose = useCallback(() => {
     setDrawerOpen(false)
   }, [])
+
+  // User session
+  const { user } = useUser(auth)
+
+  const { pathname: currentPath } = useLocation()
+
+  const userColorLookup : {[index:string] : string} = {
+    '001': colors.blue[500],
+    '002': colors.pink[500],
+    '003': colors.green[500],
+  }
+
+  const getUserColor = (userCode: string) => (
+    userColorLookup[userCode] || colors.grey[500]
+  )
 
   const Container = container
   const containerProps = className ? {className} : undefined
@@ -241,6 +269,22 @@ export default function Layout(props : Props) {
             {title}
           </Typography>
           {appBarExtra}
+          {user ?
+            <Avatar
+              aria-label={user.name}
+              className={classes.avatar}
+              style={{backgroundColor: getUserColor(user.code)}}
+            >
+              {user.name.charAt(0).toUpperCase()}
+            </Avatar> :
+            <Button
+              component={RouterLink}
+              to={`/check?next=${currentPath}`}
+              color='inherit'
+            >
+              Iniciar Sesion
+            </Button>
+          }
         </ToolBar>
       </AppBar>
       <MainDrawer
@@ -279,5 +323,9 @@ const useStyles = makeStyles(theme => ({
   },
   hide: {
     display: 'none',
+  },
+  avatar: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
   },
 }))
