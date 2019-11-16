@@ -15,7 +15,7 @@ import Title from '../components/Title'
 import { useSnackbar } from '../components/MySnackbar'
 import useUser from '../hooks/useUser'
 import { Storage } from '../models'
-import { fetchJsonAuth, isErrorResponse, ErrorResponse } from '../utils'
+import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from '../utils'
 
 interface Props {
   auth: Auth
@@ -101,6 +101,42 @@ function ManualMovementForm(props: ManualMovementFormProps) {
   )
 }
 
+const useFetch = <T extends object>(
+  url: string,
+  showError: (s: string) => any,
+  auth: Auth,
+  options?: FetchAuthOptions
+) => {
+  const [data, setData] = useState<null | T>(null)
+  const [error, setError] = useState<null | ErrorResponse['error']>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const response : T | ErrorResponse = await fetchJsonAuth(url, auth, options)
+
+        if (!isErrorResponse(response)) {
+          setData(response)
+        } else {
+          console.error(response.error)
+          showError('Error tratando de obtener la lista de almacenamientos')
+          setError(response.error)
+        }
+      } catch (error) {
+        console.error(error)
+        showError('Error de conexión tratando de obtener la lista de almacenamientos')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData();
+  }, [])
+
+  return [data, loading, error]
+}
+
 export default function Inventory(props: Props) {
   const { auth } = props
   const classes = useStyles()
@@ -121,30 +157,8 @@ export default function Inventory(props: Props) {
 
   // Fetch from server
   const [snackbar, showError] = useSnackbar()
-  const [storages, setStorages] = useState<null | Storage[]>(null)
-  useEffect(() => {
-    const fetchStorages = async () => {
-      const url = '/api/inventory/storages'
-
-      try {
-        const response : Storage[] | ErrorResponse = await fetchJsonAuth(url, auth)
-
-        if (!isErrorResponse(response)) {
-          setStorages(response)
-        } else {
-          console.error(response.error)
-          showError('Error tratando de obtener la lista de almacenamientos')
-        }
-      } catch (error) {
-        console.error(error)
-        showError('Error de conexión tratando de obtener la lista de almacenamientos')
-      }
-    }
-
-    fetchStorages();
-  }, [])
-
-
+  const [storages] = useFetch('/api/inventory/storages', showError, auth)
+  
   return (
     <Layout title='Inventario' auth={auth}>
       {snackbar}
