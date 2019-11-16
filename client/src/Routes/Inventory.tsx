@@ -62,7 +62,7 @@ const useSelect = (initialValue: string) => {
     onChange: handleValueChange,
   }
 
-  return [props] as [typeof props]
+  return [props, setValue] as [typeof props, typeof setValue]
 }
 
 
@@ -90,6 +90,12 @@ function ManualMovementForm(props: ManualMovementFormProps) {
 
   // Product from
   const [productFrom] = useSelect('')
+
+  // Product to
+  const [productTo, setProductTo] = useSelect('')
+  useEffect(() => {
+    setProductTo(productFrom.value)
+  }, [productFrom.value])
 
   return (
     <Grid container component='form'
@@ -123,6 +129,16 @@ function ManualMovementForm(props: ManualMovementFormProps) {
         id='product-from'
         label='Producto'
         {...productFrom}
+      >
+        <MenuItem value=''>Seleccionar Producto</MenuItem>
+        {products && products.map(product =>
+          <MenuItem key={product.id} value={product.id}>{product.name}</MenuItem>
+        )}
+      </CustomSelect>
+      <CustomSelect
+        id='product-from'
+        label='Producto destino'
+        {...productTo}
       >
         <MenuItem value=''>Seleccionar Producto</MenuItem>
         {products && products.map(product =>
