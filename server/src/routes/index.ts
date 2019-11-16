@@ -57,4 +57,5 @@ spendings.delete('/:id', spendingHandlers.del)
 
 export const inventory = Router()
 inventory.get('/storages', inventoryHandlers.listStorages)
+inventory.get('/inventoryElements', inventoryHandlers.listInventoryElements)
 inventory.post('/movements/manual', adminOnly, inventoryHandlers.manualMovement)

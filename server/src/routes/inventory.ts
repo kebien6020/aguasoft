@@ -1,10 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
+import { InventoryElementStatic } from '../db/models/inventoryElements'
 import { InventoryMovement, InventoryMovementStatic } from '../db/models/inventoryMovements'
 import { StorageStateStatic } from '../db/models/storageStates'
 import { StorageStatic } from '../db/models/storages'
 import models, { sequelize } from '../db/models'
 import debug from 'debug'
 
+const InventoryElements = models.InventoryElements as InventoryElementStatic
 const InventoryMovements = models.InventoryMovements as InventoryMovementStatic
 const StorageStates = models.StorageStates as StorageStateStatic
 const Storages = models.Storages as StorageStatic
@@ -116,6 +118,16 @@ export async function listStorages(_req: Request, res: Response, next: NextFunct
     const storages = await Storages.findAll();
 
     res.json(storages)
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function listInventoryElements(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const inventoryElements = await InventoryElements.findAll();
+
+    res.json(inventoryElements)
   } catch (e) {
     next(e)
   }
