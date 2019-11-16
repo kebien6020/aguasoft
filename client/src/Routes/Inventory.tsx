@@ -14,7 +14,7 @@ import Layout from '../components/Layout'
 import Title from '../components/Title'
 import { useSnackbar } from '../components/MySnackbar'
 import useUser from '../hooks/useUser'
-import { Storage, Product } from '../models'
+import { Storage, InventoryElement } from '../models'
 import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from '../utils'
 
 interface Props {
@@ -68,11 +68,11 @@ const useSelect = (initialValue: string) => {
 
 interface ManualMovementFormProps {
   storages: Storage[] | null
-  products: Product[] | null
+  inventoryElements: InventoryElement[] | null
 }
 
 function ManualMovementForm(props: ManualMovementFormProps) {
-  const { storages, products } = props
+  const { storages, inventoryElements } = props
 
   const classes = useManualMovementFormStyles()
 
@@ -88,14 +88,14 @@ function ManualMovementForm(props: ManualMovementFormProps) {
   // Storage to
   const [storageTo] = useSelect('')
 
-  // Product from
-  const [productFrom] = useSelect('')
+  // InventoryElement from
+  const [inventoryElementFrom] = useSelect('')
 
-  // Product to
-  const [productTo, setProductTo] = useSelect('')
+  // InventoryElement to
+  const [inventoryElementTo, setInventoryElementTo] = useSelect('')
   useEffect(() => {
-    setProductTo(productFrom.value)
-  }, [productFrom.value])
+    setInventoryElementTo(inventoryElementFrom.value)
+  }, [inventoryElementFrom.value])
 
   return (
     <Grid container component='form'
@@ -127,22 +127,22 @@ function ManualMovementForm(props: ManualMovementFormProps) {
       </CustomSelect>
       <CustomSelect
         id='product-from'
-        label='Producto'
-        {...productFrom}
+        label='Elemento'
+        {...inventoryElementFrom}
       >
-        <MenuItem value=''>Seleccionar Producto</MenuItem>
-        {products && products.map(product =>
-          <MenuItem key={product.id} value={product.id}>{product.name}</MenuItem>
+        <MenuItem value=''>Seleccionar Elemento</MenuItem>
+        {inventoryElements && inventoryElements.map(inventoryElement =>
+          <MenuItem key={inventoryElement.id} value={inventoryElement.id}>{inventoryElement.name}</MenuItem>
         )}
       </CustomSelect>
       <CustomSelect
         id='product-from'
-        label='Producto destino'
-        {...productTo}
+        label='Elemento destino'
+        {...inventoryElementTo}
       >
-        <MenuItem value=''>Seleccionar Producto</MenuItem>
-        {products && products.map(product =>
-          <MenuItem key={product.id} value={product.id}>{product.name}</MenuItem>
+        <MenuItem value=''>Seleccionar Elemento</MenuItem>
+        {inventoryElements && inventoryElements.map(inventoryElement =>
+          <MenuItem key={inventoryElement.id} value={inventoryElement.id}>{inventoryElement.name}</MenuItem>
         )}
       </CustomSelect>
     </Grid>
@@ -158,12 +158,24 @@ const useManualMovementFormStyles = makeStyles(() => ({
   },
 }))
 
+interface UseFetchOptions {
+  showError: (s: string) => any
+  auth: Auth
+  name: string
+  options?: FetchAuthOptions
+}
+
 const useFetch = <T extends object>(
   url: string,
-  showError: (s: string) => any,
-  auth: Auth,
-  options?: FetchAuthOptions
+  hookOptions: UseFetchOptions
 ) => {
+  const {
+    showError,
+    auth,
+    name,
+    options,
+  } = hookOptions
+
   const [data, setData] = useState<null | T>(null)
   const [error, setError] = useState<null | ErrorResponse['error']>(null)
   const [loading, setLoading] = useState<boolean>(false)
@@ -177,12 +189,12 @@ const useFetch = <T extends object>(
           setData(response)
         } else {
           console.error(response.error)
-          showError('Error tratando de obtener la lista de almacenamientos')
+          showError('Error tratando de obtener ' + name)
           setError(response.error)
         }
       } catch (error) {
         console.error(error)
-        showError('Error de conexión tratando de obtener la lista de almacenamientos')
+        showError('Error de conexión tratando de obtener ' + name)
       } finally {
         setLoading(false)
       }
@@ -214,8 +226,16 @@ export default function Inventory(props: Props) {
 
   // Fetch from server
   const [snackbar, showError] = useSnackbar()
-  const [storages] = useFetch<Storage[]>('/api/inventory/storages', showError, auth)
-  const [products] = useFetch<Product[]>('/api/products', showError, auth)
+  const [storages] = useFetch<Storage[]>('/api/inventory/storages', {
+    showError,
+    name: 'la lista de almacenamientos',
+    auth,
+  })
+  const [inventoryElements] = useFetch<InventoryElement[]>('/api/inventory/inventoryElements', {
+    showError,
+    name: 'la lista de elementos',
+    auth,
+  })
 
   return (
     <Layout title='Inventario' auth={auth}>
@@ -228,7 +248,7 @@ export default function Inventory(props: Props) {
       {showManualMovementForm &&
         <ManualMovementForm
           storages={storages}
-          products={products}
+          inventoryElements={inventoryElements}
         />
       }
     </Layout>

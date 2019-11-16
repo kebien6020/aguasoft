@@ -78,7 +78,18 @@ export interface Storage {
   code: string
   name: string
 
-  createdAt: Date
-  updatedAt: Date
-  deletedAt: Date | null
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
+export interface InventoryElement {
+  id: number
+  code: string
+  name: string
+  type: 'raw' | 'product' | 'tool'
+
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
 }
