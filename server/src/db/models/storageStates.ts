@@ -59,8 +59,8 @@ export default function(sequelize: Sequelize) {
   })
 
   StorageStates.associate = function(models) {
-    StorageStates.belongsTo(models.Storage)
-    StorageStates.belongsTo(models.InventoryElement)
+    StorageStates.belongsTo(models.Storages)
+    StorageStates.belongsTo(models.InventoryElements)
   }
 
   return StorageStates

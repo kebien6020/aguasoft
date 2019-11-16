@@ -158,10 +158,10 @@ export default function(sequelize: Sequelize) {
   })
 
   InventoryMovements.associate = function(models) {
-    InventoryMovements.belongsTo(models.Storage, { as: 'storageFrom' })
-    InventoryMovements.belongsTo(models.Storage, { as: 'storageTo' })
-    InventoryMovements.belongsTo(models.InventoryElement, { as: 'inventoryElementFrom' })
-    InventoryMovements.belongsTo(models.InventoryElement, { as: 'inventoryElementTo' })
+    InventoryMovements.belongsTo(models.Storages, { as: 'storageFrom' })
+    InventoryMovements.belongsTo(models.Storages, { as: 'storageTo' })
+    InventoryMovements.belongsTo(models.InventoryElements, { as: 'inventoryElementFrom' })
+    InventoryMovements.belongsTo(models.InventoryElements, { as: 'inventoryElementTo' })
 
     InventoryMovements.belongsTo(models.Users, {
       as: 'creator',

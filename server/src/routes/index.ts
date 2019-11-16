@@ -7,6 +7,7 @@ import * as priceHandlers from './prices'
 import * as sellHandlers from './sells'
 import * as paymentHandlers from './payments'
 import * as spendingHandlers from './spendings'
+import * as inventoryHandlers from './inventory'
 
 import adminOnly from '../utils/adminOnly'
 
@@ -53,3 +54,7 @@ spendings.get('/paginate', spendingHandlers.paginate)
 spendings.get('/listDay', spendingHandlers.listDay)
 spendings.get('/recent', spendingHandlers.listRecent)
 spendings.delete('/:id', spendingHandlers.del)
+
+export const inventory = Router()
+inventory.get('/storages', inventoryHandlers.listStorages)
+inventory.post('/movements/manual', adminOnly, inventoryHandlers.manualMovement)
