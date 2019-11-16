@@ -14,7 +14,7 @@ import Layout from '../components/Layout'
 import Title from '../components/Title'
 import { useSnackbar } from '../components/MySnackbar'
 import useUser from '../hooks/useUser'
-import { Storage } from '../models'
+import { Storage, Product } from '../models'
 import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from '../utils'
 
 interface Props {
@@ -51,13 +51,28 @@ const useCustomSelectStyles = makeStyles(() => ({
   },
 }))
 
+const useSelect = (initialValue: string) => {
+  const [value, setValue] = useState(initialValue)
+  const handleValueChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setValue(event.target.value as string);
+  };
+
+  const props = {
+    value: value,
+    onChange: handleValueChange,
+  }
+
+  return [props] as [typeof props]
+}
+
 
 interface ManualMovementFormProps {
   storages: Storage[] | null
+  products: Product[] | null
 }
 
 function ManualMovementForm(props: ManualMovementFormProps) {
-  const { storages } = props
+  const { storages, products } = props
 
   const classes = useManualMovementFormStyles()
 
@@ -68,16 +83,13 @@ function ManualMovementForm(props: ManualMovementFormProps) {
   }
 
   // Storage from
-  const [storageFrom, setStorageFrom] = useState('')
-  const handleStorageFromChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setStorageFrom(event.target.value as string);
-  };
+  const [storageFrom] = useSelect('')
 
   // Storage to
-  const [storageTo, setStorageTo] = useState('')
-  const handleStorageToChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setStorageTo(event.target.value as string);
-  };
+  const [storageTo] = useSelect('')
+
+  // Product from
+  const [productFrom] = useSelect('')
 
   return (
     <Grid container component='form'
@@ -88,8 +100,7 @@ function ManualMovementForm(props: ManualMovementFormProps) {
       <CustomSelect
         id='storage-from'
         label='Desde'
-        value={storageFrom}
-        onChange={handleStorageFromChange}
+        {...storageFrom}
       >
         <MenuItem value=''>Seleccionar Almacen Desde</MenuItem>
         <MenuItem value='null'>Afuera</MenuItem>
@@ -100,13 +111,22 @@ function ManualMovementForm(props: ManualMovementFormProps) {
       <CustomSelect
         id='storage-to'
         label='Hacia'
-        value={storageTo}
-        onChange={handleStorageToChange}
+        {...storageTo}
       >
         <MenuItem value=''>Seleccionar Almacen Hacia</MenuItem>
         <MenuItem value='null'>Afuera</MenuItem>
         {storages && storages.map(storage =>
           <MenuItem key={storage.id} value={storage.id}>{storage.name}</MenuItem>
+        )}
+      </CustomSelect>
+      <CustomSelect
+        id='product-from'
+        label='Producto'
+        {...productFrom}
+      >
+        <MenuItem value=''>Seleccionar Producto</MenuItem>
+        {products && products.map(product =>
+          <MenuItem key={product.id} value={product.id}>{product.name}</MenuItem>
         )}
       </CustomSelect>
     </Grid>
@@ -179,6 +199,8 @@ export default function Inventory(props: Props) {
   // Fetch from server
   const [snackbar, showError] = useSnackbar()
   const [storages] = useFetch<Storage[]>('/api/inventory/storages', showError, auth)
+  const [products] = useFetch<Product[]>('/api/products', showError, auth)
+
   return (
     <Layout title='Inventario' auth={auth}>
       {snackbar}
@@ -190,6 +212,7 @@ export default function Inventory(props: Props) {
       {showManualMovementForm &&
         <ManualMovementForm
           storages={storages}
+          products={products}
         />
       }
     </Layout>
