@@ -72,3 +72,13 @@ export interface Spending {
     code: string
   }
 }
+
+export interface Storage {
+  id: number
+  code: string
+  name: string
+
+  createdAt: Date
+  updatedAt: Date
+  deletedAt: Date | null
+}
