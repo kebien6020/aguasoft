@@ -7,7 +7,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Grid from '@material-ui/core/Grid'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
+import Select, {SelectProps} from '@material-ui/core/Select'
 
 import Auth from '../Auth'
 import Layout from '../components/Layout'
@@ -21,18 +21,40 @@ interface Props {
   auth: Auth
 }
 
-interface ManualMovementFormProps {
-  storages: Storage[] | null
+interface CustomSelectProps extends SelectProps {
+  id: string
+  label: React.ReactNode
 }
 
-const useManualMovementFormStyles = makeStyles(() => ({
-  form: {
-    marginTop: 16,
-  },
+const CustomSelect = (props: CustomSelectProps) => {
+  const { id, label, ...otherProps } = props
+
+  const classes = useCustomSelectStyles()
+
+  return (
+    <Grid item component={FormControl}
+      sm={12} md={6}
+      className={classes.formControl}
+    >
+      <InputLabel id={id}>{label}</InputLabel>
+      <Select
+        id={id}
+        {...otherProps}
+      />
+    </Grid>
+  )
+}
+
+const useCustomSelectStyles = makeStyles(() => ({
   formControl: {
     minWidth: 150,
   },
 }))
+
+
+interface ManualMovementFormProps {
+  storages: Storage[] | null
+}
 
 function ManualMovementForm(props: ManualMovementFormProps) {
   const { storages } = props
@@ -63,43 +85,42 @@ function ManualMovementForm(props: ManualMovementFormProps) {
       onSubmit={handleSubmit}
       className={classes.form}
     >
-      <Grid item component={FormControl}
-        sm={12} md={6}
-        className={classes.formControl}
+      <CustomSelect
+        id='storage-from'
+        label='Desde'
+        value={storageFrom}
+        onChange={handleStorageFromChange}
       >
-        <InputLabel id='storage-from'>Desde</InputLabel>
-        <Select
-          id='storage-from'
-          value={storageFrom}
-          onChange={handleStorageFromChange}
-        >
-          <MenuItem value=''>Seleccionar Almacen Desde</MenuItem>
-          <MenuItem value='null'>Afuera</MenuItem>
-          {storages && storages.filter(s => String(s.id) !== storageTo).map(storage =>
-            <MenuItem key={storage.id} value={storage.id}>{storage.name}</MenuItem>
-          )}
-        </Select>
-      </Grid>
-      <Grid item component={FormControl}
-        sm={12} md={6}
-        className={classes.formControl}
+        <MenuItem value=''>Seleccionar Almacen Desde</MenuItem>
+        <MenuItem value='null'>Afuera</MenuItem>
+        {storages && storages.map(storage =>
+          <MenuItem key={storage.id} value={storage.id}>{storage.name}</MenuItem>
+        )}
+      </CustomSelect>
+      <CustomSelect
+        id='storage-to'
+        label='Hacia'
+        value={storageTo}
+        onChange={handleStorageToChange}
       >
-        <InputLabel id='storage-to'>Hacia</InputLabel>
-        <Select
-          id='storage-to'
-          value={storageTo}
-          onChange={handleStorageToChange}
-        >
-          <MenuItem value=''>Seleccionar Almacen Hacia</MenuItem>
-          <MenuItem value='null'>Afuera</MenuItem>
-          {storages && storages.filter(s => String(s.id) !== storageFrom).map(storage =>
-            <MenuItem key={storage.id} value={storage.id}>{storage.name}</MenuItem>
-          )}
-        </Select>
-      </Grid>
+        <MenuItem value=''>Seleccionar Almacen Hacia</MenuItem>
+        <MenuItem value='null'>Afuera</MenuItem>
+        {storages && storages.map(storage =>
+          <MenuItem key={storage.id} value={storage.id}>{storage.name}</MenuItem>
+        )}
+      </CustomSelect>
     </Grid>
   )
 }
+
+const useManualMovementFormStyles = makeStyles(() => ({
+  form: {
+    marginTop: 16,
+  },
+  formControl: {
+    minWidth: 150,
+  },
+}))
 
 const useFetch = <T extends object>(
   url: string,
@@ -134,7 +155,7 @@ const useFetch = <T extends object>(
     fetchData();
   }, [])
 
-  return [data, loading, error]
+  return [data, loading, error] as [T | null, boolean, typeof error]
 }
 
 export default function Inventory(props: Props) {
@@ -157,8 +178,7 @@ export default function Inventory(props: Props) {
 
   // Fetch from server
   const [snackbar, showError] = useSnackbar()
-  const [storages] = useFetch('/api/inventory/storages', showError, auth)
-  
+  const [storages] = useFetch<Storage[]>('/api/inventory/storages', showError, auth)
   return (
     <Layout title='Inventario' auth={auth}>
       {snackbar}
