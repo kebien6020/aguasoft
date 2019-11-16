@@ -10,6 +10,10 @@ const Products = models.Products
 const Sells = models.Sells
 const Session = models.Session
 const Users = models.Users
+const InventoryElements = models.InventoryElements
+const InventoryMovements = models.InventoryMovements
+const Storages = models.Storages
+const StorageStates = models.StorageStates
 
 global.models = models
 global.Clients = models.Clients
@@ -18,6 +22,10 @@ global.Products = models.Products
 global.Sells = models.Sells
 global.Session = models.Session
 global.Users = models.Users
+global.InventoryElements = models.InventoryElements
+global.InventoryMovements = models.InventoryMovements
+global.Storages = models.Storages
+global.StorageStates = models.StorageStates
 global.sequelize = models.sequelize
 global.Sequelize = Sequelize
 
