@@ -3,14 +3,12 @@ import { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import Button from '@material-ui/core/Button'
-import FormControl from '@material-ui/core/FormControl'
 import Grid from '@material-ui/core/Grid'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select, {SelectProps} from '@material-ui/core/Select'
 
 import Auth from '../Auth'
+import Form from '../components/form/Form'
 import Layout from '../components/Layout'
+import SelectField from '../components/form/SelectField'
 import Title from '../components/Title'
 import { useSnackbar } from '../components/MySnackbar'
 import useUser from '../hooks/useUser'
@@ -20,51 +18,6 @@ import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from 
 interface Props {
   auth: Auth
 }
-
-interface CustomSelectProps extends SelectProps {
-  id: string
-  label: React.ReactNode
-}
-
-const CustomSelect = (props: CustomSelectProps) => {
-  const { id, label, ...otherProps } = props
-
-  const classes = useCustomSelectStyles()
-
-  return (
-    <Grid item component={FormControl}
-      sm={12} md={6}
-      className={classes.formControl}
-    >
-      <InputLabel id={id}>{label}</InputLabel>
-      <Select
-        id={id}
-        {...otherProps}
-      />
-    </Grid>
-  )
-}
-
-const useCustomSelectStyles = makeStyles(() => ({
-  formControl: {
-    minWidth: 150,
-  },
-}))
-
-const useSelect = (initialValue: string) => {
-  const [value, setValue] = useState(initialValue)
-  const handleValueChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setValue(event.target.value as string);
-  };
-
-  const props = {
-    value: value,
-    onChange: handleValueChange,
-  }
-
-  return [props, setValue] as [typeof props, typeof setValue]
-}
-
 
 interface ManualMovementFormProps {
   storages: Storage[] | null
@@ -76,76 +29,79 @@ function ManualMovementForm(props: ManualMovementFormProps) {
 
   const classes = useManualMovementFormStyles()
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const initialValues = {
+    storageFrom: '',
+    storageTo: '',
+    productFrom: '',
+    productTo: '',
+  }
+
+  const handleSubmit = (values: typeof initialValues) => {
+    console.log(values)
 
 
   }
 
-  // Storage from
-  const [storageFrom] = useSelect('')
+  const baseStorageOptions = [
+    {value: 'null', label: 'Afuera'},
+  ]
+  const storageOptions =
+    storages ?
+    [
+      ...baseStorageOptions,
+      ...storages.map(s => ({value: String(s.id), label: s.name}))
+    ] : baseStorageOptions
 
-  // Storage to
-  const [storageTo] = useSelect('')
-
-  // InventoryElement from
-  const [inventoryElementFrom] = useSelect('')
-
-  // InventoryElement to
-  const [inventoryElementTo, setInventoryElementTo] = useSelect('')
-  useEffect(() => {
-    setInventoryElementTo(inventoryElementFrom.value)
-  }, [inventoryElementFrom.value])
+  const inventoryElementOptions =
+    inventoryElements &&
+    inventoryElements.map(ie => ({value: String(ie.id), label: ie.name}))
 
   return (
-    <Grid container component='form'
-      spacing={2}
+    <Form
       onSubmit={handleSubmit}
       className={classes.form}
+      initialValues={initialValues}
     >
-      <CustomSelect
-        id='storage-from'
-        label='Desde'
-        {...storageFrom}
-      >
-        <MenuItem value=''>Seleccionar Almacen Desde</MenuItem>
-        <MenuItem value='null'>Afuera</MenuItem>
-        {storages && storages.map(storage =>
-          <MenuItem key={storage.id} value={storage.id}>{storage.name}</MenuItem>
-        )}
-      </CustomSelect>
-      <CustomSelect
-        id='storage-to'
-        label='Hacia'
-        {...storageTo}
-      >
-        <MenuItem value=''>Seleccionar Almacen Hacia</MenuItem>
-        <MenuItem value='null'>Afuera</MenuItem>
-        {storages && storages.map(storage =>
-          <MenuItem key={storage.id} value={storage.id}>{storage.name}</MenuItem>
-        )}
-      </CustomSelect>
-      <CustomSelect
-        id='product-from'
-        label='Elemento'
-        {...inventoryElementFrom}
-      >
-        <MenuItem value=''>Seleccionar Elemento</MenuItem>
-        {inventoryElements && inventoryElements.map(inventoryElement =>
-          <MenuItem key={inventoryElement.id} value={inventoryElement.id}>{inventoryElement.name}</MenuItem>
-        )}
-      </CustomSelect>
-      <CustomSelect
-        id='product-from'
-        label='Elemento destino'
-        {...inventoryElementTo}
-      >
-        <MenuItem value=''>Seleccionar Elemento</MenuItem>
-        {inventoryElements && inventoryElements.map(inventoryElement =>
-          <MenuItem key={inventoryElement.id} value={inventoryElement.id}>{inventoryElement.name}</MenuItem>
-        )}
-      </CustomSelect>
-    </Grid>
+      {({setFieldValue}) => (<>
+        <Grid item xs={12} md={6}>
+          <SelectField
+            name='storageFrom'
+            label='Desde'
+            emptyOption='Seleccionar Almacen Desde'
+            options={storageOptions}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <SelectField
+            name='storageTo'
+            label='Hacia'
+            emptyOption='Seleccionar Almacen Hacia'
+            options={storageOptions}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <SelectField
+            name='productFrom'
+            label='Elemento'
+            emptyOption='Seleccionar Elemento'
+            options={inventoryElementOptions}
+            onChangeOverride={((e, {field}) => {
+              field.onChange(e)
+              setFieldValue('productTo', e.target.value)
+            })}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <SelectField
+            name='productTo'
+            label='Elemento destino'
+            emptyOption='Seleccionar Elemento'
+            options={inventoryElementOptions}
+          />
+        </Grid>
+        <Button type='submit'>test</Button>
+      </>)}
+    </Form>
   )
 }
 
