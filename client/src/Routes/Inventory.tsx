@@ -9,6 +9,7 @@ import Auth from '../Auth'
 import Form from '../components/form/Form'
 import Layout from '../components/Layout'
 import SelectField from '../components/form/SelectField'
+import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import { useSnackbar } from '../components/MySnackbar'
 import useUser from '../hooks/useUser'
@@ -34,6 +35,8 @@ function ManualMovementForm(props: ManualMovementFormProps) {
     storageTo: '',
     productFrom: '',
     productTo: '',
+    quantityFrom: '',
+    quantityTo: '',
   }
 
   const handleSubmit = (values: typeof initialValues) => {
@@ -97,6 +100,24 @@ function ManualMovementForm(props: ManualMovementFormProps) {
             label='Elemento destino'
             emptyOption='Seleccionar Elemento'
             options={inventoryElementOptions}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField
+            name='quantityFrom'
+            label='Candidad'
+            type='number'
+            onChangeOverride={((e, {field}) => {
+              field.onChange(e)
+              setFieldValue('quantityTo', e.target.value)
+            })}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <TextField
+            name='quantityTo'
+            label='Candidad Destino'
+            type='number'
           />
         </Grid>
         <Button type='submit'>test</Button>
