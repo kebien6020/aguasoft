@@ -1,67 +1,19 @@
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 
+import { useSnackbar } from '../components/MySnackbar'
+import useFetch from '../hooks/useFetch'
+import useUser from '../hooks/useUser'
 import Auth from '../Auth'
 import Layout from '../components/Layout'
-import { useSnackbar } from '../components/MySnackbar'
-import useUser from '../hooks/useUser'
 import ManualMovementForm from '../components/inventory/ManualMovementForm'
 import Title from '../components/Title'
 import { Storage, InventoryElement } from '../models'
-import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from '../utils'
 
 interface Props {
   auth: Auth
-}
-
-interface UseFetchOptions {
-  showError: (s: string) => any
-  auth: Auth
-  name: string
-  options?: FetchAuthOptions
-}
-
-const useFetch = <T extends object>(
-  url: string,
-  hookOptions: UseFetchOptions
-) => {
-  const {
-    showError,
-    auth,
-    name,
-    options,
-  } = hookOptions
-
-  const [data, setData] = useState<null | T>(null)
-  const [error, setError] = useState<null | ErrorResponse['error']>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const response : T | ErrorResponse = await fetchJsonAuth(url, auth, options)
-
-        if (!isErrorResponse(response)) {
-          setData(response)
-        } else {
-          console.error(response.error)
-          showError('Error tratando de obtener ' + name)
-          setError(response.error)
-        }
-      } catch (error) {
-        console.error(error)
-        showError('Error de conexión tratando de obtener ' + name)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
-
-  return [data, loading, error] as [T | null, boolean, typeof error]
 }
 
 export default function Inventory(props: Props) {
