@@ -14,7 +14,7 @@ import Title from '../components/Title'
 import { useSnackbar } from '../components/MySnackbar'
 import useUser from '../hooks/useUser'
 import { Storage, InventoryElement } from '../models'
-import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from '../utils'
+import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse, SuccessResponse } from '../utils'
 
 interface Props {
   auth: Auth
@@ -23,6 +23,7 @@ interface Props {
 interface ManualMovementFormProps {
   storages: Storage[] | null
   inventoryElements: InventoryElement[] | null
+  auth: Auth
 }
 
 function ManualMovementForm(props: ManualMovementFormProps) {
@@ -33,15 +34,45 @@ function ManualMovementForm(props: ManualMovementFormProps) {
   const initialValues = {
     storageFrom: '',
     storageTo: '',
-    productFrom: '',
-    productTo: '',
+    inventoryElementFrom: '',
+    inventoryElementTo: '',
     quantityFrom: '',
     quantityTo: '',
   }
 
-  const handleSubmit = (values: typeof initialValues) => {
-    console.log(values)
+  const [snackbar, showMessage] = useSnackbar()
+  const handleSubmit = async (values: typeof initialValues) => {
+    const url = '/api/inventory/movements/manual'
+    const payload = {
+      storageFromId: Number(values.storageFrom),
+      storageToId: Number(values.storageTo),
+      inventoryElementFromId: Number(values.inventoryElementFrom),
+      inventoryElementToId: Number(values.inventoryElementTo),
+      quantityFrom: Number(values.quantityFrom),
+      quantityTo: Number(values.quantityTo),
+    }
 
+    let response : SuccessResponse | ErrorResponse
+    try {
+      response = await fetchJsonAuth(url, props.auth, {
+        body: JSON.stringify(payload),
+        method: 'post',
+      })
+    } catch (err) {
+      showMessage('Error de conexión creando el movimiento manual')
+      return
+    }
+
+    if (isErrorResponse(response)) {
+      if (response.error.code === 'not_enough_in_source') {
+        showMessage('No hay suficientes elementos en "Desde" para realizar la transferencia.')
+        return
+      }
+      showMessage('Error al crear el movimiento manual')
+      return
+    }
+
+    showMessage('Movimiento creado')
 
   }
 
@@ -66,6 +97,7 @@ function ManualMovementForm(props: ManualMovementFormProps) {
       initialValues={initialValues}
     >
       {({setFieldValue}) => (<>
+        {snackbar}
         <Grid item xs={12} md={6}>
           <SelectField
             name='storageFrom'
@@ -84,19 +116,19 @@ function ManualMovementForm(props: ManualMovementFormProps) {
         </Grid>
         <Grid item xs={12} md={6}>
           <SelectField
-            name='productFrom'
+            name='inventoryElementFrom'
             label='Elemento'
             emptyOption='Seleccionar Elemento'
             options={inventoryElementOptions}
             onChangeOverride={((e, {field}) => {
               field.onChange(e)
-              setFieldValue('productTo', e.target.value)
+              setFieldValue('inventoryElementTo', e.target.value)
             })}
           />
         </Grid>
         <Grid item xs={12} md={6}>
           <SelectField
-            name='productTo'
+            name='inventoryElementTo'
             label='Elemento destino'
             emptyOption='Seleccionar Elemento'
             options={inventoryElementOptions}
@@ -120,7 +152,11 @@ function ManualMovementForm(props: ManualMovementFormProps) {
             type='number'
           />
         </Grid>
-        <Button type='submit'>test</Button>
+        <Grid item container justify='center'>
+          <Button type='submit' variant='contained' color='primary'>
+            Crear
+          </Button>
+        </Grid>
       </>)}
     </Form>
   )
@@ -177,7 +213,7 @@ const useFetch = <T extends object>(
       }
     }
 
-    fetchData();
+    fetchData()
   }, [])
 
   return [data, loading, error] as [T | null, boolean, typeof error]
@@ -226,6 +262,7 @@ export default function Inventory(props: Props) {
         <ManualMovementForm
           storages={storages}
           inventoryElements={inventoryElements}
+          auth={auth}
         />
       }
     </Layout>

@@ -56,13 +56,13 @@ async function createMovement(data: CreateManualMovementArgs) {
         const oldQty = previousState.get('quantity')
         const newQty = Number(oldQty) - data.quantityFrom
         if (newQty < 0) {
-          throw new NotEnoughInSource();
+          throw new NotEnoughInSource()
         }
         previousState.set('quantity', String(newQty))
 
         await previousState.save({...opts()})
       } else {
-        throw new NotEnoughInSource();
+        throw new NotEnoughInSource()
       }
     }
 
@@ -138,7 +138,7 @@ export async function manualMovement(req: Request, res: Response, next: NextFunc
 
 export async function listStorages(_req: Request, res: Response, next: NextFunction) {
   try {
-    const storages = await Storages.findAll();
+    const storages = await Storages.findAll()
 
     res.json(storages)
   } catch (e) {
@@ -148,7 +148,7 @@ export async function listStorages(_req: Request, res: Response, next: NextFunct
 
 export async function listInventoryElements(_req: Request, res: Response, next: NextFunction) {
   try {
-    const inventoryElements = await InventoryElements.findAll();
+    const inventoryElements = await InventoryElements.findAll()
 
     res.json(inventoryElements)
   } catch (e) {
