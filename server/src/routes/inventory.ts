@@ -24,13 +24,70 @@ interface CreateManualMovementArgs {
   createdBy: number
 }
 
+class MovementError extends Error {}
+class NotEnoughInSource extends MovementError {
+  name = 'not_enough_in_source'
+  message = 'Not enough inventory elements in source storage to perform the movement'
+}
+
 async function createMovement(data: CreateManualMovementArgs) {
   if (!data.quantityTo) data.quantityTo = data.quantityFrom
   await sequelize.transaction(async (t) => {
     const opts = (obj = {}) => Object.assign(obj, {
       logging: logMovement,
       transaction: t,
+      retry: {
+        match: [
+          /SQLITE_BUSY/,
+        ],
+        name: 'query',
+        max: 5
+      },
     })
+
+    // Update the storage state
+    if (data.storageFromId) {
+      const previousState = await StorageStates.findOne({
+        where: { storageId: data.storageFromId },
+        ...opts(),
+      })
+
+      if (previousState) {
+        const oldQty = previousState.get('quantity')
+        const newQty = Number(oldQty) - data.quantityFrom
+        if (newQty < 0) {
+          throw new NotEnoughInSource();
+        }
+        previousState.set('quantity', String(newQty))
+
+        await previousState.save({...opts()})
+      } else {
+        throw new NotEnoughInSource();
+      }
+    }
+
+    if (data.storageToId) {
+      const previousState = await StorageStates.findOne({
+        where: { storageId: data.storageToId },
+        ...opts(),
+      })
+
+      if (previousState) {
+        const oldQty = previousState.get('quantity')
+        const newQty = Number(oldQty) + data.quantityTo
+        previousState.set('quantity', String(newQty))
+
+        await previousState.save({...opts()})
+      } else {
+        await StorageStates.create({
+          storageId: data.storageToId,
+          inventoryElementId: data.inventoryElementToId,
+          quantity: String(+Number(data.quantityTo)),
+        }, {
+          ...opts(),
+        })
+      }
+    }
 
     // Store the movement
     await InventoryMovements.create(data, {
@@ -42,45 +99,11 @@ async function createMovement(data: CreateManualMovementArgs) {
         'quantityFrom',
         'quantityTo',
         'cause',
+        'createdBy',
       ],
       ...opts()
     })
 
-    // Update the storage state
-    if (data.storageFromId) {
-      const [ previousState ] = await StorageStates.findCreateFind({
-        where: { storageId: data.storageFromId },
-        defaults: {
-          storageId: data.storageFromId,
-          inventoryElementId: data.inventoryElementFromId,
-          quantity: 0,
-        },
-        ...opts(),
-      })
-
-      const oldQty = previousState.get('quantity')
-      const newQty = Number(oldQty) - data.quantityFrom
-      previousState.set('quantity', String(newQty))
-
-      await previousState.save({...opts()})
-    }
-
-    if (data.storageToId) {
-      const [ previousState ] = await StorageStates.findCreateFind({
-        where: { storageId: data.storageToId },
-        defaults: {
-          storageId: data.storageToId,
-          inventoryElementId: data.inventoryElementToId,
-          quantity: 0,
-        },
-      })
-
-      const oldQty = previousState.get('quantity')
-      const newQty = Number(oldQty) + data.quantityTo
-      previousState.set('quantity', String(newQty))
-
-      await previousState.save({...opts()})
-    }
   })
 }
 
@@ -102,10 +125,10 @@ export async function manualMovement(req: Request, res: Response, next: NextFunc
       quantityTo: req.body.quantityTo,
       cause: 'manual',
 
-      createdBy: req.session.createdBy,
+      createdBy: req.session.userId,
     }
 
-    createMovement(movementData)
+    await createMovement(movementData)
 
     res.json({success: true})
   } catch (e) {

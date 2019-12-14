@@ -41,6 +41,7 @@ export default function(sequelize: Sequelize) {
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
+      primaryKey: true,
     },
     inventoryElementId: {
       type: DataTypes.INTEGER,
@@ -51,6 +52,7 @@ export default function(sequelize: Sequelize) {
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
+      primaryKey: true,
     },
     quantity: {
       type: DataTypes.DECIMAL(20, 8),
