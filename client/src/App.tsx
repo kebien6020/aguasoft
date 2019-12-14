@@ -12,6 +12,8 @@ import 'moment/locale/es'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 
+import Auth from './Auth'
+import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
 
 const Route =            lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
@@ -33,48 +35,51 @@ const Payments =         lazy(() => import(/* webpackChunkName: "payments" */ '.
 const Spendings =        lazy(() => import(/* webpackChunkName: "spendings" */ './Routes/Spendings'))
 const Inventory =        lazy(() => import(/* webpackChunkName: "inventory" */ './Routes/Inventory'))
 
+const auth  = new Auth()
 moment.locale('es')
 
 class App extends React.Component {
   render() {
     return (
-      <MuiPickersUtilsProvider utils={MomentUtils}>
-        <BrowserRouter>
-          <MuiThemeProvider theme={theme}>
-            <CssBaseline />
-            <Suspense fallback={<LoadingScreen text='Cargando página...'/>}>
-              <Switch>
-                <Route exact path='/authCallback' component={AuthCallback} />
-                <Route exact path='/silentAuth' component={SilentAuth} />
-                <Route exact path='/logout' component={Logout} />
+      <AuthContext.Provider value={auth}>
+        <MuiPickersUtilsProvider utils={MomentUtils}>
+          <BrowserRouter>
+            <MuiThemeProvider theme={theme}>
+              <CssBaseline />
+              <Suspense fallback={<LoadingScreen text='Cargando página...'/>}>
+                <Switch>
+                  <Route exact path='/authCallback' component={AuthCallback} />
+                  <Route exact path='/silentAuth' component={SilentAuth} />
+                  <Route exact path='/logout' component={Logout} />
 
-                <Route exact private path='/check' component={CheckUser} />
+                  <Route exact private path='/check' component={CheckUser} />
 
-                <Route exact private path='/sell' component={RegisterSale} />
-                <Route exact private path='/sells' component={Sells} />
-                <Route exact private path='/monitor/sells' component={MonitorSells} />
+                  <Route exact private path='/sell' component={RegisterSale} />
+                  <Route exact private path='/sells' component={Sells} />
+                  <Route exact private path='/monitor/sells' component={MonitorSells} />
 
-                <Route exact private path='/clients' component={ClientList} />
-                <Route exact private path='/clients/new' component={ClientEditor} />
-                <Route exact private path='/clients/:id' component={ClientEditor} />
-                <Route exact private path='/clients/:id/balance' component={ClientBalance} />
+                  <Route exact private path='/clients' component={ClientList} />
+                  <Route exact private path='/clients/new' component={ClientEditor} />
+                  <Route exact private path='/clients/:id' component={ClientEditor} />
+                  <Route exact private path='/clients/:id/balance' component={ClientBalance} />
 
-                <Route exact private path='/payment' component={RegisterPayment} />
-                <Route exact private path='/payments' component={Payments} />
-                <Route exact private path='/payments/list' component={PaymentList} />
+                  <Route exact private path='/payment' component={RegisterPayment} />
+                  <Route exact private path='/payments' component={Payments} />
+                  <Route exact private path='/payments/list' component={PaymentList} />
 
-                <Route exact private path='/spending' component={RegisterSpending} />
-                <Route exact private path='/spendings' component={Spendings} />
-                <Route exact private path='/spendings/list' component={SpendingList} />
+                  <Route exact private path='/spending' component={RegisterSpending} />
+                  <Route exact private path='/spendings' component={Spendings} />
+                  <Route exact private path='/spendings/list' component={SpendingList} />
 
-                <Route exact private path='/inventory' component={Inventory} />
+                  <Route exact private path='/inventory' component={Inventory} />
 
-                <Route exact path='/' render={() => <Redirect to='/sells' />} />
-              </Switch>
-            </Suspense>
-          </MuiThemeProvider>
-        </BrowserRouter>
-      </MuiPickersUtilsProvider>
+                  <Route exact path='/' render={() => <Redirect to='/sells' />} />
+                </Switch>
+              </Suspense>
+            </MuiThemeProvider>
+          </BrowserRouter>
+        </MuiPickersUtilsProvider>
+      </AuthContext.Provider>
     )
   }
 }
