@@ -18,7 +18,7 @@ debug(`Using ${config.dialect} database, in storage ${config.storage}`)
 config.logging = require('debug')('app:sql')
 // Connect
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
-sequelize.query('PRAGMA journal_mode = WAL;', {raw: true, logging: console.log});
+sequelize.query('PRAGMA journal_mode = WAL;', {raw: true});
 
 // Here will be placed all the model classes
 const models: {[idx: string]: ModelStatic} = {}
