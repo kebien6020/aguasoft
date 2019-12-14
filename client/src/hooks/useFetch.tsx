@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 
-import Auth from '../Auth'
+import useAuth from './useAuth'
 import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from '../utils'
 
 export interface UseFetchOptions {
   showError: (s: string) => any
-  auth: Auth
   name: string
   options?: FetchAuthOptions
 }
@@ -16,10 +15,11 @@ const useFetch = <T extends object>(
 ) => {
   const {
     showError,
-    auth,
     name,
     options,
   } = hookOptions
+
+  const auth = useAuth()
 
   const [data, setData] = useState<null | T>(null)
   const [error, setError] = useState<null | ErrorResponse['error']>(null)

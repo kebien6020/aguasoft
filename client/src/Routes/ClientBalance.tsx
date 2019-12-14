@@ -184,7 +184,7 @@ class ClientBalance extends React.Component<Props, State> {
     }
 
     return (
-      <Layout title={'Balance Cliente: ' + state.client.name} auth={props.auth}>
+      <Layout title={'Balance Cliente: ' + state.client.name}>
         <div className={classes.cardContainer}>
           {state.changeGroups.map(this.renderChangeGroup)}
         </div>

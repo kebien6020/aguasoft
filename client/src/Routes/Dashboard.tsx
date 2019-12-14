@@ -269,7 +269,7 @@
 //     }
 //
 //     return (
-//       <Layout title='Dashboard' auth={props.auth}>
+//       <Layout title='Dashboard'>
 //         <Dialog
 //           open={state.loginDialogOpen}
 //           onClose={this.handleLoginDialogClose}
@@ -428,6 +428,4 @@
 //   },
 // })
 //
-// export default withStyles(styles)(Dashboard)
-
-export default () => null
+// export default () => null

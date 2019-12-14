@@ -429,7 +429,6 @@ class ClientList extends React.Component<Props, State> {
     return (
       <Layout
         title='Lista de Clientes'
-        auth={props.auth}
         container={ResponsiveContainer}
         appBarExtra={appBarExtra}
       >

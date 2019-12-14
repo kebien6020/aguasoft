@@ -134,7 +134,7 @@ export default function Sells(props: SellsProps) {
     />
 
   return (
-    <Layout title='Ventas' auth={auth}>
+    <Layout title='Ventas'>
       <Title>Registrar Venta</Title>
       {loginElem}
 

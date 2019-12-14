@@ -3,8 +3,8 @@ import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 
+import useAuth from '../../hooks/useAuth'
 import { useSnackbar } from '../MySnackbar'
-import Auth from '../../Auth'
 import { Storage, InventoryElement } from '../../models'
 import { fetchJsonAuth, isErrorResponse, ErrorResponse, SuccessResponse } from '../../utils'
 
@@ -15,11 +15,11 @@ import TextField from '../form/TextField'
 export interface ManualMovementFormProps {
   storages: Storage[] | null
   inventoryElements: InventoryElement[] | null
-  auth: Auth
 }
 
 export default function ManualMovementForm(props: ManualMovementFormProps) {
   const { storages, inventoryElements } = props
+  const auth = useAuth()
 
   const classes = useManualMovementFormStyles()
 
@@ -46,7 +46,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps) {
 
     let response : SuccessResponse | ErrorResponse
     try {
-      response = await fetchJsonAuth(url, props.auth, {
+      response = await fetchJsonAuth(url, auth, {
         body: JSON.stringify(payload),
         method: 'post',
       })

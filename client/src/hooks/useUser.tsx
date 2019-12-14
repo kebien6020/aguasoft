@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 
-import Auth from '../Auth'
 import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
 import { User } from '../models'
+import useAuth from './useAuth'
 
 
-export default function useUser(auth: Auth, onError?: (error: ErrorResponse["error"]) => any) {
+export default function useUser(onError?: (error: ErrorResponse["error"]) => any) {
+  const auth = useAuth()
   const [user, setUser] = useState<User|null>(null)
 
   useEffect(() => {

@@ -328,7 +328,7 @@ class ClientEditor extends React.Component<Props, State> {
       `${displayName[field]} ${state[field]}`
 
     return (
-      <Layout title='Editando cliente' auth={props.auth} container={ResponsiveContainer}>
+      <Layout title='Editando cliente' container={ResponsiveContainer}>
         <DuplicatedPriceDialog
           priceError={state.errorDuplicatedPrice}
           onClose={() => this.setState({errorDuplicatedPrice: null})}

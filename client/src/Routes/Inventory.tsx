@@ -6,22 +6,16 @@ import Button from '@material-ui/core/Button'
 import { useSnackbar } from '../components/MySnackbar'
 import useFetch from '../hooks/useFetch'
 import useUser from '../hooks/useUser'
-import Auth from '../Auth'
 import Layout from '../components/Layout'
 import ManualMovementForm from '../components/inventory/ManualMovementForm'
 import Title from '../components/Title'
 import { Storage, InventoryElement } from '../models'
 
-interface Props {
-  auth: Auth
-}
-
-export default function Inventory(props: Props) {
-  const { auth } = props
+export default function Inventory() {
   const classes = useStyles()
 
   // Create manual movement
-  const { isAdmin } = useUser(auth)
+  const { isAdmin } = useUser()
   const [showManualMovementForm, setShowManualMovementForm] = useState(false)
   const manualMovementButton =
     isAdmin && (
@@ -39,16 +33,14 @@ export default function Inventory(props: Props) {
   const [storages] = useFetch<Storage[]>('/api/inventory/storages', {
     showError,
     name: 'la lista de almacenamientos',
-    auth,
   })
   const [inventoryElements] = useFetch<InventoryElement[]>('/api/inventory/inventoryElements', {
     showError,
     name: 'la lista de elementos',
-    auth,
   })
 
   return (
-    <Layout title='Inventario' auth={auth}>
+    <Layout title='Inventario'>
       {snackbar}
       <Title>Grafico Principal</Title>
       <div className={classes.center}>
@@ -59,7 +51,6 @@ export default function Inventory(props: Props) {
         <ManualMovementForm
           storages={storages}
           inventoryElements={inventoryElements}
-          auth={auth}
         />
       }
     </Layout>

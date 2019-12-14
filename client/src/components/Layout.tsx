@@ -25,7 +25,6 @@ import {
 } from '@material-ui/icons'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer';
-import Auth from '../Auth'
 import useUser from '../hooks/useUser';
 import Avatar from '@material-ui/core/Avatar';
 
@@ -206,7 +205,6 @@ interface Props {
   className?: string
   title: string
   container?: string | React.ComponentType<{className?: string}>
-  auth: Auth
   appBarExtra?: React.ReactNode
 }
 
@@ -224,7 +222,6 @@ export default function Layout(props : Props) {
     title,
     appBarExtra,
     container = WideResponsiveContainer,
-    auth,
   } = props
   const classes = useStyles()
   // Drawer
@@ -237,7 +234,7 @@ export default function Layout(props : Props) {
   }, [])
 
   // User session
-  const { user } = useUser(auth)
+  const { user } = useUser()
 
   const { pathname: currentPath } = useLocation()
 
