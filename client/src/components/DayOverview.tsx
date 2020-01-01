@@ -20,16 +20,15 @@ import {
 } from '@material-ui/icons'
 
 import * as colors from '@material-ui/core/colors'
+import { Filter } from '../Routes/Sells'
 
 interface Props {
   sells: Sell[]
+  onFilterChange: (updater: (prev: Filter) => any) => any
+  filter: Filter
 }
 
 type AllProps = Props & PropClasses
-
-interface State {
-  clientFilter: string
-}
 
 const calcSell = (sells: Sell[], cash: boolean) : number => {
   return sells.reduce((acc, sell) => {
@@ -40,7 +39,7 @@ const calcSell = (sells: Sell[], cash: boolean) : number => {
   }, 0)
 }
 
-const aggregateProducts = (sells: Sell[], clientId: string) => {
+const aggregateProducts = (sells: Sell[], clientId: null | string) => {
   const productNames = sells
     .map(s => s.Product.name)
     .filter((p, idx, self) => self.indexOf(p) === idx)
@@ -49,7 +48,7 @@ const aggregateProducts = (sells: Sell[], clientId: string) => {
     sells
       .filter(s => s.Product.name === pn)
       .filter(s => s.deleted === false)
-      .filter(s => clientId === 'ALL' || String(s.Client.id) === clientId)
+      .filter(s => clientId === null || String(s.Client.id) === clientId)
       .reduce((acc, s) => acc + s.quantity, 0)
 
   return productNames
@@ -57,32 +56,12 @@ const aggregateProducts = (sells: Sell[], clientId: string) => {
     .filter(([_name, qty]) => qty > 0)
 }
 
-type ValChangeEvent = React.ChangeEvent<{ value: string }>
 type SimpleClient = {id: number, name: string, defaultCash: boolean}
 type CalculatedClient = SimpleClient & {totalSale: number}
 
-class DayOverview extends React.Component<AllProps, State> {
-
-  constructor(props: AllProps) {
-    super(props)
-
-    this.state = {
-      clientFilter: 'ALL'
-    }
-  }
-
-  handleChange = (name: keyof State) => (event: ValChangeEvent) => {
-    // Save value to a variable because it may change (synthetic events
-    // may be re-used by react)
-    const value = event.target.value
-    this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: value,
-    }))
-  }
-
+class DayOverview extends React.Component<AllProps, {}> {
   render() {
-    const { props, state } = this
+    const { props } = this
 
     const compareByName = (a: SimpleClient, b: SimpleClient) => {
       if (a.name < b.name) return -1
@@ -135,8 +114,11 @@ class DayOverview extends React.Component<AllProps, State> {
                   id: 'client-filter',
                   name: 'clientFilter' ,
                 }}
-                onChange={this.handleChange('clientFilter')}
-                value={state.clientFilter}
+                onChange={(event) => {
+                  const clientId = event.target.value
+                  props.onFilterChange(prev => ({...prev, client: clientId}))
+                }}
+                value={props.filter.client}
                 renderValue={clientName}
               >
                 <MenuItem value='ALL'>Todos</MenuItem>
@@ -158,7 +140,7 @@ class DayOverview extends React.Component<AllProps, State> {
                 )}
               </Select>
             </FormControl>
-            {aggregateProducts(props.sells, state.clientFilter).map(([name, qty]) =>
+            {aggregateProducts(props.sells, props.filter.client).map(([name, qty]) =>
               <Typography variant='body2' key={name}>
                 {name}: {qty}
               </Typography>

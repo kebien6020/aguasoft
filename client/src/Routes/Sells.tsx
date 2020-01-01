@@ -22,6 +22,10 @@ import { Moment } from 'moment'
 import 'moment/locale/es'
 moment.locale('es')
 
+export interface Filter {
+  client: null | string
+}
+
 type SellsProps = AuthRouteComponentProps<{}>
 export default function Sells(props: SellsProps) {
   const { auth } = props
@@ -90,12 +94,6 @@ export default function Sells(props: SellsProps) {
     }
   }, [sells, auth])
 
-  const sellList =
-    sells && <SellList
-       sells={sells}
-       onDeleteSell={handleDeleteSell}
-    />
-
   // Login to register sell
   const history = useHistory()
   const handleLogin = useCallback(() => {
@@ -106,6 +104,27 @@ export default function Sells(props: SellsProps) {
       <Login onSuccess={handleLogin} auth={auth} />
     </Paper>
 
+  // Filter
+  const [filter, setFilter] = useState<Filter>({
+    client: null, // null for no filter
+  })
+
+  const filteredSells = sells && sells.filter(sell => {
+    if (filter.client !== null) {
+      if (String(sell.Client.id) !== filter.client) {
+        return false;
+      }
+    }
+
+    return true;
+  })
+
+  const sellList =
+    filteredSells && <SellList
+       sells={filteredSells}
+       onDeleteSell={handleDeleteSell}
+    />
+
   return (
     <Layout title='Ventas' auth={auth}>
       <Title>Registrar Venta</Title>
@@ -115,7 +134,7 @@ export default function Sells(props: SellsProps) {
 
       <Title>Resumen</Title>
       {sells ?
-        <DayOverview sells={sells} /> :
+        <DayOverview sells={sells} onFilterChange={setFilter} filter={filter} /> :
         <CircularProgress className={classes.centerBlock} />
       }
 
