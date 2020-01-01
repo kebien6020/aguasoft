@@ -23,7 +23,8 @@ import 'moment/locale/es'
 moment.locale('es')
 
 export interface Filter {
-  client: null | string
+  client: string
+  user: string
 }
 
 type SellsProps = AuthRouteComponentProps<{}>
@@ -106,12 +107,19 @@ export default function Sells(props: SellsProps) {
 
   // Filter
   const [filter, setFilter] = useState<Filter>({
-    client: null, // null for no filter
+    client: 'ALL', // 'ALL' for no filter
+    user: 'ALL',
   })
 
   const filteredSells = sells && sells.filter(sell => {
-    if (filter.client !== null) {
+    if (filter.client !== 'ALL') {
       if (String(sell.Client.id) !== filter.client) {
+        return false;
+      }
+    }
+
+    if (filter.user !== 'ALL') {
+      if (String(sell.User.code) !== filter.user) {
         return false;
       }
     }
