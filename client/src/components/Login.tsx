@@ -145,7 +145,6 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
               className={classes.field}
               type="password"
               margin="dense"
-              inputProps={{ inputMode: 'numeric' }}
               error={state.errorLogin}
               helperText={state.errorLogin ? 'Contraseña erronea' : null}
             />
