@@ -3,11 +3,11 @@ import * as React from 'react'
 import { TextField } from '@material-ui/core'
 import { TextFieldProps } from '@material-ui/core/TextField'
 
-import * as NumberFormat from 'react-number-format'
+import NumberFormat, { NumberFormatProps } from 'react-number-format'
 
 type ValChangeEvent = { target: { value: string } }
 
-interface NumFormatProps extends NumberFormat.NumberFormatProps {
+interface NumFormatProps extends NumberFormatProps {
   inputRef?: React.Ref<Element>
   onChange?: (event: ValChangeEvent) => void
 }
