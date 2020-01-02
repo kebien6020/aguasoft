@@ -83,6 +83,7 @@ class DayOverview extends React.Component<AllProps, {}> {
           ...client,
           totalSale: props.sells
             .filter(s => s.Client.id === client.id)
+            .filter(s => !s.deleted)
             .reduce((acc, s) => acc + s.value, 0)
         }
       })
