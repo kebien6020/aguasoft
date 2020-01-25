@@ -15,10 +15,11 @@ import TextField from '../form/TextField'
 export interface ManualMovementFormProps {
   storages: Storage[] | null
   inventoryElements: InventoryElement[] | null
+  onUpdate?: () => any
 }
 
 export default function ManualMovementForm(props: ManualMovementFormProps) {
-  const { storages, inventoryElements } = props
+  const { storages, inventoryElements, onUpdate } = props
   const auth = useAuth()
 
   const classes = useManualMovementFormStyles()
@@ -65,6 +66,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps) {
     }
 
     showMessage('Movimiento creado')
+    if (onUpdate) onUpdate();
 
   }
 

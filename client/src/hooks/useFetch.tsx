@@ -7,6 +7,7 @@ export interface UseFetchOptions {
   showError: (s: string) => any
   name: string
   options?: FetchAuthOptions
+  nonce?: number
 }
 
 const useFetch = <T extends object>(
@@ -17,6 +18,7 @@ const useFetch = <T extends object>(
     showError,
     name,
     options,
+    nonce = 1,
   } = hookOptions
 
   const auth = useAuth()
@@ -46,7 +48,7 @@ const useFetch = <T extends object>(
     }
 
     fetchData()
-  }, [])
+  }, [nonce])
 
   return [data, loading, error] as [T | null, boolean, typeof error]
 }
