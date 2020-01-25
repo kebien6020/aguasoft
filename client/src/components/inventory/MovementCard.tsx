@@ -1,0 +1,137 @@
+import * as React from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import CardHeader from '@material-ui/core/CardHeader'
+import Grid from '@material-ui/core/Grid'
+import * as moment from 'moment'
+
+import { InventoryMovement, User, Storage, InventoryElement } from '../../models'
+
+const type = {
+  'manual': {
+    text: 'Movimiento Manual',
+  },
+  'in': {
+    text: 'Ingreso',
+  },
+  'relocation': {
+    text: 'Reubicacion',
+  },
+  'production': {
+    text: 'Produccion',
+  },
+  'sell': {
+    text: 'Venta',
+  },
+  'damage': {
+    text: 'Daño',
+  },
+}
+
+const typeSlugToText = (slug: keyof typeof type) =>
+  type[slug] ? type[slug].text : undefined
+
+interface DescriptionProps {
+  title: React.ReactNode
+  text: React.ReactNode
+}
+const Description = (props: DescriptionProps) => (
+  <p style={{marginTop: 0, marginBottom: 0}}>
+    <strong>{props.title}</strong>: {props.text}
+  </p>
+)
+
+export interface MovementCardProps {
+  movement: InventoryMovement
+  users: User[]
+  storages: Storage[]
+  elements: InventoryElement[]
+}
+
+const MovementCard = (props: MovementCardProps) => {
+  const { movement, users, storages, elements } = props
+  const classes = useStyles()
+
+  const user = users.find(u => u.id === movement.createdBy)
+  const userName = user ? user.name : 'Desconocido'
+
+  const storageFrom = storages.find(s => s.id === movement.storageFromId)
+  const storageFromName = movement.storageFromId ?
+    (storageFrom ? storageFrom.name : 'Desconocido')
+    : 'Afuera'
+
+  const storageTo = storages.find(s => s.id === movement.storageToId)
+  const storageToName = movement.storageToId ?
+    (storageTo ? storageTo.name : 'Desconocido')
+    : 'Afuera'
+
+  const elementFrom = elements.find(e => e.id === movement.inventoryElementFromId)
+  const elementFromName = elementFrom ? elementFrom.name : 'Desconocido'
+
+  const elementTo = elements.find(e => e.id === movement.inventoryElementToId)
+  const elementToName = elementTo ? elementTo.name : 'Desconocido'
+
+  return (
+    <Card className={classes.card}>
+      <CardHeader
+        title={typeSlugToText(movement.cause)}
+      />
+      <CardContent>
+        <Grid container>
+          <Grid item xs={12} md={6}>
+            <Description
+              title='Fecha'
+              text={moment(movement.createdAt).format('DD/MMM hh:mm a')}
+            />
+            <Description
+              title='Creado por'
+              text={userName}
+            />
+            <Description
+              title='Desde'
+              text={storageFromName}
+            />
+            <Description
+              title='Hacia'
+              text={storageToName}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Description
+              title='Elemento'
+              text={elementFromName}
+            />
+            {elementFromName !== elementToName &&
+              <Description
+                title='Elemento destino'
+                text={elementToName}
+              />
+            }
+            <Description
+              title='Cantidad'
+              text={movement.quantityFrom}
+            />
+            {movement.quantityFrom !== movement.quantityTo &&
+              <Description
+                title='Cantidad destino'
+                text={movement.quantityTo}
+              />
+            }
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  )
+}
+
+const useStyles = makeStyles(theme => ({
+  card: {
+    marginTop: '1rem',
+    borderLeftWidth: '4px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: theme.palette.primary.main,
+  }
+}))
+
+export default MovementCard

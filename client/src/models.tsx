@@ -107,3 +107,37 @@ export interface StorageState {
   storage?: Storage
   inventoryElement?: InventoryElement
 }
+
+export interface InventoryMovement {
+  readonly id: number
+  readonly storageFromId: number | null
+  readonly storageToId: number | null
+  readonly inventoryElementFromId: number
+  readonly inventoryElementToId: number
+  readonly quantityFrom: string
+  readonly quantityTo: string
+  readonly cause:
+      'manual'
+    | 'in'
+    | 'relocation'
+    | 'production'
+    | 'sell'
+    | 'damage'
+  readonly createdBy: number
+
+  // timestamps
+  readonly createdAt: Date
+  readonly updatedAt: Date
+
+  // soft deletion
+  readonly deletedAt: Date | null
+  readonly deletedBy: number | null
+
+  // Possible inclusions
+  readonly storageFrom?: Storage
+  readonly storageTo?: Storage
+  readonly inventoryElementFrom?: InventoryElement
+  readonly inventoryElementTo?: InventoryElement
+  readonly creator?: User
+  readonly deletor?: User
+}

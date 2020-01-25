@@ -10,9 +10,11 @@ import { useSnackbar } from '../components/MySnackbar'
 import useFetch from '../hooks/useFetch'
 import useUser from '../hooks/useUser'
 import Layout from '../components/Layout'
+import LoadingIndicator from '../components/LoadingIndicator'
 import ManualMovementForm from '../components/inventory/ManualMovementForm'
+import MovementCard from '../components/inventory/MovementCard'
 import Title from '../components/Title'
-import { Storage, InventoryElement, StorageState } from '../models'
+import { Storage, InventoryElement, StorageState, InventoryMovement, User } from '../models'
 
 interface StorageCardProps {
   storage: Storage
@@ -38,9 +40,9 @@ const StorageCard = (props: StorageCardProps) => {
           const elemName = inventoryElement ? inventoryElement.name : 'Desconocido'
 
           return (
-            <>
+            <div key={state.inventoryElementId}>
               <strong>{elemName}</strong>: {state.quantity}
-            </>
+            </div>
           )
         })}
       </CardContent>
@@ -85,12 +87,23 @@ export default function Inventory() {
     name: 'la lista de elementos',
   })
 
-  const [statesNonce, setStatesNonce] = useState(1)
-  const updateStates = useCallback(() => setStatesNonce(prev => prev + 1), [])
+  const [nonce, setNonce] = useState(1)
+  const update = useCallback(() => setNonce(prev => prev + 1), [])
   const [storageStates] = useFetch<StorageState[]>('/api/inventory/state', {
     showError,
     name: 'el estado actual de los inventarios',
-    nonce: statesNonce,
+    nonce: nonce,
+  })
+
+  const [movements] = useFetch<InventoryMovement[]>('/api/inventory/movements?limit=30&sortField=createdAt&sortDir=desc', {
+    showError,
+    name: 'la lista de movimientos recientes',
+    nonce: nonce,
+  })
+
+  const [users] = useFetch<User[]>('/api/users', {
+    showError,
+    name: 'lista de empleados',
   })
 
   return (
@@ -105,18 +118,29 @@ export default function Inventory() {
         <ManualMovementForm
           storages={storages}
           inventoryElements={inventoryElements}
-          onUpdate={updateStates}
+          onUpdate={update}
         />
       }
 
-      {storages && storageStates && inventoryElements && storages.map(storage =>
+      {storages && storageStates && inventoryElements ? storages.map(storage =>
         <StorageCard
           key={storage.id}
           storage={storage}
           storageStates={storageStates}
           inventoryElements={inventoryElements}
         />
-      )}
+      ) : <LoadingIndicator />}
+
+      <Title>Movimientos recientes</Title>
+      {movements && users && storages && inventoryElements ? movements.map(movement =>
+        <MovementCard
+          key={movement.id}
+          movement={movement}
+          users={users}
+          storages={storages}
+          elements={inventoryElements}
+        />
+      ) : <LoadingIndicator />}
     </Layout>
   )
 }
