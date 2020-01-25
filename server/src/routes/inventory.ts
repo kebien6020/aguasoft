@@ -155,3 +155,13 @@ export async function listInventoryElements(_req: Request, res: Response, next: 
     next(e)
   }
 }
+
+export async function listStorageStates(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const storageStates = await StorageStates.findAll()
+
+    res.json(storageStates)
+  } catch (e) {
+    next(e)
+  }
+}
