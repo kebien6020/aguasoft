@@ -48,7 +48,7 @@ async function createMovement(data: CreateManualMovementArgs) {
     // Update the storage state
     if (data.storageFromId) {
       const previousState = await StorageStates.findOne({
-        where: { storageId: data.storageFromId },
+        where: { storageId: data.storageFromId, inventoryElementId: data.inventoryElementFromId },
         ...opts(),
       })
 
@@ -68,7 +68,7 @@ async function createMovement(data: CreateManualMovementArgs) {
 
     if (data.storageToId) {
       const previousState = await StorageStates.findOne({
-        where: { storageId: data.storageToId },
+        where: { storageId: data.storageToId, inventoryElementId: data.inventoryElementToId },
         ...opts(),
       })
 
