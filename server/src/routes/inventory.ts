@@ -4,7 +4,9 @@ import { InventoryMovement, InventoryMovementStatic } from '../db/models/invento
 import { StorageStateStatic } from '../db/models/storageStates'
 import { StorageStatic } from '../db/models/storages'
 import models, { sequelize } from '../db/models'
+import { Op } from 'sequelize'
 import debug from 'debug'
+import * as yup from 'yup'
 
 const InventoryElements = models.InventoryElements as InventoryElementStatic
 const InventoryMovements = models.InventoryMovements as InventoryMovementStatic
@@ -161,6 +163,42 @@ export async function listStorageStates(_req: Request, res: Response, next: Next
     const storageStates = await StorageStates.findAll()
 
     res.json(storageStates)
+  } catch (e) {
+    next(e)
+  }
+}
+
+export async function listMovements(req: Request, res: Response, next: NextFunction) {
+  try {
+    const schema = yup.object().noUnknown().shape({
+      limit: yup.number(),
+      sortField: yup.string(),
+      sortDir: yup.string()
+        .lowercase()
+        .oneOf(['asc', 'desc'])
+        .default('asc') as yup.StringSchema<'asc'|'desc'>,
+      minDate: yup.date(),
+      maxDate: yup.date(),
+    })
+
+    schema.validateSync(req.query)
+    const query = schema.cast(req.query)
+
+    const where: { createdAt?: {} } = {}
+    if (query.minDate) {
+      where.createdAt = {...where.createdAt, [Op.gte]: query.minDate}
+    }
+    if (query.maxDate) {
+      where.createdAt = {...where.createdAt, [Op.lte]: query.maxDate}
+    }
+
+    const movements = await InventoryMovements.findAll({
+      limit: query.limit,
+      order: query.sortField ? [[query.sortField, query.sortDir]] : undefined,
+      where,
+    })
+
+    res.json(movements)
   } catch (e) {
     next(e)
   }
