@@ -24,9 +24,9 @@ import {
   Dns as BoxesIcon,
 } from '@material-ui/icons'
 
-import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer';
-import useUser from '../hooks/useUser';
-import Avatar from '@material-ui/core/Avatar';
+import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
+import useUser from '../hooks/useUser'
+import Avatar from '@material-ui/core/Avatar'
 
 const drawerWidth = 96
 const drawerWidthFull = 256

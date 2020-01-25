@@ -93,3 +93,17 @@ export interface InventoryElement {
   updatedAt: string
   deletedAt: string | null
 }
+
+export interface StorageState {
+  readonly storageId: number
+  readonly inventoryElementId: number
+  readonly quantity: string
+
+  // timestamps
+  createdAt: string
+  updatedAt: string
+
+  // Possible inclusions
+  storage?: Storage
+  inventoryElement?: InventoryElement
+}
