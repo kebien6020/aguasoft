@@ -38,7 +38,7 @@ interface DescriptionProps {
 }
 const Description = (props: DescriptionProps) => (
   <p style={{marginTop: 0, marginBottom: 0}}>
-    <strong>{props.title}</strong>: {props.text}
+    <strong style={{fontWeight: 500}}>{props.title}</strong>: {props.text}
   </p>
 )
 
@@ -76,28 +76,14 @@ const MovementCard = (props: MovementCardProps) => {
     <Card className={classes.card}>
       <CardHeader
         title={typeSlugToText(movement.cause)}
+        className={classes.header}
+        classes={{
+          title: classes.title,
+        }}
       />
       <CardContent>
         <Grid container>
-          <Grid item xs={12} md={6}>
-            <Description
-              title='Fecha'
-              text={moment(movement.createdAt).format('DD/MMM hh:mm a')}
-            />
-            <Description
-              title='Creado por'
-              text={userName}
-            />
-            <Description
-              title='Desde'
-              text={storageFromName}
-            />
-            <Description
-              title='Hacia'
-              text={storageToName}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} lg={6}>
             <Description
               title='Elemento'
               text={elementFromName}
@@ -119,6 +105,24 @@ const MovementCard = (props: MovementCardProps) => {
               />
             }
           </Grid>
+          <Grid item xs={12} lg={6}>
+            <Description
+              title='Desde'
+              text={storageFromName}
+            />
+            <Description
+              title='Hacia'
+              text={storageToName}
+            />
+            <Description
+              title='Fecha'
+              text={moment(movement.createdAt).format('DD/MMM hh:mm a')}
+            />
+            <Description
+              title='Creado por'
+              text={userName}
+            />
+          </Grid>
         </Grid>
       </CardContent>
     </Card>
@@ -127,11 +131,18 @@ const MovementCard = (props: MovementCardProps) => {
 
 const useStyles = makeStyles(theme => ({
   card: {
-    marginTop: '1rem',
     borderLeftWidth: '4px',
     borderLeftStyle: 'solid',
     borderLeftColor: theme.palette.primary.main,
-  }
+    height: '100%',
+  },
+  header: {
+    borderBottom: '1px solid rgba(0,0,0,0.1)',
+  },
+  title: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+  },
 }))
 
 export default MovementCard
