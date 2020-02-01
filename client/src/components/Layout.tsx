@@ -22,6 +22,7 @@ import {
   Menu as MenuIcon,
   Person as PersonIcon,
   Dns as BoxesIcon,
+  SwapHoriz as MovementsIcon,
 } from '@material-ui/icons'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
@@ -141,6 +142,13 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         to='/inventory'
         icon={<BoxesIcon />}
         color={colors.blue['A700']}
+        fullWidth={open}
+      />
+      <DrawerItem
+        text='Movimientos'
+        to='/movements'
+        icon={<MovementsIcon />}
+        color={colors.green[500]}
         fullWidth={open}
       />
       <DrawerItem

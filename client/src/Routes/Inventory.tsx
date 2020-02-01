@@ -12,9 +12,8 @@ import useUser from '../hooks/useUser'
 import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
 import ManualMovementForm from '../components/inventory/ManualMovementForm'
-import MovementCard from '../components/inventory/MovementCard'
 import Title from '../components/Title'
-import { Storage, InventoryElement, StorageState, InventoryMovement, User } from '../models'
+import { Storage, InventoryElement, StorageState } from '../models'
 
 interface StorageCardProps {
   storage: Storage
@@ -95,17 +94,6 @@ export default function Inventory() {
     nonce: nonce,
   })
 
-  const [movements] = useFetch<InventoryMovement[]>('/api/inventory/movements?limit=30&sortField=createdAt&sortDir=desc', {
-    showError,
-    name: 'la lista de movimientos recientes',
-    nonce: nonce,
-  })
-
-  const [users] = useFetch<User[]>('/api/users', {
-    showError,
-    name: 'lista de empleados',
-  })
-
   return (
     <Layout title='Inventario'>
       {snackbar}
@@ -131,16 +119,6 @@ export default function Inventory() {
         />
       ) : <LoadingIndicator />}
 
-      <Title>Movimientos recientes</Title>
-      {movements && users && storages && inventoryElements ? movements.map(movement =>
-        <MovementCard
-          key={movement.id}
-          movement={movement}
-          users={users}
-          storages={storages}
-          elements={inventoryElements}
-        />
-      ) : <LoadingIndicator />}
     </Layout>
   )
 }

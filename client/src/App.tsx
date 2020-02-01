@@ -34,6 +34,7 @@ const Sells =            lazy(() => import(/* webpackChunkName: "sells" */ './Ro
 const Payments =         lazy(() => import(/* webpackChunkName: "payments" */ './Routes/Payments'))
 const Spendings =        lazy(() => import(/* webpackChunkName: "spendings" */ './Routes/Spendings'))
 const Inventory =        lazy(() => import(/* webpackChunkName: "inventory" */ './Routes/Inventory'))
+const Movements =        lazy(() => import(/* webpackChunkName: "movements" */ './Routes/Movements'))
 
 const auth  = new Auth()
 moment.locale('es')
@@ -72,6 +73,8 @@ class App extends React.Component {
                   <Route exact private path='/spendings/list' component={SpendingList} />
 
                   <Route exact private path='/inventory' component={Inventory} />
+
+                  <Route exact private path='/movements' component={Movements} />
 
                   <Route exact path='/' render={() => <Redirect to='/sells' />} />
                 </Switch>
