@@ -1,10 +1,8 @@
 import * as React from 'react'
 import { Route, RouteProps, RouteComponentProps } from 'react-router-dom'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Typography from '@material-ui/core/Typography'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
-const logo = require('./logo.png')
+import LoadingScreen from './components/LoadingScreen'
 
 const isAuthenticated = (auth: Auth) => auth.isAuthenticated()
 
@@ -68,24 +66,8 @@ class AuthRoute extends React.Component<AuthRouteProps> {
     }
 
     if (authStatus === AuthStatus.PENDING) {
-      const style: React.CSSProperties = {
-        display: 'flex',
-        minHeight: 'calc(100vh - 64px)',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-      }
       return (
-        <>
-          <div style={style}>
-            <img src={logo} style={{marginBottom: '32px'}} />
-            <div style={{marginBottom: '16px'}}><CircularProgress /></div>
-            <Typography variant="h6">
-              Intentando autenticación automática...
-            </Typography>
-          </div>
-        </>
+        <LoadingScreen text='Intentando autenticación automática…' />
       )
     }
 
