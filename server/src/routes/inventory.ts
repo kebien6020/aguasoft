@@ -4,7 +4,7 @@ import { InventoryMovement, InventoryMovementStatic } from '../db/models/invento
 import { StorageStateStatic } from '../db/models/storageStates'
 import { StorageStatic } from '../db/models/storages'
 import models, { sequelize } from '../db/models'
-import { Op } from 'sequelize'
+import { Op, Transaction } from 'sequelize'
 import debug from 'debug'
 import * as yup from 'yup'
 
@@ -32,80 +32,87 @@ class NotEnoughInSource extends MovementError {
   message = 'Not enough inventory elements in source storage to perform the movement'
 }
 
-async function createMovement(data: CreateManualMovementArgs) {
-  if (!data.quantityTo) data.quantityTo = data.quantityFrom
-  await sequelize.transaction(async (t) => {
-    const opts = (obj = {}) => Object.assign(obj, {
-      logging: logMovement,
-      transaction: t,
-      retry: {
-        match: [
-          /SQLITE_BUSY/,
-        ],
-        name: 'query',
-        max: 5
-      },
+async function _createMovementImpl(data: CreateManualMovementArgs, t: Transaction) {
+  const opts = (obj = {}) => Object.assign(obj, {
+    logging: logMovement,
+    transaction: t,
+    retry: {
+      match: [
+        /SQLITE_BUSY/,
+      ],
+      name: 'query',
+      max: 5
+    },
+  })
+
+  // Update the storage state
+  if (data.storageFromId) {
+    const previousState = await StorageStates.findOne({
+      where: { storageId: data.storageFromId, inventoryElementId: data.inventoryElementFromId },
+      ...opts(),
     })
 
-    // Update the storage state
-    if (data.storageFromId) {
-      const previousState = await StorageStates.findOne({
-        where: { storageId: data.storageFromId, inventoryElementId: data.inventoryElementFromId },
-        ...opts(),
-      })
-
-      if (previousState) {
-        const oldQty = previousState.get('quantity')
-        const newQty = Number(oldQty) - data.quantityFrom
-        if (newQty < 0) {
-          throw new NotEnoughInSource()
-        }
-        previousState.set('quantity', String(newQty))
-
-        await previousState.save({...opts()})
-      } else {
+    if (previousState) {
+      const oldQty = previousState.get('quantity')
+      const newQty = Number(oldQty) - data.quantityFrom
+      if (newQty < 0) {
         throw new NotEnoughInSource()
       }
+      previousState.set('quantity', String(newQty))
+
+      await previousState.save({...opts()})
+    } else {
+      throw new NotEnoughInSource()
     }
+  }
 
-    if (data.storageToId) {
-      const previousState = await StorageStates.findOne({
-        where: { storageId: data.storageToId, inventoryElementId: data.inventoryElementToId },
-        ...opts(),
-      })
-
-      if (previousState) {
-        const oldQty = previousState.get('quantity')
-        const newQty = Number(oldQty) + data.quantityTo
-        previousState.set('quantity', String(newQty))
-
-        await previousState.save({...opts()})
-      } else {
-        await StorageStates.create({
-          storageId: data.storageToId,
-          inventoryElementId: data.inventoryElementToId,
-          quantity: String(+Number(data.quantityTo)),
-        }, {
-          ...opts(),
-        })
-      }
-    }
-
-    // Store the movement
-    await InventoryMovements.create(data, {
-      fields: [
-        'storageFromId',
-        'storageToId',
-        'inventoryElementFromId',
-        'inventoryElementToId',
-        'quantityFrom',
-        'quantityTo',
-        'cause',
-        'createdBy',
-      ],
-      ...opts()
+  if (data.storageToId) {
+    const previousState = await StorageStates.findOne({
+      where: { storageId: data.storageToId, inventoryElementId: data.inventoryElementToId },
+      ...opts(),
     })
 
+    if (previousState) {
+      const oldQty = previousState.get('quantity')
+      const newQty = Number(oldQty) + data.quantityTo
+      previousState.set('quantity', String(newQty))
+
+      await previousState.save({...opts()})
+    } else {
+      await StorageStates.create({
+        storageId: data.storageToId,
+        inventoryElementId: data.inventoryElementToId,
+        quantity: String(+Number(data.quantityTo)),
+      }, {
+        ...opts(),
+      })
+    }
+  }
+
+  // Store the movement
+  await InventoryMovements.create(data, {
+    fields: [
+      'storageFromId',
+      'storageToId',
+      'inventoryElementFromId',
+      'inventoryElementToId',
+      'quantityFrom',
+      'quantityTo',
+      'cause',
+      'createdBy',
+    ],
+    ...opts()
+  })
+}
+
+async function createMovement(data: CreateManualMovementArgs, transaction?: Transaction) {
+  if (!data.quantityTo) data.quantityTo = data.quantityFrom
+  if (transaction) {
+    return _createMovementImpl(data, transaction)
+  }
+
+  await sequelize.transaction(async (t) => {
+    return _createMovementImpl(data, t)
   })
 }
 
