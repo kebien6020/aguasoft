@@ -203,3 +203,177 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
     next(e)
   }
 }
+
+type StorageCode = 'bodega' | 'trabajo' | 'intermedia' | 'terminado'
+type InventoryElementCode =
+    'paca-360'
+  | 'bolsa-6l'
+  | 'botellon'
+  | 'hielo-5kg'
+  | 'botellon-nuevo'
+  | 'base-botellon'
+  | 'hielo-2kg'
+  | 'botella-600ml'
+  | 'bolsa-360-congelada'
+  | 'bolsa-6l-raw'
+  | 'bolsa-360'
+  | 'bolsa-hielo-5kg'
+
+type ProductionType =
+    'bolsa-360'
+  | 'paca-360'
+  | 'bolsa-6l'
+  | 'hielo-5kg'
+  | 'bolsa-360-congelada'
+
+type Without<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
+
+interface ProductionInfoElement {
+  storageFrom: StorageCode | null
+  storageTo: StorageCode | null
+  inventoryElementFrom: InventoryElementCode
+  inventoryElementTo: InventoryElementCode
+  damaged: null | Without<ProductionInfoElement, 'damaged'>
+}
+
+const productionInfo : {[idx in ProductionType] : ProductionInfoElement} = {
+  'bolsa-360': {
+    storageFrom: null,
+    storageTo: 'intermedia',
+    inventoryElementFrom: 'bolsa-360',
+    inventoryElementTo: 'bolsa-360',
+    damaged: null,
+  },
+  'paca-360': {
+    storageFrom: 'intermedia',
+    storageTo: 'terminado',
+    inventoryElementFrom: 'bolsa-360',
+    inventoryElementTo: 'paca-360',
+    damaged: {
+      storageFrom: 'intermedia',
+      storageTo: null,
+      inventoryElementFrom: 'bolsa-360',
+      inventoryElementTo: 'bolsa-360',
+    },
+  },
+  'bolsa-6l': {
+    storageFrom: 'trabajo',
+    storageTo: 'terminado',
+    inventoryElementFrom: 'bolsa-6l-raw',
+    inventoryElementTo: 'bolsa-6l',
+    damaged: null,
+  },
+  'hielo-5kg': {
+    storageFrom: 'trabajo',
+    storageTo: 'terminado',
+    inventoryElementFrom: 'bolsa-hielo-5kg',
+    inventoryElementTo: 'hielo-5kg',
+    damaged: null,
+  },
+  'bolsa-360-congelada': {
+    storageFrom: 'intermedia',
+    storageTo: 'terminado',
+    inventoryElementFrom: 'bolsa-360',
+    inventoryElementTo: 'bolsa-360-congelada',
+    damaged: null,
+  },
+}
+
+export async function productionMovement(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.session.userId) {
+      const e = Error('User is not logged in')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = Number(req.session.userId)
+
+    const schema = yup.object({
+      productionType: yup.mixed<ProductionType>().oneOf(Object.keys(productionInfo) as ProductionType[]).required(),
+      amount: yup.number().integer().min(0).required(),
+      damaged: yup.mixed().when('productionType', {is: (type: ProductionType) => productionInfo[type].damaged !== null,
+        then: yup.number().integer().min(0).required(),
+      }),
+    })
+
+    schema.validateSync(req.body)
+    const body = schema.cast(req.body)
+
+    if (
+         body.productionType === 'bolsa-360'
+      || body.productionType === 'paca-360'
+    ) {
+      const [storages, elements] = await Promise.all([
+        Storages.findAll(),
+        InventoryElements.findAll(),
+      ])
+      const storageCodeToId = (code: string) => {
+        const storage = storages.find(s => s.code === code)
+        return storage ? storage.id : undefined
+      }
+      const elementCodeToId = (code: string) => {
+        const element = elements.find(e => e.code === code)
+        return element ? element.id : undefined
+      }
+
+      const info = productionInfo[body.productionType]
+
+      const storageFromId = storageCodeToId(info.storageFrom)
+      const storageToId = storageCodeToId(info.storageTo)
+      const inventoryElementFromId = elementCodeToId(info.inventoryElementFrom)
+      const inventoryElementToId = elementCodeToId(info.inventoryElementTo)
+
+      const movementData = {
+        storageFromId,
+        storageToId,
+        inventoryElementFromId,
+        inventoryElementToId,
+        quantityFrom: body.amount,
+        quantityTo: body.amount,
+        cause: 'production' as InventoryMovement['cause'],
+        createdBy: userId,
+      }
+
+      if (body.productionType === 'paca-360') {
+        movementData.quantityFrom = body.amount * 20
+      }
+
+      if (movementData.quantityFrom !== 0 && movementData.quantityTo !== 0) {
+        await createMovement(movementData)
+      }
+
+      if (info.damaged && body.damaged > 0) {
+        const storageFromId = storageCodeToId(info.damaged.storageFrom)
+        const storageToId = storageCodeToId(info.damaged.storageTo)
+        const inventoryElementFromId = elementCodeToId(info.damaged.inventoryElementFrom)
+        const inventoryElementToId = elementCodeToId(info.damaged.inventoryElementTo)
+
+        const movementData = {
+          storageFromId,
+          storageToId,
+          inventoryElementFromId,
+          inventoryElementToId,
+          quantityFrom: body.damaged,
+          cause: 'damage' as InventoryMovement['cause'],
+          createdBy: userId,
+        }
+
+        await createMovement(movementData)
+      }
+
+      res.json({success: true})
+    } else {
+      res.json({
+        success: false,
+        error: {
+          code: 'not_implemented',
+          message: 'Tipo de produccion no implementado'
+        },
+      })
+    }
+
+  } catch (e) {
+    next(e)
+  }
+}
