@@ -1,23 +1,25 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import MuiCollapse, { CollapseProps } from '@material-ui/core/Collapse'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Grid, { GridProps } from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
 
 import useAuth from '../hooks/useAuth'
+import useSnackbar from '../hooks/useSnackbar'
+import useFetch from '../hooks/useFetch'
 import Form from '../components/form/Form'
 import Layout from '../components/Layout'
 import Title from '../components/Title'
 import SelectField from '../components/form/SelectField'
 import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
-import Button from '@material-ui/core/Button'
 import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse } from '../utils'
-import Typography from '@material-ui/core/Typography'
-import useSnackbar from '../hooks/useSnackbar'
+import { useFormikContext, FormikContextType } from 'formik'
 
 const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
 
@@ -89,13 +91,56 @@ const validationSchema = Yup.object({
   }),
 })
 
+interface DamagedAutofillProps {
+  detectDamaged: boolean
+  quantityInIntermediate: number | null
+}
+
+const DamagedAutofill = (props: DamagedAutofillProps) => {
+  const { detectDamaged, quantityInIntermediate } = props
+
+  const { values, setFieldValue } : FormikContextType<typeof initialValues> = useFormikContext()
+
+  useEffect(() => {
+    if (detectDamaged) {
+      if (quantityInIntermediate === null) {
+        setFieldValue('damaged', 'Cargando…')
+        return
+      }
+
+      const produced = Number(values.amount) || 0
+      const left = quantityInIntermediate - produced * 20
+
+      setFieldValue('damaged', String(left))
+
+    } else {
+      if (isNaN(Number(values.damaged))) {
+        setFieldValue('damaged', '0')
+      }
+    }
+  }, [detectDamaged, quantityInIntermediate, values.amount])
+
+  return null
+}
+
 const RegisterProduction = () => {
   const classes = useStyles()
   const auth = useAuth()
   const showMessage = useSnackbar()
 
-  const [detectDamaged, setDetectDamaged] = useState(false);
+  const [detectDamaged, setDetectDamaged] = useState(true);
 
+  const [intermediateState] = useFetch<{'bolsa-360': number}>('/api/inventory/state/intermediate', {
+    showError: showMessage,
+    name: 'el estado actual del inventario',
+  })
+
+  const quantityInIntermediate =
+    intermediateState && !isErrorResponse(intermediateState) ?
+      intermediateState['bolsa-360'] :
+      null
+
+  console.log(quantityInIntermediate)
   const handleSubmit = async (values: typeof initialValues) => {
     const url = '/api/inventory/movements/production'
 
@@ -140,7 +185,7 @@ const RegisterProduction = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({values, setFieldValue}) => <>
+          {({values}) => <>
             <Grid item xs={12}>
               <SelectField
                 name='productionType'
@@ -180,20 +225,14 @@ const RegisterProduction = () => {
                   control={
                     <Checkbox
                       checked={detectDamaged}
-                      onChange={e => {
-                        setDetectDamaged(e.target.checked)
-                        if (e.target.checked) {
-                          setFieldValue('damaged', 'Cargando…')
-                        } else {
-                          setFieldValue('damaged', '0')
-                        }
-                      }}
+                      onChange={e => setDetectDamaged(e.target.checked)}
                     />
                   }
                   label='Area intermedia queda vacía'
                 />
               </Grid>
               <Grid item xs={12} lg={6}>
+                <DamagedAutofill detectDamaged={detectDamaged} quantityInIntermediate={quantityInIntermediate} />
                 <TextField
                   name='damaged'
                   label='Bolsas individuales dañadas'
