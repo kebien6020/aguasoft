@@ -38,6 +38,7 @@ const Spendings =          lazy(() => import(/* webpackChunkName: "spendings" */
 const Inventory =          lazy(() => import(/* webpackChunkName: "inventory" */ './Routes/Inventory'))
 const Movements =          lazy(() => import(/* webpackChunkName: "movements" */ './Routes/Movements'))
 const RegisterProduction = lazy(() => import(/* webpackChunkName: "register-production" */ './Routes/RegisterProduction'))
+const RegisterDamaged =    lazy(() => import(/* webpackChunkName: "register-damaged" */ './Routes/RegisterDamaged'))
 
 const auth  = new Auth()
 moment.locale('es')
@@ -71,6 +72,7 @@ const AppSwitch = () => (
 
     <Route exact private path='/movements' component={Movements} />
     <Route exact private path='/movements/production' component={RegisterProduction} />
+    <Route exact private path='/movements/damaged' component={RegisterDamaged} />
 
     <Route exact path='/' render={() => <Redirect to='/sells' />} />
   </Switch>
