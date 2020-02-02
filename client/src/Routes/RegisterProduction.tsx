@@ -173,7 +173,7 @@ const RegisterProduction = () => {
       }
     }
 
-    if (pType === 'paca-360' || pType === 'bolsa-6l' || pType === 'hielo-5kg') {
+    if (pType === 'paca-360' || pType === 'bolsa-6l' || pType === 'hielo-5kg' || pType === 'bolsa-360-congelada') {
       payload = {
         ...payload,
         amount: Number(values.amount),
@@ -270,11 +270,15 @@ const RegisterProduction = () => {
                 />
               </Grid>
             </Collapse>
-            <Collapse in={values.productionType === 'bolsa-6l' || values.productionType === 'hielo-5kg'}>
+            <Collapse in={
+                 values.productionType === 'bolsa-6l'
+              || values.productionType === 'hielo-5kg'
+              || values.productionType === 'bolsa-360-congelada'
+            }>
               <Grid item xs={12} md={6}>
                 <TextField
                   name='amount'
-                  label='Cantidad de Bolsas producida'
+                  label='Cantidad producida'
                 />
               </Grid>
               <Grid item xs={12} md={6}>
