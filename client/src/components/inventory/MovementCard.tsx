@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid'
 import * as moment from 'moment'
 
 import { InventoryMovement, User, Storage, InventoryElement } from '../../models'
+import { colors } from '@material-ui/core'
 
 const type = {
   'manual': {
@@ -72,8 +73,20 @@ const MovementCard = (props: MovementCardProps) => {
   const elementTo = elements.find(e => e.id === movement.inventoryElementToId)
   const elementToName = elementTo ? elementTo.name : 'Desconocido'
 
+  const style = {} as React.CSSProperties
+
+  const theme = useTheme()
+
+  if (movement.cause === 'damage') {
+    style.borderLeftColor = theme.palette.error.main
+  } else if (movement.cause === 'manual') {
+    style.borderLeftColor = colors.yellow[500]
+  } else if (movement.cause === 'sell') {
+    style.borderLeftColor = colors.green[500]
+  }
+
   return (
-    <Card className={classes.card}>
+    <Card className={classes.card} style={style}>
       <CardHeader
         title={typeSlugToText(movement.cause)}
         className={classes.header}

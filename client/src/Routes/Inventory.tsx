@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
+import Grid from '@material-ui/core/Grid'
 
 import { useSnackbar } from '../components/MySnackbar'
 import useFetch from '../hooks/useFetch'
@@ -30,6 +31,10 @@ const StorageCard = (props: StorageCardProps) => {
     <Card className={classes.card}>
       <CardHeader
         title={storage.name}
+        className={classes.header}
+        classes={{
+          title: classes.title,
+        }}
       />
       <CardContent>
         {ownStorageStates.map(state => {
@@ -51,11 +56,18 @@ const StorageCard = (props: StorageCardProps) => {
 
 const useStorageCardStyles = makeStyles(theme => ({
   card: {
-    marginTop: '1rem',
     borderLeftWidth: '4px',
     borderLeftStyle: 'solid',
     borderLeftColor: theme.palette.primary.main,
-  }
+    height: '100%',
+  },
+  header: {
+    borderBottom: '1px solid rgba(0,0,0,0.1)',
+  },
+  title: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+  },
 }))
 
 export default function Inventory() {
@@ -98,7 +110,7 @@ export default function Inventory() {
     <Layout title='Inventario'>
       {snackbar}
       <Title>Grafico Principal</Title>
-      <div className={classes.center}>
+      <div className={classes.button}>
         {manualMovementButton}
       </div>
 
@@ -110,23 +122,27 @@ export default function Inventory() {
         />
       }
 
-      {storages && storageStates && inventoryElements ? storages.map(storage =>
-        <StorageCard
-          key={storage.id}
-          storage={storage}
-          storageStates={storageStates}
-          inventoryElements={inventoryElements}
-        />
-      ) : <LoadingIndicator />}
+      <Grid container spacing={2}>
+        {storages && storageStates && inventoryElements ? storages.map(storage =>
+          <Grid item key={storage.id} xs={12} md={6}>
+            <StorageCard
+              storage={storage}
+              storageStates={storageStates}
+              inventoryElements={inventoryElements}
+            />
+          </Grid>
+        ) : <LoadingIndicator />}
+      </Grid>
 
     </Layout>
   )
 }
 
 const useStyles = makeStyles(() => ({
-  center: {
+  button: {
     display: 'flex',
     flexFlow: 'column nowrap',
     alignItems: 'center',
+    marginBottom: '1rem',
   }
 }))
