@@ -20,6 +20,7 @@ import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
 import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse } from '../utils'
 import { useFormikContext, FormikContextType, FormikHelpers } from 'formik'
+import usePrevious from '../hooks/usePrevious'
 
 const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
 
@@ -106,6 +107,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
   const { values, setFieldValue } : FormikContextType<typeof initialValues> = useFormikContext()
 
   useEffect(() => {
+    if (values.productionType !== 'paca-360') return
     if (detectDamaged) {
       if (quantityInIntermediate === null) {
         setFieldValue('damaged', 'Cargando…')
@@ -121,6 +123,14 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
       setFieldValue('damaged', '0')
     }
   }, [detectDamaged, quantityInIntermediate, values.amount])
+
+  const prevProductionType = usePrevious(values.productionType)
+
+  useEffect(() => {
+    // When changing to productionType other than paca-360, reset damaged to 0
+    if (prevProductionType === 'paca-360' && values.productionType !== 'paca-360')
+      setFieldValue('damaged', '0')
+  }, [values.productionType])
 
   return null
 }
@@ -147,22 +157,23 @@ const RegisterProduction = () => {
       intermediateState['bolsa-360'] :
       null
 
-  console.log(quantityInIntermediate)
   const handleSubmit = async (values: typeof initialValues, {setFieldValue} : FormikHelpers<typeof initialValues>) => {
     const url = '/api/inventory/movements/production'
 
+    const pType = values.productionType
+
     let payload : Object = {
-      productionType: values.productionType,
+      productionType: pType,
     }
 
-    if (values.productionType === 'bolsa-360') {
+    if (pType === 'bolsa-360') {
       payload = {
         ...payload,
         amount: Number(values.counterEnd) - Number(values.counterStart),
       }
     }
 
-    if (values.productionType === 'paca-360') {
+    if (pType === 'paca-360' || pType === 'bolsa-6l') {
       payload = {
         ...payload,
         amount: Number(values.amount),
@@ -175,14 +186,15 @@ const RegisterProduction = () => {
       body: JSON.stringify(payload),
     })
 
-    updateIntermediateState()
-
     if (isErrorResponse(response)) {
       showMessage('Error al registrar la producción: ' + response.error.message)
       return
     }
 
     setFieldValue('amount', '0')
+    setFieldValue('damaged', '0')
+
+    updateIntermediateState()
 
     showMessage('Guardado exitoso')
   }
@@ -255,6 +267,20 @@ const RegisterProduction = () => {
                   name='damaged'
                   label='Bolsas individuales dañadas'
                   disabled={detectDamaged}
+                />
+              </Grid>
+            </Collapse>
+            <Collapse in={values.productionType === 'bolsa-6l'}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name='amount'
+                  label='Cantidad de Bolsas producida'
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name='damaged'
+                  label='Bolsas dañadas'
                 />
               </Grid>
             </Collapse>
