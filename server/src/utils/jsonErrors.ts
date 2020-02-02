@@ -50,6 +50,10 @@ export default function jsonErrorHandler(
 
     console.log(req.url, response, error)
 
+    if (typeof (error as any).status === 'number') {
+      res.status(error.status)
+    }
+
     res.json({ success: false, error: response })
   } catch (err) {
     console.error('Error while handling error', err)
