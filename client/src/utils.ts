@@ -97,3 +97,7 @@ export function parseParams(str: string) : {[idx: string]: string | undefined} {
       return obj
     }, {})
 }
+
+export function isNumber(value: any) {
+  return !isNaN(Number(value));
+}

@@ -31,7 +31,8 @@ const TextField = (props: TextFieldProps) => {
     <MuiTextField
       id={field.name}
       className={classes.textfield}
-      error={Boolean(meta.error)}
+      error={Boolean(meta.touched && meta.error)}
+      helperText={meta.touched && meta.error ? meta.error : undefined}
       label={label}
       {...field}
       {...otherProps}
