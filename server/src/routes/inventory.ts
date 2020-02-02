@@ -268,7 +268,12 @@ const productionInfo : {[idx in ProductionType] : ProductionInfoElement} = {
     storageTo: 'terminado',
     inventoryElementFrom: 'bolsa-6l-raw',
     inventoryElementTo: 'bolsa-6l',
-    damaged: null,
+    damaged: {
+      storageFrom: 'trabajo',
+      storageTo: null,
+      inventoryElementFrom: 'bolsa-6l-raw',
+      inventoryElementTo: 'bolsa-6l-raw',
+    },
   },
   'hielo-5kg': {
     storageFrom: 'trabajo',
@@ -307,9 +312,12 @@ export async function productionMovement(req: Request, res: Response, next: Next
     schema.validateSync(req.body)
     const body = schema.cast(req.body)
 
+    const pType = body.productionType
+
     if (
-         body.productionType === 'bolsa-360'
-      || body.productionType === 'paca-360'
+         pType === 'bolsa-360'
+      || pType === 'paca-360'
+      || pType === 'bolsa-6l'
     ) {
       const [storages, elements] = await Promise.all([
         Storages.findAll(),
@@ -324,7 +332,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
         return element ? element.id : undefined
       }
 
-      const info = productionInfo[body.productionType]
+      const info = productionInfo[pType]
 
       const storageFromId = storageCodeToId(info.storageFrom)
       const storageToId = storageCodeToId(info.storageTo)
@@ -342,34 +350,45 @@ export async function productionMovement(req: Request, res: Response, next: Next
         createdBy: userId,
       }
 
-      if (body.productionType === 'paca-360') {
+      if (pType === 'paca-360') {
         movementData.quantityFrom = body.amount * 20
       }
 
-      if (movementData.quantityFrom !== 0 && movementData.quantityTo !== 0) {
-        await createMovement(movementData)
-      }
+      const t = await sequelize.transaction()
 
-      if (info.damaged && body.damaged > 0) {
-        const storageFromId = storageCodeToId(info.damaged.storageFrom)
-        const storageToId = storageCodeToId(info.damaged.storageTo)
-        const inventoryElementFromId = elementCodeToId(info.damaged.inventoryElementFrom)
-        const inventoryElementToId = elementCodeToId(info.damaged.inventoryElementTo)
-
-        const movementData = {
-          storageFromId,
-          storageToId,
-          inventoryElementFromId,
-          inventoryElementToId,
-          quantityFrom: body.damaged,
-          cause: 'damage' as InventoryMovement['cause'],
-          createdBy: userId,
+      try {
+        if (movementData.quantityFrom !== 0 && movementData.quantityTo !== 0) {
+          await createMovement(movementData, t)
         }
 
-        await createMovement(movementData)
-      }
+        if (info.damaged && body.damaged > 0) {
+          const storageFromId = storageCodeToId(info.damaged.storageFrom)
+          const storageToId = storageCodeToId(info.damaged.storageTo)
+          const inventoryElementFromId = elementCodeToId(info.damaged.inventoryElementFrom)
+          const inventoryElementToId = elementCodeToId(info.damaged.inventoryElementTo)
 
-      res.json({success: true})
+          const movementData = {
+            storageFromId,
+            storageToId,
+            inventoryElementFromId,
+            inventoryElementToId,
+            quantityFrom: body.damaged,
+            cause: 'damage' as InventoryMovement['cause'],
+            createdBy: userId,
+          }
+
+          await createMovement(movementData, t)
+        }
+
+        await t.commit();
+        res.json({success: true})
+
+      } catch (err) {
+
+        await t.rollback()
+        throw err
+        
+      }
     } else {
       res.json({
         success: false,
