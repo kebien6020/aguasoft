@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
@@ -19,7 +19,7 @@ import SelectField from '../components/form/SelectField'
 import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
 import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse } from '../utils'
-import { useFormikContext, FormikContextType } from 'formik'
+import { useFormikContext, FormikContextType, FormikHelpers } from 'formik'
 
 const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
 
@@ -31,6 +31,7 @@ const Collapse = (props: CollapseProps) => {
       classes={{
         // @ts-ignore hidden class rule is missing in ts definition file
         hidden: classes.hidden,
+        container: classes.container,
       }}
       {...props}
     >
@@ -44,6 +45,9 @@ const Collapse = (props: CollapseProps) => {
 const useCollapseStyles = makeStyles({
   hidden: {
     padding: '0 !important',
+  },
+  container: {
+    transitionProperty: 'height, padding',
   },
 })
 
@@ -114,9 +118,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
       setFieldValue('damaged', String(left))
 
     } else {
-      if (isNaN(Number(values.damaged))) {
-        setFieldValue('damaged', '0')
-      }
+      setFieldValue('damaged', '0')
     }
   }, [detectDamaged, quantityInIntermediate, values.amount])
 
@@ -130,9 +132,14 @@ const RegisterProduction = () => {
 
   const [detectDamaged, setDetectDamaged] = useState(true);
 
+  const [nonce, setNonce] = useState(1)
+  const updateIntermediateState = useCallback(() =>
+    setNonce(prev => prev + 1)
+  , [])
   const [intermediateState] = useFetch<{'bolsa-360': number}>('/api/inventory/state/intermediate', {
     showError: showMessage,
     name: 'el estado actual del inventario',
+    nonce,
   })
 
   const quantityInIntermediate =
@@ -141,7 +148,7 @@ const RegisterProduction = () => {
       null
 
   console.log(quantityInIntermediate)
-  const handleSubmit = async (values: typeof initialValues) => {
+  const handleSubmit = async (values: typeof initialValues, {setFieldValue} : FormikHelpers<typeof initialValues>) => {
     const url = '/api/inventory/movements/production'
 
     let payload : Object = {
@@ -168,10 +175,14 @@ const RegisterProduction = () => {
       body: JSON.stringify(payload),
     })
 
+    updateIntermediateState()
+
     if (isErrorResponse(response)) {
       showMessage('Error al registrar la producción: ' + response.error.message)
       return
     }
+
+    setFieldValue('amount', '0')
 
     showMessage('Guardado exitoso')
   }
@@ -207,11 +218,18 @@ const RegisterProduction = () => {
                   label='Contador Total Final'
                 />
               </Grid>
-              {isNumber(values.counterStart) && isNumber(values.counterEnd) && values.counterStart < values.counterEnd &&
+            </Collapse>
+            <Collapse in={
+                 values.productionType === 'bolsa-360'
+              && isNumber(values.counterStart)
+              && isNumber(values.counterEnd)
+              && Number(values.counterStart) < Number(values.counterEnd)
+            }>
+              <Grid item xs={12}>
                 <Typography>
                   Se registrará una producción de {Number(values.counterEnd) - Number(values.counterStart)} bolsas de 360ml individuales.
                 </Typography>
-              }
+              </Grid>
             </Collapse>
             <Collapse in={values.productionType === 'paca-360'}>
               <Grid item xs={12}>

@@ -37,7 +37,7 @@ const SelectField = (props: SelectFieldProps) => {
   const classes = useStyles()
   const [ field, meta ] = useField(name)
   return (
-    <FormControl className={classes.formControl} error={Boolean(meta.error)}>
+    <FormControl className={classes.formControl} error={Boolean(meta.touched && meta.error)}>
       <InputLabel id={field.name}>{label}</InputLabel>
       <Select
         id={field.name}
