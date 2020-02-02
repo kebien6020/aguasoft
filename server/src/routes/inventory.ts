@@ -377,3 +377,48 @@ export async function productionMovement(req: Request, res: Response, next: Next
     next(e)
   }
 }
+
+export async function amountLeftInIntermediate(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const storage = await Storages.findOne({
+      where: {
+        code: 'intermedia',
+      },
+    })
+
+    if (!storage) {
+      res.json({
+        'bolsa-360': 0,
+      })
+
+      return
+    }
+
+    const element = await InventoryElements.findOne({
+      where: {
+        code: 'bolsa-360',
+      }
+    })
+
+    if (!element) {
+      res.json({
+        'bolsa-360': 0,
+      })
+
+      return
+    }
+
+    const storageState = await StorageStates.findOne({
+      where: {
+        storageId: storage.id,
+        inventoryElementId: element.id,
+      }
+    })
+
+    res.json({
+      'bolsa-360': storageState.quantity,
+    })
+  } catch (e) {
+    next(e)
+  }
+}
