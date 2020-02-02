@@ -292,7 +292,12 @@ const productionInfo : {[idx in ProductionType] : ProductionInfoElement} = {
     storageTo: 'terminado',
     inventoryElementFrom: 'bolsa-360',
     inventoryElementTo: 'bolsa-360-congelada',
-    damaged: null,
+    damaged: {
+      storageFrom: 'intermedia',
+      storageTo: null,
+      inventoryElementFrom: 'bolsa-360',
+      inventoryElementTo: 'bolsa-360',
+    },
   },
 }
 
@@ -324,6 +329,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
       || pType === 'paca-360'
       || pType === 'bolsa-6l'
       || pType === 'hielo-5kg'
+      || pType === 'bolsa-360-congelada'
     ) {
       const [storages, elements] = await Promise.all([
         Storages.findAll(),
