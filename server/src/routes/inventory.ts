@@ -460,3 +460,78 @@ export async function amountLeftInIntermediate(_req: Request, res: Response, nex
     next(e)
   }
 }
+
+
+const damageTypes = [
+  're-empaque',
+  'devolucion',
+  'general',
+] as const
+
+type DamageType = (typeof damageTypes)[number]
+
+type Writeable<T> = { -readonly [P in keyof T]: T[P] }
+
+
+export async function damageMovement(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.session.userId) {
+      const e = Error('User is not logged in')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = Number(req.session.userId)
+
+    const schema = yup.object({
+      damageType: yup.mixed<DamageType>().oneOf(damageTypes as Writeable<typeof damageTypes>).required(),
+      inventoryElementCode: yup.string().required(),
+      amount: yup.number().integer().positive().required(),
+    })
+
+    schema.validateSync(req.body)
+    const body = schema.cast(req.body)
+
+    const inventoryElement = await InventoryElements.findOne({
+      where: {
+        code: body.inventoryElementCode,
+      }
+    })
+
+    if (!inventoryElement) {
+      throw new Error(`No se encontró un elemento de inventario con el código ${body.inventoryElementCode}`)
+    }
+
+    const storageCode = body.inventoryElementCode === 'bolsa-360' ?
+      'intermedia' :
+      'terminado'
+
+    const storage = await Storages.findOne({
+      where: {
+        code: storageCode
+      }
+    })
+
+    if (!storage) {
+      throw new Error(`No se encontró el almacen con el código ${storageCode}`)
+    }
+
+    const movementData : CreateManualMovementArgs = {
+      inventoryElementFromId: inventoryElement.id,
+      inventoryElementToId: inventoryElement.id,
+      storageFromId: storage.id,
+      storageToId: null,
+      quantityFrom: body.amount,
+      quantityTo: body.amount,
+      cause: 'damage',
+      createdBy: userId,
+    }
+
+    await createMovement(movementData)
+
+    res.json({success: true})
+
+  } catch (err) {
+    next(err)
+  }
+}
