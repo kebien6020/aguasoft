@@ -7,7 +7,7 @@ import Select, {SelectProps} from '@material-ui/core/Select'
 import { makeStyles } from '@material-ui/core/styles'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
 
-interface SelectOption {
+export interface SelectOption {
   value: string
   label: React.ReactNode
 }

@@ -7,11 +7,11 @@ export interface FetchAuthOptions extends RequestInit {
   retry?: boolean  // when true we are retrying the request
 }
 
-export async function fetchJsonAuth(
+export async function fetchJsonAuth<R = SuccessResponse>(
   url: string,
   auth: Auth,
   options: FetchAuthOptions = {}
-) : Promise<any> {
+) : Promise<R|ErrorResponse> {
 
   const fetch = options.fetch || window.fetch
 
@@ -49,7 +49,7 @@ export async function fetchJsonAuth(
     } else {
       // silent auth failed, let's do a flashy auth
       auth.login()
-      return null
+      return {success:false, error: {code: 'not_authenticated', message: 'No autenticado'}}
     }
 
   }
