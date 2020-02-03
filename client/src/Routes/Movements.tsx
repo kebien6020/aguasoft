@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
@@ -28,12 +28,9 @@ const Movements = () => {
     name: 'la lista de elementos',
   })
 
-  const [nonce, setNonce] = useState(1)
-  const update = useCallback(() => setNonce(prev => prev + 1), [])
   const [movements] = useFetch<InventoryMovement[]>('/api/inventory/movements?limit=30&sortField=createdAt&sortDir=desc', {
     showError,
     name: 'la lista de movimientos recientes',
-    nonce: nonce,
   })
 
   const [users] = useFetch<User[]>('/api/users', {
@@ -50,6 +47,9 @@ const Movements = () => {
   const goToRegisterDamaged = useCallback(() => {
     history.push('/movements/damaged')
   }, [history])
+  const goToRegisterUnpack = useCallback(() => {
+    history.push('/movements/unpack')
+  }, [history])
 
   return (
     <Layout title='Movimientos'>
@@ -62,6 +62,11 @@ const Movements = () => {
       <Title>Registrar Producto Dañado</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterDamaged} auth={auth} />
+      </Paper>
+
+      <Title>Registrar Desempaque</Title>
+      <Paper className={classes.login}>
+        <Login onSuccess={goToRegisterUnpack} auth={auth} />
       </Paper>
 
       <Title>Registrar Ingreso de Insumos</Title>
