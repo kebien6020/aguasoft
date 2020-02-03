@@ -463,7 +463,6 @@ export async function amountLeftInIntermediate(_req: Request, res: Response, nex
 
 
 const damageTypes = [
-  're-empaque',
   'devolucion',
   'general',
 ] as const
@@ -485,6 +484,9 @@ export async function damageMovement(req: Request, res: Response, next: NextFunc
 
     const schema = yup.object({
       damageType: yup.mixed<DamageType>().oneOf(damageTypes as Writeable<typeof damageTypes>).required(),
+      storageCode: yup.mixed().when('damageType', {is: 'general',
+        then: yup.string().required(),
+      }),
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
     })
@@ -502,9 +504,18 @@ export async function damageMovement(req: Request, res: Response, next: NextFunc
       throw new Error(`No se encontró un elemento de inventario con el código ${body.inventoryElementCode}`)
     }
 
-    const storageCode = body.inventoryElementCode === 'bolsa-360' ?
-      'intermedia' :
-      'terminado'
+    const storageCode = (() => {
+      if (body.damageType === 'general') {
+        return body.storageCode as string
+      }
+
+      if (body.inventoryElementCode === 'bolsa-360') {
+        return 'intermedia'
+      }
+
+      return 'terminado'
+    })()
+
 
     const storage = await Storages.findOne({
       where: {
