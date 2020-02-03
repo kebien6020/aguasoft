@@ -23,7 +23,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
-import { fetchJsonAuth, money } from '../utils'
+import { fetchJsonAuth, money, isErrorResponse } from '../utils'
 import Layout from '../components/Layout'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import Title from '../components/Title'
@@ -273,7 +273,7 @@ class ClientEditor extends React.Component<Props, State> {
       })
     }
 
-    if (!res.success) {
+    if (isErrorResponse(res)) {
       if (res.error.code === 'validation_error' && res.error.errors && res.error.errors[0]) {
         const field = res.error.errors[0].path
         if (field === 'name' || field === 'code') {

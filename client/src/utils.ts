@@ -62,6 +62,10 @@ export interface ErrorResponse {
   error: {
     message: string
     code: string
+    // On validation_error
+    errors?: {
+      path: string
+    }[]
   }
 }
 

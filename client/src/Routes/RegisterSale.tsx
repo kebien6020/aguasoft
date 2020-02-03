@@ -197,14 +197,15 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   }
 
   async componentDidMount() {
+    // TODO: Error handling
     const auth = this.props.auth
-    let clients: Client[] = await fetchJsonAuth('/api/clients', auth)
+    let clients: Client[] = await fetchJsonAuth('/api/clients', auth) as any
     clients = clients.filter(cl => !cl.hidden)
     this.setState({clients, clientId: clients[0].id, cash: clients[0].defaultCash})
 
-    const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clients[0].id, auth)
+    const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clients[0].id, auth) as any
 
-    const products: Product[] = await fetchJsonAuth('/api/products', auth)
+    const products: Product[] = await fetchJsonAuth('/api/products', auth) as any
     const detailedProducts: DetailedProduct[] = products.map(p => {
       const prices = this.getCustomPrices(p.id, customPrices)
                      || [{value: Number(p.basePrice), name: 'Base'}]
@@ -217,7 +218,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     })
     this.setState({products: detailedProducts})
 
-    const user: User = await fetchJsonAuth('/api/users/getCurrent', auth)
+    const user: User = await fetchJsonAuth('/api/users/getCurrent', auth) as any
     if (user) {
       this.setState({user})
     }
@@ -261,7 +262,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       null :
       Number(event.target.value)
 
-    const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clientId, auth)
+    const customPrices: Price[] = await fetchJsonAuth('/api/prices/' + clientId, auth) as any
 
     const currentProducts = this.state.products
     const updatedProducts: DetailedProduct[] = currentProducts.map(p => {
