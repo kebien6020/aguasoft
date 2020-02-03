@@ -15,7 +15,7 @@ import SelectField, { SelectOption } from '../components/form/SelectField'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
-import { InventoryElement } from '../models'
+import { InventoryElement, Storage } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 
 const useInventoryElements = () : InventoryElement[] | null => {
@@ -29,15 +29,32 @@ const useInventoryElements = () : InventoryElement[] | null => {
   return inventoryElements
 }
 
-const optionsFromElements = (elements: InventoryElement[] | null) => {
+const optionsFromElements = (elements: readonly InventoryElement[] | null) => {
   return elements && elements.map(element => ({
     value: element.code,
     label: element.name,
   }))
 }
 
+const useStorages = () : InventoryElement[] | null => {
+  const url = '/api/inventory/storages'
+  const showError = useSnackbar()
+  const [storages] = useFetch<InventoryElement[]>(url, {
+    showError,
+    name: 'la lista de almacenes'
+  })
+
+  return storages
+}
+
+const optionsFromStorages = (storages: readonly Storage[] | null) => {
+  return storages && storages.map(storage => ({
+    value: storage.code,
+    label: storage.name,
+  }))
+}
+
 const damageTypes = [
-  're-empaque',
   'devolucion',
   'general',
 ] as const
@@ -48,12 +65,16 @@ type Writeable<T> = { -readonly [P in keyof T]: T[P] }
 
 const initialValues = {
   damageType: '' as DamageType | '',
+  storageCode: '',
   inventoryElementCode: '',
   amount: '',
 }
 
 const validationSchema = Yup.object({
   damageType: Yup.mixed<DamageType>().oneOf(damageTypes as Writeable<typeof damageTypes>).required(),
+  storageCode: Yup.mixed().when('damageType', {is: 'general',
+    then: Yup.string().required(),
+  }),
   inventoryElementCode: Yup.string().required(),
   amount: Yup.number().integer().positive().required(),
 })
@@ -65,13 +86,14 @@ interface DamageTypeOption extends SelectOption {
 }
 
 const damageTypeOptions : DamageTypeOption[] = [
-  {value: 're-empaque', label: 'Re-empaque'},
   {value: 'devolucion', label: 'Devolución'},
   {value: 'general', label: 'General'},
 ]
 
 const RegisterDamaged = () => {
   const classes = useStyles()
+
+  const inventoryElements = useInventoryElements()
 
   const auth = useAuth()
   const showMessage = useSnackbar()
@@ -80,25 +102,30 @@ const RegisterDamaged = () => {
     const { damageType : dType } = values
 
     const url = '/api/inventory/movements/damage'
-    const payload: Object = {
+    let payload: Object = {
       damageType: dType,
       amount: Number(values.amount),
       inventoryElementCode: values.inventoryElementCode,
     }
 
-    if (dType === 'devolucion') {
-      const response = await fetchJsonAuth(url, auth, {
-        method: 'post',
-        body: JSON.stringify(payload)
-      })
-
-      if (isErrorResponse(response)) {
-        showMessage('Error: ' + response.error.message)
-        return
+    if (dType === 'general') {
+      payload = {
+        ...payload,
+        storageCode: values.storageCode,
       }
-
-      showMessage('Guardado exitoso')
     }
+
+    const response = await fetchJsonAuth(url, auth, {
+      method: 'post',
+      body: JSON.stringify(payload)
+    })
+
+    if (isErrorResponse(response)) {
+      showMessage('Error: ' + response.error.message)
+      return
+    }
+
+    showMessage('Guardado exitoso')
   }
 
   return (
@@ -120,7 +147,8 @@ const RegisterDamaged = () => {
               />
             </Grid>
 
-            <DevolucionForm />
+            <DevolucionForm inventoryElements={inventoryElements} />
+            <GeneralForm inventoryElements={inventoryElements} />
             <SubmitButton />
         </Form>
       </Paper>
@@ -139,11 +167,15 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const DevolucionForm = () => {
+interface DevolucionFormProps {
+  inventoryElements: readonly InventoryElement[] | null
+}
+
+const DevolucionForm = (props: DevolucionFormProps) => {
+  const { inventoryElements } = props
   const { values } = useFormikContext<Values>()
   const dType = values.damageType
 
-  const inventoryElements = useInventoryElements()
   const productElements = inventoryElements && inventoryElements.filter(element =>
     element.type === 'product' || element.code === 'bolsa-360'
   )
@@ -155,7 +187,50 @@ const DevolucionForm = () => {
         <SelectField
           name='inventoryElementCode'
           label='Producto'
+          emptyOption='Seleccione el producto'
           options={productElementOptions}
+        />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <TextField
+          name='amount'
+          label='Cantidad'
+        />
+      </Grid>
+    </Collapse>
+  )
+}
+
+interface GeneralFormProps {
+  inventoryElements: readonly InventoryElement[] | null
+}
+
+const GeneralForm = (props: GeneralFormProps) => {
+  const { inventoryElements } = props
+
+  const { values } = useFormikContext<Values>()
+  const dType = values.damageType
+
+  const inventoryElementOptions = optionsFromElements(inventoryElements)
+  const storages = useStorages()
+  const storageOptions = optionsFromStorages(storages)
+
+  return (
+    <Collapse in={dType === 'general'}>
+      <Grid item xs={12} md={6}>
+        <SelectField
+          name='storageCode'
+          label='Almacen'
+          emptyOption='Seleccione el almacen'
+          options={storageOptions}
+        />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <SelectField
+          name='inventoryElementCode'
+          label='Elemento de inventario'
+          emptyOption='Seleccione el elemento de inventario'
+          options={inventoryElementOptions}
         />
       </Grid>
       <Grid item xs={12} md={6}>
