@@ -546,3 +546,82 @@ export async function damageMovement(req: Request, res: Response, next: NextFunc
     next(err)
   }
 }
+
+export async function unpackMovement(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.session.userId) {
+      const e = Error('User is not logged in')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = Number(req.session.userId)
+
+    const schema = yup.object({
+      amount: yup.number().integer().positive().required(),
+    })
+
+    schema.validateSync(req.body)
+    const body = schema.cast(req.body)
+
+    const inventoryElementCodes = ['paca-360', 'bolsa-360']
+
+    const inventoryElements = await InventoryElements.findAll({
+      where: {
+        code: {
+          [Op.in]: inventoryElementCodes,
+        },
+      },
+    },)
+
+
+    const inventoryElementFrom = inventoryElements.find(e => e.code === 'paca-360')
+    const inventoryElementTo = inventoryElements.find(e => e.code === 'bolsa-360')
+
+    if (!inventoryElementFrom) {
+      throw new Error(`No se encontró el elemento de inventario con el código paca-360`)
+    }
+    if (!inventoryElementTo) {
+      throw new Error(`No se encontró el elemento de inventario con el código bolsa-360`)
+    }
+
+    const storageCodes = ['terminado', 'intermedia']
+
+    const storages = await Storages.findAll({
+      where: {
+        code: {
+          [Op.in]: storageCodes,
+        },
+      },
+    })
+
+
+    const storageFrom = storages.find(e => e.code === 'terminado')
+    const storageTo = storages.find(e => e.code === 'intermedia')
+
+    if (!storageFrom) {
+      throw new Error(`No se encontró el elemento de inventario con el código terminado`)
+    }
+    if (!storageTo) {
+      throw new Error(`No se encontró el elemento de inventario con el código intermedia`)
+    }
+
+    const movementData : CreateManualMovementArgs = {
+      inventoryElementFromId: inventoryElementFrom.id,
+      inventoryElementToId: inventoryElementTo.id,
+      storageFromId: storageFrom.id,
+      storageToId: storageTo.id,
+      quantityFrom: body.amount,
+      quantityTo: body.amount * 20,
+      cause: 'relocation',
+      createdBy: userId,
+    }
+
+    await createMovement(movementData)
+
+    res.json({success: true})
+
+  } catch (err) {
+    next(err)
+  }
+}
