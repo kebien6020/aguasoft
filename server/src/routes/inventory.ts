@@ -8,6 +8,8 @@ import { Op, Transaction } from 'sequelize'
 import debug from 'debug'
 import * as yup from 'yup'
 
+type Writeable<T> = { -readonly [P in keyof T]: T[P] }
+
 const InventoryElements = models.InventoryElements as InventoryElementStatic
 const InventoryMovements = models.InventoryMovements as InventoryMovementStatic
 const StorageStates = models.StorageStates as StorageStateStatic
@@ -165,9 +167,23 @@ export async function listInventoryElements(_req: Request, res: Response, next: 
   }
 }
 
-export async function listStorageStates(_req: Request, res: Response, next: NextFunction) {
+export async function listStorageStates(req: Request, res: Response, next: NextFunction) {
   try {
-    const storageStates = await StorageStates.findAll()
+    const possibleInclussions = ['Storage', 'InventoryElement'] as const
+    type PossibleInclussions = typeof possibleInclussions[number]
+
+    const schema = yup.object({
+      include: yup.array().of(
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Writeable<typeof possibleInclussions>)
+      ),
+    })
+
+    schema.validateSync(req.query)
+    const query = schema.cast(req.query)
+
+    const storageStates = await StorageStates.findAll({
+      include: query.include
+    })
 
     res.json(storageStates)
   } catch (e) {
@@ -469,9 +485,6 @@ const damageTypes = [
 
 type DamageType = (typeof damageTypes)[number]
 
-type Writeable<T> = { -readonly [P in keyof T]: T[P] }
-
-
 export async function damageMovement(req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.session.userId) {
@@ -600,15 +613,85 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
     const storageTo = storages.find(e => e.code === 'intermedia')
 
     if (!storageFrom) {
-      throw new Error(`No se encontró el elemento de inventario con el código terminado`)
+      throw new Error(`No se encontró el almacen con el código terminado`)
     }
     if (!storageTo) {
-      throw new Error(`No se encontró el elemento de inventario con el código intermedia`)
+      throw new Error(`No se encontró el almacen con el código intermedia`)
     }
 
     const movementData : CreateManualMovementArgs = {
       inventoryElementFromId: inventoryElementFrom.id,
       inventoryElementToId: inventoryElementTo.id,
+      storageFromId: storageFrom.id,
+      storageToId: storageTo.id,
+      quantityFrom: body.amount,
+      quantityTo: body.amount * 20,
+      cause: 'relocation',
+      createdBy: userId,
+    }
+
+    await createMovement(movementData)
+
+    res.json({success: true})
+
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function relocationMovement(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.session.userId) {
+      const e = Error('User is not logged in')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = Number(req.session.userId)
+
+    const schema = yup.object({
+      inventoryElementCode: yup.string().required(),
+      amount: yup.number().integer().positive().required(),
+    })
+
+    schema.validateSync(req.body)
+    const body = schema.cast(req.body)
+
+    const elementCode = body.inventoryElementCode
+
+    const inventoryElement = await InventoryElements.findOne({
+      where: {
+        code: elementCode,
+      },
+    })
+
+    if (!inventoryElement) {
+      throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+    }
+
+    const storageCodes = ['bodega', 'trabajo'] as const
+
+    const storages = await Storages.findAll({
+      where: {
+        code: {
+          [Op.in]: storageCodes,
+        },
+      },
+    })
+
+    const storageFrom = storages.find(e => e.code === storageCodes[0])
+    const storageTo = storages.find(e => e.code === storageCodes[1])
+
+    if (!storageFrom) {
+      throw new Error(`No se encontró el almacen con el código ${storageCodes[0]}`)
+    }
+    if (!storageTo) {
+      throw new Error(`No se encontró el almacen con el código ${storageCodes[1]}`)
+    }
+
+    const movementData : CreateManualMovementArgs = {
+      inventoryElementFromId: inventoryElement.id,
+      inventoryElementToId: inventoryElement.id,
       storageFromId: storageFrom.id,
       storageToId: storageTo.id,
       quantityFrom: body.amount,

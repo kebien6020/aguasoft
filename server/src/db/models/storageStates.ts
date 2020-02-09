@@ -18,8 +18,8 @@ export interface StorageState extends Model {
   readonly updatedAt: Date
 
   // Possible inclusions
-  readonly storage?: Storage
-  readonly inventoryElement?: InventoryElement
+  readonly Storage?: Storage
+  readonly InventoryElement?: InventoryElement
 
   // Methods added when performing associations
   getStorage: BelongsToGetAssociationMixin<Storage>
