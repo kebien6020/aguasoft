@@ -41,6 +41,7 @@ const RegisterProduction = lazy(() => import(/* webpackChunkName: "register-prod
 const RegisterDamaged =    lazy(() => import(/* webpackChunkName: "register-damaged" */ './Routes/RegisterDamaged'))
 const RegisterUnpack =     lazy(() => import(/* webpackChunkName: "register-damaged" */ './Routes/RegisterUnpack'))
 const RegisterRelocation = lazy(() => import(/* webpackChunkName: "register-relocation" */ './Routes/RegisterRelocation'))
+const RegisterEntry =      lazy(() => import(/* webpackChunkName: "register-entry" */ './Routes/RegisterEntry'))
 
 const auth  = new Auth()
 moment.locale('es')
@@ -77,6 +78,7 @@ const AppSwitch = () => (
     <Route exact private path='/movements/damaged' component={RegisterDamaged} />
     <Route exact private path='/movements/unpack' component={RegisterUnpack} />
     <Route exact private path='/movements/relocation' component={RegisterRelocation} />
+    <Route exact private path='/movements/entry' component={RegisterEntry} />
 
     <Route exact path='/' render={() => <Redirect to='/sells' />} />
   </Switch>
