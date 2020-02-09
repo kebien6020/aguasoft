@@ -7,34 +7,19 @@ import { useFormikContext } from 'formik'
 
 import useAuth from '../hooks/useAuth'
 import useFetch from '../hooks/useFetch'
+import useNonce from '../hooks/api/useNonce'
 import useSnackbar from '../hooks/useSnackbar'
+import useInventoryElements, { optionsFromElements } from '../hooks/api/useInventoryElements'
 import Collapse from '../components/Collapse'
 import Form from '../components/form/Form'
 import Layout from '../components/Layout'
 import SelectField, { SelectOption } from '../components/form/SelectField'
+import SelectElementField from '../components/inventory/SelectElementField'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { InventoryElement, Storage } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
-
-const useInventoryElements = () : InventoryElement[] | null => {
-  const url = '/api/inventory/inventoryElements'
-  const showError = useSnackbar()
-  const [inventoryElements] = useFetch<InventoryElement[]>(url, {
-    showError,
-    name: 'los elementos de inventario'
-  })
-
-  return inventoryElements
-}
-
-const optionsFromElements = (elements: readonly InventoryElement[] | null) => {
-  return elements && elements.map(element => ({
-    value: element.code,
-    label: element.name,
-  }))
-}
 
 const useStorages = () : InventoryElement[] | null => {
   const url = '/api/inventory/storages'
@@ -93,11 +78,12 @@ const damageTypeOptions : DamageTypeOption[] = [
 const RegisterDamaged = () => {
   const classes = useStyles()
 
-  const inventoryElements = useInventoryElements()
+  const [inventoryElements] = useInventoryElements()
 
   const auth = useAuth()
   const showMessage = useSnackbar()
 
+  const [statesNonce, updateStates] = useNonce()
   const handleSubmit = async (values: Values) => {
     const { damageType : dType } = values
 
@@ -126,6 +112,7 @@ const RegisterDamaged = () => {
     }
 
     showMessage('Guardado exitoso')
+    updateStates()
   }
 
   return (
@@ -147,8 +134,8 @@ const RegisterDamaged = () => {
               />
             </Grid>
 
-            <DevolucionForm inventoryElements={inventoryElements} />
-            <GeneralForm inventoryElements={inventoryElements} />
+            <DevolucionForm inventoryElements={inventoryElements} statesNonce={statesNonce} />
+            <GeneralForm inventoryElements={inventoryElements} statesNonce={statesNonce} />
             <SubmitButton />
         </Form>
       </Paper>
@@ -169,10 +156,11 @@ const useStyles = makeStyles(theme => ({
 
 interface DevolucionFormProps {
   inventoryElements: readonly InventoryElement[] | null
+  statesNonce: number
 }
 
 const DevolucionForm = (props: DevolucionFormProps) => {
-  const { inventoryElements } = props
+  const { inventoryElements, statesNonce } = props
   const { values } = useFormikContext<Values>()
   const dType = values.damageType
 
@@ -184,11 +172,13 @@ const DevolucionForm = (props: DevolucionFormProps) => {
   return (
     <Collapse in={dType === 'devolucion'}>
       <Grid item xs={12} md={6}>
-        <SelectField
+        <SelectElementField
           name='inventoryElementCode'
           label='Producto'
           emptyOption='Seleccione el producto'
           options={productElementOptions}
+          storageCode='terminado'
+          statesNonce={statesNonce}
         />
       </Grid>
       <Grid item xs={12} md={6}>
@@ -203,10 +193,11 @@ const DevolucionForm = (props: DevolucionFormProps) => {
 
 interface GeneralFormProps {
   inventoryElements: readonly InventoryElement[] | null
+  statesNonce: number
 }
 
 const GeneralForm = (props: GeneralFormProps) => {
-  const { inventoryElements } = props
+  const { inventoryElements, statesNonce } = props
 
   const { values } = useFormikContext<Values>()
   const dType = values.damageType
@@ -226,11 +217,13 @@ const GeneralForm = (props: GeneralFormProps) => {
         />
       </Grid>
       <Grid item xs={12} md={6}>
-        <SelectField
+        <SelectElementField
           name='inventoryElementCode'
           label='Elemento de inventario'
           emptyOption='Seleccione el elemento de inventario'
           options={inventoryElementOptions}
+          storageCode={values.storageCode}
+          statesNonce={statesNonce}
         />
       </Grid>
       <Grid item xs={12} md={6}>

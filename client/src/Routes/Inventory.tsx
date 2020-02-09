@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
@@ -7,14 +7,15 @@ import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
 
-import { useSnackbar } from '../components/MySnackbar'
 import useFetch from '../hooks/useFetch'
 import useUser from '../hooks/useUser'
+import useSnackbar from '../hooks/useSnackbar'
 import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
 import ManualMovementForm from '../components/inventory/ManualMovementForm'
 import Title from '../components/Title'
 import { Storage, InventoryElement, StorageState } from '../models'
+import useStorageStates from '../hooks/api/useStorageStates'
 
 interface StorageCardProps {
   storage: Storage
@@ -88,7 +89,7 @@ export default function Inventory() {
     )
 
   // Fetch from server
-  const [snackbar, showError] = useSnackbar()
+  const showError = useSnackbar()
   const [storages] = useFetch<Storage[]>('/api/inventory/storages', {
     showError,
     name: 'la lista de almacenamientos',
@@ -98,17 +99,10 @@ export default function Inventory() {
     name: 'la lista de elementos',
   })
 
-  const [nonce, setNonce] = useState(1)
-  const update = useCallback(() => setNonce(prev => prev + 1), [])
-  const [storageStates] = useFetch<StorageState[]>('/api/inventory/state', {
-    showError,
-    name: 'el estado actual de los inventarios',
-    nonce: nonce,
-  })
+  const [storageStates, update] = useStorageStates()
 
   return (
     <Layout title='Inventario'>
-      {snackbar}
       <Title>Grafico Principal</Title>
       <div className={classes.button}>
         {manualMovementButton}

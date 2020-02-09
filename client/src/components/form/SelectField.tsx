@@ -23,6 +23,7 @@ export interface SelectFieldProps extends SelectProps {
   emptyOption?: React.ReactNode
   options?: SelectOption[] | null
   onChangeOverride?: (event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>, bag: ChangeOverrideBag) => any
+  helperText?: React.ReactNode
 }
 
 const SelectField = (props: SelectFieldProps) => {
@@ -32,6 +33,7 @@ const SelectField = (props: SelectFieldProps) => {
     options,
     emptyOption,
     onChangeOverride,
+    helperText,
     ...otherProps
   } = props
   const classes = useStyles()
@@ -58,8 +60,8 @@ const SelectField = (props: SelectFieldProps) => {
           <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>
         )}
       </Select>
-      {meta.error && meta.touched &&
-        <FormHelperText>{meta.error}</FormHelperText>
+      {(meta.error && meta.touched || helperText) &&
+        <FormHelperText>{meta.error || helperText}</FormHelperText>
       }
     </FormControl>
   )

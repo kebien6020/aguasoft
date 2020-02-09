@@ -50,6 +50,9 @@ const Movements = () => {
   const goToRegisterUnpack = useCallback(() => {
     history.push('/movements/unpack')
   }, [history])
+  const goToRegisterRelocation = useCallback(() => {
+    history.push('/movements/relocation')
+  }, [history])
 
   return (
     <Layout title='Movimientos'>
@@ -67,6 +70,11 @@ const Movements = () => {
       <Title>Registrar Desempaque</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterUnpack} auth={auth} />
+      </Paper>
+
+      <Title>Registrar Salida de Bodega</Title>
+      <Paper className={classes.login}>
+        <Login onSuccess={goToRegisterRelocation} auth={auth} />
       </Paper>
 
       <Title>Registrar Ingreso de Insumos</Title>

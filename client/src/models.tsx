@@ -104,8 +104,8 @@ export interface StorageState {
   updatedAt: string
 
   // Possible inclusions
-  storage?: Storage
-  inventoryElement?: InventoryElement
+  Storage?: Storage
+  InventoryElement?: InventoryElement
 }
 
 export interface InventoryMovement {
