@@ -695,8 +695,70 @@ export async function relocationMovement(req: Request, res: Response, next: Next
       storageFromId: storageFrom.id,
       storageToId: storageTo.id,
       quantityFrom: body.amount,
-      quantityTo: body.amount * 20,
+      quantityTo: body.amount,
       cause: 'relocation',
+      createdBy: userId,
+    }
+
+    await createMovement(movementData)
+
+    res.json({success: true})
+
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function entryMovement(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.session.userId) {
+      const e = Error('User is not logged in')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = Number(req.session.userId)
+
+    const schema = yup.object({
+      inventoryElementCode: yup.string().required(),
+      amount: yup.number().integer().positive().required(),
+    })
+
+    schema.validateSync(req.body)
+    const body = schema.cast(req.body)
+
+    const elementCode = body.inventoryElementCode
+
+    const inventoryElement = await InventoryElements.findOne({
+      where: {
+        code: elementCode,
+      },
+    })
+
+    if (!inventoryElement) {
+      throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+    }
+
+    const storageCode = 'bodega'
+
+    const storageTo = await Storages.findOne({
+      where: {
+        code: storageCode,
+      },
+    })
+
+    if (!storageTo) {
+      throw new Error(`No se encontró el almacen con el código ${storageCode}`)
+    }
+
+    const movementData : CreateManualMovementArgs = {
+      inventoryElementFromId: inventoryElement.id,
+      inventoryElementToId: inventoryElement.id,
+      storageFromId: null,
+      storageToId: storageTo.id,
+      quantityFrom: body.amount,
+      quantityTo: body.amount,
+      cause: 'in',
       createdBy: userId,
     }
 
