@@ -25,6 +25,7 @@ export interface InventoryMovement extends Model {
     | 'sell'
     | 'damage'
   readonly createdBy: number
+  readonly rollback: boolean
 
   // timestamps
   readonly createdAt: Date
@@ -125,6 +126,11 @@ export default function(sequelize: Sequelize) {
         'damage',
       ),
       allowNull: false,
+    },
+    rollback: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     createdBy: {
       type: DataTypes.INTEGER,

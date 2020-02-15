@@ -26,6 +26,7 @@ interface CreateManualMovementArgs {
   quantityTo?: number
   cause: InventoryMovement['cause']
   createdBy: number
+  rollback?: boolean
 }
 
 class MovementError extends Error {}
@@ -132,6 +133,7 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
       'quantityTo',
       'cause',
       'createdBy',
+      'rollback',
     ],
     ...opts()
   })
