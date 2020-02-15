@@ -69,6 +69,17 @@ export interface ErrorResponse {
   }
 }
 
+type ErrorResponseError = ErrorResponse['error']
+export interface NotEnoughInSourceError extends ErrorResponseError {
+  storageId?: number
+  storageCode?: string
+  storageName?: string
+
+  inventoryElementId?: number
+  inventoryElementCode?: string
+  inventoryElementName?: string
+}
+
 export interface SuccessResponse {
   success: true
 }

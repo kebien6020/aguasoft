@@ -20,8 +20,9 @@ import Typography from '@material-ui/core/Typography'
 import AddIcon from '@material-ui/icons/Add'
 import RemoveIcon from '@material-ui/icons/Remove'
 
+import useSnackbar from '../hooks/useSnackbar'
 import Layout from '../components/Layout'
-import { fetchJsonAuth, money } from '../utils'
+import { fetchJsonAuth, money, isErrorResponse, NotEnoughInSourceError } from '../utils'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import { Client } from '../models'
 
@@ -127,7 +128,7 @@ const NumericPicker = (props: NumericPickerProps) => (
   </React.Fragment>
 )
 
-interface RegisterSaleProps extends PropClasses, AuthRouteComponentProps<{}> {
+interface RegisterSaleProps extends PropClasses, AuthRouteComponentProps<{}>, WithSnackbarProps {
 
 }
 
@@ -173,6 +174,33 @@ interface RegisterSaleState {
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
+
+interface WithSnackbarProps {
+  showMessage: ReturnType<typeof useSnackbar>
+}
+
+/**
+ * Remove from T the keys that are in common with K
+ */
+type Optionalize<T extends K, K> = Omit<T, keyof K>;
+
+function withSnackbar<T extends WithSnackbarProps = WithSnackbarProps>(
+  Component: React.ComponentType<T>
+) {
+
+  const Wrapped = (props: Optionalize<T, WithSnackbarProps>) => {
+    const showMessage = useSnackbar()
+
+    return <Component showMessage={showMessage} {...props as T} />
+  }
+
+  const displayName =
+    Component.displayName || Component.name || "Component"
+
+  Wrapped.displayName = `withSnackbar(${displayName})`
+
+  return Wrapped
+}
 
 class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState> {
 
@@ -228,7 +256,6 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   submit = async () => {
     const { state, props } = this
     const auth = props.auth
-    this.setState({disableButton: true})
 
     const date = new Date()
 
@@ -244,10 +271,32 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       cash: state.cash,
     })).filter(sell => sell.quantity !== 0)
 
-    await fetchJsonAuth('/api/sells/bulkNew', auth, {
+    this.setState({disableButton: true})
+
+    const res = await fetchJsonAuth('/api/sells/bulkNew', auth, {
       method: 'post',
       body: JSON.stringify({sells})
     })
+
+    this.setState({disableButton: false})
+
+    if (isErrorResponse(res)) {
+      const msg = (() => {
+        if (res.error.code === 'not_enough_in_source') {
+          const error = res.error as NotEnoughInSourceError
+
+          const storageName = error.storageName || 'Desconocido'
+          const elementName = error.inventoryElementName || 'Desconocido'
+
+          return `No hay suficiente cantidad del elemento ${elementName} en el almacen ${storageName}`
+        }
+
+        return res.error.message
+      })()
+
+      props.showMessage('Error al guardar la venta: ' + msg)
+      return
+    }
 
     // After submitting go back to the dashboard
     this.props.history.push('/')
@@ -462,4 +511,4 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   }
 }
 
-export default withStyles(styles)(RegisterSale)
+export default withStyles(styles)(withSnackbar(RegisterSale))
