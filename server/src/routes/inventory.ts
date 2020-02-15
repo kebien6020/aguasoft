@@ -3,6 +3,7 @@ import { InventoryElementStatic, InventoryElement } from '../db/models/inventory
 import { InventoryMovement, InventoryMovementStatic } from '../db/models/inventoryMovements'
 import { StorageStateStatic } from '../db/models/storageStates'
 import { StorageStatic, Storage } from '../db/models/storages'
+import { MachineCounterStatic } from '../db/models/machineCounters'
 import models, { sequelize } from '../db/models'
 import { Op, Transaction } from 'sequelize'
 import debug from 'debug'
@@ -14,6 +15,7 @@ const InventoryElements = models.InventoryElements as InventoryElementStatic
 const InventoryMovements = models.InventoryMovements as InventoryMovementStatic
 const StorageStates = models.StorageStates as StorageStateStatic
 const Storages = models.Storages as StorageStatic
+const MachineCounters = models.MachineCounters as MachineCounterStatic
 
 const logMovement = debug('sql:movements')
 
@@ -365,6 +367,9 @@ export async function productionMovement(req: Request, res: Response, next: Next
       damaged: yup.mixed().when('productionType', {is: (type: ProductionType) => productionInfo[type].damaged !== null,
         then: yup.number().integer().min(0).required(),
       }),
+      counterEnd: yup.mixed<number|undefined>().when('productionType', {is: 'bolsa-360',
+        then: yup.number().integer().min(0).required(),
+      }),
     })
 
     schema.validateSync(req.body)
@@ -438,6 +443,19 @@ export async function productionMovement(req: Request, res: Response, next: Next
           }
 
           await createMovement(movementData, t)
+        }
+
+        if (pType === 'bolsa-360') {
+          if (typeof body.counterEnd !== 'number') {
+            throw Error('No se encontro contador final para movimiento de produccion de bolsas 360')
+          }
+
+          await MachineCounters.create({
+            value: body.counterEnd,
+            type: 'production',
+          }, {
+            transaction: t,
+          })
         }
 
         await t.commit();
