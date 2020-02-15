@@ -142,3 +142,12 @@ export interface InventoryMovement {
   readonly creator?: User
   readonly deletor?: User
 }
+
+export interface MachineCounter {
+  readonly id: number
+  readonly value: number
+  readonly type: 'production' | 'new-reel'
+
+  readonly createdAt: string
+  readonly updatedAt: string
+}

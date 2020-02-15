@@ -22,6 +22,7 @@ import Yup from '../components/form/Yup'
 import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse } from '../utils'
 import { useFormikContext, FormikContextType, FormikHelpers } from 'formik'
 import usePrevious from '../hooks/usePrevious'
+import { MachineCounter } from '../models'
 
 const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
 
@@ -73,12 +74,12 @@ const productionTypeOptions : ProductionTypeOption[] = [
   {value: 'bolsa-360-congelada', label: 'Bolsa 360 Congelada'},
 ]
 
-const initialValues = {
-  productionType: '' as ProductionType | '',
-  counterStart: '',
-  counterEnd: '',
-  amount: '',
-  damaged: '0',
+interface FormValues {
+  productionType: ProductionType | ''
+  counterStart: string
+  counterEnd: string
+  amount: string
+  damaged: string
 }
 
 const validationSchema = Yup.object({
@@ -105,7 +106,7 @@ interface DamagedAutofillProps {
 const DamagedAutofill = (props: DamagedAutofillProps) => {
   const { detectDamaged, quantityInIntermediate } = props
 
-  const { values, setFieldValue } : FormikContextType<typeof initialValues> = useFormikContext()
+  const { values, setFieldValue } : FormikContextType<FormValues> = useFormikContext()
 
   useEffect(() => {
     if (values.productionType !== 'paca-360') return
@@ -140,6 +141,25 @@ const RegisterProduction = () => {
   const classes = useStyles()
   const auth = useAuth()
   const showMessage = useSnackbar()
+
+  const [initialValues, setInitialValues] = useState<FormValues>({
+    productionType: '' as ProductionType | '',
+    counterStart: '',
+    counterEnd: '',
+    amount: '',
+    damaged: '0',
+  })
+
+  const [lastMachineCounter] = useFetch<MachineCounter>('/api/machine-counters/most-recent/production', {
+    showError: showMessage,
+    name: 'el ultimo contador de la maquina de bolsas de 360ml',
+  })
+
+  useEffect(() => {
+    if (lastMachineCounter !== null) {
+      setInitialValues(prev => ({...prev, counterStart: String(lastMachineCounter.value)}))
+    }
+  }, [lastMachineCounter])
 
   const [detectDamaged, setDetectDamaged] = useState(true);
 
@@ -211,6 +231,7 @@ const RegisterProduction = () => {
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
+          enableReinitialize
         >
           {({values}) => <>
             <Grid item xs={12}>
@@ -226,6 +247,7 @@ const RegisterProduction = () => {
                 <TextField
                   name='counterStart'
                   label='Contador Total Inicial'
+                  disabled
                 />
               </Grid>
               <Grid item xs={12} md={6}>
