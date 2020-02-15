@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
-import { InventoryElementStatic } from '../db/models/inventoryElements'
+import { InventoryElementStatic, InventoryElement } from '../db/models/inventoryElements'
 import { InventoryMovement, InventoryMovementStatic } from '../db/models/inventoryMovements'
 import { StorageStateStatic } from '../db/models/storageStates'
-import { StorageStatic } from '../db/models/storages'
+import { StorageStatic, Storage } from '../db/models/storages'
 import models, { sequelize } from '../db/models'
 import { Op, Transaction } from 'sequelize'
 import debug from 'debug'
@@ -32,6 +32,30 @@ class MovementError extends Error {}
 class NotEnoughInSource extends MovementError {
   name = 'not_enough_in_source'
   message = 'Not enough inventory elements in source storage to perform the movement'
+
+  storageId?: number
+  storageCode?: string
+  storageName?: string
+
+  inventoryElementId?: number
+  inventoryElementCode?: string
+  inventoryElementName?: string
+
+  constructor(storage?: Storage, inventoryElement?: InventoryElement) {
+    super()
+
+    if (storage) {
+      this.storageId = storage.id
+      this.storageCode = storage.code
+      this.storageName = storage.name
+    }
+
+    if (inventoryElement) {
+      this.inventoryElementId = inventoryElement.id
+      this.inventoryElementCode = inventoryElement.code
+      this.inventoryElementName = inventoryElement.name
+    }
+  }
 }
 
 async function _createMovementImpl(data: CreateManualMovementArgs, t: Transaction) {
@@ -58,13 +82,19 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
       const oldQty = previousState.get('quantity')
       const newQty = Number(oldQty) - data.quantityFrom
       if (newQty < 0) {
-        throw new NotEnoughInSource()
+        const storage = await Storages.findOne({where: {id: data.storageFromId}})
+        const inventoryElement = await InventoryElements.findOne({where: {id: data.inventoryElementFromId}})
+
+        throw new NotEnoughInSource(storage, inventoryElement)
       }
       previousState.set('quantity', String(newQty))
 
       await previousState.save({...opts()})
     } else {
-      throw new NotEnoughInSource()
+      const storage = await Storages.findOne({where: {id: data.storageFromId}})
+      const inventoryElement = await InventoryElements.findOne({where: {id: data.inventoryElementFromId}})
+
+      throw new NotEnoughInSource(storage, inventoryElement)
     }
   }
 
