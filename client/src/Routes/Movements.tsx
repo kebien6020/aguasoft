@@ -53,6 +53,9 @@ const Movements = () => {
   const goToRegisterRelocation = useCallback(() => {
     history.push('/movements/relocation')
   }, [history])
+  const goToRegisterEntry = useCallback(() => {
+    history.push('/movements/entry')
+  }, [history])
 
   return (
     <Layout title='Movimientos'>
@@ -79,7 +82,7 @@ const Movements = () => {
 
       <Title>Registrar Ingreso de Insumos</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterProduction} auth={auth} />
+        <Login onSuccess={goToRegisterEntry} auth={auth} />
       </Paper>
 
       <Title>Movimientos recientes</Title>
