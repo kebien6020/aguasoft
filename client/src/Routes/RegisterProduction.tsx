@@ -172,6 +172,7 @@ const RegisterProduction = () => {
       payload = {
         ...payload,
         amount: Number(values.counterEnd) - Number(values.counterStart),
+        counterEnd: Number(values.counterEnd),
       }
     }
 
