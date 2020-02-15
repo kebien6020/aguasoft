@@ -41,6 +41,9 @@ const Movements = () => {
   // Login to register things
   const auth = useAuth()
   const history = useHistory()
+  const goToRegisterRelocation = useCallback(() => {
+    history.push('/movements/relocation')
+  }, [history])
   const goToRegisterProduction = useCallback(() => {
     history.push('/movements/production')
   }, [history])
@@ -50,9 +53,6 @@ const Movements = () => {
   const goToRegisterUnpack = useCallback(() => {
     history.push('/movements/unpack')
   }, [history])
-  const goToRegisterRelocation = useCallback(() => {
-    history.push('/movements/relocation')
-  }, [history])
   const goToRegisterEntry = useCallback(() => {
     history.push('/movements/entry')
   }, [history])
@@ -60,6 +60,12 @@ const Movements = () => {
   return (
     <Layout title='Movimientos'>
       {snackbar}
+
+      <Title>Registrar Salida de Bodega</Title>
+        <Paper className={classes.login}>
+        <Login onSuccess={goToRegisterRelocation} auth={auth} />
+      </Paper>
+
       <Title>Registrar Producción</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterProduction} auth={auth} />
@@ -73,11 +79,6 @@ const Movements = () => {
       <Title>Registrar Desempaque</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterUnpack} auth={auth} />
-      </Paper>
-
-      <Title>Registrar Salida de Bodega</Title>
-      <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterRelocation} auth={auth} />
       </Paper>
 
       <Title>Registrar Ingreso de Insumos</Title>
