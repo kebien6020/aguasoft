@@ -69,6 +69,7 @@ app.use('/api/sells', routes.sells)
 app.use('/api/payments', routes.payments)
 app.use('/api/spendings', routes.spendings)
 app.use('/api/inventory', routes.inventory)
+app.use('/api/machine-counters', routes.machineCounters)
 
 app.use('/api', (req, _res, next) => {
   next(new Error404(`Route does not exist: ${req.method} ${req.path}`))

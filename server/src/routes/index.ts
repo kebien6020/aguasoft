@@ -8,6 +8,7 @@ import * as sellHandlers from './sells'
 import * as paymentHandlers from './payments'
 import * as spendingHandlers from './spendings'
 import * as inventoryHandlers from './inventory'
+import * as machineCounterHandlers from './machineCounters'
 
 import adminOnly from '../utils/adminOnly'
 
@@ -67,3 +68,6 @@ inventory.post('/movements/damage', inventoryHandlers.damageMovement)
 inventory.post('/movements/unpack', inventoryHandlers.unpackMovement)
 inventory.post('/movements/relocation', inventoryHandlers.relocationMovement)
 inventory.post('/movements/entry', inventoryHandlers.entryMovement)
+
+export const machineCounters = Router()
+machineCounters.get('/most-recent/production', machineCounterHandlers.mostRecentProduction)
