@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
@@ -45,6 +46,7 @@ const RegisterRelocation = () => {
 
   const [statesNonce, updateStates] = useNonce()
 
+  const history = useHistory()
   const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/relocation'
     let payload: Object = {
@@ -64,6 +66,7 @@ const RegisterRelocation = () => {
 
     showMessage('Guardado exitoso')
     updateStates()
+    history.push('/movements')
   }
 
   return (

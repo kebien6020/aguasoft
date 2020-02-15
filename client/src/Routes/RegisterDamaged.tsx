@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
@@ -84,6 +85,7 @@ const RegisterDamaged = () => {
   const showMessage = useSnackbar()
 
   const [statesNonce, updateStates] = useNonce()
+  const history = useHistory()
   const handleSubmit = async (values: Values) => {
     const { damageType : dType } = values
 
@@ -113,6 +115,8 @@ const RegisterDamaged = () => {
 
     showMessage('Guardado exitoso')
     updateStates()
+
+    history.push('/movements')
   }
 
   return (

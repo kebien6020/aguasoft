@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useState, useEffect, useCallback } from 'react'
+import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
@@ -157,6 +158,7 @@ const RegisterProduction = () => {
       intermediateState['bolsa-360'] :
       null
 
+  const history = useHistory()
   const handleSubmit = async (values: typeof initialValues, {setFieldValue} : FormikHelpers<typeof initialValues>) => {
     const url = '/api/inventory/movements/production'
 
@@ -197,6 +199,7 @@ const RegisterProduction = () => {
     updateIntermediateState()
 
     showMessage('Guardado exitoso')
+    history.push('/movements')
   }
 
   return (

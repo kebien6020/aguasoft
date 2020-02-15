@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
@@ -29,6 +30,7 @@ const RegisterUnpack = () => {
   const auth = useAuth()
   const showMessage = useSnackbar()
 
+  const history = useHistory()
   const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/unpack'
     let payload: Object = {
@@ -46,6 +48,7 @@ const RegisterUnpack = () => {
     }
 
     showMessage('Guardado exitoso')
+    history.push('/movements')
   }
 
   return (
