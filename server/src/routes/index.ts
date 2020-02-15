@@ -38,7 +38,7 @@ sells.get('/', sellHandlers.list)
 sells.post('/new', sellHandlers.create)
 sells.post('/bulkNew', sellHandlers.bulkCreate)
 sells.get('/listDay', sellHandlers.listDay)
-sells.get('/listFrom', sellHandlers.listFrom)
+sells.get('/listFrom', sellHandlers.listDayFrom)
 sells.delete('/:id', sellHandlers.del)
 
 export const payments = Router()

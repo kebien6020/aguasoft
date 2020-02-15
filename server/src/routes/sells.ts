@@ -159,8 +159,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// Now should be called listDayFrom
-export async function listFrom(req: Request, res: Response, next: NextFunction) {
+export async function listDayFrom(req: Request, res: Response, next: NextFunction) {
   try {
     const fromId: string = req.query.fromId
     const firstSell = await Sells.findOne({
