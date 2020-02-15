@@ -17,7 +17,7 @@ const Storages = models.Storages as StorageStatic
 
 const logMovement = debug('sql:movements')
 
-interface CreateManualMovementArgs {
+export interface CreateManualMovementArgs {
   storageFromId: number | null
   storageToId: number | null
   inventoryElementFromId: number
@@ -139,7 +139,7 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
   })
 }
 
-async function createMovement(data: CreateManualMovementArgs, transaction?: Transaction) {
+export async function createMovement(data: CreateManualMovementArgs, transaction?: Transaction) {
   if (!data.quantityTo) data.quantityTo = data.quantityFrom
   if (transaction) {
     return _createMovementImpl(data, transaction)

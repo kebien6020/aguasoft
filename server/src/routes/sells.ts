@@ -1,11 +1,18 @@
 import { Request, Response, NextFunction } from 'express'
-import models from '../db/models'
+import models, { sequelize } from '../db/models'
+import { InventoryElementStatic } from '../db/models/inventoryElements'
 import { SellStatic, Sell } from '../db/models/sells'
 import { PriceStatic } from '../db/models/prices'
+import { ProductStatic } from '../db/models/products'
+import { StorageStatic } from '../db/models/storages'
 import { Op, Includeable } from 'sequelize'
+import { CreateManualMovementArgs, createMovement } from './inventory'
 
 const Sells = models.Sells as SellStatic
 const Prices = models.Prices as PriceStatic
+const Products = models.Products as ProductStatic
+const InventoryElements = models.InventoryElements as InventoryElementStatic
+const Storages = models.Storages as StorageStatic
 
 export async function list(_req: Request, res: Response, next: NextFunction) {
   try {
@@ -28,35 +35,62 @@ export async function list(_req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function create(req: Request, res: Response, next: NextFunction) {
+export async function create(_req: Request, _res: Response, next: NextFunction) {
   try {
-    const body = req.body
-
-    if (!req.session.userId) {
-      const e = Error('User is not logged in')
-      e.name = 'user_check_error'
-      throw e
-    }
-
-    body.userId = req.session.userId
-
-    await Sells.create(body, {
-      // Only allow user input to control these attributes
-      fields: [
-        'date',
-        'clientId',
-        'productId',
-        'quantity',
-        'value',
-        'cash',
-        'userId'
-      ],
-    })
-
-    res.json({success: true})
+    throw Error('Method disabled')
+    // const body = req.body
+    //
+    // if (!req.session.userId) {
+    //   const e = Error('User is not logged in')
+    //   e.name = 'user_check_error'
+    //   throw e
+    // }
+    //
+    // body.userId = req.session.userId
+    //
+    // await Sells.create(body, {
+    //   // Only allow user input to control these attributes
+    //   fields: [
+    //     'date',
+    //     'clientId',
+    //     'productId',
+    //     'quantity',
+    //     'value',
+    //     'cash',
+    //     'userId'
+    //   ],
+    // })
+    //
+    // res.json({success: true})
   } catch (e) {
     next(e)
   }
+}
+
+const productInventoryElement = {
+  '001': 'paca-360',
+  '002': 'bolsa-6l',
+  '003': 'botellon',
+  '004': 'hielo-5kg',
+  '005': 'botellon',
+  '006': 'base-botellon',
+  '007': 'hielo-2kg',
+  '008': 'botella-600ml',
+  '009': 'bolsa-360-congelada',
+} as const
+
+type ProductCode = keyof typeof productInventoryElement
+type InventoryElementCode = (typeof productInventoryElement)[ProductCode]
+
+const isProductCode = (code: string): code is ProductCode => {
+  return productInventoryElement.hasOwnProperty(code)
+}
+
+const productToInventoryElementCode = (code: string) : InventoryElementCode|undefined => {
+  if (isProductCode(code))
+    return productInventoryElement[code]
+
+  return undefined
 }
 
 export async function bulkCreate(req: Request, res: Response, next: NextFunction) {
@@ -67,24 +101,89 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
       throw e
     }
 
+    const userId = req.session.userId
+
     let { sells } = req.body
 
     sells = sells.map((s: any) => Object.assign(s, {userId: req.session.userId}))
-    await Sells.bulkCreate(sells, {
-      // Only allow user input to control these attributes
-      fields: [
-        'date',
-        'clientId',
-        'productId',
-        'quantity',
-        'value',
-        'cash',
-        'userId',
-        'priceOverride',
-      ],
-    })
 
-    res.json({success: true})
+    const transaction = await sequelize.transaction()
+
+    try {
+      await Sells.bulkCreate(sells, {
+        // Only allow user input to control these attributes
+        fields: [
+          'date',
+          'clientId',
+          'productId',
+          'quantity',
+          'value',
+          'cash',
+          'userId',
+          'priceOverride',
+        ],
+        transaction,
+      })
+
+      for (const sell of sells) {
+
+        const product = await Products.findOne({
+          where: {id: sell.productId}
+        })
+
+        if (!product) {
+          throw new Error(`No se encontró el producto ${sell.productId}`);
+        }
+
+        const elementCode = productToInventoryElementCode(product.code)
+
+        // Skip this product, it can not be tracked
+        if (elementCode === 'botellon') continue
+
+        const inventoryElement = await InventoryElements.findOne({
+          where: {
+            code: elementCode,
+          },
+        })
+
+        if (!inventoryElement) {
+          throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+        }
+
+        const storageCode = 'terminado'
+
+        const storageFrom = await Storages.findOne({
+          where: {
+            code: storageCode,
+          },
+        })
+
+        if (!storageFrom) {
+          throw new Error(`No se encontró el almacen con el código ${storageCode}`)
+        }
+
+        const movementData : CreateManualMovementArgs = {
+          inventoryElementFromId: inventoryElement.id,
+          inventoryElementToId: inventoryElement.id,
+          storageFromId: storageFrom.id,
+          storageToId: null,
+          quantityFrom: sell.quantity,
+          quantityTo: sell.quantity,
+          cause: 'sell',
+          createdBy: userId,
+        }
+
+        await createMovement(movementData, transaction)
+      }
+
+      await transaction.commit()
+
+      res.json({success: true})
+    } catch (err) {
+      transaction.rollback()
+
+      throw err
+    }
   } catch (e) {
     next(e)
   }
@@ -174,7 +273,7 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
       res.json([])
       return
     }
-    
+
     const sells = await Sells.findAll({
       attributes: [
         'id',
