@@ -318,10 +318,77 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
 
 export async function del(req: Request, res: Response, next: NextFunction) {
   try {
+    if (!req.session.userId) {
+      const e = Error('User is not logged in')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = req.session.userId
+
     const sellId = req.params.id
     const sell = await Sells.findByPk(sellId)
     sell.set('deleted', true)
-    await sell.save({silent: true}) // Do not touch updatedAt
+
+    const transaction = await sequelize.transaction()
+
+    try {
+      await sell.save({silent: true, transaction}) // Do not touch updatedAt
+
+      const product = await Products.findOne({
+        where: {id: sell.productId}
+      })
+
+      if (!product) {
+        throw new Error(`No se encontró el producto ${sell.productId}`);
+      }
+
+      const elementCode = productToInventoryElementCode(product.code)
+
+      const inventoryElement = await InventoryElements.findOne({
+        where: {
+          code: elementCode,
+        },
+      })
+
+      if (!inventoryElement) {
+        throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+      }
+
+      const storageCode = 'terminado'
+
+      const storageTo = await Storages.findOne({
+        where: {
+          code: storageCode,
+        },
+      })
+
+      if (!storageTo) {
+        throw new Error(`No se encontró el almacen con el código ${storageCode}`)
+      }
+
+      const movementData : CreateManualMovementArgs = {
+        inventoryElementFromId: inventoryElement.id,
+        inventoryElementToId: inventoryElement.id,
+        storageFromId: null,
+        storageToId: storageTo.id,
+        quantityFrom: sell.quantity,
+        quantityTo: sell.quantity,
+        cause: 'sell',
+        createdBy: userId,
+        rollback: true,
+      }
+
+      await createMovement(movementData, transaction)
+
+      await transaction.commit()
+
+      res.json({success: true})
+    } catch (err) {
+      transaction.rollback()
+
+      throw err
+    }
 
     res.json({success: true})
   } catch (e) {
