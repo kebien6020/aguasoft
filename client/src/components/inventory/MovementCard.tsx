@@ -88,7 +88,7 @@ const MovementCard = (props: MovementCardProps) => {
   return (
     <Card className={classes.card} style={style}>
       <CardHeader
-        title={typeSlugToText(movement.cause)}
+        title={typeSlugToText(movement.cause) + (movement.rollback ? ' (Reversada)' : '')}
         className={classes.header}
         classes={{
           title: classes.title,

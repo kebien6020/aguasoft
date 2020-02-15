@@ -124,6 +124,7 @@ export interface InventoryMovement {
     | 'sell'
     | 'damage'
   readonly createdBy: number
+  readonly rollback: boolean
 
   // timestamps
   readonly createdAt: Date
