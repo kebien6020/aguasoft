@@ -72,7 +72,7 @@ const productInventoryElement = {
   '002': 'bolsa-6l',
   '003': 'botellon',
   '004': 'hielo-5kg',
-  '005': 'botellon',
+  '005': 'botellon-nuevo',
   '006': 'base-botellon',
   '007': 'hielo-2kg',
   '008': 'botella-600ml',
@@ -150,7 +150,7 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
           throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
         }
 
-        const storageCode = 'terminado'
+        const storageCode = elementCode === 'botellon-nuevo' ? 'bodega' : 'terminado'
 
         const storageFrom = await Storages.findOne({
           where: {
@@ -347,7 +347,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
       // Skip this product, it can not be tracked
       if (elementCode !== 'botellon') {
-        
+
         const inventoryElement = await InventoryElements.findOne({
           where: {
             code: elementCode,
