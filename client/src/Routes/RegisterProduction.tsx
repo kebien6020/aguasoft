@@ -19,7 +19,7 @@ import Title from '../components/Title'
 import SelectField from '../components/form/SelectField'
 import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
-import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse } from '../utils'
+import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse, NotEnoughInSourceError } from '../utils'
 import { useFormikContext, FormikContextType, FormikHelpers } from 'formik'
 import usePrevious from '../hooks/usePrevious'
 import { MachineCounter } from '../models'
@@ -210,7 +210,21 @@ const RegisterProduction = () => {
     })
 
     if (isErrorResponse(response)) {
-      showMessage('Error al registrar la producción: ' + response.error.message)
+      const res = response
+      const msg = (() => {
+        if (res.error.code === 'not_enough_in_source') {
+          const error = res.error as NotEnoughInSourceError
+
+          const storageName = error.storageName || 'Desconocido'
+          const elementName = error.inventoryElementName || 'Desconocido'
+
+          return `No hay suficiente cantidad del elemento ${elementName} en el almacen ${storageName}`
+        }
+
+        return res.error.message
+      })()
+
+      showMessage('Error al registrar la producción: ' + msg)
       return
     }
 
