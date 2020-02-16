@@ -71,3 +71,4 @@ inventory.post('/movements/entry', inventoryHandlers.entryMovement)
 
 export const machineCounters = Router()
 machineCounters.get('/most-recent/production', machineCounterHandlers.mostRecentProduction)
+machineCounters.get('/most-recent/new-reel', machineCounterHandlers.mostRecentNewReel)
