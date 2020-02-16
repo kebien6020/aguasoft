@@ -345,41 +345,46 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
       const elementCode = productToInventoryElementCode(product.code)
 
-      const inventoryElement = await InventoryElements.findOne({
-        where: {
-          code: elementCode,
-        },
-      })
+      // Skip this product, it can not be tracked
+      if (elementCode !== 'botellon') {
+        
+        const inventoryElement = await InventoryElements.findOne({
+          where: {
+            code: elementCode,
+          },
+        })
 
-      if (!inventoryElement) {
-        throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+        if (!inventoryElement) {
+          throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+        }
+
+        const storageCode = 'terminado'
+
+        const storageTo = await Storages.findOne({
+          where: {
+            code: storageCode,
+          },
+        })
+
+        if (!storageTo) {
+          throw new Error(`No se encontró el almacen con el código ${storageCode}`)
+        }
+
+        const movementData : CreateManualMovementArgs = {
+          inventoryElementFromId: inventoryElement.id,
+          inventoryElementToId: inventoryElement.id,
+          storageFromId: null,
+          storageToId: storageTo.id,
+          quantityFrom: sell.quantity,
+          quantityTo: sell.quantity,
+          cause: 'sell',
+          createdBy: userId,
+          rollback: true,
+        }
+
+        await createMovement(movementData, transaction)
+
       }
-
-      const storageCode = 'terminado'
-
-      const storageTo = await Storages.findOne({
-        where: {
-          code: storageCode,
-        },
-      })
-
-      if (!storageTo) {
-        throw new Error(`No se encontró el almacen con el código ${storageCode}`)
-      }
-
-      const movementData : CreateManualMovementArgs = {
-        inventoryElementFromId: inventoryElement.id,
-        inventoryElementToId: inventoryElement.id,
-        storageFromId: null,
-        storageToId: storageTo.id,
-        quantityFrom: sell.quantity,
-        quantityTo: sell.quantity,
-        cause: 'sell',
-        createdBy: userId,
-        rollback: true,
-      }
-
-      await createMovement(movementData, transaction)
 
       await transaction.commit()
 
