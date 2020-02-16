@@ -458,6 +458,26 @@ export async function productionMovement(req: Request, res: Response, next: Next
           })
         }
 
+        if (pType === 'paca-360') {
+          // Move bolsa-reempaque
+          const storageFromId = storageCodeToId('trabajo')
+          const storageToId = null as null
+          const inventoryElementFromId = elementCodeToId('bolsa-reempaque')
+          const inventoryElementToId = inventoryElementFromId
+
+          const movementData = {
+            storageFromId,
+            storageToId,
+            inventoryElementFromId,
+            inventoryElementToId,
+            quantityFrom: body.amount,
+            cause: 'relocation' as InventoryMovement['cause'],
+            createdBy: userId,
+          }
+
+          await createMovement(movementData, t)
+        }
+
         await t.commit();
         res.json({success: true})
 
