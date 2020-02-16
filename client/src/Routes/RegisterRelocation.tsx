@@ -4,28 +4,34 @@ import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
 
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import useInventoryElements, { optionsFromElements } from '../hooks/api/useInventoryElements'
+import Collapse from '../components/Collapse'
 import Form from '../components/form/Form'
 import Layout from '../components/Layout'
+import SelectElementField from '../components/inventory/SelectElementField'
 import Subtitle from '../components/Subtitle'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import useNonce from '../hooks/api/useNonce'
-import SelectElementField from '../components/inventory/SelectElementField'
 
 const initialValues = {
   element: '',
   amount: '',
+  counter: '',
 }
 
 const validationSchema = Yup.object({
   element: Yup.string().required(),
   amount: Yup.number().integer().positive().required(),
+  counter: Yup.mixed().when('element', {is: 'rollo-360',
+    then: Yup.number().integer().positive().required(),
+  }),
 })
 
 type Values = typeof initialValues
@@ -54,6 +60,13 @@ const RegisterRelocation = () => {
       amount: Number(values.amount),
     }
 
+    if (values.element === 'rollo-360') {
+      payload = {
+        ...payload,
+        counter: values.counter,
+      }
+    }
+
     const response = await fetchJsonAuth(url, auth, {
       method: 'post',
       body: JSON.stringify(payload)
@@ -80,6 +93,7 @@ const RegisterRelocation = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
+          {({values, setFieldValue}) => <>
             <Grid item xs={12} md={6}>
               <SelectElementField
                 name='element'
@@ -88,16 +102,42 @@ const RegisterRelocation = () => {
                 options={elementOptions}
                 statesNonce={statesNonce}
                 storageCode='bodega'
+                onChangeOverride={event => {
+                  const value = event.target.value
+                  setFieldValue('element', value)
+
+                  if (value === 'rollo-360') {
+                    setFieldValue('amount', '1')
+                  }
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 name='amount'
                 label='Cantidad'
+                disabled={values.element === 'rollo-360'}
+                helperText={values.element === 'rollo-360' ?
+                  'Solo se permite 1 rollo de 360 al tiempo' :
+                  undefined
+                }
               />
             </Grid>
-
+            <Collapse in={values.element === 'rollo-360'}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name='counter'
+                  label='Contador de la maquina'
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography>
+                  Esta accion mueve un rollo de la bodega al area de trabajo y remueve un rollo del area de trabajo (el rollo anterior vacío).
+                </Typography>
+              </Grid>
+            </Collapse>
             <SubmitButton />
+          </>}
         </Form>
       </Paper>
     </Layout>
