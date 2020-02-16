@@ -9,7 +9,7 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 
-import { fetchJsonAuth } from '../utils'
+import { fetchJsonAuth, isErrorResponse } from '../utils'
 import Auth from '../Auth'
 
 interface User {
@@ -25,6 +25,7 @@ interface LoginProps {
   onFailure?: () => any
   adminOnly?: boolean
   text?: string
+  buttonColor?: string
 }
 
 type LoginPropsAll = LoginProps & PropClasses
@@ -53,7 +54,8 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
   }
 
   async componentWillMount() {
-    let users: User[] = await fetchJsonAuth('/api/users', this.props.auth)
+    // TODO: Error handling
+    let users: User[] = await fetchJsonAuth('/api/users', this.props.auth) as any
 
     if (this.props.adminOnly === true) {
       users = users.filter(user => user.role === 'admin')
@@ -74,13 +76,21 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     this.setState({ errorLogin: false })
 
     const { state, props } = this
-    const check = await fetchJsonAuth('/api/users/check', props.auth, {
+    interface CheckResponse {
+      result: boolean
+    }
+    const check = await fetchJsonAuth<CheckResponse>('/api/users/check', props.auth, {
       method: 'post',
       body: JSON.stringify({
         id: state.userId,
         password: state.password
       })
     })
+
+    if (isErrorResponse(check)) {
+      console.error(check)
+      return
+    }
 
     this.setState({ errorLogin: !check.result })
 
@@ -158,6 +168,9 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
             fullWidth
             className={classes.button}
             onClick={this.handleSubmit}
+            style={{
+              backgroundColor: props.buttonColor || undefined,
+            }}
           >
             {props.text || 'Registrar'}
           </Button>

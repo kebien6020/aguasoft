@@ -109,14 +109,14 @@ class PaymentList extends React.Component<Props, State> {
   )
 
   render() {
-    const { props, state } = this
+    const { state } = this
 
     if (state.payments === null) {
       return <LoadingScreen text='Cargando pagos...' />
     }
 
     return (
-      <Layout title='Todos los Pagos' container={ResponsiveContainer} auth={props.auth}>
+      <Layout title='Todos los Pagos' container={ResponsiveContainer}>
         {this.renderPagination()}
         <Payments
           payments={state.payments}

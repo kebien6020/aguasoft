@@ -1,12 +1,10 @@
 import * as React from 'react'
 import { Route, RouteProps, RouteComponentProps } from 'react-router-dom'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Typography from '@material-ui/core/Typography'
 import Auth from './Auth'
-const logo = require('./logo.png')
-const auth  = new Auth()
+import AuthContext from './AuthContext'
+import LoadingScreen from './components/LoadingScreen'
 
-const isAuthenticated = () => auth.isAuthenticated()
+const isAuthenticated = (auth: Auth) => auth.isAuthenticated()
 
 const AuthStatus = {
   'DENIED': Symbol('DENIED'),   // User is not allowed to see this page
@@ -27,10 +25,14 @@ class AuthRoute extends React.Component<AuthRouteProps> {
     authStatus: AuthStatus.PENDING
   }
 
-  async componentWillMount() {
+  static contextType = AuthContext
+  declare context: React.ContextType<typeof AuthContext>
+
+  async componentDidMount() {
     const { props } = this
+    const auth = this.context
     const isPrivate = props.private
-    if (isAuthenticated() || !isPrivate)
+    if (isAuthenticated(auth) || !isPrivate)
       return this.setState({authStatus: AuthStatus.GRANTED})
 
     const success = await auth.renew()
@@ -43,6 +45,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
   render() {
     const { component, children, render, ...outerProps } = this.props
     const { authStatus } = this.state
+    const auth = this.context
 
     // Specifying children overwrites component
     if (children) {
@@ -63,24 +66,8 @@ class AuthRoute extends React.Component<AuthRouteProps> {
     }
 
     if (authStatus === AuthStatus.PENDING) {
-      const style: React.CSSProperties = {
-        display: 'flex',
-        minHeight: 'calc(100vh - 64px)',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-      }
       return (
-        <>
-          <div style={style}>
-            <img src={logo} style={{marginBottom: '32px'}} />
-            <div style={{marginBottom: '16px'}}><CircularProgress /></div>
-            <Typography variant="h6">
-              Intentando autenticación automática...
-            </Typography>
-          </div>
-        </>
+        <LoadingScreen text='Intentando autenticación automática…' />
       )
     }
 

@@ -72,3 +72,82 @@ export interface Spending {
     code: string
   }
 }
+
+export interface Storage {
+  id: number
+  code: string
+  name: string
+
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
+export interface InventoryElement {
+  id: number
+  code: string
+  name: string
+  type: 'raw' | 'product' | 'tool'
+
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+}
+
+export interface StorageState {
+  readonly storageId: number
+  readonly inventoryElementId: number
+  readonly quantity: string
+
+  // timestamps
+  createdAt: string
+  updatedAt: string
+
+  // Possible inclusions
+  Storage?: Storage
+  InventoryElement?: InventoryElement
+}
+
+export interface InventoryMovement {
+  readonly id: number
+  readonly storageFromId: number | null
+  readonly storageToId: number | null
+  readonly inventoryElementFromId: number
+  readonly inventoryElementToId: number
+  readonly quantityFrom: string
+  readonly quantityTo: string
+  readonly cause:
+      'manual'
+    | 'in'
+    | 'relocation'
+    | 'production'
+    | 'sell'
+    | 'damage'
+  readonly createdBy: number
+  readonly rollback: boolean
+
+  // timestamps
+  readonly createdAt: Date
+  readonly updatedAt: Date
+
+  // soft deletion
+  readonly deletedAt: Date | null
+  readonly deletedBy: number | null
+
+  // Possible inclusions
+  readonly storageFrom?: Storage
+  readonly storageTo?: Storage
+  readonly inventoryElementFrom?: InventoryElement
+  readonly inventoryElementTo?: InventoryElement
+  readonly creator?: User
+  readonly deletor?: User
+}
+
+export interface MachineCounter {
+  readonly id: number
+  readonly value: number
+  readonly type: 'production' | 'new-reel'
+
+  readonly createdAt: string
+  readonly updatedAt: string
+}

@@ -106,7 +106,7 @@ export default function Payments({auth}: PaymentsProps) {
     <Link to='/payments/list' ref={ref} {...props} />)
 
   return (
-    <Layout title='Pagos' auth={auth}>
+    <Layout title='Pagos'>
       <Title>Registrar Pago</Title>
       {loginElem}
 

@@ -106,7 +106,7 @@ export default function Spendings({auth}: SpendingsProps) {
     <Link to='/spendings/list' ref={ref} {...props} />)
 
   return (
-    <Layout title='Salidas' auth={auth}>
+    <Layout title='Salidas'>
       <Title>Registrar Salida</Title>
       {loginElem}
 

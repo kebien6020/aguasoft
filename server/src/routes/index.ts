@@ -7,6 +7,8 @@ import * as priceHandlers from './prices'
 import * as sellHandlers from './sells'
 import * as paymentHandlers from './payments'
 import * as spendingHandlers from './spendings'
+import * as inventoryHandlers from './inventory'
+import * as machineCounterHandlers from './machineCounters'
 
 import adminOnly from '../utils/adminOnly'
 
@@ -37,7 +39,7 @@ sells.get('/', sellHandlers.list)
 sells.post('/new', sellHandlers.create)
 sells.post('/bulkNew', sellHandlers.bulkCreate)
 sells.get('/listDay', sellHandlers.listDay)
-sells.get('/listFrom', sellHandlers.listFrom)
+sells.get('/listFrom', sellHandlers.listDayFrom)
 sells.delete('/:id', sellHandlers.del)
 
 export const payments = Router()
@@ -53,3 +55,20 @@ spendings.get('/paginate', spendingHandlers.paginate)
 spendings.get('/listDay', spendingHandlers.listDay)
 spendings.get('/recent', spendingHandlers.listRecent)
 spendings.delete('/:id', spendingHandlers.del)
+
+export const inventory = Router()
+inventory.get('/storages', inventoryHandlers.listStorages)
+inventory.get('/inventoryElements', inventoryHandlers.listInventoryElements)
+inventory.get('/state', inventoryHandlers.listStorageStates)
+inventory.get('/state/intermediate', inventoryHandlers.amountLeftInIntermediate)
+inventory.post('/movements/manual', adminOnly, inventoryHandlers.manualMovement)
+inventory.get('/movements', inventoryHandlers.listMovements)
+inventory.post('/movements/production', inventoryHandlers.productionMovement)
+inventory.post('/movements/damage', inventoryHandlers.damageMovement)
+inventory.post('/movements/unpack', inventoryHandlers.unpackMovement)
+inventory.post('/movements/relocation', inventoryHandlers.relocationMovement)
+inventory.post('/movements/entry', inventoryHandlers.entryMovement)
+
+export const machineCounters = Router()
+machineCounters.get('/most-recent/production', machineCounterHandlers.mostRecentProduction)
+machineCounters.get('/most-recent/new-reel', machineCounterHandlers.mostRecentNewReel)

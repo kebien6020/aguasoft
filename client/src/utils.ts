@@ -7,11 +7,11 @@ export interface FetchAuthOptions extends RequestInit {
   retry?: boolean  // when true we are retrying the request
 }
 
-export async function fetchJsonAuth(
+export async function fetchJsonAuth<R = SuccessResponse>(
   url: string,
   auth: Auth,
   options: FetchAuthOptions = {}
-) : Promise<any> {
+) : Promise<R|ErrorResponse> {
 
   const fetch = options.fetch || window.fetch
 
@@ -49,7 +49,7 @@ export async function fetchJsonAuth(
     } else {
       // silent auth failed, let's do a flashy auth
       auth.login()
-      return null
+      return {success:false, error: {code: 'not_authenticated', message: 'No autenticado'}}
     }
 
   }
@@ -62,7 +62,22 @@ export interface ErrorResponse {
   error: {
     message: string
     code: string
+    // On validation_error
+    errors?: {
+      path: string
+    }[]
   }
+}
+
+type ErrorResponseError = ErrorResponse['error']
+export interface NotEnoughInSourceError extends ErrorResponseError {
+  storageId?: number
+  storageCode?: string
+  storageName?: string
+
+  inventoryElementId?: number
+  inventoryElementCode?: string
+  inventoryElementName?: string
 }
 
 export interface SuccessResponse {
@@ -87,6 +102,30 @@ export function money(num: number, decimals: number = 0, decSep: string = ',', t
   return '$\u00A0' + s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(Number(n) - Number(i)).toFixed(c).slice(2) : "");
 }
 
+export type Param = string | readonly string[]
+export type Params = {[idx:string]: Param}
+
+function isStringArr(param: Param) : param is readonly string[]  {
+  return Array.isArray(param)
+}
+
+export function paramsToString(params?: Params) {
+  const searchParams = new URLSearchParams()
+  if (params) {
+    Object.entries(params).forEach(([key, val]) => {
+      if (isStringArr(val)) {
+        key += '[]'
+        val.forEach(s => searchParams.append(key, s))
+        return
+      }
+
+      searchParams.append(key, val)
+    })
+  }
+
+  return searchParams.toString()
+}
+
 export function parseParams(str: string) : {[idx: string]: string | undefined} {
   return str
     .slice(1)
@@ -96,4 +135,8 @@ export function parseParams(str: string) : {[idx: string]: string | undefined} {
       obj[pair[0]] = pair[1]
       return obj
     }, {})
+}
+
+export function isNumber(value: any) {
+  return !isNaN(Number(value));
 }

@@ -193,7 +193,7 @@ class RegisterSpending extends React.Component<Props, State> {
     }
 
     return (
-      <Layout title='Registrar Salida' container={ResponsiveContainer} auth={props.auth}>
+      <Layout title='Registrar Salida' container={ResponsiveContainer}>
         <Paper className={classes.paper}>
           <Title>Registrar Salida</Title>
           {state.submitionError !== null &&

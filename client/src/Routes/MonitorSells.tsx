@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import { fetchJsonAuth, money } from '../utils'
+import { fetchJsonAuth, money, isErrorResponse } from '../utils'
 
 import Typography from '@material-ui/core/Typography'
 import Table from '@material-ui/core/Table'
@@ -88,10 +88,14 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
   updateContents = async (date: moment.Moment) => {
     const { auth } = this.props
     this.setState({sells: null})
-    const sells: Sell[] = await fetchJsonAuth(
+    const sells = await fetchJsonAuth<Sell[]>(
       '/api/sells/listDay?day=' + date.format('YYYY-MM-DD'),
       auth
     )
+
+    if (isErrorResponse(sells)) {
+      return
+    }
 
     this.setState({sells})
   }

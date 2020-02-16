@@ -37,6 +37,8 @@ export default function jsonErrorHandler(
         code: 'unauthorized_error',
         errors: error
       }
+    else if (error instanceof Error)
+      response = {...error, code: error.name}
     else if ((error as Error).name === 'Error')
       response = {
         message: (error as Error).message,
@@ -49,6 +51,10 @@ export default function jsonErrorHandler(
       }
 
     console.log(req.url, response, error)
+
+    if (typeof (error as any).status === 'number') {
+      res.status(error.status)
+    }
 
     res.json({ success: false, error: response })
   } catch (err) {

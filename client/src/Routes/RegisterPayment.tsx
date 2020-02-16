@@ -254,7 +254,7 @@ class RegisterPayment extends React.Component<Props, State> {
     }
 
     return (
-      <Layout title='Registrar Pago' auth={props.auth}>
+      <Layout title='Registrar Pago'>
         <Paper className={classes.paper}>
           <Title>Registrar Pago</Title>
           {state.submitionError !== null &&
