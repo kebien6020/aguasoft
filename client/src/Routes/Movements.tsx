@@ -63,27 +63,27 @@ const Movements = () => {
 
       <Title>Registrar Salida de Bodega</Title>
         <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterRelocation} auth={auth} />
+        <Login onSuccess={goToRegisterRelocation} auth={auth} buttonColor='black' />
       </Paper>
 
       <Title>Registrar Producción</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterProduction} auth={auth} />
+        <Login onSuccess={goToRegisterProduction} auth={auth} buttonColor='#2e7d32' />
       </Paper>
 
       <Title>Registrar Producto Dañado</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterDamaged} auth={auth} />
+        <Login onSuccess={goToRegisterDamaged} auth={auth} buttonColor='#c30808' />
       </Paper>
 
       <Title>Registrar Desempaque</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterUnpack} auth={auth} />
+        <Login onSuccess={goToRegisterUnpack} auth={auth} buttonColor='blueviolet' />
       </Paper>
 
       <Title>Registrar Ingreso de Insumos</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterEntry} auth={auth} />
+        <Login onSuccess={goToRegisterEntry} auth={auth} buttonColor='rgb(255, 152, 0)' />
       </Paper>
 
       <Title>Movimientos recientes</Title>

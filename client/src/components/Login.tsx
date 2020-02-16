@@ -25,6 +25,7 @@ interface LoginProps {
   onFailure?: () => any
   adminOnly?: boolean
   text?: string
+  buttonColor?: string
 }
 
 type LoginPropsAll = LoginProps & PropClasses
@@ -167,6 +168,9 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
             fullWidth
             className={classes.button}
             onClick={this.handleSubmit}
+            style={{
+              backgroundColor: props.buttonColor || undefined,
+            }}
           >
             {props.text || 'Registrar'}
           </Button>
