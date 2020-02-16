@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
@@ -7,6 +8,8 @@ import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 
 import useAuth from '../hooks/useAuth'
+import useFetch from '../hooks/useFetch'
+import useNonce from '../hooks/api/useNonce'
 import useSnackbar from '../hooks/useSnackbar'
 import useInventoryElements, { optionsFromElements } from '../hooks/api/useInventoryElements'
 import Collapse from '../components/Collapse'
@@ -17,30 +20,32 @@ import Subtitle from '../components/Subtitle'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
-import { fetchJsonAuth, isErrorResponse } from '../utils'
-import useNonce from '../hooks/api/useNonce'
-
-const initialValues = {
-  element: '',
-  amount: '',
-  counter: '',
-}
+import { fetchJsonAuth, isErrorResponse, isNumber } from '../utils'
+import { MachineCounter } from '../models'
 
 const validationSchema = Yup.object({
   element: Yup.string().required(),
   amount: Yup.number().integer().positive().required(),
   counter: Yup.mixed().when('element', {is: 'rollo-360',
-    then: Yup.number().integer().positive().required(),
+    then: Yup.number().integer().positive().moreThan(Yup.ref('previousCounter')).required(),
   }),
 })
 
-type Values = typeof initialValues
 
 const RegisterRelocation = () => {
   const classes = useStyles()
 
   const auth = useAuth()
   const showMessage = useSnackbar()
+
+  const [initialValues, setInitialValues] = useState({
+    element: '',
+    amount: '',
+    counter: '',
+    previousCounter: null as number|null,
+  })
+
+  type Values = typeof initialValues
 
   const [inventoryElements] = useInventoryElements()
 
@@ -49,6 +54,20 @@ const RegisterRelocation = () => {
   )
 
   const elementOptions = optionsFromElements(onlyRawAndTools)
+
+  const [lastMachineCounter] = useFetch<MachineCounter>('/api/machine-counters/most-recent/new-reel', {
+    showError: showMessage,
+    name: 'el contador anterior de cambio de rollo',
+  })
+
+  useEffect(() => {
+    if (lastMachineCounter !== null) {
+      setInitialValues(prev => ({
+        ...prev,
+        previousCounter: lastMachineCounter.value
+      }))
+    }
+  }, [lastMachineCounter])
 
   const [statesNonce, updateStates] = useNonce()
 
@@ -92,6 +111,7 @@ const RegisterRelocation = () => {
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
+          enableReinitialize
         >
           {({values, setFieldValue}) => <>
             <Grid item xs={12} md={6}>
@@ -133,6 +153,17 @@ const RegisterRelocation = () => {
               <Grid item xs={12}>
                 <Typography>
                   Esta accion mueve un rollo de la bodega al area de trabajo y remueve un rollo del area de trabajo (el rollo anterior vacío).
+                </Typography>
+              </Grid>
+            </Collapse>
+            <Collapse in={
+                 isNumber(values.counter)
+              && lastMachineCounter !== null
+              && Number(values.counter) > lastMachineCounter.value
+            }>
+              <Grid item xs={12}>
+                <Typography>
+                  Cantidad desde el rollo anterior: {lastMachineCounter ? Number(values.counter) - lastMachineCounter.value : ''}.
                 </Typography>
               </Grid>
             </Collapse>
