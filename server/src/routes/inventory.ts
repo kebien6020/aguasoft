@@ -702,6 +702,9 @@ export async function relocationMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
+      counter: yup.mixed<number|undefined>().when('element', {is: 'rollo-360',
+        then: yup.number().integer().positive().required(),
+      }),
     })
 
     schema.validateSync(req.body)
@@ -750,7 +753,42 @@ export async function relocationMovement(req: Request, res: Response, next: Next
       createdBy: userId,
     }
 
-    await createMovement(movementData)
+    const transaction = await sequelize.transaction()
+
+    try {
+      await createMovement(movementData, transaction)
+
+      if (elementCode === 'rollo-360') {
+        // Remove previous element
+        const movementData : CreateManualMovementArgs = {
+          inventoryElementFromId: inventoryElement.id,
+          inventoryElementToId: inventoryElement.id,
+          storageFromId: storageTo.id,
+          storageToId: null,
+          quantityFrom: body.amount,
+          quantityTo: body.amount,
+          cause: 'relocation',
+          createdBy: userId,
+        }
+
+        await createMovement(movementData, transaction)
+
+        // Register machine counter
+        await MachineCounters.create({
+          value: body.counter,
+          type: 'new-reel',
+        }, {
+          transaction,
+        })
+
+      }
+
+      await transaction.commit()
+    } catch (err) {
+      await transaction.rollback()
+
+      throw err
+    }
 
     res.json({success: true})
 
