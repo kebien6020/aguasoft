@@ -111,10 +111,12 @@ export default function Inventory() {
 
     const onChange = () => update()
     socket.on('storageStatesChanged', onChange)
+    socket.on('reconnect', onChange)
 
     return () => {
+      socket.off('reconnect', onChange)
       socket.off('storageStatesChanged', onChange)
-      
+
       socket.close()
     }
   }, [])
