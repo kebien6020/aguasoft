@@ -67,28 +67,36 @@ export async function create(_req: Request, _res: Response, next: NextFunction) 
   }
 }
 
-const productInventoryElement = {
-  '001': 'paca-360',
-  '002': 'bolsa-6l',
-  '003': 'botellon',
-  '004': 'hielo-5kg',
-  '005': 'botellon-nuevo',
-  '006': 'base-botellon',
-  '007': 'hielo-2kg',
-  '008': 'botella-600ml',
-  '009': 'bolsa-360-congelada',
+const productMovementDetails = {
+  '001': [{elementCode: 'paca-360'}],
+  '002': [{elementCode: 'bolsa-6l'}],
+  '003': [
+    {elementCode: 'tapa-valvula', storageCode: 'bodega'},
+    {elementCode: 'termoencogible', storageCode: 'bodega'},
+  ],
+  '004': [{elementCode: 'hielo-5kg'}],
+  '005': [{elementCode: 'botellon-nuevo', storageCode: 'bodega'}],
+  '006': [{elementCode: 'base-botellon'}],
+  '007': [{elementCode: 'hielo-2kg'}],
+  '008': [{elementCode: 'botella-600ml'}],
+  '009': [{elementCode: 'bolsa-360-congelada'}],
 } as const
 
-type ProductCode = keyof typeof productInventoryElement
-type InventoryElementCode = (typeof productInventoryElement)[ProductCode]
+type ProductCode = keyof typeof productMovementDetails
+type ElementCode = (typeof productMovementDetails)[ProductCode][number]['elementCode']
+type StorageCode = Extract<(typeof productMovementDetails)[ProductCode][number], {storageCode: string}>['storageCode']
 
-const isProductCode = (code: string): code is ProductCode => {
-  return productInventoryElement.hasOwnProperty(code)
+interface MovementDetails {
+  elementCode: ElementCode
+  storageCode?: StorageCode
 }
 
-const productToInventoryElementCode = (code: string) : InventoryElementCode|undefined => {
-  if (isProductCode(code))
-    return productInventoryElement[code]
+const isProductCode = (code: string): code is ProductCode => {
+  return productMovementDetails.hasOwnProperty(code)
+}
+
+const movementDetails = (code: string) : readonly MovementDetails[]|undefined => {
+  if (isProductCode(code)) return productMovementDetails[code]
 
   return undefined
 }
@@ -135,45 +143,54 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
           throw new Error(`No se encontró el producto ${sell.productId}`);
         }
 
-        const elementCode = productToInventoryElementCode(product.code)
+        const details = movementDetails(product.code)
 
-        // Skip this product, it can not be tracked
-        if (elementCode === 'botellon') continue
-
-        const inventoryElement = await InventoryElements.findOne({
+        const inventoryElements = await InventoryElements.findAll({
           where: {
-            code: elementCode,
+            code: {
+              [Op.in]: details.map(d => d.elementCode),
+            },
           },
         })
 
-        if (!inventoryElement) {
-          throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
-        }
+        const storageCodes = [...details.map(d => d.storageCode).filter(sc => sc), 'terminado'] as const
 
-        const storageCode = elementCode === 'botellon-nuevo' ? 'bodega' : 'terminado'
-
-        const storageFrom = await Storages.findOne({
+        const storages = await Storages.findAll({
           where: {
-            code: storageCode,
+            code: {
+              [Op.in]: storageCodes
+            },
           },
         })
 
-        if (!storageFrom) {
-          throw new Error(`No se encontró el almacen con el código ${storageCode}`)
+        for (const detail of details) {
+          const storageFromCode = detail.storageCode || 'terminado'
+          const elementCode = detail.elementCode
+
+          const storageFrom = storages.find(s => s.code === storageFromCode)
+          if (!storageFrom) {
+            throw new Error(`No se encontró el almacen con el código ${storageFromCode}`)
+          }
+
+          const inventoryElement = inventoryElements.find(ie => ie.code === elementCode)
+          if (!inventoryElement) {
+            throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+          }
+
+          const movementData : CreateManualMovementArgs = {
+            inventoryElementFromId: inventoryElement.id,
+            inventoryElementToId: inventoryElement.id,
+            storageFromId: storageFrom.id,
+            storageToId: null,
+            quantityFrom: sell.quantity,
+            quantityTo: sell.quantity,
+            cause: 'sell',
+            createdBy: userId,
+          }
+
+          await createMovement(movementData, transaction)
         }
 
-        const movementData : CreateManualMovementArgs = {
-          inventoryElementFromId: inventoryElement.id,
-          inventoryElementToId: inventoryElement.id,
-          storageFromId: storageFrom.id,
-          storageToId: null,
-          quantityFrom: sell.quantity,
-          quantityTo: sell.quantity,
-          cause: 'sell',
-          createdBy: userId,
-        }
-
-        await createMovement(movementData, transaction)
       }
 
       await transaction.commit()
@@ -343,31 +360,38 @@ export async function del(req: Request, res: Response, next: NextFunction) {
         throw new Error(`No se encontró el producto ${sell.productId}`);
       }
 
-      const elementCode = productToInventoryElementCode(product.code)
+      const details = movementDetails(product.code)
 
-      // Skip this product, it can not be tracked
-      if (elementCode !== 'botellon') {
-
-        const inventoryElement = await InventoryElements.findOne({
-          where: {
-            code: elementCode,
+      const inventoryElements = await InventoryElements.findAll({
+        where: {
+          code: {
+            [Op.in]: details.map(d => d.elementCode),
           },
-        })
+        },
+      })
 
-        if (!inventoryElement) {
-          throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+      const storageCodes = [...details.map(d => d.storageCode).filter(sc => sc), 'terminado'] as const
+
+      const storages = await Storages.findAll({
+        where: {
+          code: {
+            [Op.in]: storageCodes
+          },
+        },
+      })
+
+      for (const detail of details) {
+        const storageToCode = detail.storageCode || 'terminado'
+        const elementCode = detail.elementCode
+
+        const storageTo = storages.find(s => s.code === storageToCode)
+        if (!storageTo) {
+          throw new Error(`No se encontró el almacen con el código ${storageToCode}`)
         }
 
-        const storageCode = 'terminado'
-
-        const storageTo = await Storages.findOne({
-          where: {
-            code: storageCode,
-          },
-        })
-
-        if (!storageTo) {
-          throw new Error(`No se encontró el almacen con el código ${storageCode}`)
+        const inventoryElement = inventoryElements.find(ie => ie.code === elementCode)
+        if (!inventoryElement) {
+          throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
         }
 
         const movementData : CreateManualMovementArgs = {
