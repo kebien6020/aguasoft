@@ -1,11 +1,12 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
 import Grid from '@material-ui/core/Grid'
+import * as socketio from 'socket.io-client'
 
 import useFetch from '../hooks/useFetch'
 import useUser from '../hooks/useUser'
@@ -71,6 +72,10 @@ const useStorageCardStyles = makeStyles(theme => ({
   },
 }))
 
+const socket = socketio('/', {
+  autoConnect: false,
+})
+
 export default function Inventory() {
   const classes = useStyles()
 
@@ -100,6 +105,21 @@ export default function Inventory() {
   })
 
   const [storageStates, update] = useStorageStates()
+
+  useEffect(() => {
+    socket.open()
+
+    const onChange = () => update()
+    socket.on('storageStatesChanged', onChange)
+    socket.on('reconnect', onChange)
+
+    return () => {
+      socket.off('reconnect', onChange)
+      socket.off('storageStatesChanged', onChange)
+
+      socket.close()
+    }
+  }, [])
 
   return (
     <Layout title='Inventario'>

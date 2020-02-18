@@ -2,6 +2,8 @@ import { Sequelize, DataTypes, Model } from 'sequelize'
 import { ModelStatic } from '../type-utils'
 import { Storage } from './storages'
 import { InventoryElement } from './inventoryElements'
+import { io } from '../../index'
+import debug from 'debug'
 
 import {
   BelongsToGetAssociationMixin,
@@ -64,6 +66,13 @@ export default function(sequelize: Sequelize) {
     StorageStates.belongsTo(models.Storages)
     StorageStates.belongsTo(models.InventoryElements)
   }
+
+  StorageStates.addHook('afterSave', (arg: StorageState) => {
+    debug('app:socketio')('Emitting storageStatesChanged')
+    io.emit('storageStatesChanged', {
+      data : arg.toJSON(),
+    })
+  })
 
   return StorageStates
 }
