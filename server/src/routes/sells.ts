@@ -411,8 +411,6 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       }
 
       await transaction.commit()
-
-      res.json({success: true})
     } catch (err) {
       transaction.rollback()
 
