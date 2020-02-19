@@ -4,7 +4,7 @@ import * as path from 'path'
 import * as makeDegub from 'debug'
 import { Sequelize } from 'sequelize'
 import { ModelStatic } from '../type-utils'
-const debug = makeDegub('app:db')
+const debug = makeDegub('app:db:setup')
 
 const thisFile = path.basename(module.filename)
 // Find out the environment
@@ -15,7 +15,9 @@ const config = require(path.resolve(__dirname, '../config.json'))[env]
 // Log database connection
 debug(`Using ${config.dialect} database, in storage ${config.storage}`)
 // Set logger for sql querys done by sequelize
-config.logging = require('debug')('app:sql')
+const debugSql = require('debug')('sql:general')
+config.logging = (sql: string) => debugSql(sql)
+config.logQueryParameters = true
 // Connect
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
 sequelize.query('PRAGMA journal_mode = WAL;', {raw: true});
