@@ -58,8 +58,13 @@ const Movements = () => {
     name: 'la lista de elementos',
   })
 
+  const inventoryElementOptions =
+    inventoryElements &&
+    inventoryElements.map(ie => ({value: String(ie.id), label: ie.name}))
+
   const [offset, setOffset] = useState(0)
   const [causeFilter, setCauseFilter] = useState('')
+  const [elementFilter, setElementFilter] = useState('')
 
   const params: Params = {
     offset,
@@ -68,6 +73,7 @@ const Movements = () => {
     sortField: 'createdAt',
   }
   if (causeFilter) params.cause = causeFilter
+  if (elementFilter) params.inventoryElementId = elementFilter
 
   const {movements, totalCount, loading} = useMovements(params)
 
@@ -159,6 +165,17 @@ const Movements = () => {
             options={movementCauseOptions}
             value={causeFilter}
             onChange={(e) => setCauseFilter(e.target.value as string)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <SelectControl
+            id='elem-filter'
+            name='elem-filter'
+            label='Elemento de Inventario'
+            emptyOption='Todos'
+            options={inventoryElementOptions}
+            value={elementFilter}
+            onChange={(e) => setElementFilter(e.target.value as string)}
           />
         </Grid>
       </Grid>
