@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
@@ -15,7 +15,7 @@ import Login from '../components/Login'
 import MovementCard from '../components/inventory/MovementCard'
 import Title from '../components/Title'
 import { Storage, InventoryElement, InventoryMovement, User } from '../models'
-import { paramsToString, Params } from '../utils'
+import { paramsToString, Params, scrollToRef } from '../utils'
 
 interface InventoryMovementsResponse {
   movements: InventoryMovement[]
@@ -66,19 +66,22 @@ const Movements = () => {
 
   const {movements, totalCount, loading} = useMovements({offset, limit: ITEMS_PER_PAGE})
 
+  const scrollTargetRef = useRef<HTMLDivElement>(null)
+
   const renderPagination = () => (
     totalCount &&
       <Pagination
         limit={ITEMS_PER_PAGE}
         offset={offset}
         total={totalCount}
-        onClick={(_, offset) => setOffset(offset)}
+        onClick={(_, offset) => {
+          setOffset(offset)
+          scrollToRef(scrollTargetRef)
+        }}
         disabled={loading}
         className={classes.pagination}
       />
   )
-
-  console.log(movements)
 
   const [users] = useFetch<User[]>('/api/users', {
     showError,
@@ -131,6 +134,7 @@ const Movements = () => {
         <Login onSuccess={goToRegisterEntry} auth={auth} buttonColor='rgb(255, 152, 0)' />
       </Paper>
 
+      <div ref={scrollTargetRef} style={{height: 0}} />
       <Title>Movimientos recientes</Title>
       {renderPagination()}
       <Grid container spacing={3} alignItems='stretch'>
@@ -158,6 +162,11 @@ const useStyles = makeStyles(theme => ({
   pagination: {
     textAlign: 'center',
   },
+  '@global': {
+    html: {
+      scrollBehavior: 'smooth',
+    }
+  }
 }))
 
 export default Movements

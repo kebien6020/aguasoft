@@ -141,3 +141,9 @@ export function parseParams(str: string) : {[idx: string]: string | undefined} {
 export function isNumber(value: any) {
   return !isNaN(Number(value));
 }
+
+// https://stackoverflow.com/a/51828976
+export function scrollToRef<T extends HTMLElement>(ref: React.RefObject<T>) {
+  if (ref.current)
+    window.scrollTo(0, ref.current.offsetTop)
+}
