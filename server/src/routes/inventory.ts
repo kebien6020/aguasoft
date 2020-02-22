@@ -236,18 +236,26 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
         .default('asc') as yup.StringSchema<'asc'|'desc'>,
       minDate: yup.date(),
       maxDate: yup.date(),
+      cause: yup.string(),
       offset: yup.number(),
     })
 
     schema.validateSync(req.query)
     const query = schema.cast(req.query)
 
-    const where: { createdAt?: {} } = {}
+    type WhereOptions = {
+      createdAt?: {}
+      cause?: string
+    }
+    const where: WhereOptions = {}
     if (query.minDate) {
       where.createdAt = {...where.createdAt, [Op.gte]: query.minDate}
     }
     if (query.maxDate) {
       where.createdAt = {...where.createdAt, [Op.lte]: query.maxDate}
+    }
+    if (query.cause) {
+      where.cause = query.cause
     }
 
     const movements = await InventoryMovements.findAll({
@@ -257,7 +265,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       where,
     })
 
-    const totalCount = await InventoryMovements.count();
+    const totalCount = await InventoryMovements.count({where});
 
     res.json({movements, totalCount})
   } catch (e) {
