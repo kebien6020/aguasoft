@@ -17,7 +17,7 @@ const StorageStates = models.StorageStates as StorageStateStatic
 const Storages = models.Storages as StorageStatic
 const MachineCounters = models.MachineCounters as MachineCounterStatic
 
-const logMovement = debug('sql:movements')
+const logMovement = (sql: string) => debug('sql:movements')(sql)
 
 export interface CreateManualMovementArgs {
   storageFromId: number | null
@@ -455,6 +455,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
             type: 'production',
           }, {
             transaction: t,
+            logging: (sql) => debug('sql:machine-counters')(sql),
           })
         }
 
@@ -799,6 +800,7 @@ export async function relocationMovement(req: Request, res: Response, next: Next
           type: 'new-reel',
         }, {
           transaction,
+          logging: (sql) => debug('sql:machine-counters')(sql),
         })
 
       }

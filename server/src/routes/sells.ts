@@ -71,8 +71,8 @@ const productMovementDetails = {
   '001': [{elementCode: 'paca-360'}],
   '002': [{elementCode: 'bolsa-6l'}],
   '003': [
-    {elementCode: 'tapa-valvula', storageCode: 'bodega'},
-    {elementCode: 'termoencogible', storageCode: 'bodega'},
+    {elementCode: 'tapa-valvula', storageCode: 'trabajo'},
+    {elementCode: 'termoencogible', storageCode: 'trabajo'},
   ],
   '004': [{elementCode: 'hielo-5kg'}],
   '005': [{elementCode: 'botellon-nuevo', storageCode: 'bodega'}],
@@ -416,8 +416,6 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       }
 
       await transaction.commit()
-
-      res.json({success: true})
     } catch (err) {
       transaction.rollback()
 

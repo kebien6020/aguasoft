@@ -15,4 +15,8 @@ io.on('connection', () => {
   debugio('Client connected')
 })
 
+io.on('close', () => {
+  debugio('Client disconnected')
+})
+
 export { io }
