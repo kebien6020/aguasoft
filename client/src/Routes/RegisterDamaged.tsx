@@ -1,10 +1,9 @@
 import * as React from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import { useFormikContext } from 'formik'
+import { useFormikContext, FormikHelpers } from 'formik'
 
 import useAuth from '../hooks/useAuth'
 import useFetch from '../hooks/useFetch'
@@ -16,6 +15,7 @@ import Form from '../components/form/Form'
 import Layout from '../components/Layout'
 import SelectField, { SelectOption } from '../components/form/SelectField'
 import SelectElementField from '../components/inventory/SelectElementField'
+import SubmitButton from '../components/form/SubmitButton'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
@@ -86,7 +86,7 @@ const RegisterDamaged = () => {
 
   const [statesNonce, updateStates] = useNonce()
   const history = useHistory()
-  const handleSubmit = async (values: Values) => {
+  const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
     const { damageType : dType } = values
 
     const url = '/api/inventory/movements/damage'
@@ -110,10 +110,12 @@ const RegisterDamaged = () => {
 
     if (isErrorResponse(response)) {
       showMessage('Error: ' + response.error.message)
+      setSubmitting(false)
       return
     }
 
     showMessage('Guardado exitoso')
+    setSubmitting(false)
     updateStates()
 
     history.push('/movements')
@@ -129,6 +131,7 @@ const RegisterDamaged = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
+          {({values}) => <>
             <Grid item xs={12}>
               <SelectField
                 name='damageType'
@@ -140,7 +143,11 @@ const RegisterDamaged = () => {
 
             <DevolucionForm inventoryElements={inventoryElements} statesNonce={statesNonce} />
             <GeneralForm inventoryElements={inventoryElements} statesNonce={statesNonce} />
-            <SubmitButton />
+
+            <Collapse in={values.damageType !== ''}>
+              <SubmitButton />
+            </Collapse>
+          </>}
         </Form>
       </Paper>
     </Layout>
@@ -239,30 +246,5 @@ const GeneralForm = (props: GeneralFormProps) => {
     </Collapse>
   )
 }
-
-const SubmitButton = () => {
-  const classes = useSubmitButtonStyles()
-
-  const { values } = useFormikContext<Values>()
-  const dType = values.damageType
-
-  return (
-    <Collapse in={dType !== ''}>
-      <Grid item xs={12}>
-        <Button variant='contained' color='primary' type='submit' className={classes.button}>
-          Registrar
-        </Button>
-      </Grid>
-    </Collapse>
-  )
-}
-
-const useSubmitButtonStyles = makeStyles({
-  button: {
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  }
-})
 
 export default RegisterDamaged
