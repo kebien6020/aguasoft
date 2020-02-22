@@ -8,30 +8,7 @@ import * as moment from 'moment'
 
 import { InventoryMovement, User, Storage, InventoryElement } from '../../models'
 import { colors } from '@material-ui/core'
-
-const type = {
-  'manual': {
-    text: 'Movimiento Manual',
-  },
-  'in': {
-    text: 'Ingreso',
-  },
-  'relocation': {
-    text: 'Reubicacion',
-  },
-  'production': {
-    text: 'Produccion',
-  },
-  'sell': {
-    text: 'Venta',
-  },
-  'damage': {
-    text: 'Daño',
-  },
-}
-
-const typeSlugToText = (slug: keyof typeof type) =>
-  type[slug] ? type[slug].text : undefined
+import { movementCauseSlugToText } from '../../constants'
 
 interface DescriptionProps {
   title: React.ReactNode
@@ -88,7 +65,7 @@ const MovementCard = (props: MovementCardProps) => {
   return (
     <Card className={classes.card} style={style}>
       <CardHeader
-        title={typeSlugToText(movement.cause) + (movement.rollback ? ' (Reversada)' : '')}
+        title={movementCauseSlugToText(movement.cause) + (movement.rollback ? ' (Reversada)' : '')}
         className={classes.header}
         classes={{
           title: classes.title,

@@ -5,7 +5,7 @@ import { StorageStateStatic } from '../db/models/storageStates'
 import { StorageStatic, Storage } from '../db/models/storages'
 import { MachineCounterStatic } from '../db/models/machineCounters'
 import models, { sequelize } from '../db/models'
-import { Op, Transaction } from 'sequelize'
+import { Op, Transaction, WhereOptions } from 'sequelize'
 import debug from 'debug'
 import * as yup from 'yup'
 
@@ -236,26 +236,45 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
         .default('asc') as yup.StringSchema<'asc'|'desc'>,
       minDate: yup.date(),
       maxDate: yup.date(),
+      cause: yup.string(),
+      offset: yup.number(),
+      inventoryElementId: yup.number(),
     })
 
     schema.validateSync(req.query)
     const query = schema.cast(req.query)
 
-    const where: { createdAt?: {} } = {}
+    let where: WhereOptions = {}
+    const createdAt : {[Op.gte]?: Date, [Op.lte]?: Date} = {}
     if (query.minDate) {
-      where.createdAt = {...where.createdAt, [Op.gte]: query.minDate}
+      createdAt[Op.gte] = query.minDate
     }
     if (query.maxDate) {
-      where.createdAt = {...where.createdAt, [Op.lte]: query.maxDate}
+      createdAt[Op.lte] = query.maxDate
+    }
+    if (createdAt[Op.gte] || createdAt[Op.lte]) {
+      where.createdAt = createdAt
+    }
+    if (query.cause) {
+      where.cause = query.cause
+    }
+    if (query.inventoryElementId) {
+      where = {...where, [Op.or]: [
+        {inventoryElementFromId: query.inventoryElementId},
+        {inventoryElementToId: query.inventoryElementId},
+      ]}
     }
 
     const movements = await InventoryMovements.findAll({
       limit: query.limit,
+      offset: query.offset,
       order: query.sortField ? [[query.sortField, query.sortDir]] : undefined,
       where,
     })
 
-    res.json(movements)
+    const totalCount = await InventoryMovements.count({where});
+
+    res.json({movements, totalCount})
   } catch (e) {
     next(e)
   }
