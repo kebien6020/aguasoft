@@ -236,6 +236,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
         .default('asc') as yup.StringSchema<'asc'|'desc'>,
       minDate: yup.date(),
       maxDate: yup.date(),
+      offset: yup.number(),
     })
 
     schema.validateSync(req.query)
@@ -251,11 +252,14 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
 
     const movements = await InventoryMovements.findAll({
       limit: query.limit,
+      offset: query.offset,
       order: query.sortField ? [[query.sortField, query.sortDir]] : undefined,
       where,
     })
 
-    res.json(movements)
+    const totalCount = await InventoryMovements.count();
+
+    res.json({movements, totalCount})
   } catch (e) {
     next(e)
   }

@@ -1,24 +1,58 @@
 import * as React from 'react'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
+import Pagination from 'material-ui-flat-pagination'
 
 import useAuth from '../hooks/useAuth'
-import { useSnackbar } from '../components/MySnackbar'
 import useFetch from '../hooks/useFetch'
+import useSnackbar from '../hooks/useSnackbar'
 import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
 import Login from '../components/Login'
 import MovementCard from '../components/inventory/MovementCard'
 import Title from '../components/Title'
 import { Storage, InventoryElement, InventoryMovement, User } from '../models'
+import { paramsToString, Params } from '../utils'
+
+interface InventoryMovementsResponse {
+  movements: InventoryMovement[]
+}
+
+interface InventoryMovementsWithCountResponse extends InventoryMovementsResponse {
+  totalCount?: number
+}
+
+const ITEMS_PER_PAGE = 30
+
+const useMovements = (params: Params = {}) => {
+  const showError = useSnackbar()
+  // const params = {
+  //   sortField: 'createdAt',
+  //   sortDir: 'desc',
+  //   perPage: '30',
+  // } as Params
+  // if (page) params.page = String(page)
+
+  const url = '/api/inventory/movements?' + paramsToString(params)
+
+  type Response = InventoryMovementsWithCountResponse
+  const [res, loading, error] = useFetch<Response>(url, {
+    showError,
+    name: 'la lista de movimientos recientes',
+  })
+
+  const { movements = null, totalCount = null } = res || {}
+
+  return {movements, totalCount, loading, error}
+}
 
 const Movements = () => {
   const classes = useStyles()
 
-  const [snackbar, showError] = useSnackbar()
+  const showError = useSnackbar()
   const [storages] = useFetch<Storage[]>('/api/inventory/storages', {
     showError,
     name: 'la lista de almacenamientos',
@@ -28,10 +62,23 @@ const Movements = () => {
     name: 'la lista de elementos',
   })
 
-  const [movements] = useFetch<InventoryMovement[]>('/api/inventory/movements?limit=30&sortField=createdAt&sortDir=desc', {
-    showError,
-    name: 'la lista de movimientos recientes',
-  })
+  const [offset, setOffset] = useState(0)
+
+  const {movements, totalCount, loading} = useMovements({offset, limit: ITEMS_PER_PAGE})
+
+  const renderPagination = () => (
+    totalCount &&
+      <Pagination
+        limit={ITEMS_PER_PAGE}
+        offset={offset}
+        total={totalCount}
+        onClick={(_, offset) => setOffset(offset)}
+        disabled={loading}
+        className={classes.pagination}
+      />
+  )
+
+  console.log(movements)
 
   const [users] = useFetch<User[]>('/api/users', {
     showError,
@@ -59,8 +106,6 @@ const Movements = () => {
 
   return (
     <Layout title='Movimientos'>
-      {snackbar}
-
       <Title>Registrar Salida de Bodega</Title>
         <Paper className={classes.login}>
         <Login onSuccess={goToRegisterRelocation} auth={auth} buttonColor='black' />
@@ -87,6 +132,7 @@ const Movements = () => {
       </Paper>
 
       <Title>Movimientos recientes</Title>
+      {renderPagination()}
       <Grid container spacing={3} alignItems='stretch'>
         {movements && users && storages && inventoryElements ? movements.map(movement =>
           <Grid item key={movement.id} xs={12} md={6}>
@@ -99,6 +145,7 @@ const Movements = () => {
           </Grid>
         ) : <LoadingIndicator />}
       </Grid>
+      {renderPagination()}
 
     </Layout>
   )
@@ -107,6 +154,9 @@ const Movements = () => {
 const useStyles = makeStyles(theme => ({
   login: {
     padding: theme.spacing(2),
+  },
+  pagination: {
+    textAlign: 'center',
   },
 }))
 

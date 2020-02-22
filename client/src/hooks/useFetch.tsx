@@ -48,7 +48,7 @@ const useFetch = <T extends object>(
     }
 
     fetchData()
-  }, [nonce])
+  }, [url, nonce])
 
   return [data, loading, error] as [T | null, boolean, typeof error]
 }

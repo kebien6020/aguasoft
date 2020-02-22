@@ -102,10 +102,11 @@ export function money(num: number, decimals: number = 0, decSep: string = ',', t
   return '$\u00A0' + s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(Number(n) - Number(i)).toFixed(c).slice(2) : "");
 }
 
-export type Param = string | readonly string[]
+export type ParamValue = string | number
+export type Param = ParamValue | readonly ParamValue[]
 export type Params = {[idx:string]: Param}
 
-function isStringArr(param: Param) : param is readonly string[]  {
+function isValueArr(param: Param) : param is readonly ParamValue[]  {
   return Array.isArray(param)
 }
 
@@ -113,13 +114,13 @@ export function paramsToString(params?: Params) {
   const searchParams = new URLSearchParams()
   if (params) {
     Object.entries(params).forEach(([key, val]) => {
-      if (isStringArr(val)) {
+      if (isValueArr(val)) {
         key += '[]'
-        val.forEach(s => searchParams.append(key, s))
+        val.forEach(s => searchParams.append(key, String(s)))
         return
       }
 
-      searchParams.append(key, val)
+      searchParams.append(key, String(val))
     })
   }
 
