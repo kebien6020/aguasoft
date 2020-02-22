@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 
 import useAuth from '../hooks/useAuth'
+import useNonce from '../hooks/api/useNonce'
 import useSnackbar from '../hooks/useSnackbar'
 import useInventoryElements, { optionsFromElements } from '../hooks/api/useInventoryElements'
 import Form from '../components/form/Form'
@@ -12,10 +12,11 @@ import Layout from '../components/Layout'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
-import { fetchJsonAuth, isErrorResponse } from '../utils'
-import useNonce from '../hooks/api/useNonce'
 import SelectElementField from '../components/inventory/SelectElementField'
+import SubmitButton from '../components/form/SubmitButton'
 import adminOnly from '../hoc/adminOnly'
+import { fetchJsonAuth, isErrorResponse } from '../utils'
+import { FormikBag } from 'formik'
 
 const initialValues = {
   element: '',
@@ -45,7 +46,7 @@ const RegisterEntry = () => {
 
   const [statesNonce, updateStates] = useNonce()
 
-  const handleSubmit = async (values: Values) => {
+  const handleSubmit = async (values: Values, { setSubmitting }: FormikBag<{}, Values>) => {
     const url = '/api/inventory/movements/entry'
     let payload: Object = {
       inventoryElementCode: values.element,
@@ -59,10 +60,12 @@ const RegisterEntry = () => {
 
     if (isErrorResponse(response)) {
       showMessage('Error: ' + response.error.message)
+      setSubmitting(false)
       return
     }
 
     showMessage('Guardado exitoso')
+    setSubmitting(false)
     updateStates()
   }
 
@@ -110,25 +113,5 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
 }))
-
-const SubmitButton = () => {
-  const classes = useSubmitButtonStyles()
-
-  return (
-    <Grid item xs={12}>
-      <Button variant='contained' color='primary' type='submit' className={classes.button}>
-        Registrar
-      </Button>
-    </Grid>
-  )
-}
-
-const useSubmitButtonStyles = makeStyles({
-  button: {
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  }
-})
 
 export default adminOnly(RegisterEntry)
