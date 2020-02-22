@@ -2,7 +2,6 @@ import * as React from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import MuiCollapse, { CollapseProps } from '@material-ui/core/Collapse'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -17,6 +16,7 @@ import Form from '../components/form/Form'
 import Layout from '../components/Layout'
 import Title from '../components/Title'
 import SelectField from '../components/form/SelectField'
+import SubmitButton from '../components/form/SubmitButton'
 import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
 import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse, NotEnoughInSourceError } from '../utils'
@@ -74,7 +74,7 @@ const productionTypeOptions : ProductionTypeOption[] = [
   {value: 'bolsa-360-congelada', label: 'Bolsa 360 Congelada'},
 ]
 
-interface FormValues {
+interface Values {
   productionType: ProductionType | ''
   counterStart: string
   counterEnd: string
@@ -106,7 +106,7 @@ interface DamagedAutofillProps {
 const DamagedAutofill = (props: DamagedAutofillProps) => {
   const { detectDamaged, quantityInIntermediate } = props
 
-  const { values, setFieldValue } : FormikContextType<FormValues> = useFormikContext()
+  const { values, setFieldValue } : FormikContextType<Values> = useFormikContext()
 
   useEffect(() => {
     if (values.productionType !== 'paca-360') return
@@ -142,7 +142,7 @@ const RegisterProduction = () => {
   const auth = useAuth()
   const showMessage = useSnackbar()
 
-  const [initialValues, setInitialValues] = useState<FormValues>({
+  const [initialValues, setInitialValues] = useState<Values>({
     productionType: '' as ProductionType | '',
     counterStart: '',
     counterEnd: '',
@@ -179,7 +179,7 @@ const RegisterProduction = () => {
       null
 
   const history = useHistory()
-  const handleSubmit = async (values: typeof initialValues, {setFieldValue} : FormikHelpers<typeof initialValues>) => {
+  const handleSubmit = async (values: Values, {setFieldValue, setSubmitting} : FormikHelpers<Values>) => {
     const url = '/api/inventory/movements/production'
 
     const pType = values.productionType
@@ -225,6 +225,7 @@ const RegisterProduction = () => {
       })()
 
       showMessage('Error al registrar la producción: ' + msg)
+      setSubmitting(false)
       return
     }
 
@@ -235,6 +236,7 @@ const RegisterProduction = () => {
 
     showMessage('Guardado exitoso')
     history.push('/movements')
+    setSubmitting(false)
   }
 
   return (
@@ -329,11 +331,7 @@ const RegisterProduction = () => {
               </Grid>
             </Collapse>
             <Collapse in={values.productionType !== ''}>
-              <Grid item xs={12}>
-                <Button variant='contained' color='primary' type='submit' className={classes.button}>
-                  Registrar
-                </Button>
-              </Grid>
+              <SubmitButton />
             </Collapse>
           </>}
         </Form>

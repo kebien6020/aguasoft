@@ -2,10 +2,10 @@ import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+import { FormikHelpers } from 'formik'
 
 import useAuth from '../hooks/useAuth'
 import useFetch from '../hooks/useFetch'
@@ -16,6 +16,7 @@ import Collapse from '../components/Collapse'
 import Form from '../components/form/Form'
 import Layout from '../components/Layout'
 import SelectElementField from '../components/inventory/SelectElementField'
+import SubmitButton from '../components/form/SubmitButton'
 import Subtitle from '../components/Subtitle'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
@@ -72,7 +73,7 @@ const RegisterRelocation = () => {
   const [statesNonce, updateStates] = useNonce()
 
   const history = useHistory()
-  const handleSubmit = async (values: Values) => {
+  const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
     const url = '/api/inventory/movements/relocation'
     let payload: Object = {
       inventoryElementCode: values.element,
@@ -93,12 +94,14 @@ const RegisterRelocation = () => {
 
     if (isErrorResponse(response)) {
       showMessage('Error: ' + response.error.message)
+      setSubmitting(false)
       return
     }
 
     showMessage('Guardado exitoso')
     updateStates()
     history.push('/movements')
+    setSubmitting(false)
   }
 
   return (
@@ -185,25 +188,5 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
 }))
-
-const SubmitButton = () => {
-  const classes = useSubmitButtonStyles()
-
-  return (
-    <Grid item xs={12}>
-      <Button variant='contained' color='primary' type='submit' className={classes.button}>
-        Registrar
-      </Button>
-    </Grid>
-  )
-}
-
-const useSubmitButtonStyles = makeStyles({
-  button: {
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  }
-})
 
 export default RegisterRelocation

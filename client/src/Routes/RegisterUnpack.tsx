@@ -1,14 +1,15 @@
 import * as React from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
+import { FormikHelpers } from 'formik'
 
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import Form from '../components/form/Form'
 import Layout from '../components/Layout'
+import SubmitButton from '../components/form/SubmitButton'
 import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
@@ -31,7 +32,7 @@ const RegisterUnpack = () => {
   const showMessage = useSnackbar()
 
   const history = useHistory()
-  const handleSubmit = async (values: Values) => {
+  const handleSubmit = async (values: Values, {setSubmitting}: FormikHelpers<Values>) => {
     const url = '/api/inventory/movements/unpack'
     let payload: Object = {
       amount: Number(values.amount),
@@ -44,11 +45,13 @@ const RegisterUnpack = () => {
 
     if (isErrorResponse(response)) {
       showMessage('Error: ' + response.error.message)
+      setSubmitting(false)
       return
     }
 
     showMessage('Guardado exitoso')
     history.push('/movements')
+    setSubmitting(false)
   }
 
   return (
@@ -85,25 +88,5 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
 }))
-
-const SubmitButton = () => {
-  const classes = useSubmitButtonStyles()
-
-  return (
-    <Grid item xs={12}>
-      <Button variant='contained' color='primary' type='submit' className={classes.button}>
-        Registrar
-      </Button>
-    </Grid>
-  )
-}
-
-const useSubmitButtonStyles = makeStyles({
-  button: {
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  }
-})
 
 export default RegisterUnpack

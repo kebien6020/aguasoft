@@ -16,7 +16,7 @@ import SelectElementField from '../components/inventory/SelectElementField'
 import SubmitButton from '../components/form/SubmitButton'
 import adminOnly from '../hoc/adminOnly'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
-import { FormikBag } from 'formik'
+import { FormikHelpers } from 'formik'
 
 const initialValues = {
   element: '',
@@ -46,7 +46,7 @@ const RegisterEntry = () => {
 
   const [statesNonce, updateStates] = useNonce()
 
-  const handleSubmit = async (values: Values, { setSubmitting }: FormikBag<{}, Values>) => {
+  const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
     const url = '/api/inventory/movements/entry'
     let payload: Object = {
       inventoryElementCode: values.element,
@@ -67,6 +67,7 @@ const RegisterEntry = () => {
     showMessage('Guardado exitoso')
     setSubmitting(false)
     updateStates()
+    setSubmitting(false)
   }
 
   return (
