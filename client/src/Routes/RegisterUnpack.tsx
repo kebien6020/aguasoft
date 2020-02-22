@@ -67,7 +67,7 @@ const RegisterUnpack = () => {
             <Grid item xs={12}>
               <TextField
                 name='amount'
-                label='Bolsas a desempacar'
+                label='Pacas a desempacar'
               />
             </Grid>
 
