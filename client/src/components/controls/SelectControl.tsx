@@ -12,7 +12,7 @@ export interface SelectOption {
 }
 
 export interface SelectControlProps extends SelectProps {
-  name: string
+  name?: string
   label: React.ReactNode
   emptyOption?: React.ReactNode
   options?: SelectOption[] | null

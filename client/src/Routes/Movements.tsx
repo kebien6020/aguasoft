@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useCallback, useState, useRef } from 'react'
+import { useCallback, useState, useRef, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
@@ -13,9 +13,11 @@ import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
 import Login from '../components/Login'
 import MovementCard from '../components/inventory/MovementCard'
+import SelectControl from '../components/controls/SelectControl'
 import Title from '../components/Title'
 import { Storage, InventoryElement, InventoryMovement, User } from '../models'
 import { paramsToString, Params, scrollToRef } from '../utils'
+import { movementCauseOptions } from '../constants'
 
 interface InventoryMovementsResponse {
   movements: InventoryMovement[]
@@ -29,12 +31,6 @@ const ITEMS_PER_PAGE = 30
 
 const useMovements = (params: Params = {}) => {
   const showError = useSnackbar()
-  // const params = {
-  //   sortField: 'createdAt',
-  //   sortDir: 'desc',
-  //   perPage: '30',
-  // } as Params
-  // if (page) params.page = String(page)
 
   const url = '/api/inventory/movements?' + paramsToString(params)
 
@@ -63,8 +59,25 @@ const Movements = () => {
   })
 
   const [offset, setOffset] = useState(0)
+  const [causeFilter, setCauseFilter] = useState('')
 
-  const {movements, totalCount, loading} = useMovements({offset, limit: ITEMS_PER_PAGE})
+  const params: Params = {
+    offset,
+    limit: ITEMS_PER_PAGE,
+    sortDir: 'desc',
+    sortField: 'createdAt',
+  }
+  if (causeFilter) params.cause = causeFilter
+
+  const {movements, totalCount, loading} = useMovements(params)
+
+  // Handle filter change while on a high page number
+  useEffect(() => {
+    if (totalCount && offset > totalCount) {
+      const page = Math.floor(totalCount/ITEMS_PER_PAGE)
+      setOffset(page * ITEMS_PER_PAGE)
+    }
+  }, [offset, totalCount])
 
   const scrollTargetRef = useRef<HTMLDivElement>(null)
 
@@ -136,6 +149,19 @@ const Movements = () => {
 
       <div ref={scrollTargetRef} style={{height: 0}} />
       <Title>Movimientos recientes</Title>
+      <Grid container spacing={3} justify='center'>
+        <Grid item xs={12} md={6}>
+          <SelectControl
+            id='cause-filter'
+            name='cause-filter'
+            label='Tipo de Movimiento'
+            emptyOption='Todos'
+            options={movementCauseOptions}
+            value={causeFilter}
+            onChange={(e) => setCauseFilter(e.target.value as string)}
+          />
+        </Grid>
+      </Grid>
       {renderPagination()}
       <Grid container spacing={3} alignItems='stretch'>
         {movements && users && storages && inventoryElements ? movements.map(movement =>
