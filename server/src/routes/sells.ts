@@ -345,6 +345,11 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
     const sellId = req.params.id
     const sell = await Sells.findByPk(sellId)
+
+    if (sell.deleted) {
+      throw Error('Venta ya habia sido eliminada')
+    }
+
     sell.set('deleted', true)
 
     const transaction = await sequelize.transaction()
