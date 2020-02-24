@@ -8,6 +8,7 @@ import Pagination from 'material-ui-flat-pagination'
 
 import useAuth from '../hooks/useAuth'
 import useFetch from '../hooks/useFetch'
+import useMovements from '../hooks/api/useMovements'
 import useSnackbar from '../hooks/useSnackbar'
 import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -15,35 +16,11 @@ import Login from '../components/Login'
 import MovementCard from '../components/inventory/MovementCard'
 import SelectControl from '../components/controls/SelectControl'
 import Title from '../components/Title'
-import { Storage, InventoryElement, InventoryMovement, User } from '../models'
-import { paramsToString, Params, scrollToRef } from '../utils'
+import { Storage, InventoryElement, User } from '../models'
+import { Params, scrollToRef } from '../utils'
 import { movementCauseOptions } from '../constants'
 
-interface InventoryMovementsResponse {
-  movements: InventoryMovement[]
-}
-
-interface InventoryMovementsWithCountResponse extends InventoryMovementsResponse {
-  totalCount?: number
-}
-
 const ITEMS_PER_PAGE = 30
-
-const useMovements = (params: Params = {}) => {
-  const showError = useSnackbar()
-
-  const url = '/api/inventory/movements?' + paramsToString(params)
-
-  type Response = InventoryMovementsWithCountResponse
-  const [res, loading, error] = useFetch<Response>(url, {
-    showError,
-    name: 'la lista de movimientos recientes',
-  })
-
-  const { movements = null, totalCount = null } = res || {}
-
-  return {movements, totalCount, loading, error}
-}
 
 const Movements = () => {
   const classes = useStyles()

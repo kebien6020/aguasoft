@@ -19,7 +19,13 @@ const socket = socketio('/', {
   autoConnect: false,
 })
 
-const CurrentInventoryState = () => {
+interface CurrentInventoryStateProps {
+  inventoryElements: InventoryElement[] | null
+}
+
+const CurrentInventoryState = (props: CurrentInventoryStateProps) => {
+  const { inventoryElements } = props
+
   const classes = useStyles()
 
   // Create manual movement
@@ -41,10 +47,6 @@ const CurrentInventoryState = () => {
   const [storages] = useFetch<Storage[]>('/api/inventory/storages', {
     showError,
     name: 'la lista de almacenamientos',
-  })
-  const [inventoryElements] = useFetch<InventoryElement[]>('/api/inventory/inventoryElements', {
-    showError,
-    name: 'la lista de elementos',
   })
 
   const [storageStates, update] = useStorageStates()
