@@ -227,6 +227,17 @@ export async function listStorageStates(req: Request, res: Response, next: NextF
 
 export async function listMovements(req: Request, res: Response, next: NextFunction) {
   try {
+    const possibleInclussions = [
+      'storageFrom',
+      'storageTo',
+      'inventoryElementFrom',
+      'inventoryElementTo',
+      'creator',
+      'deletor',
+    ] as const
+
+    type PossibleInclussions = typeof possibleInclussions[number]
+
     const schema = yup.object().noUnknown().shape({
       limit: yup.number(),
       sortField: yup.string(),
@@ -239,6 +250,9 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       cause: yup.string(),
       offset: yup.number(),
       inventoryElementId: yup.number(),
+      include: yup.array().of(
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Writeable<typeof possibleInclussions>)
+      ),
     })
 
     schema.validateSync(req.query)
@@ -270,6 +284,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       offset: query.offset,
       order: query.sortField ? [[query.sortField, query.sortDir]] : undefined,
       where,
+      include: query.include,
     })
 
     const totalCount = await InventoryMovements.count({where});
