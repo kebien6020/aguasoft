@@ -1,11 +1,10 @@
 import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Card, { CardProps } from '@material-ui/core/Card'
+import { CardProps } from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
-import CardHeader from '@material-ui/core/CardHeader'
-import clsx from 'clsx'
 
 import Description from '../../Description'
+import SummaryCard from './SummaryCard'
+import SummaryCardHeader from './SummaryCardHeader'
 import { InventoryMovement } from '../../../models'
 import { DayMovements } from '../MovementSummary'
 
@@ -16,7 +15,6 @@ export interface Paca360CardProps extends CardProps {
 
 const Paca360Card = (props: Paca360CardProps) => {
   const { className, dayMovements, ...otherProps } = props
-  const classes = usePaca360Styles()
 
   const sumQtyFrom = (acc: number, movement: InventoryMovement) =>
     acc + Number(movement.quantityFrom)
@@ -124,14 +122,8 @@ const Paca360Card = (props: Paca360CardProps) => {
     .length
 
   return (
-    <Card className={clsx(classes.card, className)} {...otherProps}>
-      <CardHeader
-        title='Bolsa / Paca 360'
-        className={classes.header}
-        classes={{
-          title: classes.title,
-        }}
-      />
+    <SummaryCard {...otherProps}>
+      <SummaryCardHeader title='Bolsa / Paca 360' />
       <CardContent>
         <Description
           title='Rollos movidos desde bodega'
@@ -190,24 +182,8 @@ const Paca360Card = (props: Paca360CardProps) => {
           />
         }
       </CardContent>
-    </Card>
+    </SummaryCard>
   )
 }
-
-const usePaca360Styles = makeStyles(theme => ({
-  card: {
-    borderLeftWidth: '4px',
-    borderLeftStyle: 'solid',
-    borderLeftColor: theme.palette.primary.main,
-    height: '100%',
-  },
-  header: {
-    borderBottom: '1px solid rgba(0,0,0,0.1)',
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-  },
-}))
 
 export default Paca360Card
