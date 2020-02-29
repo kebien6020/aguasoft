@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
+import { makeStyles } from '@material-ui/core/styles'
 import Card, { CardProps } from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
@@ -7,33 +8,10 @@ import clsx from 'clsx'
 import * as moment from 'moment'
 
 import useMovements from '../../hooks/api/useMovements'
-import Title from '../Title'
-import { makeStyles } from '@material-ui/core/styles'
-import { InventoryMovement } from '../../models'
+import Description from '../Description'
 import MyDatePicker from '../MyDatePicker'
-
-interface DescriptionProps {
-  title: React.ReactNode
-  text: React.ReactNode
-}
-
-const Description = (props: DescriptionProps) => {
-  const classes = useDescriptionStyles()
-
-  return (
-    <div className={classes.container}>
-      <strong>{props.title}:</strong>&nbsp;{props.text}
-    </div>
-  )
-}
-
-const useDescriptionStyles = makeStyles({
-  container: {
-    '& strong': {
-      fontWeight: 600,
-    }
-  }
-})
+import Title from '../Title'
+import { InventoryMovement } from '../../models'
 
 type MakeRequired<T,K extends keyof T> =
   Pick<T, Exclude<keyof T, K>> & {[P in K]-?:Exclude<T[P],undefined> }
@@ -126,8 +104,6 @@ const Paca360Card = (props: Paca360CardProps) => {
     pacasSoldTotal &&
     pacasSoldRollback &&
     pacasSoldTotal - pacasSoldRollback
-
-  console.log({pacasSoldTotal, pacasSoldRollback})
 
   const pacasSoldRollbackAmount = pacasSoldRollbackMovements?.length
 
