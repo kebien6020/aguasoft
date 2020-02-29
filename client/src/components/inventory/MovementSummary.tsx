@@ -6,10 +6,12 @@ import * as moment from 'moment'
 import useMovements from '../../hooks/api/useMovements'
 import MyDatePicker from '../MyDatePicker'
 import Title from '../Title'
+import Bolsa6LCard from './summary/Bolsa6LCard'
+import Paca360Card from './summary/Paca360Card'
 import { InventoryMovement } from '../../models'
 import { MakeRequired } from '../../utils'
-import Paca360Card from './summary/Paca360Card'
 
+// Storages can be null
 type RequiredInclusions = 'inventoryElementFrom' | 'inventoryElementTo'
 export type DayMovements = MakeRequired<InventoryMovement, RequiredInclusions>[] | null
 
@@ -37,7 +39,6 @@ const MovementSummary = () => {
 
   const { movements } = useMovements(params)
 
-  // Storages can be null
   const dayMovements = movements as DayMovements
 
   return (
@@ -46,6 +47,7 @@ const MovementSummary = () => {
       {datePicker}
 
       <Paca360Card dayMovements={dayMovements} />
+      <Bolsa6LCard dayMovements={dayMovements}/>
     </div>
   )
 }
