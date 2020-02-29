@@ -1,11 +1,10 @@
 import * as React from 'react'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import Card, { CardProps } from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import CardHeader from '@material-ui/core/CardHeader'
 import clsx from 'clsx'
 import * as moment from 'moment'
-import { Moment } from 'moment'
 
 import useMovements from '../../hooks/api/useMovements'
 import Title from '../Title'
@@ -39,25 +38,15 @@ const useDescriptionStyles = makeStyles({
 type MakeRequired<T,K extends keyof T> =
   Pick<T, Exclude<keyof T, K>> & {[P in K]-?:Exclude<T[P],undefined> }
 
+type RequiredInclusions = 'inventoryElementFrom' | 'inventoryElementTo'
+type DayMovements = MakeRequired<InventoryMovement, RequiredInclusions>[] | null
 interface Paca360CardProps extends CardProps {
-  date: Moment
+  dayMovements: DayMovements
 }
 
 const Paca360Card = (props: Paca360CardProps) => {
-  const { className, date, ...otherProps } = props
+  const { className, dayMovements, ...otherProps } = props
   const classes = usePaca360Styles()
-
-  const params = {
-    include: ['storageFrom', 'storageTo', 'inventoryElementFrom', 'inventoryElementTo'],
-    minDate: date.startOf('day').toISOString(),
-    maxDate: date.endOf('day').toISOString(),
-  } as const
-
-  const { movements } = useMovements(params)
-
-  // Storages can be null
-  type RequiredInclusions = 'inventoryElementFrom' | 'inventoryElementTo'
-  const dayMovements = movements as MakeRequired<InventoryMovement, RequiredInclusions>[] | null
 
   const sumQtyFrom = (acc: number, movement: InventoryMovement) =>
     acc + Number(movement.quantityFrom)
@@ -258,25 +247,34 @@ const MovementSummary = () => {
 
   // Date picker
   const [date, setDate] = useState(() => moment().startOf('day'))
-  const handleDateChange = useCallback((date: Moment) => {
-    setDate(date)
-  }, [])
   const datePicker =
     <MyDatePicker
       date={date}
-      onDateChange={handleDateChange}
+      onDateChange={setDate}
       DatePickerProps={{
         inputVariant: 'outlined',
         label: 'Fecha',
       }}
     />
 
+  // Load day movements
+  const params = {
+    include: ['storageFrom', 'storageTo', 'inventoryElementFrom', 'inventoryElementTo'],
+    minDate: date.startOf('day').toISOString(),
+    maxDate: date.endOf('day').toISOString(),
+  } as const
+
+  const { movements } = useMovements(params)
+
+  // Storages can be null
+  const dayMovements = movements as DayMovements
+
   return (
     <div className={classes.section}>
       <Title>Resumen por Productos</Title>
       {datePicker}
 
-      <Paca360Card date={date} />
+      <Paca360Card dayMovements={dayMovements} />
     </div>
   )
 }
