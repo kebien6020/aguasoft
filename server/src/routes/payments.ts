@@ -21,7 +21,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     const user = await Users.findByPk(req.session.userId)
 
     if (user.role !== 'admin') {
-      body.directPayment = false
+      body.directPayment = true
       body.date = moment().toISOString()
     }
 
