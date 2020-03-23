@@ -91,8 +91,8 @@ const Paca360Card = (props: Paca360CardProps) => {
     ?.reduce(sumQtyTo, 0)
 
   const pacasSold =
-    pacasSoldTotal &&
-    pacasSoldRollback &&
+    pacasSoldTotal !== undefined &&
+    pacasSoldRollback !== undefined &&
     pacasSoldTotal - pacasSoldRollback
 
   const pacasSoldRollbackAmount = pacasSoldRollbackMovements?.length

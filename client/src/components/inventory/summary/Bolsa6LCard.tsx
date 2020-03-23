@@ -26,6 +26,65 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
     )
     .reduce(sumQtyTo, 0)
 
+  const bolsasProduced = dayMovements
+    ?.filter(movement =>
+         movement.cause === 'production'
+      && movement.inventoryElementTo.code === 'bolsa-6l'
+      && movement.storageFrom?.code === 'trabajo'
+      && movement.storageTo?.code === 'terminado'
+    )
+    .reduce(sumQtyTo, 0)
+
+  const bolsasDamaged = dayMovements
+    ?.filter(movement =>
+         movement.cause === 'damage'
+      && movement.inventoryElementFrom.code === 'bolsa-6l'
+    )
+    .reduce(sumQtyTo, 0)
+
+  const bolsasRawDamaged = dayMovements
+    ?.filter(movement =>
+         movement.cause === 'damage'
+      && movement.inventoryElementFrom.code === 'bolsa-6l-raw'
+    )
+    .reduce(sumQtyTo, 0)
+
+  const bolsasSoldTotal = dayMovements
+    ?.filter(movement =>
+         movement.cause === 'sell'
+      && movement.inventoryElementFrom.code === 'bolsa-6l'
+      && movement.rollback === false
+    )
+    .reduce(sumQtyTo, 0)
+
+
+  const bolsasSoldRollbackMovements = dayMovements
+    ?.filter(movement =>
+         movement.cause === 'sell'
+      && movement.inventoryElementFrom.code === 'bolsa-6l'
+      && movement.rollback === true
+    )
+
+  const bolsasSoldRollback = bolsasSoldRollbackMovements
+    ?.reduce(sumQtyTo, 0)
+
+  const bolsasSold =
+    bolsasSoldTotal !== undefined &&
+    bolsasSoldRollback !== undefined &&
+    bolsasSoldTotal - bolsasSoldRollback
+
+  const bolsasSoldRollbackAmount = bolsasSoldRollbackMovements?.length
+
+  const bolsasManualMovements = dayMovements
+    ?.filter(movement => movement.cause === 'manual')
+    ?.filter(movement =>
+         movement.inventoryElementFrom?.code === 'bolsa-6l'
+      || movement.inventoryElementTo?.code === 'bolsa-6l'
+      || movement.inventoryElementFrom?.code === 'bolsa-6l-raw'
+      || movement.inventoryElementTo?.code === 'bolsa-6l-raw'
+    )
+    .length
+
   return (
     <SummaryCard {...otherProps}>
       <SummaryCardHeader title='Bolsa 6L' />
@@ -34,6 +93,36 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
           title='Bolsas movidas desde bodega'
           text={bolsasFromBodega}
         />
+        {bolsasProduced !== undefined && bolsasProduced > 0 &&
+          <Description
+            title='Bolsas insumo dañadas'
+            text={bolsasRawDamaged}
+          />
+        }
+        <Description
+          title='Bolsas dañadas'
+          text={bolsasDamaged}
+        />
+        <Description
+          title='Bolsas producidas'
+          text={bolsasProduced}
+        />
+        <Description
+          title='Bolsas vendidas'
+          text={bolsasSold}
+        />
+        {bolsasSoldRollbackAmount !== undefined && bolsasSoldRollbackAmount > 0 &&
+          <Description
+            title='Cantidad de ventas de bolsas reversadas'
+            text={bolsasSoldRollbackAmount}
+          />
+        }
+        {bolsasManualMovements !== undefined && bolsasManualMovements > 0 &&
+          <Description
+            title='Movimientos manuales'
+            text={bolsasManualMovements}
+          />
+        }
       </CardContent>
     </SummaryCard>
   )
