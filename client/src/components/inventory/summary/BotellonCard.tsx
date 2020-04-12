@@ -24,7 +24,7 @@ const BotellonCard = (props: BotellonCardProps) => {
   const botellonSoldTotal = dayMovements
     ?.filter(movement =>
          movement.cause === 'sell'
-      && movement.inventoryElementFrom.code === 'paca-360'
+      && movement.inventoryElementFrom.code === 'termoencogible'
       && movement.rollback === false
     )
     .reduce(sumQtyTo, 0)
@@ -33,7 +33,7 @@ const BotellonCard = (props: BotellonCardProps) => {
   const botellonSoldRollbackMovements = dayMovements
     ?.filter(movement =>
          movement.cause === 'sell'
-      && movement.inventoryElementFrom.code === 'paca-360'
+      && movement.inventoryElementFrom.code === 'termoencogible'
       && movement.rollback === true
     )
 
@@ -47,6 +47,32 @@ const BotellonCard = (props: BotellonCardProps) => {
 
   const botellonSoldRollbackAmount = botellonSoldRollbackMovements?.length
 
+  const botellonNuevoSoldTotal = dayMovements
+    ?.filter(movement =>
+         movement.cause === 'sell'
+      && movement.inventoryElementFrom.code === 'botellon-nuevo'
+      && movement.rollback === false
+    )
+    .reduce(sumQtyTo, 0)
+
+
+  const botellonNuevoSoldRollbackMovements = dayMovements
+    ?.filter(movement =>
+         movement.cause === 'sell'
+      && movement.inventoryElementFrom.code === 'botellon-nuevo'
+      && movement.rollback === true
+    )
+
+  const botellonNuevoSoldRollback = botellonNuevoSoldRollbackMovements
+    ?.reduce(sumQtyTo, 0)
+
+  const botellonNuevoSold =
+    botellonNuevoSoldTotal !== undefined &&
+    botellonNuevoSoldRollback !== undefined &&
+    botellonNuevoSoldTotal - botellonNuevoSoldRollback
+
+  const botellonNuevoSoldRollbackAmount = botellonNuevoSoldRollbackMovements?.length
+
   return (
     <SummaryCard {...otherProps}>
       <SummaryCardHeader title='Botellón' />
@@ -59,6 +85,16 @@ const BotellonCard = (props: BotellonCardProps) => {
           <Description
             title='Cantidad de ventas de botellón reversadas'
             text={botellonSoldRollbackAmount}
+          />
+        }
+        <Description
+          title='Botellones nuevos vendidos'
+          text={botellonNuevoSold}
+        />
+        {botellonSoldRollbackAmount !== undefined && botellonSoldRollbackAmount > 0 &&
+          <Description
+            title='Cantidad de ventas de botellón nuevo reversadas'
+            text={botellonNuevoSoldRollbackAmount}
           />
         }
       </CardContent>
