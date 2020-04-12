@@ -4,9 +4,10 @@ import { InventoryElementStatic } from '../db/models/inventoryElements'
 import { SellStatic, Sell } from '../db/models/sells'
 import { PriceStatic } from '../db/models/prices'
 import { ProductStatic } from '../db/models/products'
-import { StorageStatic } from '../db/models/storages'
+import { StorageStatic, Storage } from '../db/models/storages'
 import { Op, Includeable } from 'sequelize'
 import { CreateManualMovementArgs, createMovement } from './inventory'
+import { Mutable } from '../utils/types'
 
 const Sells = models.Sells as SellStatic
 const Prices = models.Prices as PriceStatic
@@ -158,7 +159,7 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
         const storages = await Storages.findAll({
           where: {
             code: {
-              [Op.in]: storageCodes
+              [Op.in]: storageCodes as Mutable<typeof storageCodes>
             },
           },
         })
@@ -277,7 +278,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
 
 export async function listDayFrom(req: Request, res: Response, next: NextFunction) {
   try {
-    const fromId: string = req.query.fromId
+    const fromId = typeof req.query.fromId === 'string' ? req.query.fromId : undefined
     const firstSell = await Sells.findOne({
       where: {
         id: {
@@ -380,7 +381,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       const storages = await Storages.findAll({
         where: {
           code: {
-            [Op.in]: storageCodes
+            [Op.in]: storageCodes as Mutable<typeof storageCodes>
           },
         },
       })
@@ -389,7 +390,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
         const storageToCode = detail.storageCode || 'terminado'
         const elementCode = detail.elementCode
 
-        const storageTo = storages.find(s => s.code === storageToCode)
+        const storageTo = storages.find((s: Storage) => s.code === storageToCode)
         if (!storageTo) {
           throw new Error(`No se encontró el almacen con el código ${storageToCode}`)
         }

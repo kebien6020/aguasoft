@@ -8,8 +8,7 @@ import models, { sequelize } from '../db/models'
 import { Op, Transaction, WhereOptions } from 'sequelize'
 import debug from 'debug'
 import * as yup from 'yup'
-
-type Writeable<T> = { -readonly [P in keyof T]: T[P] }
+import { Mutable } from '../utils/types'
 
 const InventoryElements = models.InventoryElements as InventoryElementStatic
 const InventoryMovements = models.InventoryMovements as InventoryMovementStatic
@@ -208,7 +207,7 @@ export async function listStorageStates(req: Request, res: Response, next: NextF
 
     const schema = yup.object({
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Writeable<typeof possibleInclussions>)
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>)
       ),
     })
 
@@ -251,7 +250,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       offset: yup.number(),
       inventoryElementId: yup.number(),
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Writeable<typeof possibleInclussions>)
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>)
       ),
     })
 
@@ -601,7 +600,7 @@ export async function damageMovement(req: Request, res: Response, next: NextFunc
     const userId = Number(req.session.userId)
 
     const schema = yup.object({
-      damageType: yup.mixed<DamageType>().oneOf(damageTypes as Writeable<typeof damageTypes>).required(),
+      damageType: yup.mixed<DamageType>().oneOf(damageTypes as Mutable<typeof damageTypes>).required(),
       storageCode: yup.mixed().when('damageType', {is: 'general',
         then: yup.string().required(),
       }),
@@ -782,7 +781,9 @@ export async function relocationMovement(req: Request, res: Response, next: Next
     const storages = await Storages.findAll({
       where: {
         code: {
-          [Op.in]: storageCodes,
+          // The type in @types/sequelize expects a mutable array
+          // it doen't actually mutate it
+          [Op.in]: storageCodes as Mutable<typeof storageCodes>,
         },
       },
     })
