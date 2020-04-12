@@ -9,6 +9,7 @@ import Title from '../Title'
 import Bolsa6LCard from './summary/Bolsa6LCard'
 import Paca360Card from './summary/Paca360Card'
 import BotellonCard from './summary/BotellonCard'
+import HieloCard from './summary/HieloCard'
 import { InventoryMovement } from '../../models'
 import { MakeRequired } from '../../utils'
 
@@ -50,6 +51,7 @@ const MovementSummary = () => {
       <Paca360Card dayMovements={dayMovements} />
       <Bolsa6LCard dayMovements={dayMovements} />
       <BotellonCard dayMovements={dayMovements} />
+      <HieloCard dayMovements={dayMovements} />
     </div>
   )
 }
