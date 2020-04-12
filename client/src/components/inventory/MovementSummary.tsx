@@ -8,6 +8,7 @@ import MyDatePicker from '../MyDatePicker'
 import Title from '../Title'
 import Bolsa6LCard from './summary/Bolsa6LCard'
 import Paca360Card from './summary/Paca360Card'
+import BotellonCard from './summary/BotellonCard'
 import { InventoryMovement } from '../../models'
 import { MakeRequired } from '../../utils'
 
@@ -47,7 +48,8 @@ const MovementSummary = () => {
       {datePicker}
 
       <Paca360Card dayMovements={dayMovements} />
-      <Bolsa6LCard dayMovements={dayMovements}/>
+      <Bolsa6LCard dayMovements={dayMovements} />
+      <BotellonCard dayMovements={dayMovements} />
     </div>
   )
 }
