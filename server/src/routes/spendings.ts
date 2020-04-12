@@ -96,7 +96,8 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
 
 export async function listDay(req: Request, res: Response, next: NextFunction) {
   try {
-    const day = moment(req.query.day).startOf('day')
+    const dayInput = typeof req.query.day === 'string' ? req.query.day : undefined
+    const day = moment(dayInput).startOf('day')
     const spendings = await Spendings.findAll({
       attributes: [
         'id',
@@ -134,7 +135,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
 
 export async function listRecent(req: Request, res: Response, next: NextFunction) {
   try {
-    const amount = req.query.amount || 3
+    const amount = Number(req.query.amount) || 3
     const spendings = await Spendings.findAll({
       attributes: [
         'id',
