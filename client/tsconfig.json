@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "jsx": "react",
-    "target": "esNext",
+    "target": "es2018",
     "lib": ["es5", "es6", "dom"],
     "skipLibCheck": true,
     "strictNullChecks": true,

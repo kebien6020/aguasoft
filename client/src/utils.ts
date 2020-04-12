@@ -91,23 +91,40 @@ export function isErrorResponse(
 }
 
 // Adapted from https://stackoverflow.com/a/149099/4992717
-export function money(num: number, decimals: number = 0, decSep: string = ',', thouSep: string = ','): string {
-  let n: (string|number) = num
-  const c = decimals
-  const d = decSep
-  const t = thouSep
-  const s = n < 0 ? "-" : ""
-  const i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c)))
-  const j = i.length > 3 ? i.length % 3 : 0;
-  return '$\u00A0' + s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(Number(n) - Number(i)).toFixed(c).slice(2) : "");
+export function money(num: number, decimals: number = 0, decSep: string = ',',
+    thouSep: string = ','): string {
+  const sign = num < 0 ? '-' : ''
+  const absFixed = Math.abs(Number(num) || 0).toFixed(decimals)
+  const integerPart = String(parseInt(absFixed))
+  const headLen = integerPart.length > 3 ? integerPart.length % 3 : 0;
+  const numHeadWithSep = headLen ? integerPart.substr(0, headLen) + thouSep : ''
+  const numRestWithSep = integerPart
+    .substr(headLen)
+    .replace(/(\d{3})(?=\d)/g, '$1' + thouSep)
+  const decimalsStr = Math.abs(Number(absFixed) - Number(integerPart))
+    .toFixed(decimals)
+    .slice(2)
+  return (
+      '$\u00A0'
+    + sign
+    + numHeadWithSep
+    + numRestWithSep
+    + (decimals ? decSep + decimalsStr : '')
+  );
 }
 
-export type ParamValue = string | number
+export type ParamValue = string | number | undefined
 export type Param = ParamValue | readonly ParamValue[]
 export type Params = {[idx:string]: Param}
 
 function isValueArr(param: Param) : param is readonly ParamValue[]  {
   return Array.isArray(param)
+}
+
+const appendParam = (search: URLSearchParams,key: string, val: ParamValue) => {
+  if (val !== undefined) {
+    search.append(key, String(val))
+  }
 }
 
 export function paramsToString(params?: Params) {
@@ -116,11 +133,11 @@ export function paramsToString(params?: Params) {
     Object.entries(params).forEach(([key, val]) => {
       if (isValueArr(val)) {
         key += '[]'
-        val.forEach(s => searchParams.append(key, String(s)))
+        val.forEach(s => appendParam(searchParams, key, s))
         return
       }
 
-      searchParams.append(key, String(val))
+      appendParam(searchParams, key, val)
     })
   }
 
@@ -147,3 +164,6 @@ export function scrollToRef<T extends HTMLElement>(ref: React.RefObject<T>) {
   if (ref.current)
     window.scrollTo(0, ref.current.offsetTop)
 }
+
+export type MakeRequired<T,K extends keyof T> =
+  Pick<T, Exclude<keyof T, K>> & {[P in K]-?:Exclude<T[P],undefined> }
