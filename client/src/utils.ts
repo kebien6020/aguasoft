@@ -92,8 +92,8 @@ export function isErrorResponse(
 
 // Adapted from https://stackoverflow.com/a/149099/4992717
 export function money(num: number, decimals: number = 0, decSep: string = ',',
-    thouSep: string = ','): string {
-  const sign = num < 0 ? '-' : ''
+    thouSep: string = ',', showSign: boolean = false): string {
+  const sign = num < 0 ? '-' : (showSign ? '+' : '')
   const absFixed = Math.abs(Number(num) || 0).toFixed(decimals)
   const integerPart = String(parseInt(absFixed))
   const headLen = integerPart.length > 3 ? integerPart.length % 3 : 0;
@@ -111,6 +111,10 @@ export function money(num: number, decimals: number = 0, decSep: string = ',',
     + numRestWithSep
     + (decimals ? decSep + decimalsStr : '')
   );
+}
+
+export function moneySign(num: number, decimals?: number, decSep?: string, thouSep?: string) {
+  return money(num, decimals, decSep, thouSep, true)
 }
 
 export type ParamValue = string | number | undefined

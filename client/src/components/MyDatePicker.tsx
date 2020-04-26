@@ -7,7 +7,7 @@ type DateChangeHandler = (date: moment.Moment) => any
 
 interface MyDatePickerProps {
   label?: React.ReactNode
-  date: moment.Moment
+  date: moment.Moment | null
   onDateChange: DateChangeHandler
   DatePickerProps?: Partial<DatePickerProps>
   className?: string
@@ -24,7 +24,7 @@ const MyDatePicker = (props : MyDatePickerPropsAll) => (
       value={props.date}
       format='DD-MMM-YYYY'
       disableFuture
-      onChange={(date) => handleDateChange(date, props.date, props.onDateChange)}
+      onChange={(date) => handleDateChange(date, props.onDateChange)}
       {...props.DatePickerProps}
     />
   </div>
@@ -32,14 +32,10 @@ const MyDatePicker = (props : MyDatePickerPropsAll) => (
 
 function handleDateChange(
   date: moment.Moment | null,
-  previousDate: moment.Moment,
   onDateChange: DateChangeHandler)
 {
   date = date ? date : moment.invalid()
-  // Ignore change when same day is selected
-  if (!date.isSame(previousDate, 'day')) {
-    onDateChange(date)
-  }
+  onDateChange(date)
 }
 
 const styles: StyleRulesCallback<Theme, MyDatePickerProps> = theme => ({

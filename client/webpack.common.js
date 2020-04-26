@@ -45,6 +45,9 @@ module.exports = {
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: relPath('./index.html'),
+      // CleanWebpackPlugin is removing dist/index.html in dev but is not
+      // being emitted again
+      cache: false,
     }),
   ].concat(BUILD_WITH_STATS ? [
     new BundleAnalyzerPlugin({
