@@ -4,7 +4,9 @@ import { makeStyles } from '@material-ui/core/styles'
 import * as colors from '@material-ui/core/colors'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
+import clsx from 'clsx'
 import { Moment } from 'moment'
+import * as moment from 'moment'
 
 import BorderedCard from '../components/BorderedCard'
 import CardHeader from '../components/CardHeader'
@@ -18,6 +20,7 @@ type CardPricesProps = {
   titleTwo: React.ReactNode
   valueOne: number
   valueTwo: number
+  className?: string
 }
 
 const CardPrices = (props: CardPricesProps) => {
@@ -26,11 +29,12 @@ const CardPrices = (props: CardPricesProps) => {
     titleTwo,
     valueOne,
     valueTwo,
+    className,
   } = props
   const classes = useCardPricesStyles()
 
   return (
-    <div className={classes.cardPrices}>
+    <div className={clsx(classes.cardPrices, className)}>
       <div className={classes.cardPrice}>
         <Typography
           variant='overline'
@@ -108,7 +112,7 @@ const HistoryElementCard = (props: HistoryElementCardProps) => {
   const classes = useHistoryElementCardStyles()
 
   return (
-    <BorderedCard>
+    <BorderedCard className={classes.layout}>
       <CardHeader title={header} />
       <div className={classes.body}>
         <CardContent className={classes.content}>
@@ -119,6 +123,7 @@ const HistoryElementCard = (props: HistoryElementCardProps) => {
           valueOne={delta}
           titleTwo='Balance'
           valueTwo={balance}
+          className={classes.prices}
         />
       </div>
     </BorderedCard>
@@ -126,6 +131,9 @@ const HistoryElementCard = (props: HistoryElementCardProps) => {
 }
 
 const useHistoryElementCardStyles = makeStyles(theme => ({
+  layout: {
+    marginBottom: '16px',
+  },
   body: {
     display: 'flex',
     flexFlow: 'column',
@@ -134,7 +142,65 @@ const useHistoryElementCardStyles = makeStyles(theme => ({
     },
   },
   content: {
-    flex: 1,
+    flex: 6,
+  },
+  prices: {
+    flex: 4,
+  },
+}))
+
+type VerificationCardProps = {
+    verification: {
+        date: string
+        amount: number
+        adjustAmount: number
+        User: { name: string }
+        createdAt: string
+    }
+}
+
+const VerificationCard = (props: VerificationCardProps) => {
+    const classes = useVerificationCardStyles()
+
+    const { verification } = props
+    const date = moment(verification.date)
+    const createdAt = moment(verification.createdAt)
+    return (
+        <BorderedCard color={colors.green[500]} className={classes.layout}>
+          <CardHeader title={`Verificación ${date.format('DD-MMM-YYYY')}`} />
+          <div className={classes.body}>
+            <CardContent className={classes.content}>
+              Registrada por: {verification.User.name}<br />
+              Registrada el: {createdAt.format('DD-MMM-YYYY hh:mm a')}
+            </CardContent>
+            <CardPrices
+              titleOne='Ajuste'
+              valueOne={verification.adjustAmount}
+              titleTwo='Balance verificado'
+              valueTwo={verification.amount}
+              className={classes.prices}
+            />
+          </div>
+        </BorderedCard>
+    )
+}
+
+const useVerificationCardStyles = makeStyles(theme => ({
+  layout: {
+    marginBottom: '16px',
+  },
+  body: {
+    display: 'flex',
+    flexFlow: 'column',
+    [theme.breakpoints.up('lg')]: {
+      flexFlow: 'row',
+    },
+  },
+  content: {
+    flex: 6,
+  },
+  prices: {
+    flex: 4,
   },
 }))
 
@@ -177,6 +243,16 @@ const Balance = () => {
         </>}
         delta={250000}
         balance={5000000}
+      />
+
+      <VerificationCard
+        verification={{
+            User: {name: 'Kevin'},
+            date: '2020-03-11',
+            adjustAmount: -1600,
+            amount: 4750000,
+            createdAt: '2020-04-26T19:30:35.480Z',
+        }}
       />
     </Layout>
   )
