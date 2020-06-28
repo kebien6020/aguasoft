@@ -23,7 +23,7 @@ const authCheck = jwt({
     jwksRequestsPerMinute: 5,
     jwksUri: 'https://kevinpena.auth0.com/.well-known/jwks.json'
   }),
-    // This is the identifier we set when we created the API
+  // This is the identifier we set when we created the API
   audience: 'https://soft.agualaif.com',
   issuer: 'https://kevinpena.auth0.com/',
   algorithms: ['RS256']
@@ -58,9 +58,9 @@ const INDEX_FILE = path.resolve(__dirname, '../../client/dist/index.html')
 app.use(express.static(STATIC_FOLDER))
 
 // API routes
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production')
   app.use('/api', authCheck)
-}
+
 app.use('/api/users', routes.users)
 app.use('/api/clients', routes.clients)
 app.use('/api/products', routes.products)
@@ -81,11 +81,11 @@ app.use(jsonErrorHandler)
 
 // Check the routes that require logged user
 function checkUser(req: Request, res: Response, next: NextFunction) {
-  if (typeof req.session.userId === 'number') {
+  if (typeof req.session.userId === 'number')
     next()
-  } else {
+  else
     res.redirect('/check')
-  }
+
 }
 
 app.get('/sell', checkUser)

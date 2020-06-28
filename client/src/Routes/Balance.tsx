@@ -149,6 +149,29 @@ const useHistoryElementCardStyles = makeStyles(theme => ({
   },
 }))
 
+// =SI([@Fecha]="",
+//   "",
+//   SI(FilaDeVentaDelDia,
+//     SUMAR.SI.CONJUNTO(
+//       TotalesDiaTb[Total Efectivo],
+//       TotalesDiaTb[Fecha],[@Fecha]
+//     ),
+//     SI(FilaDePagosDelDia,
+//       SUMAR.SI.CONJUNTO(
+//         PagosTb[Valor],
+//         PagosTb[Fecha],[@Fecha],
+//         PagosTb[Wilches],"<>no",
+//         PagosTb[Pendiente],"<>si"
+//       ),
+//       // FilaDeSalidasDelDia
+//       -SUMAR.SI.CONJUNTO(
+//         SalidasTb[Valor],
+//         SalidasTb[Fecha],[@Fecha]
+//       )
+//     )
+//   )
+// )
+
 type VerificationCardProps = {
     verification: {
         date: string
@@ -235,9 +258,20 @@ const Balance = () => {
       </div>
 
       <HistoryElementCard
+        header='13-Mar-2020'
+        content={<>
+          Ventas: $ +231.400<br />
+          Pagos: $ +32.100<br />
+          Salidas: $ -13.500
+        </>}
+        delta={250000}
+        balance={5250000}
+      />
+
+      <HistoryElementCard
         header='12-Mar-2020'
         content={<>
-          Ventas: $ +123.050<br />
+          Ventas: $ +231.400<br />
           Pagos: $ +32.100<br />
           Salidas: $ -13.500
         </>}

@@ -6,5 +6,9 @@ server/dist
 
 db.sqlite
 db.sqlite-*
+test-db.sqlite
+test-db.sqlite-*
 
 client/stats.json
+
+.vscode
