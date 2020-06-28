@@ -24,7 +24,7 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
     const providedPass = req.body.password
 
     const user = await Users.findByPk(userId)
-    if (!user) return res.json({result: false})
+    if (!user) return res.json({ result: false })
 
     const savedHash = user.password
     const result = await bcrypt.compare(providedPass, savedHash)
@@ -32,7 +32,7 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
     // If the correct pass was provided save the userId to the session
     req.session.userId = result ? userId : undefined
 
-    res.json({result})
+    res.json({ result })
   } catch (e) {
     next (e)
   }
@@ -41,7 +41,7 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
 export async function getCurrent(req: Request, res: Response, next: NextFunction) {
   try {
     // If there is no user logged in return an error
-    if (!req.session.userId)
+    if (!req.session.userId) {
       return res.json({
         success: false,
         error: {
@@ -49,10 +49,11 @@ export async function getCurrent(req: Request, res: Response, next: NextFunction
           code: 'no_user',
         },
       })
+    }
 
     // Find all of the user info from the id
     const user = await Users.findByPk(req.session.userId, {
-      attributes: ['name', 'code', 'id', 'role']
+      attributes: ['name', 'code', 'id', 'role'],
     })
 
     res.json(user)
