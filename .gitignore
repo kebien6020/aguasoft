@@ -12,3 +12,4 @@ test-db.sqlite-*
 client/stats.json
 
 .vscode
+coverage

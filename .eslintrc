@@ -5,15 +5,18 @@
         "project": "./tsconfig.base.json"
     },
     "plugins": [
-      "@typescript-eslint"
+      "@typescript-eslint",
+      "eslint-plugin-jest"
     ],
     "extends": [
       "eslint:recommended",
       "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended"
+      "plugin:@typescript-eslint/recommended",
+      "plugin:jest/recommended",
+      "plugin:jest/style"
     ],
     "rules": {
-        "indent": ["error", 2],
+        "indent": ["error", 2, {"flatTernaryExpressions": true}],
         "quotes": ["error", "single"],
         "quote-props": ["error", "as-needed"],
         "semi": ["error", "never"],
@@ -46,6 +49,7 @@
         "comma-dangle": ["error", "always-multiline"],
         "comma-style": ["error", "last"],
         "space-infix-ops": ["error"],
+        "operator-linebreak": ["error", "before", {"overrides": {"=": "after"}}],
         "space-unary-ops": ["error"],
         "space-in-parens": ["error"],
         "no-multi-spaces": ["error"],

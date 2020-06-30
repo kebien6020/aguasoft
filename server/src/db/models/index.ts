@@ -35,7 +35,7 @@ config.logging = (sql: string) => debugSql(sql)
 config.logQueryParameters = true
 // Connect
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
-sequelize.query('PRAGMA journal_mode = WAL;', {raw: true})
+// sequelize.query('PRAGMA journal_mode = WAL;', {raw: true})
 
 // Here will be placed all the model classes
 const models: { [idx: string]: ModelStatic } = {}

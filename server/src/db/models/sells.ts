@@ -3,37 +3,30 @@ import { ModelStatic } from '../type-utils'
 import { Product } from './products'
 import { Client } from './clients'
 
-export interface Sell extends Model {
+export interface SellAttriutes {
   readonly id: number
-
   readonly date: string
-
   readonly cash: boolean
-
   readonly priceOverride: number
-
   readonly quantity: number
-
   readonly value: number
-
   readonly userId: number
-
   readonly clientId: number
-
   readonly productId: number
-
   readonly deleted: boolean
+}
 
+export interface Sell extends SellAttriutes, Model {
 
+  // Possible inclussions
   readonly Product?: Product
-
   readonly Client?: Client
 }
 
 export type SellStatic = ModelStatic<Sell>
 
-export default function (sequelize: Sequelize) {
-  var Sells = <SellStatic> sequelize.define('Sells', {
+export default function (sequelize: Sequelize): SellStatic {
+  const Sells = <SellStatic> sequelize.define('Sells', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -79,12 +72,12 @@ export default function (sequelize: Sequelize) {
       allowNull: false,
       defaultValue: false,
     },
-  });
+  })
   Sells.associate = function(models) {
     // associations can be defined here
     Sells.belongsTo(models.Users)
     Sells.belongsTo(models.Clients)
     Sells.belongsTo(models.Products)
   }
-  return Sells;
-};
+  return Sells
+}

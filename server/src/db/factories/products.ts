@@ -1,15 +1,15 @@
 import models from '../models'
 import * as faker from 'faker'
-import { User } from '../models/users'
+import { Product } from '../models/products'
 import { SaveOptions } from 'sequelize/types'
-const { Users } = models
+const { Products } = models
 
-export function make(overrides?: Record<string, unknown>): User {
-  return Users.build({
-    name: faker.name.findName(),
+export function make(overrides?: Record<string, unknown>): Product {
+  return Products.build({
+    name: faker.commerce.productName(),
     code: faker.random.alphaNumeric(3),
-    password: '$2a$10$BBm24baQR5zI72VhMaBwUevuMDydglZ.0N3vpzDA8oKd183Igm9UO', // secret
-    role: 'seller',
+    basePrice: faker.random.number({ max: 10000, precision: 100 }),
+
     ...overrides,
   })
 }
@@ -17,7 +17,7 @@ export function make(overrides?: Record<string, unknown>): User {
 export default async function create(
   overrides?: Record<string, unknown>,
   queryOpts?: SaveOptions
-): Promise<User> {
+): Promise<Product> {
 
   const model = make(overrides)
   return model.save(queryOpts)

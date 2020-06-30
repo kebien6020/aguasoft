@@ -1,18 +1,42 @@
 import models from '../db/models'
 import createBalanceVerification from '../db/factories/balanceVerifications'
 import createUser from '../db/factories/users'
+import createClient from '../db/factories/clients'
+import createProduct from '../db/factories/products'
+import createSell from '../db/factories/sales'
+import createSpending from '../db/factories/spendings'
+import createPayment from '../db/factories/payments'
 
 import * as request from 'supertest'
 import { SuperTest, Test } from 'supertest'
 import app from '../app'
 import { User } from '../db/models/users'
+import moment = require('moment')
 
-const { BalanceVerifications, Users, Session } = models
+const {
+  BalanceVerifications,
+  Clients,
+  Payments,
+  Products,
+  Sells,
+  Session,
+  Spendings,
+  Users,
+} = models
 
 afterEach(async () => {
   const opts = { cascade: true, force: true }
-  await Session.truncate(opts)
-  await BalanceVerifications.truncate(opts)
+  await Promise.all([
+    Payments.truncate(opts),
+    Spendings.truncate(opts),
+    Sells.truncate(opts),
+    Session.truncate(opts),
+  ])
+  await Promise.all([
+    Products.truncate(opts),
+    Clients.truncate(opts),
+    BalanceVerifications.truncate(opts),
+  ])
   await Users.truncate(opts)
 })
 
@@ -185,6 +209,172 @@ describe('Routes', () => {
       expect(res.body).toMatchObject(expectedResponse)
     })
 
+  })
+
+  describe('GET /api/balance', () => {
+    const setup = async () => {
+      const agent = request.agent(app)
+      const user = await createUser()
+      await login(agent, user)
+
+      return { agent, user }
+    }
+
+    const url = '/api/balance'
+
+    it('returns an error if there are no verifications', async () => {
+      const { agent } = await setup()
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        success: false,
+        error: expect.objectContaining({
+          code: 'no_verifications',
+        }),
+      })
+    })
+
+    it('lists an empty balance if there are no sales, spendings or payments', async () => {
+      const { agent, user } = await setup()
+
+      await createBalanceVerification({
+        date: moment().format('YYYY-MM-DD'),
+        createdById: user.id,
+      })
+
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        success: true,
+        data: [
+          expect.objectContaining({
+            date: moment().format('YYYY-MM-DD'),
+            sales: 0,
+            spendings: 0,
+            payments: 0,
+          }),
+        ],
+      })
+    })
+
+    it('lists the sum of the sales of the day balance in the balance', async () => {
+      const { agent, user } = await setup()
+
+      const today = moment().format('YYYY-MM-DD')
+      await createBalanceVerification({
+        date: today,
+        createdById: user.id,
+      })
+
+      const client = await createClient()
+      const product = await createProduct()
+
+      await createSell({
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 3000,
+        date: today,
+      })
+
+      await createSell({
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 5000,
+        date: today,
+      })
+
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        success: true,
+        data: [
+          expect.objectContaining({
+            date: moment().format('YYYY-MM-DD'),
+            sales: 8000,
+            spendings: 0,
+            payments: 0,
+          }),
+        ],
+      })
+    })
+
+    it('lists the sum of the spendings of the day balance in the balance', async () => {
+      const { agent, user } = await setup()
+
+      const today = moment().format('YYYY-MM-DD')
+      await createBalanceVerification({
+        date: today,
+        createdById: user.id,
+      })
+
+      await createSpending({
+        userId: user.id,
+        value: 15000,
+        date: today,
+      })
+      await createSpending({
+        userId: user.id,
+        value: 5000,
+        date: today,
+      })
+
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        success: true,
+        data: [
+          expect.objectContaining({
+            date: moment().format('YYYY-MM-DD'),
+            sales: 0,
+            spendings: 20000,
+            payments: 0,
+          }),
+        ],
+      })
+    })
+
+    it('lists the sum of the payments of the day balance in the balance', async () => {
+      const { agent, user } = await setup()
+
+      const today = moment().format('YYYY-MM-DD')
+      await createBalanceVerification({
+        date: today,
+        createdById: user.id,
+      })
+
+      const client = await createClient()
+
+      await createPayment({
+        userId: user.id,
+        clientId: client.id,
+        value: 15000,
+        directPayment: true,
+        date: today,
+      })
+      await createPayment({
+        userId: user.id,
+        clientId: client.id,
+        value: 5000,
+        directPayment: false,
+        date: today,
+      })
+
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        success: true,
+        data: [
+          expect.objectContaining({
+            date: moment().format('YYYY-MM-DD'),
+            sales: 0,
+            spendings: 0,
+            payments: 15000,
+          }),
+        ],
+      })
+    })
   })
 
 })

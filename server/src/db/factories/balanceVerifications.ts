@@ -1,6 +1,7 @@
 import models from '../models'
 import * as faker from 'faker'
 import { BalanceVerification } from '../models/balanceVerifications'
+import { SaveOptions } from 'sequelize/types'
 const { BalanceVerifications } = models
 
 export function make(overrides?: Record<string, unknown>): BalanceVerification {
@@ -12,7 +13,11 @@ export function make(overrides?: Record<string, unknown>): BalanceVerification {
   })
 }
 
-export default async function create(overrides?: Record<string, unknown>): Promise<BalanceVerification> {
+export default async function create(
+  overrides?: Record<string, unknown>,
+  queryOpts?: SaveOptions
+): Promise<BalanceVerification> {
+
   const model = make(overrides)
-  return await model.save()
+  return model.save(queryOpts)
 }

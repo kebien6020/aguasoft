@@ -75,4 +75,5 @@ machineCounters.get('/most-recent/production', machineCounterHandlers.mostRecent
 machineCounters.get('/most-recent/new-reel', machineCounterHandlers.mostRecentNewReel)
 
 export const balance = Router()
+balance.get('/', balanceHandlers.listBalance)
 balance.post('/verification', balanceHandlers.createBalanceVerification)
