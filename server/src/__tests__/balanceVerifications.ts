@@ -375,6 +375,80 @@ describe('Routes', () => {
         ],
       })
     })
+
+    it('calculates the balance from the verification', async () => {
+      const { user, agent } = await setup()
+
+      const yesterday = moment().subtract(1, 'day').format('YYYY-MM-DD')
+      const today = moment().format('YYYY-MM-DD')
+      await createBalanceVerification({
+        date: yesterday,
+        createdById: user.id,
+        amount: 12000,
+        adjustAmount: 0,
+      })
+
+      const client = await createClient()
+      const product = await createProduct()
+
+      await createSell({
+        date: yesterday,
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 5000,
+      })
+
+      await createSell({
+        date: today,
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 8000,
+      })
+
+      await createPayment({
+        date: yesterday,
+        userId: user.id,
+        clientId: client.id,
+        value: 3000,
+        directPayment: true,
+      })
+
+      await createPayment({
+        date: today,
+        userId: user.id,
+        clientId: client.id,
+        value: 10000,
+        directPayment: true,
+      })
+
+      await createSpending({
+        date: yesterday,
+        userId: user.id,
+        value: 2000,
+      })
+
+      const res = await agent.get(url)
+
+      const expectedYesterdayBalance = 12000 + 5000 + 3000 - 2000
+      expect(res.body.data[0]).toMatchObject({
+        date: yesterday,
+        spendings: 2000,
+        sales: 5000,
+        payments: 3000,
+        balance: expectedYesterdayBalance,
+      })
+
+      const expectedTodayBalance = expectedYesterdayBalance + 8000 + 10000
+      expect(res.body.data[1]).toMatchObject({
+        date: today,
+        spendings: 0,
+        sales: 8000,
+        payments: 10000,
+        balance: expectedTodayBalance,
+      })
+    })
   })
 
 })

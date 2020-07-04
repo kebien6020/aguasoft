@@ -146,7 +146,15 @@ export async function listBalance(
       }
     })
 
-    res.json({ success: true, data: balances, groupedSales })
+    // Calculate balance each day
+
+    let dayBalance = verification.amount
+    const calcBalances = balances.map(dayInfo => {
+      dayBalance += dayInfo.sales + dayInfo.payments - dayInfo.spendings
+      return { ...dayInfo, balance: dayBalance }
+    })
+
+    res.json({ success: true, data: calcBalances })
   } catch (err) {
     next(err)
   }
