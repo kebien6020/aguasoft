@@ -62,17 +62,42 @@ export async function listBalance(
   next: NextFunction
 ): Promise<void> {
   try {
-    const verification = await BalanceVerifications.findOne({
+    const firstVerificationEver = await BalanceVerifications.findOne({
       order: [['date', 'asc']],
     })
 
-    if (!verification) throw new NoVerifications()
+    if (!firstVerificationEver) throw new NoVerifications()
+
+    const schema = yup.object({
+      minDate: yup.date().notRequired(),
+      maxDate: yup.date().notRequired(),
+    })
+
+    schema.validateSync(req.query)
+    const { minDate, maxDate } = schema.cast(req.query)
+
+    let firstVerification = firstVerificationEver
+    if (minDate && moment(minDate).isAfter(firstVerificationEver.date, 'day')) {
+      // Most recent verification before minDate
+      const closestVerification = await BalanceVerifications.findOne({
+        where: {
+          date: {
+            [Op.gte]: minDate,
+          },
+        },
+        order: [['date', 'desc']],
+      })
+
+      if (closestVerification) firstVerification = closestVerification
+    }
 
     // Sales
     type DaySale = {
       valueSum: number
       date: string
     }
+
+    const maxDateWhere = maxDate ? { [Op.lte]: maxDate } : {}
 
     const groupedSales = await Sells.findAll({
       attributes: [
@@ -81,7 +106,8 @@ export async function listBalance(
       ],
       where: {
         date: {
-          [Op.gte]: verification.date,
+          [Op.gte]: firstVerification.date,
+          ...maxDateWhere,
         },
       },
       group: 'date',
@@ -101,7 +127,10 @@ export async function listBalance(
       ],
       where: Sequelize.where(
         Sequelize.fn('date', Sequelize.col('date')),
-        { [Op.gte]: verification.date }
+        {
+          [Op.gte]: firstVerification.date,
+          ...maxDateWhere,
+        }
       ),
       group: Sequelize.fn('date', Sequelize.col('date')),
       raw: true,
@@ -122,37 +151,70 @@ export async function listBalance(
         directPayment: true,
         [Op.and]: Sequelize.where(
           Sequelize.fn('date', Sequelize.col('date')),
-          { [Op.gte]: verification.date }
+          {
+            [Op.gte]: firstVerification.date,
+            ...maxDateWhere,
+          }
         ),
       },
       group: Sequelize.fn('date', Sequelize.col('date')),
       raw: true,
     }) as unknown as DayPayments[]
 
+    // The rest of verifications
+    // Verifications are not grouped because there is a guarantee of maximum a
+    // verification per day (date is unique and DATEONLY)
+    const verifications = await BalanceVerifications.findAll({
+      where: {
+        date: {
+          [Op.gte]: firstVerification.date,
+          ...maxDateWhere,
+        },
+      },
+    })
+
     const today = moment().startOf('day')
-    const days = enumerateDaysBetweenDates(verification.date, today)
+    const days = enumerateDaysBetweenDates(firstVerification.date, today)
 
     const balances = days.map(day => {
       const dayStr = day.format('YYYY-MM-DD')
       const daySales = groupedSales.find(daySales => daySales.date === dayStr)
       const daySpendings = groupedSpendings.find(daySpendings => daySpendings.date === dayStr)
       const dayPayments = groupedPayments.find(dayPayments => dayPayments.date === dayStr)
+      const verification = verifications.find(verification => verification.date === dayStr)
 
       return {
         date: dayStr,
         sales: daySales?.valueSum ?? 0,
         spendings: daySpendings?.valueSum ?? 0,
         payments: dayPayments?.valueSum ?? 0,
+        verification,
       }
     })
 
     // Calculate balance each day
 
-    let dayBalance = verification.amount
-    const calcBalances = balances.map(dayInfo => {
+    let dayBalance = firstVerification.amount
+    let calcBalances = balances.map(dayInfo => {
+      // A verification amount corresponds to the starting value of the day
+      if (dayInfo.verification?.amount)
+        dayBalance = dayInfo.verification.amount
+
       dayBalance += dayInfo.sales + dayInfo.payments - dayInfo.spendings
       return { ...dayInfo, balance: dayBalance }
     })
+
+
+    // filter by date
+    if (minDate) {
+      calcBalances = calcBalances
+        .filter(balance => moment(balance.date).isSameOrAfter(minDate, 'day'))
+    }
+
+    if (maxDate) {
+      calcBalances = calcBalances
+        .filter(balance => moment(balance.date).isSameOrBefore(maxDate, 'day'))
+    }
 
     res.json({ success: true, data: calcBalances })
   } catch (err) {

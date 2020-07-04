@@ -4,7 +4,7 @@ import { User } from './users'
 
 export interface BalanceVerification extends Model {
   readonly id: number
-  readonly date: Date
+  readonly date: string
   readonly createdById: number
   readonly adjustAmount: number
   readonly amount: number

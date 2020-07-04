@@ -75,6 +75,12 @@ describe('Model', () => {
     expect(verification.adjustAmount).toBeNumber()
   })
 
+  it('retrieves the date as a string', async () => {
+    const { verification } = await setup()
+
+    expect(verification.date).toBeString()
+  })
+
   it('allows getting the creator', async () => {
     const { verification } = await setup()
     await verification.reload({ include: ['createdBy'] })
@@ -449,8 +455,91 @@ describe('Routes', () => {
         balance: expectedTodayBalance,
       })
     })
-  })
 
+    it('includes the verifications within the registers of the corresponding date', async () => {
+      const { user, agent } = await setup()
+
+      const tm3 = moment().subtract(3, 'days').format('YYYY-MM-DD')
+      const tm2 = moment().subtract(2, 'days').format('YYYY-MM-DD')
+      const tm1 = moment().subtract(1, 'days').format('YYYY-MM-DD')
+      const today = moment().format('YYYY-MM-DD')
+
+      await createBalanceVerification({
+        date: tm3,
+        amount: 5000,
+        adjustAmount: 0,
+        createdById: user.id,
+      })
+
+      await createSpending({
+        date: tm2,
+        userId: user.id,
+        directPayment: true,
+        value: 2000,
+      })
+
+      await createBalanceVerification({
+        date: tm1,
+        adjustAmount: -1000,
+        amount: 2000,
+        createdById: user.id,
+      })
+
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        data: [
+          expect.objectContaining({
+            date: tm3,
+            verification: expect.objectContaining({
+              amount: 5000,
+              adjustAmount: 0,
+            }),
+            balance: 5000,
+          }),
+          expect.objectContaining({
+            date: tm2,
+            spendings: 2000,
+            balance: 3000,
+          }),
+          expect.objectContaining({
+            date: tm1,
+            verification: expect.objectContaining({
+              amount: 2000,
+              adjustAmount: -1000,
+            }),
+            balance: 2000,
+          }),
+          expect.objectContaining({
+            date: today,
+            balance: 2000,
+          }),
+        ],
+      })
+    })
+
+    it('can be filtered by min and max date', async () => {
+      const { user, agent } = await setup()
+
+      const tm3 = moment().subtract(3, 'days').format('YYYY-MM-DD')
+      const tm2 = moment().subtract(2, 'days').format('YYYY-MM-DD')
+      const tm1 = moment().subtract(1, 'days').format('YYYY-MM-DD')
+      await createBalanceVerification({
+        date: tm3,
+        adjustAmount: 0,
+        amount: 5000,
+        createdById: user.id,
+      })
+
+      const res = await agent.get(url + `?minDate=${tm2}&maxDate=${tm1}`)
+
+      expect(res.body.data).toEqual([
+        expect.objectContaining({ date: tm2 }),
+        expect.objectContaining({ date: tm1 }),
+      ])
+    })
+
+  })
 })
 
 async function login(agent: SuperTest<Test>, user: User): Promise<void> {
