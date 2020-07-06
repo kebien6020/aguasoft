@@ -77,3 +77,4 @@ machineCounters.get('/most-recent/new-reel', machineCounterHandlers.mostRecentNe
 export const balance = Router()
 balance.get('/', balanceHandlers.listBalance)
 balance.post('/verification', balanceHandlers.createBalanceVerification)
+balance.get('/:date', balanceHandlers.showBalance)

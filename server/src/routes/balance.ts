@@ -49,10 +49,14 @@ export async function createBalanceVerification(
 }
 
 class NoVerifications extends Error {
-  name = 'no_verifications'
-  message =
-      'No hay ninguna verificacion de balance registrada, al menos una es'
+  readonly name = 'no_verifications'
+  readonly message =
+      'No hay ninguna verificacion de balance registrada, al menos una es '
     + 'requerida'
+
+  constructor(message?: string) {
+    super(message)
+  }
 }
 
 // List balance from either the specified date or the first verification
@@ -82,7 +86,7 @@ export async function listBalance(
       const closestVerification = await BalanceVerifications.findOne({
         where: {
           date: {
-            [Op.gte]: minDate,
+            [Op.lte]: minDate,
           },
         },
         order: [['date', 'desc']],
@@ -219,5 +223,75 @@ export async function listBalance(
     res.json({ success: true, data: calcBalances })
   } catch (err) {
     next(err)
+  }
+}
+
+export async function showBalance(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const firstVerificationEver = await BalanceVerifications.findOne({
+      order: [['date', 'asc']],
+    })
+
+    if (!firstVerificationEver) throw new NoVerifications()
+
+    const schema = yup.object({
+      date: yup.date().min(firstVerificationEver.date).required(),
+    })
+    schema.validateSync(req.params)
+    const { date } = schema.cast(req.params)
+
+    // Most recent verification before date
+    const closestVerification = await BalanceVerifications.findOne({
+      where: {
+        date: {
+          [Op.lte]: date,
+        },
+      },
+      order: [['date', 'desc']],
+      logging: console.warn,
+    })
+
+    if (!closestVerification) {
+      const msg =
+          'Error lógico: Verificacion mas cercana no encontrada, esto no '
+        + 'debería suceder porque hay una verificación anterior'
+      throw new NoVerifications(msg)
+    }
+
+    const salesSum: number = await Sells.aggregate('value', 'sum', {
+      where: {
+        date: {
+          [Op.gte]: closestVerification.date,
+          [Op.lte]: date,
+        },
+      },
+    })
+
+    const spendingsSum: number = await Spendings.aggregate('value', 'sum', {
+      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date')), {
+        [Op.gte]: closestVerification.date,
+        [Op.lte]: date,
+      }),
+    })
+
+    const paymentsSum: number = await Payments.aggregate('value', 'sum', {
+      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date')), {
+        [Op.gte]: closestVerification.date,
+        [Op.lte]: date,
+      }),
+    })
+
+    const balance =
+      closestVerification.amount + salesSum + paymentsSum - spendingsSum
+
+    res.json({ success: true, data: balance })
+
+  } catch (err) {
+    console.warn(err)
+    next (err)
   }
 }

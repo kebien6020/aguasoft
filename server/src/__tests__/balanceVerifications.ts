@@ -540,6 +540,55 @@ describe('Routes', () => {
     })
 
   })
+
+  describe('GET /api/balance/:date', () => {
+    it('calculates the balance at a specific date', async () => {
+      const { agent, user } = await setup()
+
+      const tm3 = moment().subtract(3, 'days').format('YYYY-MM-DD')
+      const tm2 = moment().subtract(2, 'days').format('YYYY-MM-DD')
+      const tm1 = moment().subtract(1, 'days').format('YYYY-MM-DD')
+      const today = moment().format('YYYY-MM-DD')
+
+      await createBalanceVerification({
+        date: tm3,
+        adjustAmount: 0,
+        amount: 5000,
+        createdById: user.id,
+      })
+
+      await createBalanceVerification({
+        date: tm2,
+        adjustAmount: -2000,
+        amount: 3000,
+        createdById: user.id,
+      })
+
+      const client = await createClient()
+
+      await createPayment({
+        date: tm1,
+        value: 10000,
+        userId: user.id,
+        clientId: client.id,
+      })
+
+      await createPayment({
+        date: today,
+        value: 10000,
+        userId: user.id,
+        clientId: client.id,
+      })
+
+      const res = await agent.get(`/api/balance/${tm1}`)
+
+
+      expect(res.body).toMatchObject({
+        success: true,
+        data: 3000 + 10000,
+      })
+    })
+  })
 })
 
 async function login(agent: SuperTest<Test>, user: User): Promise<void> {
