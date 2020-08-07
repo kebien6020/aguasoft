@@ -116,7 +116,7 @@ const HistoryElementCard = (props: HistoryElementCardProps) => {
       <CardHeader title={header} />
       <div className={classes.body}>
         <CardContent className={classes.content}>
-            {content}
+          {content}
         </CardContent>
         <CardPrices
           titleOne='Cambio'
@@ -149,29 +149,6 @@ const useHistoryElementCardStyles = makeStyles(theme => ({
   },
 }))
 
-// =SI([@Fecha]="",
-//   "",
-//   SI(FilaDeVentaDelDia,
-//     SUMAR.SI.CONJUNTO(
-//       TotalesDiaTb[Total Efectivo],
-//       TotalesDiaTb[Fecha],[@Fecha]
-//     ),
-//     SI(FilaDePagosDelDia,
-//       SUMAR.SI.CONJUNTO(
-//         PagosTb[Valor],
-//         PagosTb[Fecha],[@Fecha],
-//         PagosTb[Wilches],"<>no",
-//         PagosTb[Pendiente],"<>si"
-//       ),
-//       // FilaDeSalidasDelDia
-//       -SUMAR.SI.CONJUNTO(
-//         SalidasTb[Valor],
-//         SalidasTb[Fecha],[@Fecha]
-//       )
-//     )
-//   )
-// )
-
 type VerificationCardProps = {
     verification: {
         date: string
@@ -183,29 +160,29 @@ type VerificationCardProps = {
 }
 
 const VerificationCard = (props: VerificationCardProps) => {
-    const classes = useVerificationCardStyles()
+  const classes = useVerificationCardStyles()
 
-    const { verification } = props
-    const date = moment(verification.date)
-    const createdAt = moment(verification.createdAt)
-    return (
-        <BorderedCard color={colors.green[500]} className={classes.layout}>
-          <CardHeader title={`Verificación ${date.format('DD-MMM-YYYY')}`} />
-          <div className={classes.body}>
-            <CardContent className={classes.content}>
-              Registrada por: {verification.User.name}<br />
-              Registrada el: {createdAt.format('DD-MMM-YYYY hh:mm a')}
-            </CardContent>
-            <CardPrices
-              titleOne='Ajuste'
-              valueOne={verification.adjustAmount}
-              titleTwo='Balance verificado'
-              valueTwo={verification.amount}
-              className={classes.prices}
-            />
-          </div>
-        </BorderedCard>
-    )
+  const { verification } = props
+  const date = moment(verification.date)
+  const createdAt = moment(verification.createdAt)
+  return (
+    <BorderedCard color={colors.green[500]} className={classes.layout}>
+      <CardHeader title={`Verificación ${date.format('DD-MMM-YYYY')}`} />
+      <div className={classes.body}>
+        <CardContent className={classes.content}>
+          Registrada por: {verification.User.name}<br />
+          Registrada el: {createdAt.format('DD-MMM-YYYY hh:mm a')}
+        </CardContent>
+        <CardPrices
+          titleOne='Ajuste'
+          valueOne={verification.adjustAmount}
+          titleTwo='Balance verificado'
+          valueTwo={verification.amount}
+          className={classes.prices}
+        />
+      </div>
+    </BorderedCard>
+  )
 }
 
 const useVerificationCardStyles = makeStyles(theme => ({
@@ -227,7 +204,7 @@ const useVerificationCardStyles = makeStyles(theme => ({
   },
 }))
 
-const Balance = () => {
+const Balance = (): JSX.Element => {
   const classes = useStyles()
   const [bDate, setBDate] = useState<Moment|null>(null)
   const [eDate, setEDate] = useState<Moment|null>(null)
@@ -281,11 +258,11 @@ const Balance = () => {
 
       <VerificationCard
         verification={{
-            User: {name: 'Kevin'},
-            date: '2020-03-11',
-            adjustAmount: -1600,
-            amount: 4750000,
-            createdAt: '2020-04-26T19:30:35.480Z',
+          User: { name: 'Kevin' },
+          date: '2020-03-11',
+          adjustAmount: -1600,
+          amount: 4750000,
+          createdAt: '2020-04-26T19:30:35.480Z',
         }}
       />
     </Layout>
@@ -303,7 +280,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     lineHeight: '48px',
-  }
+  },
 }))
 
 export default Balance
