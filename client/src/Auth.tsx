@@ -14,16 +14,16 @@ export default class Auth {
     redirectUri,
     audience,
     responseType: 'token id_token',
-    scope
+    scope,
   })
 
-  login() {
+  login(): void {
     this.auth0.authorize()
   }
 
   parseHash = () : Promise<auth0.Auth0DecodedHash> => {
     return new Promise((resolve, reject) => {
-      this.auth0.parseHash({hash: window.location.hash}, (err, authResult) => {
+      this.auth0.parseHash({ hash: window.location.hash }, (err, authResult) => {
         if (err) {
           console.log(err)
           return reject(err)
@@ -34,14 +34,14 @@ export default class Auth {
     })
   }
 
-  renewAuth = () => {
+  renewAuth = (): Promise<auth0.Auth0DecodedHash> => {
     return new Promise((resolve, reject) => {
       this.auth0.renewAuth(
         {
           redirectUri: silentRedirectUri,
           usePostMessage: true,
         },
-        (err, authResult) => {
+        (err: auth0.Auth0Error | null, authResult: auth0.Auth0DecodedHash) => {
           if (err) {
             console.log(err)
             return reject(err)
@@ -49,15 +49,15 @@ export default class Auth {
           return resolve(authResult)
         }
       )
-    }) as Promise<auth0.Auth0DecodedHash>
+    })
   }
 
-  handleAuthentication = async() => {
+  handleAuthentication = async (): Promise<void> => {
     const authResult = await this.parseHash()
     this.saveAuth(authResult)
   }
 
-  setSession(authResult: auth0.Auth0DecodedHash) {
+  setSession(authResult: auth0.Auth0DecodedHash): void {
     // Set the time that the access token will expire at
     if (authResult.expiresIn) {
       const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime())
@@ -71,25 +71,25 @@ export default class Auth {
       localStorage.setItem('id_token', authResult.idToken)
   }
 
-  logout() {
+  logout(): void {
     // Clear access token and ID token from local storage
     localStorage.removeItem('access_token')
     localStorage.removeItem('id_token')
     localStorage.removeItem('expires_at')
   }
 
-  isAuthenticated() {
+  isAuthenticated(): boolean {
     // Check whether the current time is past the
     // access token's expiry time
-    if (localStorage['expires_at']) {
-      const expiresAt = JSON.parse(localStorage['expires_at'])
+    if (localStorage.expires_at) {
+      const expiresAt = JSON.parse(localStorage.expires_at) as number
       return new Date().getTime() < expiresAt
     }
 
     return false
   }
 
-  getAccessToken() {
+  getAccessToken(): string {
     const accessToken = localStorage.getItem('access_token')
     if (!accessToken) {
       this.login()
@@ -98,15 +98,15 @@ export default class Auth {
     return accessToken
   }
 
-  saveAuth(authResult: auth0.Auth0DecodedHash) {
-    if (authResult && authResult.accessToken && authResult.idToken) {
+  saveAuth(authResult: auth0.Auth0DecodedHash): void {
+    if (authResult && authResult.accessToken && authResult.idToken)
       this.setSession(authResult)
-    } else {
+    else
       throw Error('Invalid authResult')
-    }
+
   }
 
-  renew = async () => {
+  renew = async (): Promise<true | void> => {
     try {
       this.getAccessToken()
       const authResult = await this.renewAuth()

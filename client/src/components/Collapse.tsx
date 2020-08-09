@@ -6,21 +6,20 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
 
-const Collapse = (props: CollapseProps) => {
+const Collapse = (props: CollapseProps): JSX.Element => {
   const classes = useCollapseStyles()
   return (
     <MuiCollapse
       component={GridItemXs12}
       classes={{
-        // @ts-ignore hidden class rule is missing in ts definition file
         hidden: classes.hidden,
         container: classes.container,
       }}
       {...props}
     >
-        <Grid container spacing={2}>
-          {props.children}
-        </Grid>
+      <Grid container spacing={2}>
+        {props.children}
+      </Grid>
     </MuiCollapse>
   )
 }

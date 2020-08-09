@@ -14,7 +14,7 @@ export interface Session extends Model {
 export type SessionStatic = ModelStatic<Session>
 
 export default function(sequelize: Sequelize) {
-  var Session = <SessionStatic> sequelize.define('Session', {
+  const Session = <SessionStatic> sequelize.define('Session', {
     sid: {
       type: DataTypes.STRING,
       primaryKey: true
@@ -24,6 +24,6 @@ export default function(sequelize: Sequelize) {
     data: DataTypes.STRING(50000)
   }, {
     timestamps: false
-  });
-  return Session;
-};
+  })
+  return Session
+}

@@ -7,9 +7,9 @@ import LoadingScreen from './components/LoadingScreen'
 const isAuthenticated = (auth: Auth) => auth.isAuthenticated()
 
 const AuthStatus = {
-  'DENIED': Symbol('DENIED'),   // User is not allowed to see this page
-  'GRANTED': Symbol('GRANTED'), // User is allowed to see this page
-  'PENDING': Symbol('PENDING'), // Still deciding
+  DENIED: Symbol('DENIED'), // User is not allowed to see this page
+  GRANTED: Symbol('GRANTED'), // User is allowed to see this page
+  PENDING: Symbol('PENDING'), // Still deciding
 }
 
 interface AuthRouteProps extends RouteProps {
@@ -22,45 +22,45 @@ export interface AuthRouteComponentProps<P> extends RouteComponentProps<P> {
 
 class AuthRoute extends React.Component<AuthRouteProps> {
   state = {
-    authStatus: AuthStatus.PENDING
+    authStatus: AuthStatus.PENDING,
   }
 
   static contextType = AuthContext
   declare context: React.ContextType<typeof AuthContext>
 
-  async componentDidMount() {
+  async componentDidMount(): Promise<void> {
     const { props } = this
     const auth = this.context
     const isPrivate = props.private
     if (isAuthenticated(auth) || !isPrivate)
-      return this.setState({authStatus: AuthStatus.GRANTED})
+      return this.setState({ authStatus: AuthStatus.GRANTED })
 
     const success = await auth.renew()
     if (success)
-      return this.setState({authStatus: AuthStatus.GRANTED})
+      return this.setState({ authStatus: AuthStatus.GRANTED })
 
-    return this.setState({authStatus: AuthStatus.DENIED})
+    return this.setState({ authStatus: AuthStatus.DENIED })
   }
 
-  render() {
+  render(): JSX.Element | null {
     const { component, children, render, ...outerProps } = this.props
     const { authStatus } = this.state
     const auth = this.context
 
     // Specifying children overwrites component
-    if (children) {
+    if (children)
       return <Route {...outerProps}>{children}</Route>
-    }
+
 
     if (authStatus === AuthStatus.GRANTED) {
-      if (render) {
+      if (render)
         return <Route {...outerProps} render={render} />
-      }
+
 
       if (!component) return null
 
       const Component = component
-      const renderRoute = (props: any) =>
+      const renderRoute = (props: React.ComponentProps<typeof Component>) =>
         <Component auth={auth} {...outerProps} {...props} />
       return <Route { ...outerProps } render={renderRoute} />
     }

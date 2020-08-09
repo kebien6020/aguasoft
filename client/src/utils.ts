@@ -3,8 +3,9 @@ import Auth from './Auth'
 const apiUrl = ''
 
 export interface FetchAuthOptions extends RequestInit {
-  fetch?: Function // allow to override fetch for testing purposes
-  retry?: boolean  // when true we are retrying the request
+  // allow to override fetch for testing purposes
+  fetch?: (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>
+  retry?: boolean // when true we are retrying the request
 }
 
 export async function fetchJsonAuth<R = SuccessResponse>(
@@ -16,26 +17,24 @@ export async function fetchJsonAuth<R = SuccessResponse>(
   const fetch = options.fetch || window.fetch
 
   const baseHeaders = {
-    'Authorization': 'bearer ' + auth.getAccessToken(),
+    Authorization: 'bearer ' + auth.getAccessToken(),
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    Accept: 'application/json',
   }
 
 
   const opts = options || {}
 
   const headers = Object.assign({}, baseHeaders, opts.headers)
-  const allOpts: RequestInit = Object.assign({}, options, {headers, credentials: 'include'})
+  const allOpts: RequestInit = Object.assign({}, options, { headers, credentials: 'include' })
 
   const response = await fetch(apiUrl + url, allOpts)
-  const data = await response.json()
+  const data = await response.json() as R|ErrorResponse
 
   const invalidToken = !auth.isAuthenticated()
   const authError =
-    data.success === false
-    && data.error
-    && data.error.errors
-    && data.error.errors.name === 'UnauthorizedError'
+    isErrorResponse(data)
+    && data.error.errors?.[0]?.name === 'UnauthorizedError'
 
   // In case of token error try renewing it with silentAuth and retry
   if (invalidToken || authError) {
@@ -44,12 +43,12 @@ export async function fetchJsonAuth<R = SuccessResponse>(
 
     if (success && !opts.retry) {
       // retry
-      const newOpts = Object.assign({}, options, {retry: true})
+      const newOpts = Object.assign({}, options, { retry: true })
       return fetchJsonAuth(url, auth, newOpts)
     } else {
       // silent auth failed, let's do a flashy auth
       auth.login()
-      return {success:false, error: {code: 'not_authenticated', message: 'No autenticado'}}
+      return { success: false, error: { code: 'not_authenticated', message: 'No autenticado' } }
     }
 
   }
@@ -65,6 +64,7 @@ export interface ErrorResponse {
     // On validation_error
     errors?: {
       path: string
+      name: string
     }[]
   }
 }
@@ -85,18 +85,23 @@ export interface SuccessResponse {
 }
 
 export function isErrorResponse(
-  data: object | ErrorResponse): data is ErrorResponse
-{
-  return (data as ErrorResponse).success === false
+  data: unknown | ErrorResponse
+): data is ErrorResponse {
+  return (data as ErrorResponse)?.success === false
 }
 
 // Adapted from https://stackoverflow.com/a/149099/4992717
-export function money(num: number, decimals: number = 0, decSep: string = ',',
-    thouSep: string = ','): string {
-  const sign = num < 0 ? '-' : ''
+export function money(
+  num: number,
+  decimals = 0,
+  decSep = ',',
+  thouSep = ',',
+  showSign = false
+): string {
+  const sign = num < 0 ? '-' : (showSign ? '+' : '')
   const absFixed = Math.abs(Number(num) || 0).toFixed(decimals)
   const integerPart = String(parseInt(absFixed))
-  const headLen = integerPart.length > 3 ? integerPart.length % 3 : 0;
+  const headLen = integerPart.length > 3 ? integerPart.length % 3 : 0
   const numHeadWithSep = headLen ? integerPart.substr(0, headLen) + thouSep : ''
   const numRestWithSep = integerPart
     .substr(headLen)
@@ -105,29 +110,38 @@ export function money(num: number, decimals: number = 0, decSep: string = ',',
     .toFixed(decimals)
     .slice(2)
   return (
-      '$\u00A0'
+    '$\u00A0'
     + sign
     + numHeadWithSep
     + numRestWithSep
     + (decimals ? decSep + decimalsStr : '')
-  );
+  )
+}
+
+export function moneySign(
+  num: number,
+  decimals?: number,
+  decSep?: string,
+  thouSep?: string
+): string {
+  return money(num, decimals, decSep, thouSep, true)
 }
 
 export type ParamValue = string | number | undefined
 export type Param = ParamValue | readonly ParamValue[]
 export type Params = {[idx:string]: Param}
 
-function isValueArr(param: Param) : param is readonly ParamValue[]  {
+function isValueArr(param: Param) : param is readonly ParamValue[] {
   return Array.isArray(param)
 }
 
-const appendParam = (search: URLSearchParams,key: string, val: ParamValue) => {
-  if (val !== undefined) {
+const appendParam = (search: URLSearchParams, key: string, val: ParamValue) => {
+  if (val !== undefined)
     search.append(key, String(val))
-  }
+
 }
 
-export function paramsToString(params?: Params) {
+export function paramsToString(params?: Params): string {
   const searchParams = new URLSearchParams()
   if (params) {
     Object.entries(params).forEach(([key, val]) => {
@@ -155,15 +169,15 @@ export function parseParams(str: string) : {[idx: string]: string | undefined} {
     }, {})
 }
 
-export function isNumber(value: any) {
-  return !isNaN(Number(value));
+export function isNumber(value: unknown): boolean {
+  return !isNaN(Number(value))
 }
 
 // https://stackoverflow.com/a/51828976
-export function scrollToRef<T extends HTMLElement>(ref: React.RefObject<T>) {
+export function scrollToRef<T extends HTMLElement>(ref: React.RefObject<T>): void {
   if (ref.current)
     window.scrollTo(0, ref.current.offsetTop)
 }
 
-export type MakeRequired<T,K extends keyof T> =
-  Pick<T, Exclude<keyof T, K>> & {[P in K]-?:Exclude<T[P],undefined> }
+export type MakeRequired<T, K extends keyof T> =
+  Pick<T, Exclude<keyof T, K>> & {[P in K]-?:Exclude<T[P], undefined> }

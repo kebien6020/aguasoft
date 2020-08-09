@@ -4,13 +4,19 @@ import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
 import { User } from '../models'
 import useAuth from './useAuth'
 
+type Result = {
+  user: User | null
+  isAdmin: boolean | null
+}
 
-export default function useUser(onError?: (error: ErrorResponse["error"]) => any) {
+type OnError = (error: ErrorResponse['error']) => unknown
+
+export default function useUser(onError?: OnError): Result {
   const auth = useAuth()
   const [user, setUser] = useState<User|null>(null)
 
   useEffect(() => {
-    const updateUser = async () => {
+    (async () => {
       const url = '/api/users/getCurrent'
       const user: ErrorResponse | User = await fetchJsonAuth(url, auth)
 
@@ -20,10 +26,8 @@ export default function useUser(onError?: (error: ErrorResponse["error"]) => any
         if (onError)
           onError(user.error)
       }
-    }
+    })()
+  }, [auth, onError])
 
-    updateUser()
-  }, [])
-
-  return {user, isAdmin: user && user.role === 'admin'}
+  return { user, isAdmin: user && user.role === 'admin' }
 }

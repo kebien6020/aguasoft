@@ -14,12 +14,14 @@ const style: React.CSSProperties = {
   flexDirection: 'column',
 }
 
-export default (props: {text: string}) => (
+const LoadingScreen = (props: {text: string}): JSX.Element => (
   <>
     <div style={style}>
-      <img src={logo} style={{marginBottom: '32px'}} />
-      <div style={{marginBottom: '16px'}}><CircularProgress /></div>
-      <Typography  variant="h6">{props.text}</Typography>
+      <img src={logo} style={{ marginBottom: '32px' }} />
+      <div style={{ marginBottom: '16px' }}><CircularProgress /></div>
+      <Typography variant="h6">{props.text}</Typography>
     </div>
   </>
 )
+
+export default LoadingScreen

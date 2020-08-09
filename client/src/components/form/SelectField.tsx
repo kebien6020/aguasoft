@@ -14,16 +14,20 @@ interface ChangeOverrideBag {
 
 export interface SelectFieldProps extends SelectControlProps {
   name: string
-  onChangeOverride?: (event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>, bag: ChangeOverrideBag) => any
+  onChangeOverride?:
+    (
+      event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>,
+      bag: ChangeOverrideBag
+    ) => unknown
 }
 
-const SelectField = (props: SelectFieldProps) => {
+const SelectField = (props: SelectFieldProps): JSX.Element => {
   const {
     name,
     onChangeOverride,
     ...otherProps
   } = props
-  const [ field, meta ] = useField(name)
+  const [field, meta] = useField(name)
   return (
     <SelectControl
       {...field}
@@ -31,11 +35,11 @@ const SelectField = (props: SelectFieldProps) => {
       errorMessage={meta.error}
       touched={meta.touched}
       onChange={(e) => {
-        if (onChangeOverride) {
-          onChangeOverride(e, {field, meta})
-        } else {
+        if (onChangeOverride)
+          onChangeOverride(e, { field, meta })
+        else
           field.onChange(e)
-        }
+
       }}
       {...otherProps}
     />

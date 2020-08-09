@@ -1,10 +1,11 @@
+/* eslint-env node */
 function fkValidationsDeferred(queryInterface, options, callback) {
-  if (!options) {
+  if (!options)
     options = {}
-  }
+
 
   options = Object.assign({}, options, {
-    raw: true
+    raw: true,
   })
 
   const sequelize = queryInterface.sequelize

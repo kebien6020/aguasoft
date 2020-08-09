@@ -6,7 +6,7 @@ export interface DescriptionProps {
   text: React.ReactNode
 }
 
-const Description = (props: DescriptionProps) => {
+const Description = (props: DescriptionProps): JSX.Element => {
   const classes = useDescriptionStyles()
 
   return (
@@ -20,8 +20,8 @@ const useDescriptionStyles = makeStyles({
   container: {
     '& strong': {
       fontWeight: 600,
-    }
-  }
+    },
+  },
 })
 
 export default Description

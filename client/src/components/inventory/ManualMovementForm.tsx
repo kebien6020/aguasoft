@@ -15,10 +15,10 @@ import TextField from '../form/TextField'
 export interface ManualMovementFormProps {
   storages: Storage[] | null
   inventoryElements: InventoryElement[] | null
-  onUpdate?: () => any
+  onUpdate?: () => unknown
 }
 
-export default function ManualMovementForm(props: ManualMovementFormProps) {
+export default function ManualMovementForm(props: ManualMovementFormProps): JSX.Element {
   const { storages, inventoryElements, onUpdate } = props
   const auth = useAuth()
 
@@ -66,23 +66,21 @@ export default function ManualMovementForm(props: ManualMovementFormProps) {
     }
 
     showMessage('Movimiento creado')
-    if (onUpdate) onUpdate();
+    if (onUpdate) onUpdate()
 
   }
 
-  const baseStorageOptions = [
-    {value: 'null', label: 'Afuera'},
-  ]
+  const baseStorageOptions = [{ value: 'null', label: 'Afuera' }]
   const storageOptions =
-    storages ?
-    [
-      ...baseStorageOptions,
-      ...storages.map(s => ({value: String(s.id), label: s.name}))
-    ] : baseStorageOptions
+    storages
+      ? [
+        ...baseStorageOptions,
+        ...storages.map(s => ({ value: String(s.id), label: s.name })),
+      ] : baseStorageOptions
 
   const inventoryElementOptions =
-    inventoryElements &&
-    inventoryElements.map(ie => ({value: String(ie.id), label: ie.name}))
+    inventoryElements
+    && inventoryElements.map(ie => ({ value: String(ie.id), label: ie.name }))
 
   return (
     <Form
@@ -90,7 +88,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps) {
       className={classes.form}
       initialValues={initialValues}
     >
-      {({setFieldValue}) => (<>
+      {({ setFieldValue }) => (<>
         {snackbar}
         <Grid item xs={12} md={6}>
           <SelectField
@@ -114,7 +112,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps) {
             label='Elemento'
             emptyOption='Seleccionar Elemento'
             options={inventoryElementOptions}
-            onChangeOverride={((e, {field}) => {
+            onChangeOverride={((e, { field }) => {
               field.onChange(e)
               setFieldValue('inventoryElementTo', e.target.value)
             })}
@@ -133,7 +131,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps) {
             name='quantityFrom'
             label='Candidad'
             type='number'
-            onChangeOverride={((e, {field}) => {
+            onChangeOverride={((e, { field }) => {
               field.onChange(e)
               setFieldValue('quantityTo', e.target.value)
             })}

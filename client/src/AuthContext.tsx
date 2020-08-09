@@ -7,6 +7,6 @@ import Auth from './Auth'
 // Note: passing undefined as a Provider value does not cause consuming
 // components to use defaultValue.
 
-const AuthContext = React.createContext<Auth>(null as unknown as Auth);
+const AuthContext = React.createContext<Auth>(null as unknown as Auth)
 
 export default AuthContext

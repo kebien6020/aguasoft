@@ -1,6 +1,6 @@
 import * as React from 'react'
 import MuiTextField, {
-  TextFieldProps as MuiTextFieldProps
+  TextFieldProps as MuiTextFieldProps,
 } from '@material-ui/core/TextField'
 import { makeStyles } from '@material-ui/core/styles'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
@@ -13,10 +13,14 @@ interface ChangeOverrideBag {
 export type TextFieldProps = MuiTextFieldProps & {
   name: string
   label: React.ReactNode
-  onChangeOverride?: (event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>, bag: ChangeOverrideBag) => any
+  onChangeOverride?:
+  (
+    event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>,
+    bag: ChangeOverrideBag
+  ) => unknown
 }
 
-const TextField = (props: TextFieldProps) => {
+const TextField = (props: TextFieldProps): JSX.Element => {
   const {
     label,
     name,
@@ -25,7 +29,7 @@ const TextField = (props: TextFieldProps) => {
   } = props
   const classes = useStyles()
 
-  const [ field, meta ] = useField(name)
+  const [field, meta] = useField(name)
 
   return (
     <MuiTextField
@@ -37,11 +41,11 @@ const TextField = (props: TextFieldProps) => {
       {...field}
       {...otherProps}
       onChange={(e) => {
-        if (onChangeOverride) {
-          onChangeOverride(e, {field, meta})
-        } else {
+        if (onChangeOverride)
+          onChangeOverride(e, { field, meta })
+        else
           field.onChange(e)
-        }
+
       }}
     />
   )

@@ -12,10 +12,10 @@ type BotellonCardProps = CardProps & {
     dayMovements: DayMovements
 }
 
-const BotellonCard = (props: BotellonCardProps) => {
+const BotellonCard = (props: BotellonCardProps): JSX.Element => {
   const {
-      dayMovements,
-      ...otherProps
+    dayMovements,
+    ...otherProps
   } = props
 
   const sumQtyTo = (acc: number, movement: InventoryMovement) =>
@@ -23,7 +23,7 @@ const BotellonCard = (props: BotellonCardProps) => {
 
   const botellonSoldTotal = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'termoencogible'
       && movement.rollback === false
     )
@@ -32,7 +32,7 @@ const BotellonCard = (props: BotellonCardProps) => {
 
   const botellonSoldRollbackMovements = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'termoencogible'
       && movement.rollback === true
     )
@@ -41,15 +41,15 @@ const BotellonCard = (props: BotellonCardProps) => {
     ?.reduce(sumQtyTo, 0)
 
   const botellonSold =
-    botellonSoldTotal !== undefined &&
-    botellonSoldRollback !== undefined &&
-    botellonSoldTotal - botellonSoldRollback
+    botellonSoldTotal !== undefined
+    && botellonSoldRollback !== undefined
+    && botellonSoldTotal - botellonSoldRollback
 
   const botellonSoldRollbackAmount = botellonSoldRollbackMovements?.length
 
   const botellonNuevoSoldTotal = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'botellon-nuevo'
       && movement.rollback === false
     )
@@ -58,7 +58,7 @@ const BotellonCard = (props: BotellonCardProps) => {
 
   const botellonNuevoSoldRollbackMovements = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'botellon-nuevo'
       && movement.rollback === true
     )
@@ -67,9 +67,9 @@ const BotellonCard = (props: BotellonCardProps) => {
     ?.reduce(sumQtyTo, 0)
 
   const botellonNuevoSold =
-    botellonNuevoSoldTotal !== undefined &&
-    botellonNuevoSoldRollback !== undefined &&
-    botellonNuevoSoldTotal - botellonNuevoSoldRollback
+    botellonNuevoSoldTotal !== undefined
+    && botellonNuevoSoldRollback !== undefined
+    && botellonNuevoSoldTotal - botellonNuevoSoldRollback
 
   const botellonNuevoSoldRollbackAmount = botellonNuevoSoldRollbackMovements?.length
 
@@ -81,8 +81,8 @@ const BotellonCard = (props: BotellonCardProps) => {
           title='Botellones vendidos'
           text={botellonSold}
         />
-        {botellonSoldRollbackAmount !== undefined && botellonSoldRollbackAmount > 0 &&
-          <Description
+        {botellonSoldRollbackAmount !== undefined && botellonSoldRollbackAmount > 0
+          && <Description
             title='Cantidad de ventas de botellón reversadas'
             text={botellonSoldRollbackAmount}
           />
@@ -91,8 +91,8 @@ const BotellonCard = (props: BotellonCardProps) => {
           title='Botellones nuevos vendidos'
           text={botellonNuevoSold}
         />
-        {botellonSoldRollbackAmount !== undefined && botellonSoldRollbackAmount > 0 &&
-          <Description
+        {botellonSoldRollbackAmount !== undefined && botellonSoldRollbackAmount > 0
+          && <Description
             title='Cantidad de ventas de botellón nuevo reversadas'
             text={botellonNuevoSoldRollbackAmount}
           />

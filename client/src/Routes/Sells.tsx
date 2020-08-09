@@ -7,7 +7,6 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Paper from '@material-ui/core/Paper'
 
 
-import { AuthRouteComponentProps } from '../AuthRoute'
 import { useSnackbar } from '../components/MySnackbar'
 import Login from '../components/Login'
 import SellList, { Sell } from '../components/Sells'
@@ -20,6 +19,7 @@ import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '
 import * as moment from 'moment'
 import { Moment } from 'moment'
 import 'moment/locale/es'
+import useAuth from '../hooks/useAuth'
 moment.locale('es')
 
 export interface Filter {
@@ -27,9 +27,8 @@ export interface Filter {
   user: string
 }
 
-type SellsProps = AuthRouteComponentProps<{}>
-export default function Sells(props: SellsProps) {
-  const { auth } = props
+export default function Sells(): JSX.Element {
+  const auth = useAuth()
   const classes = useStyles()
 
   // Date picker
@@ -54,7 +53,7 @@ export default function Sells(props: SellsProps) {
   // Sell List
   const [sells, setSells] = useState<Sell[]|null>(null)
   useEffect(() => {
-    const updateSells = async () => {
+    (async () => {
       setSells(null)
       const url = '/api/sells/listDay?day=' + date.format('YYYY-MM-DD')
       const sells: ErrorResponse | Sell[] =
@@ -66,15 +65,13 @@ export default function Sells(props: SellsProps) {
         console.error(sells.error)
         setSnackbarError('Error al cargar las ventas, por favor recarga la página')
       }
-    }
-
-    updateSells()
-  }, [date])
+    })()
+  }, [date, auth, setSnackbarError])
 
   const handleDeleteSell = useCallback(async (sellId: number) => {
     if (!sells) return
 
-    const url = '/api/sells/' + sellId
+    const url = `/api/sells/${sellId}`
     const result : ErrorResponse | SuccessResponse =
       await fetchJsonAuth(url, auth, {
         method: 'delete',
@@ -113,24 +110,24 @@ export default function Sells(props: SellsProps) {
 
   const filteredSells = sells && sells.filter(sell => {
     if (filter.client !== 'ALL') {
-      if (String(sell.Client.id) !== filter.client) {
-        return false;
-      }
+      if (String(sell.Client.id) !== filter.client)
+        return false
+
     }
 
     if (filter.user !== 'ALL') {
-      if (String(sell.User.code) !== filter.user) {
-        return false;
-      }
+      if (String(sell.User.code) !== filter.user)
+        return false
+
     }
 
-    return true;
+    return true
   })
 
   const sellList =
     filteredSells && <SellList
-       sells={filteredSells}
-       onDeleteSell={handleDeleteSell}
+      sells={filteredSells}
+      onDeleteSell={handleDeleteSell}
     />
 
   return (
@@ -141,15 +138,15 @@ export default function Sells(props: SellsProps) {
       {datePicker}
 
       <Title>Resumen</Title>
-      {sells ?
-        <DayOverview sells={sells} onFilterChange={setFilter} filter={filter} /> :
-        <CircularProgress className={classes.centerBlock} />
+      {sells
+        ? <DayOverview sells={sells} onFilterChange={setFilter} filter={filter} />
+        : <CircularProgress className={classes.centerBlock} />
       }
 
       <Title>Ventas del Día</Title>
-      {sells ?
-        sellList :
-        <CircularProgress className={classes.centerBlock} />
+      {sells
+        ? sellList
+        : <CircularProgress className={classes.centerBlock} />
       }
 
       {snackbar}

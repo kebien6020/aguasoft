@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useState, useCallback } from 'react'
 import { Link, LinkProps, useLocation } from 'react-router-dom'
 import { LocationDescriptor } from 'history'
-import clsx from 'clsx';
+import clsx from 'clsx'
 import { makeStyles, Theme } from '@material-ui/core/styles'
 
 import AppBar from '@material-ui/core/AppBar'
@@ -23,6 +23,7 @@ import {
   Person as PersonIcon,
   Dns as BoxesIcon,
   SwapHoriz as MovementsIcon,
+  TrendingUp,
 } from '@material-ui/icons'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
@@ -34,7 +35,7 @@ const drawerWidthFull = 256
 
 interface DrawerItemProps {
   icon: React.ReactNode,
-  to: LocationDescriptor<{}>
+  to: LocationDescriptor<unknown>
   text: string
   fullWidth: boolean
   color: string
@@ -50,7 +51,7 @@ const DrawerItem = (props: DrawerItemProps) => {
   } = props
   const classes = useDrawerItemClasses()
 
-  const colorStyle = {color: color, borderColor: color};
+  const colorStyle = { color: color, borderColor: color }
 
   const button =
     <Button variant='outlined' className={classes.icon} style={colorStyle}>
@@ -59,14 +60,14 @@ const DrawerItem = (props: DrawerItemProps) => {
 
   return (
     <Link className={classes.container} to={to}>
-      {fullWidth ?
-        button :
-        <Tooltip  title={text} placement='right'>
+      {fullWidth
+        ? button
+        : <Tooltip title={text} placement='right'>
           {button}
         </Tooltip>
       }
-      {fullWidth &&
-        <Typography
+      {fullWidth
+        && <Typography
           variant='h6'
           className={classes.text}
           style={colorStyle}
@@ -94,7 +95,7 @@ const useDrawerItemClasses = makeStyles(theme => ({
     marginRight: theme.spacing(2),
     '& svg': {
       fontSize: theme.spacing(6),
-    }
+    },
   },
   text: {
     color: 'black',
@@ -106,7 +107,7 @@ const useDrawerItemClasses = makeStyles(theme => ({
 
 interface MainDrawerProps {
   open: boolean
-  onRequestClose: () => any
+  onRequestClose: () => unknown
 }
 
 const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
@@ -126,7 +127,7 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         text='Pagos'
         to='/payments'
         icon={<MoneyIcon />}
-        color={colors.blue['A700']}
+        color={colors.blue.A700}
         fullWidth={open}
       />
 
@@ -141,7 +142,7 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         text='Inventario'
         to='/inventory'
         icon={<BoxesIcon />}
-        color={colors.blue['A700']}
+        color={colors.blue.A700}
         fullWidth={open}
       />
       <DrawerItem
@@ -158,10 +159,17 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         color={colors.orange[500]}
         fullWidth={open}
       />
+      <DrawerItem
+        text='Balance'
+        to='/balance'
+        icon={<TrendingUp />}
+        color={colors.orange[500]}
+        fullWidth={open}
+      />
     </>
 
   const drawerClasses = {
-    paper: clsx(classes.drawerPaper, open && classes.drawerOpen)
+    paper: clsx(classes.drawerPaper, open && classes.drawerOpen),
   }
 
   return (
@@ -189,7 +197,9 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
       </Hidden>
     </>
   )
-});
+})
+
+MainDrawer.displayName = 'MainDrawer'
 
 const useDrawerStyles = makeStyles((theme: Theme) => ({
   drawerPaper: {
@@ -205,7 +215,7 @@ const useDrawerStyles = makeStyles((theme: Theme) => ({
   drawerOpen: {
     width: drawerWidthFull,
   },
-  toolbar: theme.mixins.toolbar
+  toolbar: theme.mixins.toolbar,
 }))
 
 interface Props {
@@ -221,9 +231,10 @@ const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
 
 const RouterLink = React.forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => (
   <Link innerRef={ref} {...props} />
-));
+))
+RouterLink.displayName = 'RouterLink'
 
-export default function Layout(props : Props) {
+export default function Layout(props : Props): JSX.Element {
   const {
     children,
     className,
@@ -257,7 +268,7 @@ export default function Layout(props : Props) {
   )
 
   const Container = container
-  const containerProps = className ? {className} : undefined
+  const containerProps = className ? { className } : undefined
   return (
     <>
       <AppBar position='fixed' className={classes.appBar}>
@@ -274,15 +285,15 @@ export default function Layout(props : Props) {
             {title}
           </Typography>
           {appBarExtra}
-          {user ?
-            <Avatar
+          {user
+            ? <Avatar
               aria-label={user.name}
               className={classes.avatar}
-              style={{backgroundColor: getUserColor(user.code)}}
+              style={{ backgroundColor: getUserColor(user.code) }}
             >
               {user.name.charAt(0).toUpperCase()}
-            </Avatar> :
-            <Button
+            </Avatar>
+            : <Button
               component={RouterLink}
               to={`/check?next=${currentPath}`}
               color='inherit'

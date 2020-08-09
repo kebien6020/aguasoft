@@ -12,7 +12,7 @@ interface StorageCardProps {
   inventoryElements: InventoryElement[]
 }
 
-const StorageCard = (props: StorageCardProps) => {
+const StorageCard = (props: StorageCardProps): JSX.Element => {
   const classes = useStyles()
 
   const { storage, storageStates, inventoryElements } = props

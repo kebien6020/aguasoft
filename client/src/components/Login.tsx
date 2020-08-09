@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from 'react'
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
@@ -21,8 +23,8 @@ interface User {
 
 interface LoginProps {
   auth: Auth
-  onSuccess?: () => any
-  onFailure?: () => any
+  onSuccess?: () => unknown
+  onFailure?: () => unknown
   adminOnly?: boolean
   text?: string
   buttonColor?: string
@@ -53,23 +55,26 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     }
   }
 
-  async componentWillMount() {
-    // TODO: Error handling
-    let users: User[] = await fetchJsonAuth('/api/users', this.props.auth) as any
+  async componentDidMount() {
+    let users = await fetchJsonAuth<User[]>('/api/users', this.props.auth)
 
-    if (this.props.adminOnly === true) {
+    if (isErrorResponse(users))
+      return
+
+
+    if (this.props.adminOnly === true)
       users = users.filter(user => user.role === 'admin')
-    }
 
-    this.setState({users, userId: users[0].id})
+
+    this.setState({ users, userId: users[0].id })
   }
 
   handleUserChange = (event: InputEvent) => {
-    const userId = event.target.value === 'none' ?
-     null :
-     Number(event.target.value)
+    const userId = event.target.value === 'none'
+      ? null
+      : Number(event.target.value)
 
-    this.setState({userId})
+    this.setState({ userId })
   }
 
   handleSubmit = async () => {
@@ -83,8 +88,8 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
       method: 'post',
       body: JSON.stringify({
         id: state.userId,
-        password: state.password
-      })
+        password: state.password,
+      }),
     })
 
     if (isErrorResponse(check)) {
@@ -105,14 +110,14 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     const password = event.target.value
     this.setState({
       password,
-      errorLogin: false,  // Clean error message on any modifications
+      errorLogin: false, // Clean error message on any modifications
     })
   }
 
   handleEnterAnywhere = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      this.handleSubmit()
-    }
+    if (event.key === 'Enter')
+      void this.handleSubmit()
+
   }
 
   getDisplayName = (user: User) => {
@@ -136,10 +141,10 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
             >
               {state.users
                 ? state.users.map((user, key) =>
-                    <MenuItem key={key} value={user.id}>
+                  <MenuItem key={key} value={user.id}>
                       ({user.code}) {user.name}
-                    </MenuItem>
-                  )
+                  </MenuItem>
+                )
                 : <MenuItem value='none'>Cargando...</MenuItem>
               }
             </Select>

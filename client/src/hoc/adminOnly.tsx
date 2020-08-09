@@ -18,17 +18,17 @@ function isUserError(u: User | UserError): u is UserError {
   return (u as UserError).success === false
 }
 
+interface State {
+  errorNoUser: boolean
+  user: User | null
+}
+
 export default
-function adminOnly<P extends AuthRouteComponentProps<any>>(
-  component: React.ComponentType<P>)
-{
-  interface State {
-    errorNoUser: boolean
-    user: User | null
-  }
+function adminOnly<P extends AuthRouteComponentProps<unknown>>(
+  component: React.ComponentType<P>
+): React.ComponentType<P> {
 
   return class AdminRoute extends React.Component<P, State> {
-
     constructor(props: P) {
       super(props)
       this.state = {
@@ -37,7 +37,7 @@ function adminOnly<P extends AuthRouteComponentProps<any>>(
       }
     }
 
-    async componentWillMount() {
+    async componentDidMount() {
       const { props } = this
       type UserResponse = User | UserError
       const user : UserResponse =
@@ -45,11 +45,11 @@ function adminOnly<P extends AuthRouteComponentProps<any>>(
 
       if (user) {
         if (isUserError(user)) {
-          this.setState({errorNoUser: true})
+          this.setState({ errorNoUser: true })
           return
         }
 
-        this.setState({user})
+        this.setState({ user })
       }
     }
 
@@ -62,17 +62,17 @@ function adminOnly<P extends AuthRouteComponentProps<any>>(
         return <Redirect to={`/check?next=${here}&admin=true`} push={false} />
       }
 
-      if (state.errorNoUser) {
+      if (state.errorNoUser)
         return redirectToLogin()
-      }
 
-      if (state.user === null) {
+
+      if (state.user === null)
         return <LoadingScreen text='Verificando usuario...' />
-      }
 
-      if (state.user.role !== 'admin') {
+
+      if (state.user.role !== 'admin')
         return redirectToLogin()
-      }
+
 
       return <Component {...props} />
     }

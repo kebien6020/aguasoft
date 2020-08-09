@@ -2,6 +2,7 @@ import { Sequelize, DataTypes, Model } from 'sequelize'
 import { ModelStatic } from '../type-utils'
 
 export interface User extends Model {
+  id: number
   name: string
   code: string
   password: string

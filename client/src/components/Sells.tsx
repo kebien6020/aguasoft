@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import Avatar from '@material-ui/core/Avatar'
 import Card from '@material-ui/core/Card'
@@ -33,145 +33,135 @@ export interface Sell {
   deleted: boolean,
 }
 
-interface SellsState {
-
-}
-
 interface SellsProps {
   sells: Sell[]
-  onDeleteSell: (sellId: number) => any
+  onDeleteSell: (sellId: number) => unknown
 }
 
-type SellsPropsAll = SellsProps & PropClasses
+const Sells = (props: SellsProps): JSX.Element => {
+  const classes = useStyles()
 
-class Sells extends React.Component<SellsPropsAll, SellsState> {
+  const getCardClass = (sell: Sell) => {
+    const classNames = [classes.sellCard]
 
-  render() {
-    const { props } = this
-    const { classes } = this.props
-
-    const getCardClass = (sell: Sell) => {
-      const classNames: String[] = [classes.sellCard]
-
-      classNames.push(sell.cash ?
-        classes.sellCardCash :
-        classes.sellCardPost
-      )
-
-      if (sell.deleted)
-        classNames.push(classes.sellCardDeleted)
-
-      return classNames.join(' ')
-    }
-
-    const userColorLookup : {[index:string] : string} = {
-      '001': colors.blue[500],
-      '002': colors.pink[500],
-      '003': colors.green[500],
-    }
-
-    const getUserColor = (userCode: string) => (
-      userColorLookup[userCode] || colors.grey[500]
+    classNames.push(sell.cash
+      ? classes.sellCardCash
+      : classes.sellCardPost
     )
 
-    const getBasePrice = (sell: Sell) =>
-      Number(sell.Prices.filter(p => p.name === 'Base')[0].value)
+    if (sell.deleted)
+      classNames.push(classes.sellCardDeleted)
 
-    const isBasePrice = (sell: Sell) => {
-      const price = sell.value / sell.quantity
-      const basePrice = getBasePrice(sell)
+    return classNames.join(' ')
+  }
 
-      return Math.floor(price) === Math.floor(basePrice)
-    }
+  const userColorLookup : {[index:string] : string} = {
+    '001': colors.blue[500],
+    '002': colors.pink[500],
+    '003': colors.green[500],
+  }
 
-    return (
-      <Grid container spacing={2}>
-        {props.sells && props.sells.length === 0 &&
-          <Grid item xs={12}>
+  const getUserColor = (userCode: string) => (
+    userColorLookup[userCode] || colors.grey[500]
+  )
+
+  const getBasePrice = (sell: Sell) =>
+    Number(sell.Prices.filter(p => p.name === 'Base')[0].value)
+
+  const isBasePrice = (sell: Sell) => {
+    const price = sell.value / sell.quantity
+    const basePrice = getBasePrice(sell)
+
+    return Math.floor(price) === Math.floor(basePrice)
+  }
+
+  return (
+    <Grid container spacing={2}>
+      {props.sells && props.sells.length === 0
+          && <Grid item xs={12}>
             <Typography variant='h5'>
               No se registaron ventas este día.
             </Typography>
           </Grid>
-        }
-        {props.sells ?
-          props.sells.map((sell, key) => (
-            <Grid item xs={12} key={key}>
-              <Card className={getCardClass(sell)}>
-                <div className={classes.cardMain}>
-                  <CardHeader
-                    className={classes.cardHeader}
-                    avatar={
-                      <Avatar
-                        aria-label={sell.User.name}
-                        className={classes.avatar}
-                        style={{backgroundColor: getUserColor(sell.User.code)}}
-                      >
-                        {sell.User.name.charAt(0).toUpperCase()}
-                      </Avatar>
-                    }
-                    title={`${sell.quantity} ${sell.Product.name}`}
-                    subheader={`para ${sell.Client.name}`}
-                  />
-                  <CardContent>
-                    <Typography variant='body2'>
-                      {moment(sell.updatedAt).format('hh:mm a')}
+      }
+      {props.sells
+        ? props.sells.map((sell, key) => (
+          <Grid item xs={12} key={key}>
+            <Card className={getCardClass(sell)}>
+              <div className={classes.cardMain}>
+                <CardHeader
+                  className={classes.cardHeader}
+                  avatar={
+                    <Avatar
+                      aria-label={sell.User.name}
+                      className={classes.avatar}
+                      style={{ backgroundColor: getUserColor(sell.User.code) }}
+                    >
+                      {sell.User.name.charAt(0).toUpperCase()}
+                    </Avatar>
+                  }
+                  title={`${sell.quantity} ${sell.Product.name}`}
+                  subheader={`para ${sell.Client.name}`}
+                />
+                <CardContent>
+                  <Typography variant='body2'>
+                    {moment(sell.updatedAt).format('hh:mm a')}
                       ({moment(sell.updatedAt).fromNow()})
-                    </Typography>
-                    {sell.deleted &&
-                      <Alert type='error' message='Esta venta fue eliminada' />
-                    }
-                    {!isBasePrice(sell) &&
-                      <Alert
+                  </Typography>
+                  {sell.deleted
+                      && <Alert type='error' message='Esta venta fue eliminada' />
+                  }
+                  {!isBasePrice(sell)
+                      && <Alert
                         type='warning'
                         message={`Venta por un precio diferente al precio base (que es ${money(getBasePrice(sell))})`}
                       />
-                    }
-                  </CardContent>
-                  <IconButton
-                    className={classes.deleteButton}
-                    onClick={() => props.onDeleteSell(sell.id)}
-                    disabled={sell.deleted}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </div>
-                <div className={classes.cardPrices}>
-                  <div className={classes.cardPrice}>
-                    <Typography
-                      variant='overline'
-                      className={classes.cardPriceHeader}>
+                  }
+                </CardContent>
+                <IconButton
+                  className={classes.deleteButton}
+                  onClick={() => props.onDeleteSell(sell.id)}
+                  disabled={sell.deleted}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </div>
+              <div className={classes.cardPrices}>
+                <div className={classes.cardPrice}>
+                  <Typography
+                    variant='overline'
+                    className={classes.cardPriceHeader}>
                       Precio Unitario
-                    </Typography>
-                    <Typography
-                      variant='caption'
-                      className={classes.cardPriceValue}>
-                      {money(sell.value / sell.quantity)}
-                    </Typography>
-                  </div>
-                  <div className={classes.cardPrice}>
-                    <Typography
-                      variant='overline'
-                      className={classes.cardPriceHeader}>
-                      Precio Total
-                    </Typography>
-                    <Typography
-                      variant='caption'
-                      className={classes.cardPriceValue}>
-                      {money(sell.value)}
-                    </Typography>
-                  </div>
+                  </Typography>
+                  <Typography
+                    variant='caption'
+                    className={classes.cardPriceValue}>
+                    {money(sell.value / sell.quantity)}
+                  </Typography>
                 </div>
-              </Card>
-            </Grid>
-          ))
-          : 'Cargando ventas del día...'
-        }
-      </Grid>
-    )
-  }
+                <div className={classes.cardPrice}>
+                  <Typography
+                    variant='overline'
+                    className={classes.cardPriceHeader}>
+                      Precio Total
+                  </Typography>
+                  <Typography
+                    variant='caption'
+                    className={classes.cardPriceValue}>
+                    {money(sell.value)}
+                  </Typography>
+                </div>
+              </div>
+            </Card>
+          </Grid>
+        ))
+        : 'Cargando ventas del día...'
+      }
+    </Grid>
+  )
 }
 
-const styles: StyleRulesCallback<Theme, SellsProps> = theme => ({
+const useStyles = makeStyles(theme => ({
   sellCard: {
     borderLeft: '5px solid ' + theme.palette.grey[500],
     display: 'flex',
@@ -185,7 +175,7 @@ const styles: StyleRulesCallback<Theme, SellsProps> = theme => ({
   },
   sellCardDeleted: {
     backgroundColor: colors.grey[500],
-    borderLeftColor: colors.red['A700'],
+    borderLeftColor: colors.red.A700,
     '& $cardPrice': {
       backgroundColor: colors.grey[700] + ' !important',
     },
@@ -218,7 +208,7 @@ const styles: StyleRulesCallback<Theme, SellsProps> = theme => ({
     },
 
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   cardPriceHeader: {
     color: 'rgba(0, 0, 0, 0.75)',
@@ -236,7 +226,7 @@ const styles: StyleRulesCallback<Theme, SellsProps> = theme => ({
     bottom: '0',
     right: '0',
   },
-})
+}))
 
 // See comment on component Login
-export default withStyles(styles)(Sells)
+export default Sells

@@ -1,3 +1,6 @@
+/* eslint-env node */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const path = require('path')
 const rel = str => path.join(__dirname, str)
 const models = require(rel('../server/dist/db/models')).default
@@ -16,16 +19,9 @@ const Storages = models.Storages
 const StorageStates = models.StorageStates
 
 global.models = models
-global.Clients = models.Clients
-global.Prices = models.Prices
-global.Products = models.Products
-global.Sells = models.Sells
-global.Session = models.Session
-global.Users = models.Users
-global.InventoryElements = models.InventoryElements
-global.InventoryMovements = models.InventoryMovements
-global.Storages = models.Storages
-global.StorageStates = models.StorageStates
+for (const [name, val] of Object.entries(models)) 
+  global[name] = val
+
 global.sequelize = models.sequelize
 global.Sequelize = Sequelize
 

@@ -21,12 +21,12 @@ const authCheck = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: 'https://kevinpena.auth0.com/.well-known/jwks.json'
+    jwksUri: 'https://kevinpena.auth0.com/.well-known/jwks.json',
   }),
-    // This is the identifier we set when we created the API
+  // This is the identifier we set when we created the API
   audience: 'https://soft.agualaif.com',
   issuer: 'https://kevinpena.auth0.com/',
-  algorithms: ['RS256']
+  algorithms: ['RS256'],
 })
 
 // Set up the session store and middleware
@@ -39,7 +39,7 @@ const sessionMiddleware = session({
   secret: ';b2x{EZ[#hQC@-Ny',
   resave: false,
   saveUninitialized: true,
-  store: sessionStore
+  store: sessionStore,
 })
 
 const app = express()
@@ -58,9 +58,9 @@ const INDEX_FILE = path.resolve(__dirname, '../../client/dist/index.html')
 app.use(express.static(STATIC_FOLDER))
 
 // API routes
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production')
   app.use('/api', authCheck)
-}
+
 app.use('/api/users', routes.users)
 app.use('/api/clients', routes.clients)
 app.use('/api/products', routes.products)
@@ -70,6 +70,7 @@ app.use('/api/payments', routes.payments)
 app.use('/api/spendings', routes.spendings)
 app.use('/api/inventory', routes.inventory)
 app.use('/api/machine-counters', routes.machineCounters)
+app.use('/api/balance', routes.balance)
 
 app.use('/api', (req, _res, next) => {
   next(new Error404(`Route does not exist: ${req.method} ${req.path}`))
@@ -81,11 +82,11 @@ app.use(jsonErrorHandler)
 
 // Check the routes that require logged user
 function checkUser(req: Request, res: Response, next: NextFunction) {
-  if (typeof req.session.userId === 'number') {
+  if (typeof req.session.userId === 'number')
     next()
-  } else {
+  else
     res.redirect('/check')
-  }
+
 }
 
 app.get('/sell', checkUser)

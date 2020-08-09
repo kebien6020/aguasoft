@@ -9,6 +9,7 @@ import * as paymentHandlers from './payments'
 import * as spendingHandlers from './spendings'
 import * as inventoryHandlers from './inventory'
 import * as machineCounterHandlers from './machineCounters'
+import * as balanceHandlers from './balance'
 
 import adminOnly from '../utils/adminOnly'
 
@@ -72,3 +73,8 @@ inventory.post('/movements/entry', inventoryHandlers.entryMovement)
 export const machineCounters = Router()
 machineCounters.get('/most-recent/production', machineCounterHandlers.mostRecentProduction)
 machineCounters.get('/most-recent/new-reel', machineCounterHandlers.mostRecentNewReel)
+
+export const balance = Router()
+balance.get('/', balanceHandlers.listBalance)
+balance.post('/verification', balanceHandlers.createBalanceVerification)
+balance.get('/:date', balanceHandlers.showBalance)

@@ -2,13 +2,15 @@ import { Sequelize, DataTypes, Model } from 'sequelize'
 import { ModelStatic } from '../type-utils'
 import { Storage } from './storages'
 import { InventoryElement } from './inventoryElements'
-import { io } from '../../index'
 import debug from 'debug'
 
 import {
   BelongsToGetAssociationMixin,
   BelongsToSetAssociationMixin,
 } from 'sequelize'
+import { Server } from 'socket.io'
+
+let io = null as Server | null
 
 export interface StorageState extends Model {
   readonly storageId: number
@@ -68,6 +70,8 @@ export default function(sequelize: Sequelize) {
   }
 
   StorageStates.addHook('afterSave', (arg: StorageState) => {
+    if (!io) io = require('../../index').io
+
     debug('app:socketio')('Emitting storageStatesChanged')
     io.emit('storageStatesChanged', {
       data : arg.toJSON(),

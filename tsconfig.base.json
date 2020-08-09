@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
-      "module": "commonjs",
-      "sourceMap": true,
+    "module": "commonjs",
+    "sourceMap": true,
 
-      "preserveConstEnums": true,
-      "noImplicitAny": true,
-      "noUnusedLocals": true,
-      "alwaysStrict": true
-    }
+    "preserveConstEnums": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "alwaysStrict": true
+  },
+  "exclude": [
+    "node_modules",
+    "./client/src/__tests__",
+    "./server/src/__tests__"
+  ]
 }

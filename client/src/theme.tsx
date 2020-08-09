@@ -21,10 +21,10 @@ export default createMuiTheme({
   },
   overrides: {
     MuiTableCell: {
-     sizeSmall: {
-       padding: '20px 16px 20px 8px',
-       fontSize: '16px',
-     },
+      sizeSmall: {
+        padding: '20px 16px 20px 8px',
+        fontSize: '16px',
+      },
     },
     MuiSvgIcon: {
       root: {

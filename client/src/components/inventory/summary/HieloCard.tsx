@@ -12,7 +12,7 @@ export type HieloCardProps = CardProps & {
   dayMovements: DayMovements
 }
 
-const HieloCard = (props: HieloCardProps) => {
+const HieloCard = (props: HieloCardProps): JSX.Element => {
   const {
     dayMovements,
     ...otherProps
@@ -23,7 +23,7 @@ const HieloCard = (props: HieloCardProps) => {
 
   const hieloSoldTotal = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'hielo-5kg'
       && movement.rollback === false
     )
@@ -32,7 +32,7 @@ const HieloCard = (props: HieloCardProps) => {
 
   const hieloSoldRollbackMovements = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'hielo-5kg'
       && movement.rollback === true
     )
@@ -41,15 +41,15 @@ const HieloCard = (props: HieloCardProps) => {
     ?.reduce(sumQtyTo, 0)
 
   const hieloSold =
-    hieloSoldTotal !== undefined &&
-    hieloSoldRollback !== undefined &&
-    hieloSoldTotal - hieloSoldRollback
+    hieloSoldTotal !== undefined
+    && hieloSoldRollback !== undefined
+    && hieloSoldTotal - hieloSoldRollback
 
   const hieloSoldRollbackAmount = hieloSoldRollbackMovements?.length
 
   const hielosProduced = dayMovements
     ?.filter(movement =>
-         movement.cause === 'production'
+      movement.cause === 'production'
       && movement.inventoryElementTo.code === 'hielo-5kg'
       && movement.storageTo?.code === 'terminado'
     )
@@ -59,7 +59,7 @@ const HieloCard = (props: HieloCardProps) => {
     ?.filter(movement =>
       movement.cause === 'manual'
       && (
-           movement.inventoryElementFrom.code === 'hielo-5kg'
+        movement.inventoryElementFrom.code === 'hielo-5kg'
         || movement.inventoryElementTo.code === 'hielo-5kg'
       )
     ).length
@@ -76,14 +76,14 @@ const HieloCard = (props: HieloCardProps) => {
           title='Hielos vendidos'
           text={hieloSold}
         />
-        {hieloSoldRollbackAmount !== undefined && hieloSoldRollbackAmount > 0 &&
-          <Description
+        {hieloSoldRollbackAmount !== undefined && hieloSoldRollbackAmount > 0
+          && <Description
             title='Ventas de hielo reversadas'
             text={hieloSoldRollbackAmount}
           />
         }
-        {hielosManualMovements !== undefined && hielosManualMovements > 0 &&
-          <Description
+        {hielosManualMovements !== undefined && hielosManualMovements > 0
+          && <Description
             title='Movimientos manuales relacionados a hielos'
             text={hielosManualMovements}
           />
