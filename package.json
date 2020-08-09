@@ -30,7 +30,7 @@
     "connect-session-sequelize": "^6.1.1",
     "cors": "^2.8.4",
     "express": "^4.17.1",
-    "express-jwt": "^5.3.3",
+    "express-jwt": "^6.0.0",
     "express-session": "^1.17.0",
     "jwks-rsa": "^1.7.0",
     "moment": "^2.22.2",
