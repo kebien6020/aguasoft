@@ -1,28 +1,35 @@
 const movementCause = {
-  'manual': {
+  manual: {
     text: 'Movimiento Manual',
   },
-  'in': {
+  in: {
     text: 'Ingreso',
   },
-  'relocation': {
+  relocation: {
     text: 'Reubicacion',
   },
-  'production': {
+  production: {
     text: 'Produccion',
   },
-  'sell': {
+  sell: {
     text: 'Venta',
   },
-  'damage': {
+  damage: {
     text: 'Daño',
   },
 } as const
 
-export const movementCauseSlugToText = (slug: keyof typeof movementCause) =>
-  movementCause[slug] ? movementCause[slug].text : undefined
+type MovementCauseSlug = keyof typeof movementCause
+type MovementCauseText = typeof movementCause[MovementCauseSlug]['text']
 
-export const movementCauseOptions = Object.keys(movementCause).map((key: keyof typeof movementCause) => ({
-    value: key,
-    label: movementCauseSlugToText(key),
-}))
+export const movementCauseSlugToText =
+  (slug: MovementCauseSlug): MovementCauseText =>
+    movementCause[slug]?.text
+
+export const movementCauseOptions =
+  Object
+    .keys(movementCause)
+    .map((key: MovementCauseSlug) => ({
+      value: key,
+      label: movementCauseSlugToText(key),
+    }))

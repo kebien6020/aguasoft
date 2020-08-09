@@ -12,6 +12,7 @@
       "eslint:recommended",
       "plugin:@typescript-eslint/eslint-recommended",
       "plugin:@typescript-eslint/recommended",
+      "plugin:@typescript-eslint/recommended-requiring-type-checking",
       "plugin:jest/recommended",
       "plugin:jest/style"
     ],
@@ -37,6 +38,8 @@
         "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "ignoreRestSiblings": true }],
         "no-console": "off",
         "prefer-const": "error",
+        "@typescript-eslint/unbound-method": "off", // Giving false negatives with useFormikContext
+        "@typescript-eslint/no-floating-promises": ["error", {"ignoreIIFE": true}],
 
         "array-bracket-spacing": ["error", "never"],
         "array-bracket-newline": ["error", {"multiline": true}],

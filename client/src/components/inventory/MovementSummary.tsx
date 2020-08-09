@@ -17,7 +17,7 @@ import { MakeRequired } from '../../utils'
 type RequiredInclusions = 'inventoryElementFrom' | 'inventoryElementTo'
 export type DayMovements = MakeRequired<InventoryMovement, RequiredInclusions>[] | null
 
-const MovementSummary = () => {
+const MovementSummary = (): JSX.Element => {
   const classes = useStyles()
 
   // Date picker

@@ -18,33 +18,33 @@ import SnackbarContext from './SnackbarContext'
 import LoadingScreen from './components/LoadingScreen'
 import { useSnackbar } from './components/MySnackbar'
 
-const Route =              lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
-const CheckUser =          lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
-const RegisterSale =       lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/RegisterSale'))
-const AuthCallback =       lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
-const SilentAuth =         lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
-const Logout =             lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
-const MonitorSells =       lazy(() => import(/* webpackChunkName: "monitor-sells" */ './Routes/MonitorSells'))
-const ClientEditor =       lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
-const ClientList =         lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
-const ClientBalance =      lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/ClientBalance'))
-const RegisterPayment =    lazy(() => import(/* webpackChunkName: "register-payment" */ './Routes/RegisterPayment'))
-const PaymentList =        lazy(() => import(/* webpackChunkName: "all-payments" */ './Routes/PaymentList'))
-const RegisterSpending =   lazy(() => import(/* webpackChunkName: "register-spending" */ './Routes/RegisterSpending'))
-const SpendingList =       lazy(() => import(/* webpackChunkName: "spending-list" */ './Routes/SpendingList'))
-const Sells =              lazy(() => import(/* webpackChunkName: "sells" */ './Routes/Sells'))
-const Payments =           lazy(() => import(/* webpackChunkName: "payments" */ './Routes/Payments'))
-const Spendings =          lazy(() => import(/* webpackChunkName: "spendings" */ './Routes/Spendings'))
-const Inventory =          lazy(() => import(/* webpackChunkName: "inventory" */ './Routes/Inventory'))
-const Movements =          lazy(() => import(/* webpackChunkName: "movements" */ './Routes/Movements'))
+const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
+const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
+const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/RegisterSale'))
+const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
+const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
+const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
+const MonitorSells = lazy(() => import(/* webpackChunkName: "monitor-sells" */ './Routes/MonitorSells'))
+const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
+const ClientList = lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
+const ClientBalance = lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/ClientBalance'))
+const RegisterPayment = lazy(() => import(/* webpackChunkName: "register-payment" */ './Routes/RegisterPayment'))
+const PaymentList = lazy(() => import(/* webpackChunkName: "all-payments" */ './Routes/PaymentList'))
+const RegisterSpending = lazy(() => import(/* webpackChunkName: "register-spending" */ './Routes/RegisterSpending'))
+const SpendingList = lazy(() => import(/* webpackChunkName: "spending-list" */ './Routes/SpendingList'))
+const Sells = lazy(() => import(/* webpackChunkName: "sells" */ './Routes/Sells'))
+const Payments = lazy(() => import(/* webpackChunkName: "payments" */ './Routes/Payments'))
+const Spendings = lazy(() => import(/* webpackChunkName: "spendings" */ './Routes/Spendings'))
+const Inventory = lazy(() => import(/* webpackChunkName: "inventory" */ './Routes/Inventory'))
+const Movements = lazy(() => import(/* webpackChunkName: "movements" */ './Routes/Movements'))
 const RegisterProduction = lazy(() => import(/* webpackChunkName: "register-production" */ './Routes/RegisterProduction'))
-const RegisterDamaged =    lazy(() => import(/* webpackChunkName: "register-damaged" */ './Routes/RegisterDamaged'))
-const RegisterUnpack =     lazy(() => import(/* webpackChunkName: "register-damaged" */ './Routes/RegisterUnpack'))
+const RegisterDamaged = lazy(() => import(/* webpackChunkName: "register-damaged" */ './Routes/RegisterDamaged'))
+const RegisterUnpack = lazy(() => import(/* webpackChunkName: "register-damaged" */ './Routes/RegisterUnpack'))
 const RegisterRelocation = lazy(() => import(/* webpackChunkName: "register-relocation" */ './Routes/RegisterRelocation'))
-const RegisterEntry =      lazy(() => import(/* webpackChunkName: "register-entry" */ './Routes/RegisterEntry'))
-const Balance =            lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Balance'))
+const RegisterEntry = lazy(() => import(/* webpackChunkName: "register-entry" */ './Routes/RegisterEntry'))
+const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Balance'))
 
-const auth  = new Auth()
+const auth = new Auth()
 moment.locale('es')
 
 const AppSwitch = () => (
@@ -109,18 +109,18 @@ const App = () => {
   )
 }
 
-const styles :  StyleRulesCallback<Theme, {}> = theme => ({
-  "@global": {
+const styles : StyleRulesCallback<Theme, Record<string, unknown>> = theme => ({
+  '@global': {
     html: {
       fontSize: 12,
-      [theme.breakpoints.up("sm")]: {
+      [theme.breakpoints.up('sm')]: {
         fontSize: 16,
       },
-      [theme.breakpoints.up("md")]: {
+      [theme.breakpoints.up('md')]: {
         fontSize: 18,
       },
-    }
-  }
+    },
+  },
 })
 
 export default withStyles(styles)(App)

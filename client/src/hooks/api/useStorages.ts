@@ -4,7 +4,7 @@ import { paramsToString, Params } from '../../utils'
 import { Storage } from '../../models'
 import useNonce from './useNonce'
 
-const useStorages = (params?: Params) => {
+const useStorages = (params?: Params): readonly [Storage[] | null, () => void] => {
   const showError = useSnackbar()
 
   const [nonce, update] = useNonce()

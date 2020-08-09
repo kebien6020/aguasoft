@@ -5,48 +5,38 @@ import {
   CardContent,
   Typography,
 } from '@material-ui/core'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import * as colors from '@material-ui/core/colors'
 
 import ErrorIcon from '@material-ui/icons/ErrorOutlined'
 import WarningIcon from '@material-ui/icons/Warning'
 import InfoIcon from '@material-ui/icons/Info'
+import clsx from 'clsx'
 
-
-type AlertType = 'error' | 'warning' | 'success'
 
 interface AlertProps {
-  type: AlertType
+  type: 'error' | 'warning' | 'success'
   message: string
 }
 
-type AlertPropsAll = AlertProps & PropClasses
-
-function getClassName(props: AlertPropsAll) {
-  const classNames = [props.classes.alert]
-  switch (props.type) {
-    case 'error': classNames.push(props.classes.error); break
-    case 'warning': classNames.push(props.classes.warning); break
-    case 'success': classNames.push(props.classes.success); break
-  }
-
-  return classNames.join(' ')
+const Alert = (props: AlertProps): JSX.Element => {
+  const classes = useStyles()
+  const cardClass = clsx(classes.alert, classes[props.type])
+  return (
+    <Card className={cardClass}>
+      <CardContent className={classes.cardContent}>
+        <Typography className={classes.typography}>
+          {props.type === 'error' && <ErrorIcon />}
+          {props.type === 'warning' && <WarningIcon />}
+          {props.type === 'success' && <InfoIcon />}
+          {props.message}
+        </Typography>
+      </CardContent>
+    </Card>
+  )
 }
 
-const Alert = (props: AlertPropsAll) => (
-  <Card className={getClassName(props)}>
-    <CardContent className={props.classes.cardContent}>
-      <Typography className={props.classes.typography}>
-        {props.type === 'error' && <ErrorIcon />}
-        {props.type === 'warning' && <WarningIcon />}
-        {props.type === 'success' && <InfoIcon />}
-        {props.message}
-      </Typography>
-    </CardContent>
-  </Card>
-)
-
-const styles : StyleRulesCallback<Theme, AlertProps> = _theme => ({
+const useStyles = makeStyles({
   alert: {
     padding: '8px',
     margin: '0.5rem 0 1rem',
@@ -82,4 +72,4 @@ const styles : StyleRulesCallback<Theme, AlertProps> = _theme => ({
   },
 })
 
-export default withStyles(styles)(Alert)
+export default Alert

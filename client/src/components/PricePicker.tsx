@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from 'react'
 
 import { StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
@@ -45,9 +47,11 @@ class PricePicker extends React.Component<PropsAll, State> {
     currentPrice: this.props.products[0] ? this.props.products[0].basePrice : '0',
   } as State
 
-  componentWillReceiveProps(newProps: Props) {
-    if (newProps.products.length > this.props.products.length) {
-      this.setState({currentProduct: String(newProps.products[0].id)})
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.products.length !== this.props.products.length) {
+      this.setState({
+        currentProduct: String(this.props.products?.[0]?.id ?? ''),
+      })
     }
   }
 
@@ -60,8 +64,8 @@ class PricePicker extends React.Component<PropsAll, State> {
 
   handleChange = (name: keyof State, value: string) => {
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: value,
+      ...prevState,
+      [name]: value,
     }))
   }
 
@@ -73,9 +77,9 @@ class PricePicker extends React.Component<PropsAll, State> {
       String(pr.id) === value
     )
 
-    if (currentProduct) {
-      this.setState({currentPrice: currentProduct.basePrice})
-    }
+    if (currentProduct)
+      this.setState({ currentPrice: currentProduct.basePrice })
+
   }
 
   handleProductChangeEvent = (event: ValChangeEvent) => {
@@ -92,13 +96,13 @@ class PricePicker extends React.Component<PropsAll, State> {
         value: state.currentPrice,
       })
     }
-    this.setState({dialogOpen: false})
+    this.setState({ dialogOpen: false })
 
     setTimeout(() => {
       // Reset state of the dialog after the animation of the dialog is done
       // so that people won't think the dialog changed before actually
       // saving the values
-      this.setState({name: 'Base'})
+      this.setState({ name: 'Base' })
       this.handleProductChange(String(props.products[0].id))
     }, 200)
   }
@@ -112,14 +116,14 @@ class PricePicker extends React.Component<PropsAll, State> {
           className={classes.button}
           variant='outlined'
           color='primary'
-          onClick={() => this.setState({dialogOpen: true})}
+          onClick={() => this.setState({ dialogOpen: true })}
         >
           <AddIcon className={[classes.icon, classes.leftIcon].join(' ')} />
           Agregar Precio
         </Button>
         <Dialog
           open={state.dialogOpen}
-          onClose={() => this.setState({dialogOpen: false})}
+          onClose={() => this.setState({ dialogOpen: false })}
         >
           <DialogTitle>
             Definir nuevo precio
@@ -136,18 +140,18 @@ class PricePicker extends React.Component<PropsAll, State> {
             <FormControl fullWidth margin='normal'>
               <InputLabel htmlFor='currentProduct'>Producto</InputLabel>
               <Select
-                inputProps={{id: 'currentProduct', name: 'currentProduct'}}
+                inputProps={{ id: 'currentProduct', name: 'currentProduct' }}
                 onChange={this.handleProductChangeEvent}
                 value={state.currentProduct}
               >
                 {
-                  props.products.length > 0 ?
-                    props.products.map(pr => (
+                  props.products.length > 0
+                    ? props.products.map(pr => (
                       <MenuItem value={String(pr.id)} key={String(pr.id)}>
                         ({pr.code}) {pr.name}
                       </MenuItem>
-                    )) :
-                    'Cargando...'
+                    ))
+                    : 'Cargando...'
                 }
               </Select>
             </FormControl>
@@ -158,7 +162,7 @@ class PricePicker extends React.Component<PropsAll, State> {
             />
           </DialogContent>
           <DialogActions>
-            <Button color='primary' onClick={() => this.setState({dialogOpen: false})}>
+            <Button color='primary' onClick={() => this.setState({ dialogOpen: false })}>
               Cancelar
             </Button>
             <Button color='primary' onClick={this.handleNewPrice} autoFocus>

@@ -15,8 +15,8 @@ interface DescriptionProps {
   text: React.ReactNode
 }
 const Description = (props: DescriptionProps) => (
-  <p style={{marginTop: 0, marginBottom: 0}}>
-    <strong style={{fontWeight: 500}}>{props.title}</strong>: {props.text}
+  <p style={{ marginTop: 0, marginBottom: 0 }}>
+    <strong style={{ fontWeight: 500 }}>{props.title}</strong>: {props.text}
   </p>
 )
 
@@ -27,7 +27,7 @@ export interface MovementCardProps {
   elements: InventoryElement[]
 }
 
-const MovementCard = (props: MovementCardProps) => {
+const MovementCard = (props: MovementCardProps): JSX.Element => {
   const { movement, users, storages, elements } = props
   const classes = useStyles()
 
@@ -35,13 +35,13 @@ const MovementCard = (props: MovementCardProps) => {
   const userName = user ? user.name : 'Desconocido'
 
   const storageFrom = storages.find(s => s.id === movement.storageFromId)
-  const storageFromName = movement.storageFromId ?
-    (storageFrom ? storageFrom.name : 'Desconocido')
+  const storageFromName = movement.storageFromId
+    ? (storageFrom ? storageFrom.name : 'Desconocido')
     : 'Afuera'
 
   const storageTo = storages.find(s => s.id === movement.storageToId)
-  const storageToName = movement.storageToId ?
-    (storageTo ? storageTo.name : 'Desconocido')
+  const storageToName = movement.storageToId
+    ? (storageTo ? storageTo.name : 'Desconocido')
     : 'Afuera'
 
   const elementFrom = elements.find(e => e.id === movement.inventoryElementFromId)
@@ -54,13 +54,13 @@ const MovementCard = (props: MovementCardProps) => {
 
   const theme = useTheme()
 
-  if (movement.cause === 'damage') {
+  if (movement.cause === 'damage')
     style.borderLeftColor = theme.palette.error.main
-  } else if (movement.cause === 'manual') {
+  else if (movement.cause === 'manual')
     style.borderLeftColor = colors.yellow[500]
-  } else if (movement.cause === 'sell') {
+  else if (movement.cause === 'sell')
     style.borderLeftColor = colors.green[500]
-  }
+
 
   return (
     <Card className={classes.card} style={style}>
@@ -78,8 +78,8 @@ const MovementCard = (props: MovementCardProps) => {
               title='Elemento'
               text={elementFromName}
             />
-            {elementFromName !== elementToName &&
-              <Description
+            {elementFromName !== elementToName
+              && <Description
                 title='Elemento destino'
                 text={elementToName}
               />
@@ -88,8 +88,8 @@ const MovementCard = (props: MovementCardProps) => {
               title='Cantidad'
               text={movement.quantityFrom}
             />
-            {movement.quantityFrom !== movement.quantityTo &&
-              <Description
+            {movement.quantityFrom !== movement.quantityTo
+              && <Description
                 title='Cantidad destino'
                 text={movement.quantityTo}
               />

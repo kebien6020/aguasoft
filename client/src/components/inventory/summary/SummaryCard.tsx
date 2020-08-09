@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Card, { CardProps } from '@material-ui/core/Card'
 import clsx from 'clsx'
 
-const SummaryCard = ({className, ...otherProps}: CardProps) => {
+const SummaryCard = ({ className, ...otherProps }: CardProps): JSX.Element => {
   const classes = useStyles()
   return <Card className={clsx(classes.card, className)} {...otherProps} />
 }

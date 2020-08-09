@@ -3,11 +3,11 @@ import { makeStyles } from '@material-ui/core/styles'
 import MuiCardHeader, { CardHeaderProps } from '@material-ui/core/CardHeader'
 import clsx from 'clsx'
 
-const CardHeader = ({className, ...otherProps}: CardHeaderProps) => {
+const CardHeader = ({ className, ...otherProps }: CardHeaderProps): JSX.Element => {
   const classes = useStyles()
   return <MuiCardHeader
     className={clsx(classes.header, className)}
-    classes={{title: classes.title}}
+    classes={{ title: classes.title }}
     {...otherProps}
   />
 }

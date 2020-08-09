@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import * as colors from '@material-ui/core/colors'
 import CardContent from '@material-ui/core/CardContent'

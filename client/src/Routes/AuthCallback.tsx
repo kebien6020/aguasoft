@@ -5,7 +5,7 @@ import LoadingScreen from '../components/LoadingScreen'
 
 import { RouteComponentProps } from 'react-router-dom'
 
-interface AuthCallbackProps extends RouteComponentProps<{}> {
+interface AuthCallbackProps extends RouteComponentProps<Record<string, string|undefined>> {
   auth: Auth
 }
 
@@ -14,13 +14,13 @@ class AuthCallback extends React.Component<AuthCallbackProps> {
     super(props)
     const { auth } = props
     auth.handleAuthentication()
-      .then(() => props.history.push('/') )
+      .then(() => props.history.push('/'))
       .catch((error) => console.error(error))
   }
-  render() {
+  render(): JSX.Element {
     return (
       <LoadingScreen text='Iniciando sesión…' />
-    );
+    )
   }
 }
 

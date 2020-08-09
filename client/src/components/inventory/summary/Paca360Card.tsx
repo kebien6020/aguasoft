@@ -13,7 +13,7 @@ export interface Paca360CardProps extends CardProps {
   dayMovements: DayMovements
 }
 
-const Paca360Card = (props: Paca360CardProps) => {
+const Paca360Card = (props: Paca360CardProps): JSX.Element => {
   const { className, dayMovements, ...otherProps } = props
 
   const sumQtyFrom = (acc: number, movement: InventoryMovement) =>
@@ -24,7 +24,7 @@ const Paca360Card = (props: Paca360CardProps) => {
 
   const rollosFromBodega = dayMovements
     ?.filter(movement =>
-         movement.cause === 'relocation'
+      movement.cause === 'relocation'
       && movement.inventoryElementFrom.code === 'rollo-360'
       && movement.storageFrom?.code === 'bodega'
       && movement.storageTo?.code === 'trabajo'
@@ -33,7 +33,7 @@ const Paca360Card = (props: Paca360CardProps) => {
 
   const rollosRemoved = dayMovements
     ?.filter(movement =>
-         movement.cause === 'relocation'
+      movement.cause === 'relocation'
       && movement.inventoryElementFrom.code === 'rollo-360'
       && movement.storageFrom?.code === 'trabajo'
       && movement.storageTo === null
@@ -42,7 +42,7 @@ const Paca360Card = (props: Paca360CardProps) => {
 
   const bolsasProduced = dayMovements
     ?.filter(movement =>
-         movement.cause === 'production'
+      movement.cause === 'production'
       && movement.inventoryElementTo.code === 'bolsa-360'
       && movement.storageFrom === null
       && movement.storageTo?.code === 'intermedia'
@@ -51,21 +51,21 @@ const Paca360Card = (props: Paca360CardProps) => {
 
   const bolsasDamaged = dayMovements
     ?.filter(movement =>
-         movement.cause === 'damage'
+      movement.cause === 'damage'
       && movement.inventoryElementFrom.code === 'bolsa-360'
     )
     .reduce(sumQtyTo, 0)
 
   const pacasUnpack = dayMovements
     ?.filter(movement =>
-         movement.inventoryElementFrom.code === 'paca-360'
+      movement.inventoryElementFrom.code === 'paca-360'
       && movement.inventoryElementTo.code === 'bolsa-360'
     )
     .reduce(sumQtyFrom, 0)
 
   const pacasProduced = dayMovements
     ?.filter(movement =>
-         movement.cause === 'production'
+      movement.cause === 'production'
       && movement.inventoryElementTo.code === 'paca-360'
       && movement.storageTo?.code === 'terminado'
     )
@@ -73,7 +73,7 @@ const Paca360Card = (props: Paca360CardProps) => {
 
   const pacasSoldTotal = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'paca-360'
       && movement.rollback === false
     )
@@ -82,7 +82,7 @@ const Paca360Card = (props: Paca360CardProps) => {
 
   const pacasSoldRollbackMovements = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'paca-360'
       && movement.rollback === true
     )
@@ -91,9 +91,9 @@ const Paca360Card = (props: Paca360CardProps) => {
     ?.reduce(sumQtyTo, 0)
 
   const pacasSold =
-    pacasSoldTotal !== undefined &&
-    pacasSoldRollback !== undefined &&
-    pacasSoldTotal - pacasSoldRollback
+    pacasSoldTotal !== undefined
+    && pacasSoldRollback !== undefined
+    && pacasSoldTotal - pacasSoldRollback
 
   const pacasSoldRollbackAmount = pacasSoldRollbackMovements?.length
 
@@ -129,8 +129,8 @@ const Paca360Card = (props: Paca360CardProps) => {
           title='Rollos movidos desde bodega'
           text={rollosFromBodega}
         />
-        {rollosFromBodega !== rollosRemoved &&
-          <Description
+        {rollosFromBodega !== rollosRemoved
+          && <Description
             title='Rollos vacios removidos'
             text={rollosRemoved}
           />
@@ -147,8 +147,8 @@ const Paca360Card = (props: Paca360CardProps) => {
           title='Pacas producidas'
           text={pacasProduced}
         />
-        {pacasUnpack !== undefined && pacasUnpack > 0 &&
-          <Description
+        {pacasUnpack !== undefined && pacasUnpack > 0
+          && <Description
             title='Pacas desempacadas'
             text={pacasUnpack}
           />
@@ -157,26 +157,26 @@ const Paca360Card = (props: Paca360CardProps) => {
           title='Pacas vendidas'
           text={pacasSold}
         />
-        {pacasSoldRollbackAmount !== undefined && pacasSoldRollbackAmount > 0 &&
-          <Description
+        {pacasSoldRollbackAmount !== undefined && pacasSoldRollbackAmount > 0
+          && <Description
             title='Cantidad de ventas de pacas reversadas'
             text={pacasSoldRollbackAmount}
           />
         }
-        {rollosManualMovements !== undefined && rollosManualMovements > 0 &&
-          <Description
+        {rollosManualMovements !== undefined && rollosManualMovements > 0
+          && <Description
             title='Movimientos manuales relacionados a rollos'
             text={rollosManualMovements}
           />
         }
-        {bolsasManualMovements !== undefined && bolsasManualMovements > 0 &&
-          <Description
+        {bolsasManualMovements !== undefined && bolsasManualMovements > 0
+          && <Description
             title='Movimientos manuales relacionados a bolsas'
             text={bolsasManualMovements}
           />
         }
-        {pacasManualMovements !== undefined && pacasManualMovements > 0 &&
-          <Description
+        {pacasManualMovements !== undefined && pacasManualMovements > 0
+          && <Description
             title='Movimientos manuales relacionados a pacas'
             text={pacasManualMovements}
           />

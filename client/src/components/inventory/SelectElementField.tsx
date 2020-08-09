@@ -11,27 +11,27 @@ export interface SelectElementFieldProps extends SelectFieldProps {
   storageCode: string
 }
 
-const SelectElementField = (props: SelectElementFieldProps) => {
+const SelectElementField = (props: SelectElementFieldProps): JSX.Element => {
   const { statesNonce = 1, storageCode, ...otherProps } = props
   const { setFieldValue } = useFormikContext()
 
   const [field] = useField(props.name)
 
   const [helperText, setHelperText] = useState<string | undefined>(undefined)
-  const [storageStates, updateStates] = useStorageStates({'include': ['Storage', 'InventoryElement']})
+  const [storageStates, updateStates] = useStorageStates({ include: ['Storage', 'InventoryElement'] })
   const [storages] = useStorages()
 
   useEffect(() => {
-    if (statesNonce > 1) {
+    if (statesNonce > 1)
       updateStates()
-    }
-  }, [statesNonce])
+
+  }, [statesNonce, updateStates])
 
   useEffect(() => {
     if (field.value !== '' && storageStates) {
       const elementState = storageStates.find(state =>
-        state.Storage && state.Storage.code === storageCode &&
-        state.InventoryElement && state.InventoryElement.code === field.value
+        state.Storage && state.Storage.code === storageCode
+        && state.InventoryElement && state.InventoryElement.code === field.value
       )
       if (!elementState) {
         const storage = storages && storages.find(s => s.code === storageCode)
@@ -41,9 +41,9 @@ const SelectElementField = (props: SelectElementFieldProps) => {
       }
 
       const qty = elementState.quantity
-      setHelperText(`Cantidad de este elemento en ${elementState.Storage!.name}: ${qty}`)
+      setHelperText(`Cantidad de este elemento en ${elementState.Storage?.name ?? 'Bodega Desconocida'}: ${qty}`)
     }
-  }, [field.value, storageCode, storageStates])
+  }, [field.value, storageCode, storageStates, storages])
 
   const onChangeOverride = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>) => {
     const value = event.target.value

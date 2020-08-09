@@ -5,32 +5,28 @@ import { TextFieldProps } from '@material-ui/core/TextField'
 
 import NumberFormat, { NumberFormatProps } from 'react-number-format'
 
-type ValChangeEvent = { target: { value: string } }
-
 interface NumFormatProps extends NumberFormatProps {
   inputRef?: React.Ref<Element>
-  onChange?: (event: ValChangeEvent) => void
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 function NumberFormatCustom(props: NumFormatProps) {
-  const { inputRef, onChange, ...other } = props;
+  const { inputRef, onChange, ...other } = props
 
   return (
 
-    // @ts-ignore Weird typing error requiring esModuleInterop in the tsconfig
-    //            which breaks the rest of the code
     <NumberFormat
       {...other}
       getInputRef={inputRef}
       thousandSeparator='.'
       decimalSeparator=','
-      onValueChange={(values: any) => {
+      onValueChange={(values) => {
         if (!onChange) return
         onChange({
           target: {
             value: values.value,
           },
-        });
+        } as React.ChangeEvent<HTMLInputElement>)
       }}
       prefix='$'
       decimalScale={4}
@@ -46,15 +42,14 @@ interface Props {
   TextFieldProps?: TextFieldProps
 }
 
-const PriceField = (props: Props) => (
+const PriceField = (props: Props): JSX.Element => (
   <TextField
     label={props.label}
     margin='normal'
     fullWidth
-    InputProps={{inputComponent: NumberFormatCustom}}
+    InputProps={{ inputComponent: NumberFormatCustom }}
     onChange={props.onChange}
     value={props.value}
-
     {...props.TextFieldProps}
   />
 )

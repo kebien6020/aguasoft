@@ -9,13 +9,13 @@ function normalFontTheme(prevTheme: Theme): Theme {
       useNextVariants: true,
     },
   })
-  
+
   return createMuiTheme(options)
 }
 
 export default function normalFontadminOnly<P>(
-  component: React.ComponentType<P>)
-{
+  component: React.ComponentType<P>
+): React.ComponentType<P> {
   return class NormalFont extends React.Component<P> {
     render() {
       const Component = component

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useCallback } from 'react'
-import clsx from 'clsx';
+import clsx from 'clsx'
 import { makeStyles } from '@material-ui/core/styles'
 
 import IconButton from '@material-ui/core/IconButton'
@@ -16,7 +16,7 @@ export interface ErrorSnackbarProps {
   onClose?: () => void
 }
 
-export function ErrorSnackbar(props: ErrorSnackbarProps) {
+export function ErrorSnackbar(props: ErrorSnackbarProps): JSX.Element {
   const classes = useErrorSnackbarStyles()
   const { className, message, onClose, ...other } = props
 
@@ -57,14 +57,14 @@ const useErrorSnackbarStyles = makeStyles(theme => ({
   },
 }))
 
-export function useSnackbar() {
+export function useSnackbar(): [JSX.Element, React.Dispatch<React.SetStateAction<string | null>>] {
   const [snackbarMessage, setSnackbarMessage] = useState<string|null>(null)
-  const snackbarOpen = snackbarMessage !== null;
-  const handleSnackbarClose = useCallback(() => setSnackbarMessage(null), []);
+  const snackbarOpen = snackbarMessage !== null
+  const handleSnackbarClose = useCallback(() => setSnackbarMessage(null), [])
   const snackbar =
     <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleSnackbarClose}>
       <ErrorSnackbar message={snackbarMessage || undefined} onClose={handleSnackbarClose} />
     </Snackbar>
 
-  return [snackbar, setSnackbarMessage] as [typeof snackbar, typeof setSnackbarMessage]
+  return [snackbar, setSnackbarMessage]
 }

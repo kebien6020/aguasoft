@@ -12,14 +12,14 @@ interface Bolsa6LCardProps extends CardProps {
   dayMovements: DayMovements
 }
 
-const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
+const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Element => {
 
   const sumQtyTo = (acc: number, movement: InventoryMovement) =>
     acc + Number(movement.quantityTo)
 
   const bolsasFromBodega = dayMovements
     ?.filter(movement =>
-         movement.cause === 'relocation'
+      movement.cause === 'relocation'
       && movement.inventoryElementFrom.code === 'bolsa-6l-raw'
       && movement.storageFrom?.code === 'bodega'
       && movement.storageTo?.code === 'trabajo'
@@ -28,7 +28,7 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
 
   const bolsasProduced = dayMovements
     ?.filter(movement =>
-         movement.cause === 'production'
+      movement.cause === 'production'
       && movement.inventoryElementTo.code === 'bolsa-6l'
       && movement.storageFrom?.code === 'trabajo'
       && movement.storageTo?.code === 'terminado'
@@ -37,21 +37,21 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
 
   const bolsasDamaged = dayMovements
     ?.filter(movement =>
-         movement.cause === 'damage'
+      movement.cause === 'damage'
       && movement.inventoryElementFrom.code === 'bolsa-6l'
     )
     .reduce(sumQtyTo, 0)
 
   const bolsasRawDamaged = dayMovements
     ?.filter(movement =>
-         movement.cause === 'damage'
+      movement.cause === 'damage'
       && movement.inventoryElementFrom.code === 'bolsa-6l-raw'
     )
     .reduce(sumQtyTo, 0)
 
   const bolsasSoldTotal = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'bolsa-6l'
       && movement.rollback === false
     )
@@ -60,7 +60,7 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
 
   const bolsasSoldRollbackMovements = dayMovements
     ?.filter(movement =>
-         movement.cause === 'sell'
+      movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'bolsa-6l'
       && movement.rollback === true
     )
@@ -69,9 +69,9 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
     ?.reduce(sumQtyTo, 0)
 
   const bolsasSold =
-    bolsasSoldTotal !== undefined &&
-    bolsasSoldRollback !== undefined &&
-    bolsasSoldTotal - bolsasSoldRollback
+    bolsasSoldTotal !== undefined
+    && bolsasSoldRollback !== undefined
+    && bolsasSoldTotal - bolsasSoldRollback
 
   const bolsasSoldRollbackAmount = bolsasSoldRollbackMovements?.length
 
@@ -93,8 +93,8 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
           title='Bolsas movidas desde bodega'
           text={bolsasFromBodega}
         />
-        {bolsasProduced !== undefined && bolsasProduced > 0 &&
-          <Description
+        {bolsasProduced !== undefined && bolsasProduced > 0
+          && <Description
             title='Bolsas insumo dañadas'
             text={bolsasRawDamaged}
           />
@@ -111,14 +111,14 @@ const Bolsa6LCard = ({dayMovements, ...otherProps}: Bolsa6LCardProps) => {
           title='Bolsas vendidas'
           text={bolsasSold}
         />
-        {bolsasSoldRollbackAmount !== undefined && bolsasSoldRollbackAmount > 0 &&
-          <Description
+        {bolsasSoldRollbackAmount !== undefined && bolsasSoldRollbackAmount > 0
+          && <Description
             title='Cantidad de ventas de bolsas reversadas'
             text={bolsasSoldRollbackAmount}
           />
         }
-        {bolsasManualMovements !== undefined && bolsasManualMovements > 0 &&
-          <Description
+        {bolsasManualMovements !== undefined && bolsasManualMovements > 0
+          && <Description
             title='Movimientos manuales'
             text={bolsasManualMovements}
           />

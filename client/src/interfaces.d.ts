@@ -1,3 +1,4 @@
 declare interface PropClasses {
-    classes: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  classes: any
 }

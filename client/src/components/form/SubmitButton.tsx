@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { useFormikContext } from 'formik'
 
-const SubmitButton = () => {
+const SubmitButton = (): JSX.Element => {
   const classes = useSubmitButtonStyles()
   const { isSubmitting } = useFormikContext()
 
@@ -28,7 +28,7 @@ const useSubmitButtonStyles = makeStyles({
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
-  }
+  },
 })
 
 export default SubmitButton

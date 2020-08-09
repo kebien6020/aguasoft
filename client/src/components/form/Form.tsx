@@ -13,19 +13,19 @@ type GridProps = MuiGridProps<typeof FForm, FFormProps>
 
 interface FormProps<Values> extends FormikConfig<Values> {
   gridProps?: GridProps
-  children: React.ReactNode | ((formik: FormikProps<Values>) => any)
+  children: React.ReactNode | ((formik: FormikProps<Values>) => React.ReactNode)
   className?: string
 }
 
-function Form<Values extends FormikValues = FormikValues>(props: FormProps<Values>) {
+function Form<Values extends FormikValues = FormikValues>(props: FormProps<Values>): JSX.Element {
   const { gridProps, children, className, ...otherProps } = props
   return (
     <Formik {...otherProps}>
       {formik => (
         <Grid container spacing={2} component={FForm} className={className} {...gridProps}>
-          {typeof children === 'function' ?
-            children(formik) :
-            children
+          {typeof children === 'function'
+            ? children(formik)
+            : children
           }
         </Grid>
       )}

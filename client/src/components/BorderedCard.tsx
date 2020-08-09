@@ -7,7 +7,7 @@ type BorderedCardProps = CardProps & {
   color?: string
 }
 
-const BorderedCard = (props: BorderedCardProps) => {
+const BorderedCard = (props: BorderedCardProps): JSX.Element => {
   const {
     className,
     color,
@@ -16,7 +16,7 @@ const BorderedCard = (props: BorderedCardProps) => {
 
   const classes = useStyles()
 
-  const style = color ? {borderLeftColor: color} : undefined
+  const style = color ? { borderLeftColor: color } : undefined
 
   return (
     <Card

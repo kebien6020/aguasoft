@@ -23,7 +23,7 @@ interface CurrentInventoryStateProps {
   inventoryElements: InventoryElement[] | null
 }
 
-const CurrentInventoryState = (props: CurrentInventoryStateProps) => {
+const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element => {
   const { inventoryElements } = props
 
   const classes = useStyles()
@@ -64,7 +64,7 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps) => {
 
       socket.close()
     }
-  }, [])
+  }, [update])
 
   return (
     <>
@@ -73,8 +73,8 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps) => {
         {manualMovementButton}
       </div>
 
-      {showManualMovementForm &&
-        <ManualMovementForm
+      {showManualMovementForm
+        && <ManualMovementForm
           storages={storages}
           inventoryElements={inventoryElements}
           onUpdate={update}
@@ -102,7 +102,7 @@ const useStyles = makeStyles(() => ({
     flexFlow: 'column nowrap',
     alignItems: 'center',
     marginBottom: '1rem',
-  }
+  },
 }))
 
 export default CurrentInventoryState

@@ -1,19 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import useAuth from './useAuth'
 import { fetchJsonAuth, FetchAuthOptions, isErrorResponse, ErrorResponse } from '../utils'
+import useDeepCompareEffect from 'use-deep-compare-effect'
 
 export interface UseFetchOptions {
-  showError: (s: string) => any
+  showError: (s: string) => unknown
   name: string
   options?: FetchAuthOptions
   nonce?: number
 }
 
-const useFetch = <T extends object>(
+type Result<T> = [
+  T | null,
+  boolean,
+  ErrorResponse['error'] | null
+]
+
+function useFetch<T>(
   url: string,
   hookOptions: UseFetchOptions
-) => {
+): Result<T> {
   const {
     showError,
     name,
@@ -26,8 +33,8 @@ const useFetch = <T extends object>(
   const [data, setData] = useState<null | T>(null)
   const [error, setError] = useState<null | ErrorResponse['error']>(null)
   const [loading, setLoading] = useState<boolean>(false)
-  useEffect(() => {
-    const fetchData = async () => {
+  useDeepCompareEffect(() => {
+    (async () => {
       setLoading(true)
       try {
         const response : T | ErrorResponse = await fetchJsonAuth(url, auth, options)
@@ -45,10 +52,8 @@ const useFetch = <T extends object>(
       } finally {
         setLoading(false)
       }
-    }
-
-    fetchData()
-  }, [url, nonce])
+    })()
+  }, [url, nonce, auth, name, options, showError])
 
   return [data, loading, error] as [T | null, boolean, typeof error]
 }

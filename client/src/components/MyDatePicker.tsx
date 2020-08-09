@@ -1,9 +1,9 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import { DatePicker, DatePickerProps } from '@material-ui/pickers/DatePicker'
 import * as moment from 'moment'
 
-type DateChangeHandler = (date: moment.Moment) => any
+type DateChangeHandler = (date: moment.Moment) => unknown
 
 interface MyDatePickerProps {
   label?: React.ReactNode
@@ -13,32 +13,33 @@ interface MyDatePickerProps {
   className?: string
 }
 
-type MyDatePickerPropsAll = MyDatePickerProps & PropClasses
+const MyDatePicker = (props : MyDatePickerProps): JSX.Element => {
+  const classes = useStyles()
+  return (
+    <div className={[classes.datePickerContainer, props.className].join(' ')}>
 
-const MyDatePicker = (props : MyDatePickerPropsAll) => (
-  <div className={[props.classes.datePickerContainer, props.className].join(' ')}>
-
-    <DatePicker
-      label={props.label}
-      className={props.classes.datePicker}
-      value={props.date}
-      format='DD-MMM-YYYY'
-      disableFuture
-      onChange={(date) => handleDateChange(date, props.onDateChange)}
-      {...props.DatePickerProps}
-    />
-  </div>
-)
+      <DatePicker
+        label={props.label}
+        className={classes.datePicker}
+        value={props.date}
+        format='DD-MMM-YYYY'
+        disableFuture
+        onChange={(date) => handleDateChange(date, props.onDateChange)}
+        {...props.DatePickerProps}
+      />
+    </div>
+  )
+}
 
 function handleDateChange(
   date: moment.Moment | null,
-  onDateChange: DateChangeHandler)
-{
+  onDateChange: DateChangeHandler
+) {
   date = date ? date : moment.invalid()
   onDateChange(date)
 }
 
-const styles: StyleRulesCallback<Theme, MyDatePickerProps> = theme => ({
+const useStyles = makeStyles(theme => ({
   datePickerContainer: {
     display: 'block',
     textAlign: 'center',
@@ -50,6 +51,6 @@ const styles: StyleRulesCallback<Theme, MyDatePickerProps> = theme => ({
       textAlign: 'center',
     },
   },
-})
+}))
 
-export default withStyles(styles)(MyDatePicker)
+export default MyDatePicker

@@ -3,7 +3,7 @@ import FormControl from '@material-ui/core/FormControl'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
-import Select, {SelectProps} from '@material-ui/core/Select'
+import Select, { SelectProps } from '@material-ui/core/Select'
 import { makeStyles } from '@material-ui/core/styles'
 
 export interface SelectOption {
@@ -21,7 +21,7 @@ export interface SelectControlProps extends SelectProps {
   errorMessage?: string
 }
 
-const SelectControl = (props: SelectControlProps) => {
+const SelectControl = (props: SelectControlProps): JSX.Element => {
   const {
     label,
     options,
@@ -40,15 +40,15 @@ const SelectControl = (props: SelectControlProps) => {
         id={id}
         {...otherProps}
       >
-        {emptyOption &&
-          <MenuItem value=''>{emptyOption}</MenuItem>
+        {emptyOption
+          && <MenuItem value=''>{emptyOption}</MenuItem>
         }
         {options && options.map(o =>
           <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>
         )}
       </Select>
-      {(errorMessage && touched || helperText) &&
-        <FormHelperText>{errorMessage || helperText}</FormHelperText>
+      {(errorMessage && touched || helperText)
+        && <FormHelperText>{errorMessage || helperText}</FormHelperText>
       }
     </FormControl>
   )

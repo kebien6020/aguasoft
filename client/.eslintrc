@@ -7,5 +7,13 @@
     "../.eslintrc",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended"
-  ]
+  ],
+  "parserOptions": {
+    "project": ["./client/tsconfig.json"]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }

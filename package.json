@@ -7,7 +7,7 @@
     "build-server-js": "copyfiles -f ./server/src/db/config.json ./server/dist/db && tsc -p server",
     "dev": "npm-run-all -p dev-server watch-client-js",
     "dev-server": "npm-run-all -p watch-server-js start-server-autoreload",
-    "lint": "eslint .",
+    "lint": "eslint --ext .js,.ts .",
     "migrate": "sequelize db:migrate",
     "migrate-prod": "sequelize db:migrate --env production",
     "start-server": "node server/dist/index.js",
