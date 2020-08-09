@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 
 import Avatar from '@material-ui/core/Avatar'
@@ -14,9 +15,11 @@ import DeleteIcon from '@material-ui/icons/Delete'
 
 import Alert from './Alert'
 
-import { money } from '../utils'
+import { money, fetchJsonAuth, isErrorResponse } from '../utils'
 
 import * as moment from 'moment'
+import useSnackbar from '../hooks/useSnackbar'
+import useAuth from '../hooks/useAuth'
 
 export interface Sell {
   Client: {name: string, id: number, defaultCash: boolean},
@@ -33,23 +36,56 @@ export interface Sell {
   deleted: boolean,
 }
 
-interface SellsProps {
-  sells: Sell[]
-  onDeleteSell: (sellId: number) => unknown
+interface SaleCardProps {
+  sale: Sell
+  refresh: () => unknown
 }
 
-const Sells = (props: SellsProps): JSX.Element => {
+const SaleCard = ({ sale, refresh }: SaleCardProps) => {
   const classes = useStyles()
 
-  const getCardClass = (sell: Sell) => {
+  const showSnackbar = useSnackbar()
+  const auth = useAuth()
+  const [disableDelete, setDisableDelete] = useState(false)
+
+  const handleDeleteSell = async (sellId: number) => {
+    const url = `/api/sells/${sellId}`
+
+    setDisableDelete(true)
+    let result
+    try {
+      result = await fetchJsonAuth(url, auth, {
+        method: 'delete',
+      })
+    } catch (error) {
+      const msg =
+          'Error de conexión al eliminar la venta. Es posible que no '
+        + 'haya conexión a internet en este momento'
+      showSnackbar(msg)
+      return
+    } finally {
+      setDisableDelete(false)
+    }
+
+    if (isErrorResponse(result)) {
+      showSnackbar('Error al eliminar la venta: ' + result.error.message)
+      console.error(result)
+      return
+    }
+
+    showSnackbar('✔ Venta eliminada')
+    refresh()
+  }
+
+  const getCardClass = (sale: Sell) => {
     const classNames = [classes.sellCard]
 
-    classNames.push(sell.cash
+    classNames.push(sale.cash
       ? classes.sellCardCash
       : classes.sellCardPost
     )
 
-    if (sell.deleted)
+    if (sale.deleted)
       classNames.push(classes.sellCardDeleted)
 
     return classNames.join(' ')
@@ -65,101 +101,90 @@ const Sells = (props: SellsProps): JSX.Element => {
     userColorLookup[userCode] || colors.grey[500]
   )
 
-  const getBasePrice = (sell: Sell) =>
-    Number(sell.Prices.filter(p => p.name === 'Base')[0].value)
+  const getBasePrice = (sale: Sell) =>
+    Number(sale.Prices.filter(p => p.name === 'Base')[0].value)
 
-  const isBasePrice = (sell: Sell) => {
-    const price = sell.value / sell.quantity
-    const basePrice = getBasePrice(sell)
+  const isBasePrice = (sale: Sell) => {
+    const price = sale.value / sale.quantity
+    const basePrice = getBasePrice(sale)
 
     return Math.floor(price) === Math.floor(basePrice)
   }
 
   return (
-    <Grid container spacing={2}>
-      {props.sells && props.sells.length === 0
-          && <Grid item xs={12}>
-            <Typography variant='h5'>
-              No se registaron ventas este día.
-            </Typography>
-          </Grid>
-      }
-      {props.sells
-        ? props.sells.map((sell, key) => (
-          <Grid item xs={12} key={key}>
-            <Card className={getCardClass(sell)}>
-              <div className={classes.cardMain}>
-                <CardHeader
-                  className={classes.cardHeader}
-                  avatar={
-                    <Avatar
-                      aria-label={sell.User.name}
-                      className={classes.avatar}
-                      style={{ backgroundColor: getUserColor(sell.User.code) }}
-                    >
-                      {sell.User.name.charAt(0).toUpperCase()}
-                    </Avatar>
-                  }
-                  title={`${sell.quantity} ${sell.Product.name}`}
-                  subheader={`para ${sell.Client.name}`}
-                />
-                <CardContent>
-                  <Typography variant='body2'>
-                    {moment(sell.updatedAt).format('hh:mm a')}
-                      ({moment(sell.updatedAt).fromNow()})
-                  </Typography>
-                  {sell.deleted
-                      && <Alert type='error' message='Esta venta fue eliminada' />
-                  }
-                  {!isBasePrice(sell)
-                      && <Alert
-                        type='warning'
-                        message={`Venta por un precio diferente al precio base (que es ${money(getBasePrice(sell))})`}
-                      />
-                  }
-                </CardContent>
-                <IconButton
-                  className={classes.deleteButton}
-                  onClick={() => props.onDeleteSell(sell.id)}
-                  disabled={sell.deleted}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </div>
-              <div className={classes.cardPrices}>
-                <div className={classes.cardPrice}>
-                  <Typography
-                    variant='overline'
-                    className={classes.cardPriceHeader}>
-                      Precio Unitario
-                  </Typography>
-                  <Typography
-                    variant='caption'
-                    className={classes.cardPriceValue}>
-                    {money(sell.value / sell.quantity)}
-                  </Typography>
-                </div>
-                <div className={classes.cardPrice}>
-                  <Typography
-                    variant='overline'
-                    className={classes.cardPriceHeader}>
-                      Precio Total
-                  </Typography>
-                  <Typography
-                    variant='caption'
-                    className={classes.cardPriceValue}>
-                    {money(sell.value)}
-                  </Typography>
-                </div>
-              </div>
-            </Card>
-          </Grid>
-        ))
-        : 'Cargando ventas del día...'
-      }
-    </Grid>
+    <Card className={getCardClass(sale)}>
+      <div className={classes.cardMain}>
+        <CardHeader
+          className={classes.cardHeader}
+          avatar={
+            <Avatar
+              aria-label={sale.User.name}
+              className={classes.avatar}
+              style={{ backgroundColor: getUserColor(sale.User.code) }}
+            >
+              {sale.User.name.charAt(0).toUpperCase()}
+            </Avatar>
+          }
+          title={`${sale.quantity} ${sale.Product.name}`}
+          subheader={`para ${sale.Client.name}`}
+        />
+        <CardContent>
+          <Typography variant='body2'>
+            {moment(sale.updatedAt).format('hh:mm a')}
+                      ({moment(sale.updatedAt).fromNow()})
+          </Typography>
+          {sale.deleted && <>
+            <Alert type='error' message='Esta venta fue eliminada' />
+          </>}
+          {!isBasePrice(sale) && <>
+            <Alert
+              type='warning'
+              message={`Venta por un precio diferente al precio base (que es ${money(getBasePrice(sale))})`}
+            />
+          </>}
+        </CardContent>
+        <IconButton
+          className={classes.deleteButton}
+          onClick={() => handleDeleteSell(sale.id)}
+          disabled={sale.deleted || disableDelete}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </div>
+      <div className={classes.cardPrices}>
+        <div className={classes.cardPrice}>
+          <Typography
+            variant='overline'
+            className={classes.cardPriceHeader}
+          >
+            Precio Unitario
+          </Typography>
+          <Typography
+            variant='caption'
+            className={classes.cardPriceValue}
+          >
+            {money(sale.value / sale.quantity)}
+          </Typography>
+        </div>
+        <div className={classes.cardPrice}>
+          <Typography
+            variant='overline'
+            className={classes.cardPriceHeader}
+          >
+            Precio Total
+          </Typography>
+          <Typography
+            variant='caption'
+            className={classes.cardPriceValue}
+          >
+            {money(sale.value)}
+          </Typography>
+        </div>
+      </div>
+    </Card>
   )
 }
+
 
 const useStyles = makeStyles(theme => ({
   sellCard: {
@@ -227,6 +252,32 @@ const useStyles = makeStyles(theme => ({
     right: '0',
   },
 }))
+
+interface SellsProps {
+  sells: Sell[]
+  refresh: () => unknown
+}
+
+const Sells = ({ sells, refresh }: SellsProps): JSX.Element => (
+  <Grid container spacing={2}>
+    {sells?.length === 0 && <>
+      <Grid item xs={12}>
+        <Typography variant='h5'>
+              No se registaron ventas este día.
+        </Typography>
+      </Grid>
+    </>}
+    {sells
+      ? sells.map(sale => (
+        <Grid item xs={12} key={sale.id}>
+          <SaleCard sale={sale} refresh={refresh} />
+        </Grid>
+      ))
+      : 'Cargando ventas del día...'
+    }
+  </Grid>
+)
+
 
 // See comment on component Login
 export default Sells

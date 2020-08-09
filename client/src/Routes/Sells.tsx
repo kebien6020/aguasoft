@@ -14,12 +14,13 @@ import MyDatePicker from '../components/MyDatePicker'
 import DayOverview from '../components/DayOverview'
 import Layout from '../components/Layout'
 import Title from '../components/Title'
-import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
+import { fetchJsonAuth, ErrorResponse, isErrorResponse } from '../utils'
 
 import * as moment from 'moment'
 import { Moment } from 'moment'
 import 'moment/locale/es'
 import useAuth from '../hooks/useAuth'
+import useNonce from '../hooks/api/useNonce'
 moment.locale('es')
 
 export interface Filter {
@@ -52,6 +53,7 @@ export default function Sells(): JSX.Element {
 
   // Sell List
   const [sells, setSells] = useState<Sell[]|null>(null)
+  const [nonce, refresh] = useNonce()
   useEffect(() => {
     (async () => {
       setSells(null)
@@ -66,31 +68,7 @@ export default function Sells(): JSX.Element {
         setSnackbarError('Error al cargar las ventas, por favor recarga la página')
       }
     })()
-  }, [date, auth, setSnackbarError])
-
-  const handleDeleteSell = useCallback(async (sellId: number) => {
-    if (!sells) return
-
-    const url = `/api/sells/${sellId}`
-    const result : ErrorResponse | SuccessResponse =
-      await fetchJsonAuth(url, auth, {
-        method: 'delete',
-      })
-
-    if (!isErrorResponse(result)) {
-      const sellsCopy = [...sells]
-      const sell = sellsCopy.find(s => s.id === sellId)
-      if (!sell) {
-        console.error('Trying to mutate unknown sellId', sellId)
-        return
-      }
-      sell.deleted = true
-
-      setSells(sellsCopy)
-    } else {
-      console.error(result)
-    }
-  }, [sells, auth])
+  }, [date, auth, setSnackbarError, nonce])
 
   // Login to register sell
   const history = useHistory()
@@ -127,7 +105,7 @@ export default function Sells(): JSX.Element {
   const sellList =
     filteredSells && <SellList
       sells={filteredSells}
-      onDeleteSell={handleDeleteSell}
+      refresh={refresh}
     />
 
   return (
