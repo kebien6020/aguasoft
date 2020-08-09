@@ -151,3 +151,18 @@ export interface MachineCounter {
   readonly createdAt: string
   readonly updatedAt: string
 }
+
+export interface BalanceVerification {
+  readonly id: number
+  readonly date: string
+  readonly createdById: number
+  readonly adjustAmount: number
+  readonly amount: number
+
+  // Posible inclusions
+  readonly createdBy?: User
+
+  // Timestamps
+  readonly createdAt: string
+  readonly updatedAt: string
+}

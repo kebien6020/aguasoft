@@ -130,6 +130,7 @@ describe('Routes', () => {
       const res = await agent.post(url).send(mockData())
 
       expect(res.status).toBe(200)
+      expect(res).not.toMatchObject({ success: false })
 
       const createdVerification = await BalanceVerifications.findOne({
         where: { createdById: user.id },
@@ -281,6 +282,7 @@ describe('Routes', () => {
         productId: product.id,
         value: 3000,
         date: today,
+        cash: true,
       })
 
       await createSell({
@@ -289,6 +291,7 @@ describe('Routes', () => {
         productId: product.id,
         value: 5000,
         date: today,
+        cash: true,
       })
 
       const res = await agent.get(url)
@@ -299,6 +302,97 @@ describe('Routes', () => {
           expect.objectContaining({
             date: moment().format('YYYY-MM-DD'),
             sales: 8000,
+            spendings: 0,
+            payments: 0,
+          }),
+        ],
+      })
+    })
+
+    it('only counts sales with cash true', async () => {
+      const { agent, user } = await setup()
+
+      const today = moment().format('YYYY-MM-DD')
+      await createBalanceVerification({
+        date: today,
+        createdById: user.id,
+      })
+
+      const client = await createClient()
+      const product = await createProduct()
+
+      await createSell({
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 3000,
+        date: today,
+        cash: true,
+      })
+
+      await createSell({
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 5000,
+        date: today,
+        cash: false,
+      })
+
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        success: true,
+        data: [
+          expect.objectContaining({
+            date: moment().format('YYYY-MM-DD'),
+            sales: 3000,
+            spendings: 0,
+            payments: 0,
+          }),
+        ],
+      })
+    })
+
+    it('doesn\'t count deleted sales', async () => {
+      const { agent, user } = await setup()
+
+      const today = moment().format('YYYY-MM-DD')
+      await createBalanceVerification({
+        date: today,
+        createdById: user.id,
+      })
+
+      const client = await createClient()
+      const product = await createProduct()
+
+      await createSell({
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 3000,
+        date: today,
+        cash: true,
+        deleted: true,
+      })
+
+      await createSell({
+        userId: user.id,
+        clientId: client.id,
+        productId: product.id,
+        value: 5000,
+        date: today,
+        cash: true,
+      })
+
+      const res = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        success: true,
+        data: [
+          expect.objectContaining({
+            date: moment().format('YYYY-MM-DD'),
+            sales: 5000,
             spendings: 0,
             payments: 0,
           }),
@@ -403,6 +497,7 @@ describe('Routes', () => {
         clientId: client.id,
         productId: product.id,
         value: 5000,
+        cash: true,
       })
 
       await createSell({
@@ -411,6 +506,7 @@ describe('Routes', () => {
         clientId: client.id,
         productId: product.id,
         value: 8000,
+        cash: true,
       })
 
       await createPayment({
@@ -536,6 +632,34 @@ describe('Routes', () => {
       expect(res.body.data).toEqual([
         expect.objectContaining({ date: tm2 }),
         expect.objectContaining({ date: tm1 }),
+      ])
+    })
+
+    it('includes createdBy if specified in includes param', async () => {
+      const { user, agent } = await setup()
+
+      const today = moment().format('YYYY-MM-DD')
+
+      await createBalanceVerification({
+        date: today,
+        amount: 5000,
+        adjustAmount: 0,
+        createdById: user.id,
+      })
+
+      const res = await agent.get(url + '?includes[]=verification.createdBy')
+
+      expect(res.body.data).toEqual([
+        expect.objectContaining({
+          date: today,
+          verification: expect.objectContaining({
+            createdBy: expect.objectContaining({
+              id: user.id,
+              name: user.name,
+              role: user.role,
+            }),
+          }),
+        }),
       ])
     })
 

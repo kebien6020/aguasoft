@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import * as colors from '@material-ui/core/colors'
 import CardContent from '@material-ui/core/CardContent'
@@ -13,7 +13,12 @@ import CardHeader from '../components/CardHeader'
 import DateControl from '../components/controls/DateControl'
 import Layout from '../components/Layout'
 import Title from '../components/Title'
-import { money, moneySign } from '../utils'
+import { money, moneySign, fetchJsonAuth, isErrorResponse, paramsToString, Params } from '../utils'
+import useAuth from '../hooks/useAuth'
+import { BalanceVerification } from '../models'
+import useSnackbar from '../hooks/useSnackbar'
+import LoadingIndicator from '../components/LoadingIndicator'
+import useDeepCompareEffect from 'use-deep-compare-effect'
 
 type CardPricesProps = {
   titleOne: React.ReactNode
@@ -150,13 +155,7 @@ const useHistoryElementCardStyles = makeStyles(theme => ({
 }))
 
 type VerificationCardProps = {
-    verification: {
-        date: string
-        amount: number
-        adjustAmount: number
-        User: { name: string }
-        createdAt: string
-    }
+    verification: BalanceVerification
 }
 
 const VerificationCard = (props: VerificationCardProps) => {
@@ -170,7 +169,7 @@ const VerificationCard = (props: VerificationCardProps) => {
       <CardHeader title={`Verificación ${date.format('DD-MMM-YYYY')}`} />
       <div className={classes.body}>
         <CardContent className={classes.content}>
-          Registrada por: {verification.User.name}<br />
+          Registrada por: {verification.createdBy?.name ?? 'Desconocido'}<br />
           Registrada el: {createdAt.format('DD-MMM-YYYY hh:mm a')}
         </CardContent>
         <CardPrices
@@ -204,10 +203,83 @@ const useVerificationCardStyles = makeStyles(theme => ({
   },
 }))
 
+type BalanceItem = {
+  balance: number
+  date: string
+  sales: number
+  spendings: number
+  payments: number
+  verification: BalanceVerification
+}
+type ListBalanceResponse = {
+  success: boolean
+  data: BalanceItem[]
+}
+
+const useBalanceData = (params: Params) => {
+  const auth = useAuth()
+  const showMessage = useSnackbar()
+  const [balanceData, setBalanceData] = useState<BalanceItem[]|null>(null)
+  useDeepCompareEffect(() => {
+    (async () => {
+      const qs = paramsToString(params)
+      const url = `/api/balance?${qs}`
+      let response
+      try {
+        response = await fetchJsonAuth<ListBalanceResponse>(url, auth)
+      } catch (error) {
+        showMessage('Error de conexión al obtener el balance')
+        return
+      }
+
+      if (isErrorResponse(response)) {
+        showMessage('Error al obtener el balance: ' + response.error.message)
+        return
+      }
+
+      setBalanceData(response.data.reverse())
+    })()
+  }, [auth, showMessage, params])
+
+  return balanceData
+}
+
+interface BalanceItemCardProps {
+  item: BalanceItem;
+}
+
+const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
+  <>
+    <HistoryElementCard
+      header={moment(item.date).format('DD-MMM-YYYY')}
+      content={<>
+        <div>Ventas: {money(item.sales)}</div>
+        <div>Pagos: {money(item.payments)}</div>
+        <div>Salidas: {money(item.spendings)}</div>
+      </>}
+      delta={item.sales + item.payments + item.spendings}
+      balance={item.balance}
+    />
+    {item.verification && <>
+      <VerificationCard
+        verification={item.verification}
+      />
+    </>}
+  </>
+)
+
 const Balance = (): JSX.Element => {
   const classes = useStyles()
-  const [bDate, setBDate] = useState<Moment|null>(null)
+  const [bDate, setBDate] = useState<Moment|null>(
+    () => moment().subtract(1, 'month')
+  )
   const [eDate, setEDate] = useState<Moment|null>(null)
+
+  const balanceData = useBalanceData({
+    minDate: bDate?.format('YYYY-MM-DD'),
+    maxDate: eDate?.format('YYYY-MM-DD'),
+    includes: ['verification.createdBy'],
+  })
 
   return (
     <Layout title='Balance General'>
@@ -218,53 +290,30 @@ const Balance = (): JSX.Element => {
         <DateControl
           label='Fecha inicial'
           date={bDate}
-          onDateChange={setBDate}
+          onDateChange={date => setBDate(date.isValid() ? date : null)}
           DatePickerProps={{
             inputVariant: 'outlined',
+            clearable: true,
+            clearLabel: 'Borrar',
           }}
         />
         <span className={classes.to}>→</span>
         <DateControl
           label='Fecha final'
           date={eDate}
-          onDateChange={setEDate}
+          onDateChange={date => setEDate(date.isValid() ? date : null)}
           DatePickerProps={{
             inputVariant: 'outlined',
+            clearable: true,
+            clearLabel: 'Borrar',
           }}
         />
       </div>
 
-      <HistoryElementCard
-        header='13-Mar-2020'
-        content={<>
-          Ventas: $ +231.400<br />
-          Pagos: $ +32.100<br />
-          Salidas: $ -13.500
-        </>}
-        delta={250000}
-        balance={5250000}
-      />
+      {balanceData?.map(item =>
+        <BalanceItemCard item={item} key={item.date} />
+      ) ?? <LoadingIndicator />}
 
-      <HistoryElementCard
-        header='12-Mar-2020'
-        content={<>
-          Ventas: $ +231.400<br />
-          Pagos: $ +32.100<br />
-          Salidas: $ -13.500
-        </>}
-        delta={250000}
-        balance={5000000}
-      />
-
-      <VerificationCard
-        verification={{
-          User: { name: 'Kevin' },
-          date: '2020-03-11',
-          adjustAmount: -1600,
-          amount: 4750000,
-          createdAt: '2020-04-26T19:30:35.480Z',
-        }}
-      />
     </Layout>
   )
 }

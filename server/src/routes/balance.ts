@@ -10,6 +10,7 @@ const {
   Payments,
   Sells,
   Spendings,
+  Users,
 } = models
 
 export async function createBalanceVerification(
@@ -75,10 +76,15 @@ export async function listBalance(
     const schema = yup.object({
       minDate: yup.date().notRequired(),
       maxDate: yup.date().notRequired(),
+      includes: yup.array().of(yup.string()).notRequired(),
     })
 
     schema.validateSync(req.query)
-    const { minDate, maxDate } = schema.cast(req.query)
+    const { minDate, maxDate, includes } = schema.cast(req.query)
+
+    const verificationsIncludes = includes?.includes('verification.createdBy')
+      ? [{ model: Users, as: 'createdBy' }]
+      : []
 
     let firstVerification = firstVerificationEver
     if (minDate && moment(minDate).isAfter(firstVerificationEver.date, 'day')) {
@@ -113,6 +119,8 @@ export async function listBalance(
           [Op.gte]: firstVerification.date,
           ...maxDateWhere,
         },
+        cash: true,
+        deleted: false,
       },
       group: 'date',
       raw: true,
@@ -175,6 +183,7 @@ export async function listBalance(
           ...maxDateWhere,
         },
       },
+      include: verificationsIncludes,
     })
 
     const today = moment().startOf('day')
@@ -268,6 +277,8 @@ export async function showBalance(
           [Op.gte]: closestVerification.date,
           [Op.lte]: date,
         },
+        cash: true,
+        deleted: false,
       },
     })
 

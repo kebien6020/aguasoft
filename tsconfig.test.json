@@ -6,5 +6,8 @@
       "jest",
       "jest-extended"
     ]
-  }
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }

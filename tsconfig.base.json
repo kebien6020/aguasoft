@@ -9,6 +9,8 @@
     "alwaysStrict": true
   },
   "exclude": [
+    "node_modules",
+    "./client/src/__tests__",
     "./server/src/__tests__"
   ]
 }
