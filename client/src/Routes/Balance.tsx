@@ -19,6 +19,7 @@ import { BalanceVerification } from '../models'
 import useSnackbar from '../hooks/useSnackbar'
 import LoadingIndicator from '../components/LoadingIndicator'
 import useDeepCompareEffect from 'use-deep-compare-effect'
+import adminOnly from '../hoc/adminOnly'
 
 type CardPricesProps = {
   titleOne: React.ReactNode
@@ -332,4 +333,4 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default Balance
+export default adminOnly(Balance)

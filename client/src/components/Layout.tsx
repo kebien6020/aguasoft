@@ -153,16 +153,16 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         fullWidth={open}
       />
       <DrawerItem
-        text='Balance'
-        to='/balance'
-        icon={<TrendingUp />}
-        color={colors.blue.A700}
-        fullWidth={open}
-      />
-      <DrawerItem
         text='Clientes'
         to='/clients'
         icon={<PersonIcon />}
+        color={colors.orange[500]}
+        fullWidth={open}
+      />
+      <DrawerItem
+        text='Balance'
+        to='/balance'
+        icon={<TrendingUp />}
         color={colors.orange[500]}
         fullWidth={open}
       />
@@ -203,8 +203,7 @@ MainDrawer.displayName = 'MainDrawer'
 
 const useDrawerStyles = makeStyles((theme: Theme) => ({
   drawerPaper: {
-    display: 'flex',
-    flexDirection: 'column',
+    overflowY: 'scroll',
     padding: theme.spacing(1),
     width: drawerWidth,
     transition: theme.transitions.create('width', {
