@@ -253,11 +253,11 @@ const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
     <HistoryElementCard
       header={moment(item.date).format('DD-MMM-YYYY')}
       content={<>
-        <div>Ventas: {money(item.sales)}</div>
+        <div>Ventas en Efectivo: {money(item.sales)}</div>
         <div>Pagos: {money(item.payments)}</div>
         <div>Salidas: {money(item.spendings)}</div>
       </>}
-      delta={item.sales + item.payments + item.spendings}
+      delta={item.sales + item.payments - item.spendings}
       balance={item.balance}
     />
     {item.verification && <>
