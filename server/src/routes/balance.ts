@@ -261,7 +261,6 @@ export async function showBalance(
         },
       },
       order: [['date', 'desc']],
-      logging: console.warn,
     })
 
     if (!closestVerification) {

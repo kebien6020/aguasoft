@@ -203,7 +203,8 @@ MainDrawer.displayName = 'MainDrawer'
 
 const useDrawerStyles = makeStyles((theme: Theme) => ({
   drawerPaper: {
-    overflowY: 'scroll',
+    overflowY: 'auto',
+    overflowX: 'hidden',
     padding: theme.spacing(1),
     width: drawerWidth,
     transition: theme.transitions.create('width', {
