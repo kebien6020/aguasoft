@@ -73,7 +73,11 @@ const productMovementDetails = {
     { elementCode: 'termoencogible', storageCode: 'trabajo' },
   ],
   '004': [{ elementCode: 'hielo-5kg' }],
-  '005': [{ elementCode: 'botellon-nuevo', storageCode: 'bodega' }],
+  '005': [
+    { elementCode: 'botellon-nuevo', storageCode: 'bodega' }, 
+    { elementCode: 'tapa-valvula', storageCode: 'trabajo' },
+    { elementCode: 'termoencogible', storageCode: 'trabajo' }, 
+  ],
   '006': [{ elementCode: 'base-botellon' }],
   '007': [{ elementCode: 'hielo-2kg' }],
   '008': [{ elementCode: 'botella-600ml' }],
