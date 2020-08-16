@@ -13,7 +13,7 @@
     "start-server": "node server/dist/index.js",
     "start-server-autoreload": "nodemon server/dist/index.js -w server/dist",
     "pretest": "sequelize db:migrate:undo:all --env test && sequelize db:migrate --env test",
-    "test": "jest",
+    "test": "cross-env PORT=3005 jest",
     "watch-client-js": "yarn build-client-dev -w",
     "watch-server-js": "yarn build-server-js -w"
   },
@@ -26,6 +26,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "cls-hooked": "^4.2.2",
     "compression": "^1.7.4",
     "connect-session-sequelize": "^6.1.1",
     "cors": "^2.8.4",
@@ -49,6 +50,7 @@
     "@types/auth0-js": "^9.12.4",
     "@types/bcryptjs": "^2.4.1",
     "@types/bluebird": "^3.5.30",
+    "@types/cls-hooked": "^4.3.1",
     "@types/compression": "^1.7.0",
     "@types/cors": "^2.8.6",
     "@types/debug": "^4.1.5",
@@ -73,6 +75,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "clsx": "^1.1.0",
     "copyfiles": "^2.2.0",
+    "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
     "eslint-plugin-jest": "^23.17.1",
     "eslint-plugin-react": "^7.20.5",
