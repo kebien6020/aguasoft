@@ -1,21 +1,18 @@
 import { Request, Response, NextFunction } from 'express'
 import models, { sequelize } from '../db/models'
-import { InventoryElementStatic } from '../db/models/inventoryElements'
-import { SellStatic, Sell } from '../db/models/sells'
-import { PriceStatic } from '../db/models/prices'
-import { ProductStatic } from '../db/models/products'
-import { StorageStatic, Storage } from '../db/models/storages'
+import { Sell } from '../db/models/sells'
+import { Storage } from '../db/models/storages'
 import { Op, Includeable } from 'sequelize'
 import { CreateManualMovementArgs, createMovement } from './inventory'
 import { Mutable } from '../utils/types'
 
-const Sells = models.Sells as SellStatic
-const Prices = models.Prices as PriceStatic
-const Products = models.Products as ProductStatic
-const InventoryElements = models.InventoryElements as InventoryElementStatic
-const Storages = models.Storages as StorageStatic
+const Sells = models.Sells
+const Prices = models.Prices
+const Products = models.Products
+const InventoryElements = models.InventoryElements
+const Storages = models.Storages
 
-export async function list(_req: Request, res: Response, next: NextFunction) {
+export async function list(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const sells = await Sells.findAll({
       attributes: [
@@ -36,7 +33,7 @@ export async function list(_req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function create(_req: Request, _res: Response, next: NextFunction) {
+export function create(_req: Request, _res: Response, next: NextFunction): void {
   try {
     throw Error('Method disabled')
     // const body = req.body
@@ -69,18 +66,18 @@ export async function create(_req: Request, _res: Response, next: NextFunction) 
 }
 
 const productMovementDetails = {
-  '001': [{elementCode: 'paca-360'}],
-  '002': [{elementCode: 'bolsa-6l'}],
+  '001': [{ elementCode: 'paca-360' }],
+  '002': [{ elementCode: 'bolsa-6l' }],
   '003': [
-    {elementCode: 'tapa-valvula', storageCode: 'trabajo'},
-    {elementCode: 'termoencogible', storageCode: 'trabajo'},
+    { elementCode: 'tapa-valvula', storageCode: 'trabajo' },
+    { elementCode: 'termoencogible', storageCode: 'trabajo' },
   ],
-  '004': [{elementCode: 'hielo-5kg'}],
-  '005': [{elementCode: 'botellon-nuevo', storageCode: 'bodega'}],
-  '006': [{elementCode: 'base-botellon'}],
-  '007': [{elementCode: 'hielo-2kg'}],
-  '008': [{elementCode: 'botella-600ml'}],
-  '009': [{elementCode: 'bolsa-360-congelada'}],
+  '004': [{ elementCode: 'hielo-5kg' }],
+  '005': [{ elementCode: 'botellon-nuevo', storageCode: 'bodega' }],
+  '006': [{ elementCode: 'base-botellon' }],
+  '007': [{ elementCode: 'hielo-2kg' }],
+  '008': [{ elementCode: 'botella-600ml' }],
+  '009': [{ elementCode: 'bolsa-360-congelada' }],
 } as const
 
 type ProductCode = keyof typeof productMovementDetails
@@ -93,7 +90,7 @@ interface MovementDetails {
 }
 
 const isProductCode = (code: string): code is ProductCode => {
-  return productMovementDetails.hasOwnProperty(code)
+  return Object.prototype.hasOwnProperty.call(productMovementDetails, code) as boolean
 }
 
 const movementDetails = (code: string) : readonly MovementDetails[]|undefined => {
@@ -102,7 +99,7 @@ const movementDetails = (code: string) : readonly MovementDetails[]|undefined =>
   return undefined
 }
 
-export async function bulkCreate(req: Request, res: Response, next: NextFunction) {
+export async function bulkCreate(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!req.session.userId) {
       const e = Error('User is not logged in')
@@ -110,11 +107,13 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
       throw e
     }
 
-    const userId = req.session.userId
+    const userId = req.session.userId as number
 
-    let { sells } = req.body
+    type Rec = Record<string, unknown>
 
-    sells = sells.map((s: any) => Object.assign(s, {userId: req.session.userId}))
+    let sells = (req.body as Rec)?.sells as Rec[]
+
+    sells = sells.map(s => Object.assign(s, { userId }))
 
     const transaction = await sequelize.transaction()
 
@@ -137,12 +136,12 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
       for (const sell of sells) {
 
         const product = await Products.findOne({
-          where: {id: sell.productId}
+          where: { id: sell.productId },
         })
 
-        if (!product) {
-          throw new Error(`No se encontró el producto ${sell.productId}`);
-        }
+        if (!product)
+          throw new Error(`No se encontró el producto ${String(sell.productId)}`)
+
 
         const details = movementDetails(product.code)
 
@@ -159,7 +158,7 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
         const storages = await Storages.findAll({
           where: {
             code: {
-              [Op.in]: storageCodes as Mutable<typeof storageCodes>
+              [Op.in]: storageCodes as Mutable<typeof storageCodes>,
             },
           },
         })
@@ -169,22 +168,22 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
           const elementCode = detail.elementCode
 
           const storageFrom = storages.find(s => s.code === storageFromCode)
-          if (!storageFrom) {
+          if (!storageFrom)
             throw new Error(`No se encontró el almacen con el código ${storageFromCode}`)
-          }
+
 
           const inventoryElement = inventoryElements.find(ie => ie.code === elementCode)
-          if (!inventoryElement) {
+          if (!inventoryElement)
             throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
-          }
+
 
           const movementData : CreateManualMovementArgs = {
             inventoryElementFromId: inventoryElement.id,
             inventoryElementToId: inventoryElement.id,
             storageFromId: storageFrom.id,
             storageToId: null,
-            quantityFrom: sell.quantity,
-            quantityTo: sell.quantity,
+            quantityFrom: sell.quantity as number,
+            quantityTo: sell.quantity as number,
             cause: 'sell',
             createdBy: userId,
           }
@@ -196,9 +195,9 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
 
       await transaction.commit()
 
-      res.json({success: true})
+      res.json({ success: true })
     } catch (err) {
-      transaction.rollback()
+      void transaction.rollback()
 
       throw err
     }
@@ -207,7 +206,7 @@ export async function bulkCreate(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function listDay(req: Request, res: Response, next: NextFunction) {
+export async function listDay(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const day = req.query.day
     const sells = await Sells.findAll({
@@ -222,7 +221,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
         'deleted',
       ],
       where: {
-        date: day
+        date: day,
       },
       include: [
         {
@@ -239,11 +238,11 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
           paranoid: false,
         } as Includeable,
       ],
-      order: [['updatedAt', 'DESC']]
+      order: [['updatedAt', 'DESC']],
     })
 
     const allPrices = await Prices.findAll({
-      attributes: ['name', 'value', 'productId', 'clientId']
+      attributes: ['name', 'value', 'productId', 'clientId'],
     })
 
     // Convert to array of plain objects so that we can
@@ -256,17 +255,19 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
 
     for (const sell of sellsPlain) {
       const prices = allPrices.filter(price =>
-        price.clientId === sell.Client.id &&
-        price.productId === sell.Product.id
+        price.clientId === sell.Client.id
+        && price.productId === sell.Product.id
       )
 
       if (prices.length !== 0) {
-        sell.Prices = prices.map(p => ({name: p.name, value: p.value}))
+        sell.Prices = prices.map(p => ({ name: p.name, value: p.value }))
       } else {
-        sell.Prices = [{
-          'name': 'Base',
-          'value': sell.Product.basePrice
-        }]
+        sell.Prices = [
+          {
+            name: 'Base',
+            value: sell.Product.basePrice,
+          },
+        ]
       }
     }
 
@@ -276,7 +277,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function listDayFrom(req: Request, res: Response, next: NextFunction) {
+export async function listDayFrom(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const fromId = typeof req.query.fromId === 'string' ? req.query.fromId : undefined
     const firstSell = await Sells.findOne({
@@ -284,7 +285,7 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
         id: {
           [Op.gt]: fromId,
         },
-      }
+      },
     })
 
     if (!firstSell) {
@@ -308,7 +309,7 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
           [Op.gt]: fromId,
         },
         // Only get same day
-        date: firstSell.date
+        date: firstSell.date,
       },
       include: [
         {
@@ -325,7 +326,7 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
           paranoid: false,
         } as Includeable,
       ],
-      order: [['id', 'ASC']]
+      order: [['id', 'ASC']],
     })
 
     res.json(sells)
@@ -334,7 +335,7 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
   }
 }
 
-export async function del(req: Request, res: Response, next: NextFunction) {
+export async function del(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!req.session.userId) {
       const e = Error('User is not logged in')
@@ -342,29 +343,29 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       throw e
     }
 
-    const userId = req.session.userId
+    const userId = req.session.userId as number
 
     const sellId = req.params.id
     const sell = await Sells.findByPk(sellId)
 
-    if (sell.deleted) {
+    if (sell.deleted)
       throw Error('Venta ya habia sido eliminada')
-    }
+
 
     sell.set('deleted', true)
 
     const transaction = await sequelize.transaction()
 
     try {
-      await sell.save({silent: true, transaction}) // Do not touch updatedAt
+      await sell.save({ silent: true, transaction }) // Do not touch updatedAt
 
       const product = await Products.findOne({
-        where: {id: sell.productId}
+        where: { id: sell.productId },
       })
 
-      if (!product) {
-        throw new Error(`No se encontró el producto ${sell.productId}`);
-      }
+      if (!product)
+        throw new Error(`No se encontró el producto ${sell.productId}`)
+
 
       const details = movementDetails(product.code)
 
@@ -381,7 +382,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       const storages = await Storages.findAll({
         where: {
           code: {
-            [Op.in]: storageCodes as Mutable<typeof storageCodes>
+            [Op.in]: storageCodes as Mutable<typeof storageCodes>,
           },
         },
       })
@@ -391,14 +392,14 @@ export async function del(req: Request, res: Response, next: NextFunction) {
         const elementCode = detail.elementCode
 
         const storageTo = storages.find((s: Storage) => s.code === storageToCode)
-        if (!storageTo) {
+        if (!storageTo)
           throw new Error(`No se encontró el almacen con el código ${storageToCode}`)
-        }
+
 
         const inventoryElement = inventoryElements.find(ie => ie.code === elementCode)
-        if (!inventoryElement) {
+        if (!inventoryElement)
           throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
-        }
+
 
         const movementData : CreateManualMovementArgs = {
           inventoryElementFromId: inventoryElement.id,
@@ -418,12 +419,12 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
       await transaction.commit()
     } catch (err) {
-      transaction.rollback()
+      void transaction.rollback()
 
       throw err
     }
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }
