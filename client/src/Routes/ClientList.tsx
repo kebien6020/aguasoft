@@ -32,7 +32,7 @@ import * as colors from '@material-ui/core/colors'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
 import adminOnly from '../hoc/adminOnly'
-import { fetchJsonAuth, isErrorResponse, ErrorResponse } from '../utils'
+import { fetchJsonAuth, isErrorResponse } from '../utils'
 import { Client } from '../models'
 import LoadingScreen from '../components/LoadingScreen'
 import Alert from '../components/Alert'
@@ -45,16 +45,16 @@ interface ClientWithNotes extends Client {
 interface ClientItemProps extends PropClasses {
   client: ClientWithNotes
   className?: string
-  onClick?: () => any
+  onClick?: () => unknown
 }
 
-const ClientItemRaw = ({classes, client, className, onClick}: ClientItemProps) => (
+const ClientItemRaw = ({ classes, client, className, onClick }: ClientItemProps) => (
   <>
     <ListItem className={className} button onClick={onClick}>
       <ListItemAvatar>
-        <Avatar className={client.hidden ?
-          classes.hiddenIcon :
-          (client.defaultCash ? classes.cash : classes.post)
+        <Avatar className={client.hidden
+          ? classes.hiddenIcon
+          : (client.defaultCash ? classes.cash : classes.post)
         }>
           <PersonIcon />
         </Avatar>
@@ -62,7 +62,7 @@ const ClientItemRaw = ({classes, client, className, onClick}: ClientItemProps) =
       <ListItemText
         primary={client.name}
         primaryTypographyProps={{
-          className: client.hidden ? classes.hiddenText : ''
+          className: client.hidden ? classes.hiddenText : '',
         }}
         secondary={client.notes && client.notes.split('\n')[0]}
       />
@@ -91,13 +91,13 @@ const ClientItem = withStyles(clientStyles)(ClientItemRaw)
 interface ClientDialogProps {
   client: ClientWithNotes
   open: boolean
-  onClose: () => any
-  onClientEdit: (cl: ClientWithNotes) => any
-  onClientHide: (cl: ClientWithNotes) => any
-  onClientUnhide: (cl: ClientWithNotes) => any
-  onClientDelete: (cl: ClientWithNotes) => any
-  onClientShowNotes: (cl: ClientWithNotes) => any
-  onClientShowBalance: (cl: ClientWithNotes) => any
+  onClose: () => unknown
+  onClientEdit: (cl: ClientWithNotes) => unknown
+  onClientHide: (cl: ClientWithNotes) => unknown
+  onClientUnhide: (cl: ClientWithNotes) => unknown
+  onClientDelete: (cl: ClientWithNotes) => unknown
+  onClientShowNotes: (cl: ClientWithNotes) => unknown
+  onClientShowBalance: (cl: ClientWithNotes) => unknown
 }
 
 type ClientDialogAllProps = ClientDialogProps & PropClasses
@@ -120,28 +120,28 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
         </ListItemIcon>
         <ListItemText primary='Ver balance' />
       </ListItem>
-      {props.client.notes &&
-        <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
+      {props.client.notes
+        && <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
           <ListItemIcon>
             <NoteIcon />
           </ListItemIcon>
           <ListItemText primary='Ver info. de contacto' />
         </ListItem>
       }
-      <ListItem button onClick={() => props.client.hidden ?
-        props.onClientUnhide(props.client) :
-        props.onClientHide(props.client)
+      <ListItem button onClick={() => props.client.hidden
+        ? props.onClientUnhide(props.client)
+        : props.onClientHide(props.client)
       }>
         <ListItemIcon>
-          {props.client.hidden ?
-            <VisibilityOffIcon /> :
-            <VisibilityIcon />
+          {props.client.hidden
+            ? <VisibilityOffIcon />
+            : <VisibilityIcon />
           }
         </ListItemIcon>
         <ListItemText
-          primary={props.client.hidden ?
-            'Desocultar' :
-            'Ocultar'
+          primary={props.client.hidden
+            ? 'Desocultar'
+            : 'Ocultar'
           }
         />
       </ListItem>
@@ -167,14 +167,12 @@ const clientDialogStyles : StyleRulesCallback<Theme, ClientDialogProps> = theme 
   },
   title: {
     paddingBottom: 0,
-  }
+  },
 })
 
 const ClientDialog = withStyles(clientDialogStyles)(ClientDialogRaw)
 
-type ClientsResponse = ClientWithNotes[] | ErrorResponse
-
-type Props = AuthRouteComponentProps<any> & PropClasses
+type Props = AuthRouteComponentProps<Record<string, unknown>> & PropClasses
 
 interface State {
   clientsError: boolean
@@ -215,24 +213,20 @@ class ClientList extends React.Component<Props, State> {
     let clients = null
     try {
       clients =
-        await fetchJsonAuth('/api/clients?includeNotes=true', props.auth) as ClientsResponse
+        await fetchJsonAuth<ClientWithNotes[]>('/api/clients?includeNotes=true', props.auth)
     } catch (e) {
-      this.setState({clientsError: true})
+      this.setState({ clientsError: true })
     }
 
     if (clients) {
       if (isErrorResponse(clients)) {
-        this.setState({clientsError: true})
+        this.setState({ clientsError: true })
         console.error(clients.error)
       } else {
-        this.setState({clients})
+        this.setState({ clients })
       }
     }
   }
-
-  renderLinkToNew = React.forwardRef((props: any, ref: any) => <Link to='/clients/new' ref={ref} {...props} />)
-
-  renderLinkBack = React.forwardRef((props: any, ref: any) => <Link to='/' ref={ref} {...props} />)
 
   handleClientClick = (client: ClientWithNotes) => {
     this.setState({
@@ -252,7 +246,7 @@ class ClientList extends React.Component<Props, State> {
     this.setState({
       clientDialogOpen: false,
       clientDeleteDialogOpen: true,
-      selectedClient: client
+      selectedClient: client,
     })
   }
 
@@ -271,7 +265,7 @@ class ClientList extends React.Component<Props, State> {
     if (!client) return
 
     const res = await fetchJsonAuth(`/api/clients/${client.id}`, props.auth, {
-      'method': 'DELETE',
+      method: 'DELETE',
     })
 
     if (res.success) {
@@ -290,14 +284,14 @@ class ClientList extends React.Component<Props, State> {
       })
     }
 
-    this.setState({clientDeleteDialogOpen: false})
+    this.setState({ clientDeleteDialogOpen: false })
     window.scroll(0, 0)
   }
 
   handleClientEdit = () => {
     if (!this.state.selectedClient) return
 
-    this.setState({redirectToEdit: true})
+    this.setState({ redirectToEdit: true })
   }
 
   handleClientHide = async () => {
@@ -308,18 +302,18 @@ class ClientList extends React.Component<Props, State> {
     if (!client) return
 
     const res = await fetchJsonAuth(`/api/clients/${client.id}/hide`, props.auth, {
-      'method': 'POST',
+      method: 'POST',
     })
 
     if (res.success) {
       const newClients = state.clients.map(cl => {
-        if (cl === client) {
-          return {...cl, hidden: true}
-        }
+        if (cl === client) 
+          return { ...cl, hidden: true }
+        
         return cl
       })
 
-      this.setState({clients: newClients, clientDialogOpen: false})
+      this.setState({ clients: newClients, clientDialogOpen: false })
     }
 
     // TODO: Show some error if we fail to hide the client
@@ -333,25 +327,26 @@ class ClientList extends React.Component<Props, State> {
     if (!client) return
 
     const res = await fetchJsonAuth(`/api/clients/${client.id}/unhide`, props.auth, {
-      'method': 'POST',
+      method: 'POST',
     })
 
     if (res.success) {
       const newClients = state.clients.map(cl => {
-        if (cl === client) {
-          return {...cl, hidden: false}
-        }
+        if (cl === client) 
+          return { ...cl, hidden: false }
+        
         return cl
       })
 
-      this.setState({clients: newClients, clientDialogOpen: false})
+      this.setState({ clients: newClients, clientDialogOpen: false })
     }
 
     // TODO: Show some error if we fail to unhide the client
   }
 
-  handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => this.setState({menuAnchor: event.currentTarget})
-  handleMenuClose = () => this.setState({menuAnchor: null})
+  handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => this.setState({ menuAnchor: event.currentTarget })
+
+  handleMenuClose = () => this.setState({ menuAnchor: null })
 
   toggleHidden = () => {
     this.setState({
@@ -363,77 +358,51 @@ class ClientList extends React.Component<Props, State> {
   handleClientShowNotes = () => {
     if (!this.state.selectedClient) return
 
-    this.setState({notesDialogOpen: true, clientDialogOpen: false})
+    this.setState({ notesDialogOpen: true, clientDialogOpen: false })
   }
-  handleNotesDialogClose = () => this.setState({notesDialogOpen: false})
+
+  handleNotesDialogClose = () => this.setState({ notesDialogOpen: false })
 
   handleClientShowBalance = () => {
     if (!this.state.selectedClient) return
 
-    this.setState({redirectToBalance: true})
+    this.setState({ redirectToBalance: true })
   }
 
+  // eslint-disable-next-line complexity
   render() {
     const { props, state } = this
     const { classes } = props
 
-    if (state.clients === null) {
+    if (state.clients === null) 
       return <LoadingScreen text='Cargando clientes…' />
-    }
+    
 
-    if (state.redirectToEdit && state.selectedClient) {
+    if (state.redirectToEdit && state.selectedClient) 
       return <Redirect push to={`/clients/${state.selectedClient.id}`} />
-    }
+    
 
-    if (state.redirectToBalance && state.selectedClient) {
+    if (state.redirectToBalance && state.selectedClient) 
       return <Redirect push to={`/clients/${state.selectedClient.id}/balance`} />
-    }
+    
 
-    const clients = state.showHidden ?
-      state.clients :
-      state.clients.filter(cl => !cl.hidden)
-
-    const appBarExtra =
-      <>
-        <Button
-          component={this.renderLinkToNew}
-          color='inherit'
-        >
-          Nuevo
-        </Button>
-        <IconButton
-          aria-label='Menu'
-          aria-owns={open ? 'menu' : undefined}
-          aria-haspopup='true'
-          onClick={this.handleMenuOpen}
-          color='inherit'
-        >
-          <MoreVertIcon />
-        </IconButton>
-        <Menu
-          id='menu'
-          anchorEl={state.menuAnchor}
-          open={Boolean(state.menuAnchor)}
-          onClose={this.handleMenuClose}
-        >
-          <MenuItem onClick={this.toggleHidden}>
-            Ver ocultos
-            <Checkbox
-              checked={state.showHidden}
-              onChange={this.toggleHidden}
-            />
-          </MenuItem>
-        </Menu>
-      </>
+    const clients = state.showHidden
+      ? state.clients
+      : state.clients.filter(cl => !cl.hidden)
 
     return (
       <Layout
         title='Lista de Clientes'
         container={ResponsiveContainer}
-        appBarExtra={appBarExtra}
+        appBarExtra={
+          <AppBarExtra
+            onToggleHidden={this.toggleHidden}
+            showHidden={state.showHidden}
+          />
+        }
       >
-        {state.clientDialogOpen && state.selectedClient &&
-          <ClientDialog
+        {state.clientDialogOpen && state.selectedClient
+          && <ClientDialog
             open={true}
             onClose={this.handleClientDialogClose}
             client={state.selectedClient}
@@ -445,8 +414,8 @@ class ClientList extends React.Component<Props, State> {
             onClientShowBalance={this.handleClientShowBalance}
           />
         }
-        {state.clientDeleteDialogOpen && state.selectedClient &&
-          <Dialog
+        {state.clientDeleteDialogOpen && state.selectedClient
+          && <Dialog
             open={true}
             onClose={this.handleClientDeleteDialogClose}
           >
@@ -468,17 +437,17 @@ class ClientList extends React.Component<Props, State> {
             </DialogActions>
           </Dialog>
         }
-        {state.notesDialogOpen && state.selectedClient &&
-          <Dialog
+        {state.notesDialogOpen && state.selectedClient
+          && <Dialog
             open={true}
             onClose={this.handleNotesDialogClose}
           >
-            <DialogTitle style={{marginBottom: 0}}>
+            <DialogTitle style={{ marginBottom: 0 }}>
               {state.selectedClient.name}: Informacion de Contacto
             </DialogTitle>
             <DialogContent>
-              {state.selectedClient.notes &&
-                state.selectedClient.notes.split('\n').map((note, idx) =>
+              {state.selectedClient.notes
+                && state.selectedClient.notes.split('\n').map((note, idx) =>
                   <DialogContentText key={idx}>
                     {note}
                   </DialogContentText>
@@ -495,26 +464,26 @@ class ClientList extends React.Component<Props, State> {
         <div className={classes.newClientButtonContainer}>
 
         </div>
-        {state.clientsError &&
-          <Alert type='error' message='Error cargando lista de clientes' />
+        {state.clientsError
+          && <Alert type='error' message='Error cargando lista de clientes' />
         }
-        {state.errorDeleting &&
-          <Alert type='error' message='Error eliminado cliente' />
+        {state.errorDeleting
+          && <Alert type='error' message='Error eliminado cliente' />
         }
-        {state.deletedClient &&
-          <Alert
+        {state.deletedClient
+          && <Alert
             type='success'
             message={`Cliente ${state.deletedClient} eliminado exitosamente.`}
           />
         }
         <List>
           {clients.map(cl =>
-              <ClientItem
-                key={cl.id}
-                client={cl}
-                onClick={() => this.handleClientClick(cl)}
-              />
-            )
+            <ClientItem
+              key={cl.id}
+              client={cl}
+              onClick={() => this.handleClientClick(cl)}
+            />
+          )
           }
         </List>
       </Layout>
@@ -535,7 +504,54 @@ const styles : StyleRulesCallback<Theme, Props> = _theme => ({
   },
 })
 
+interface AppBarExtraProps {
+  showHidden: boolean
+  onToggleHidden: () => unknown
+}
+
+
+const AppBarExtra = ({ showHidden, onToggleHidden }: AppBarExtraProps) => {
+  const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null)
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setMenuAnchor(event.currentTarget)
+
+  const handleMenuClose = () => setMenuAnchor(null)
+
+  return (<>
+    <Button
+      component={Link}
+      to='/clients/new'
+      color='inherit'
+    >
+      Nuevo
+    </Button>
+    <IconButton
+      aria-label='Menu'
+      aria-owns={'menu'}
+      aria-haspopup='true'
+      onClick={handleMenuOpen}
+      color='inherit'
+    >
+      <MoreVertIcon />
+    </IconButton>
+    <Menu
+      id='menu'
+      anchorEl={menuAnchor}
+      open={Boolean(menuAnchor)}
+      onClose={handleMenuClose}
+    >
+      <MenuItem onClick={onToggleHidden}>
+        Ver ocultos
+        <Checkbox
+          checked={showHidden}
+          onChange={onToggleHidden}
+        />
+      </MenuItem>
+    </Menu>
+  </>)
+}
+
 export default
-  adminOnly(
+adminOnly(
   withStyles(styles)(
     ClientList))

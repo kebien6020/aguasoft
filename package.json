@@ -14,8 +14,8 @@
     "start-server-autoreload": "nodemon server/dist/index.js -w server/dist",
     "pretest": "sequelize db:migrate:undo:all --env test && sequelize db:migrate --env test",
     "test": "cross-env PORT=3005 jest",
-    "watch-client-js": "yarn build-client-dev -w",
-    "watch-server-js": "yarn build-server-js -w"
+    "watch-client-js": "npm run build-client-dev -- -w",
+    "watch-server-js": "npm run build-server-js -- -w"
   },
   "resolutions": {
     "@types/react": "^16.9.16",
@@ -24,16 +24,19 @@
     "@types/react-router-dom": "^5.1.3"
   },
   "dependencies": {
+    "@types/lodash.groupby": "^4.6.6",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cls-hooked": "^4.2.2",
     "compression": "^1.7.4",
     "connect-session-sequelize": "^6.1.1",
     "cors": "^2.8.4",
+    "date-fns": "^2.16.1",
     "express": "^4.17.1",
     "express-jwt": "^6.0.0",
     "express-session": "^1.17.0",
     "jwks-rsa": "^1.7.0",
+    "lodash.groupby": "^4.6.0",
     "moment": "^2.22.2",
     "sequelize": "^5.21.6",
     "sequelize-cli": "^5.5.1",

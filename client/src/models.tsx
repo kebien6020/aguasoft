@@ -166,3 +166,20 @@ export interface BalanceVerification {
   readonly createdAt: string
   readonly updatedAt: string
 }
+
+export interface Sell {
+  readonly id: number
+  readonly date: string
+  readonly cash: boolean
+  readonly priceOverride: number
+  readonly quantity: number
+  readonly value: number
+  readonly userId: number
+  readonly clientId: number
+  readonly productId: number
+  readonly deleted: boolean
+
+  // Possible inclussions
+  readonly Product?: Product
+  readonly Client?: Client
+}

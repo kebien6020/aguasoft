@@ -24,6 +24,7 @@ import {
   Dns as BoxesIcon,
   SwapHoriz as MovementsIcon,
   TrendingUp,
+  Dashboard as DashboardIcon,
 } from '@material-ui/icons'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
@@ -117,10 +118,17 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
   const content =
     <>
       <DrawerItem
+        text='Tablero'
+        to='/dashboard'
+        icon={<DashboardIcon />}
+        color={colors.orange[500]}
+        fullWidth={open}
+      />
+      <DrawerItem
         text='Ventas'
         to='/sells'
         icon={<CartPlusIcon />}
-        color={colors.green[500]}
+        color={colors.blue.A700}
         fullWidth={open}
       />
       <DrawerItem
@@ -135,7 +143,7 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         text='Salidas'
         to='/spendings'
         icon={<CartIcon />}
-        color={colors.green[500]}
+        color={colors.blue.A700}
         fullWidth={open}
       />
       <DrawerItem
@@ -149,7 +157,7 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         text='Movimientos'
         to='/movements'
         icon={<MovementsIcon />}
-        color={colors.green[500]}
+        color={colors.blue.A700}
         fullWidth={open}
       />
       <DrawerItem

@@ -8,7 +8,8 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "module": "ESNext",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true
   },
   "include": [
       "src/**/*"
