@@ -5,6 +5,7 @@ import { Storage } from '../db/models/storages'
 import { Op, Includeable } from 'sequelize'
 import { CreateManualMovementArgs, createMovement } from './inventory'
 import { Mutable } from '../utils/types'
+import * as yup from 'yup'
 
 const Sells = models.Sells
 const Prices = models.Prices
@@ -12,8 +13,23 @@ const Products = models.Products
 const InventoryElements = models.InventoryElements
 const Storages = models.Storages
 
-export async function list(_req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const schema = yup.object({
+      minDate: yup.date().notRequired(),
+      maxDate: yup.date().notRequired(),
+      include: yup.array().of(yup.string()).notRequired(),
+    })
+
+    schema.validateSync(req.query)
+    const { minDate, maxDate, include } = schema.cast(req.query)
+
+    const dateFilter = Object.assign(
+      {},
+      minDate ? { [Op.gte]: minDate } : null,
+      maxDate ? { [Op.lte]: maxDate } : null,
+    )
+
     const sells = await Sells.findAll({
       attributes: [
         'id',
@@ -25,6 +41,10 @@ export async function list(_req: Request, res: Response, next: NextFunction): Pr
         'cash',
         'userId',
       ],
+      where: {
+        date: dateFilter,
+      },
+      include,
     })
 
     res.json(sells)
