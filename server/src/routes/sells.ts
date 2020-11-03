@@ -15,14 +15,25 @@ const Storages = models.Storages
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const includeableSchema: yup.ArraySchema<Includeable> = yup.array().of<Includeable>(yup.lazy((val) => {
+      if (typeof val === 'string') return yup.string()
+
+      return yup.object({
+        association: yup.string().required(),
+        as: yup.string(),
+        attributes: yup.array().of(yup.string()),
+        include: yup.lazy(() => includeableSchema.default(undefined)),
+      })
+    }))
     const schema = yup.object({
       minDate: yup.date().notRequired(),
       maxDate: yup.date().notRequired(),
-      include: yup.array().of(yup.string()).notRequired(),
+      include: includeableSchema.notRequired(),
+      paranoid: yup.bool().notRequired(),
     })
 
     schema.validateSync(req.query)
-    const { minDate, maxDate, include } = schema.cast(req.query)
+    const { minDate, maxDate, include, paranoid = false } = schema.cast(req.query)
 
     const dateFilter = Object.assign(
       {},
@@ -43,6 +54,7 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
       ],
       where: {
         date: dateFilter,
+        deleted: paranoid,
       },
       include,
     })

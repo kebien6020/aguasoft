@@ -23,7 +23,8 @@ export const SalesWidget = ({ rangeDescr, dateRange }: SalesWidgetProps): JSX.El
   const [sales] = useSales<SellWithProduct>({
     minDate: minDate.toISOString(),
     maxDate: maxDate.toISOString(),
-    include: ['Product'],
+    'include[0][association]': 'Product',
+    'include[0][attributes][]': 'name',
   })
 
   return (
@@ -36,7 +37,7 @@ export const SalesWidget = ({ rangeDescr, dateRange }: SalesWidgetProps): JSX.El
       </> : <>
         <LoadingIndicator />
       </>}
-      
+
     </section>
   )
 }
@@ -97,13 +98,15 @@ interface ProductsProps {
 
 const Products = ({ sales }: ProductsProps) => {
   const aggregate = Object.entries(groupBy(sales, 'productId'))
-    .map(([_pId, prodSales]) => ({
+    .map(([pId, prodSales]) => ({
+      productId: pId,
       saleCount: prodSales.reduce((acc, sale) => acc + sale.quantity, 0),
       saleValue: prodSales.reduce((acc, sale) => acc + sale.value, 0),
       product: prodSales[0].Product,
     }))
 
   const total = aggregate.reduce((acc, r) => acc + r.saleValue, 0)
+  const pct = (value: number) => `(${Math.round(value / total * 100)}%)`
 
   return (
     <ProductsWrapper>
@@ -116,13 +119,13 @@ const Products = ({ sales }: ProductsProps) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {aggregate.map(row => <>
-            <TableRow>
+          {aggregate.map(row =>
+            <TableRow key={row.productId}>
               <TableCell>{row.product.name}</TableCell>
               <TableCell>{row.saleCount}</TableCell>
-              <TableCell>{money(row.saleValue)}</TableCell>
+              <TableCell>{money(row.saleValue)} {pct(row.saleValue)}</TableCell>
             </TableRow>
-          </>)}
+          )}
           <TableRow>
             <TableCell>Total</TableCell>
             <TableCell>-</TableCell>
