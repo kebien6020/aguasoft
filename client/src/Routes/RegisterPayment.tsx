@@ -21,7 +21,7 @@ import {
   Theme,
 } from '@material-ui/core/styles'
 
-import * as moment from 'moment'
+import moment from 'moment'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -35,10 +35,10 @@ import {
   fetchJsonAuth,
   isErrorResponse,
   ErrorResponse,
-  SuccessResponse
+  SuccessResponse,
 } from '../utils'
 
-interface Props extends AuthRouteComponentProps<{}>, PropClasses { }
+interface Props extends AuthRouteComponentProps<unknown>, PropClasses { }
 interface State {
   clients: Client[] | null
 
@@ -60,7 +60,7 @@ interface State {
   datesError: string | null
   submitionError: string | null
 
-  redirectToHome: boolean
+  redirectToList: boolean
 }
 
 type ValChangeEvent = React.ChangeEvent<{ value: string }>
@@ -91,7 +91,7 @@ class RegisterPayment extends React.Component<Props, State> {
       datesError: null,
       submitionError: null,
 
-      redirectToHome: false,
+      redirectToList: false,
     }
   }
 
@@ -109,7 +109,7 @@ class RegisterPayment extends React.Component<Props, State> {
 
     const selectedClientId = activeClients[0] ? String(activeClients[0].id) : null
 
-    this.setState({clients: activeClients, selectedClientId})
+    this.setState({ clients: activeClients, selectedClientId })
 
     const user : User | ErrorResponse =
       await fetchJsonAuth('/api/users/getCurrent', props.auth)
@@ -119,7 +119,7 @@ class RegisterPayment extends React.Component<Props, State> {
       return
     }
 
-    this.setState({userIsAdmin: user.role === 'admin'})
+    this.setState({ userIsAdmin: user.role === 'admin' })
   }
 
   handleChange = (name: keyof State) => (event: ValChangeEvent) => {
@@ -127,55 +127,55 @@ class RegisterPayment extends React.Component<Props, State> {
     // may be re-used by react)
     const value = event.target.value
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: value,
+      ...prevState,
+      [name]: value,
     }))
 
     // Error clearing
     const { state } = this
-    if (name === 'moneyAmount' && state.moneyAmountError !== null) {
-      this.setState({moneyAmountError: null})
-    }
-    if (name === 'invoiceNumber' && state.invoiceNumberError !== null) {
-      this.setState({invoiceNumberError: null})
-    }
+    if (name === 'moneyAmount' && state.moneyAmountError !== null)
+      this.setState({ moneyAmountError: null })
+
+    if (name === 'invoiceNumber' && state.invoiceNumberError !== null)
+      this.setState({ invoiceNumberError: null })
+
   }
 
   handleChangeChecked = (name: keyof State) => (event: CheckedChangeEvent) => {
     const value = event.target.checked
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: value,
+      ...prevState,
+      [name]: value,
     }))
   }
 
   handleChangeDate = (name: keyof State) => (date: moment.Moment) => {
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: date,
+      ...prevState,
+      [name]: date,
     }))
 
     // Error clearing
     const { state } = this
-    if ((name === 'startDate' || name === 'endDate') && state.datesError !== null) {
-      this.setState({datesError: null})
-    }
+    if ((name === 'startDate' || name === 'endDate') && state.datesError !== null)
+      this.setState({ datesError: null })
+
   }
 
   validateForm = () => {
     const { state } = this
     let ok = true
     if (state.moneyAmount === '') {
-      this.setState({moneyAmountError: 'Obligatorio'})
+      this.setState({ moneyAmountError: 'Obligatorio' })
       ok = false
     } else if (Number(state.moneyAmount) === 0) {
-      this.setState({moneyAmountError: 'El dinero recibido no puede ser $0'})
+      this.setState({ moneyAmountError: 'El dinero recibido no puede ser $0' })
       ok = false
     }
 
     if (state.invoiceEnabled) {
       if (state.invoiceNumber === '') {
-        this.setState({invoiceNumberError: 'Obligatorio'})
+        this.setState({ invoiceNumberError: 'Obligatorio' })
         ok = false
       }
     }
@@ -183,7 +183,7 @@ class RegisterPayment extends React.Component<Props, State> {
     if (state.datesEnabled) {
       if (state.startDate.isAfter(state.endDate)) {
         const msg = 'La fecha de inicio debe ser anterior a la fecha final'
-        this.setState({datesError: msg})
+        this.setState({ datesError: msg })
         ok = false
       }
     }
@@ -233,38 +233,38 @@ class RegisterPayment extends React.Component<Props, State> {
       })
 
     if (isErrorResponse(response)) {
-      this.setState({submitionError: 'Error al intentar registrar el pago.'})
+      this.setState({ submitionError: 'Error al intentar registrar el pago.' })
       console.error(response.error)
       return
     }
 
-    this.setState({redirectToHome: true})
+    this.setState({ redirectToList: true })
   }
 
   render() {
     const { props, state } = this
     const { classes } = props
 
-    if (state.clients === null) {
+    if (state.clients === null)
       return <LoadingScreen text='Cargando clientes' />
-    }
 
-    if (state.redirectToHome) {
-      return <Redirect to='/' push />
-    }
+
+    if (state.redirectToList)
+      return <Redirect to='/payments' push />
+
 
     return (
       <Layout title='Registrar Pago'>
         <Paper className={classes.paper}>
           <Title>Registrar Pago</Title>
-          {state.submitionError !== null &&
-            <Alert message={state.submitionError} type='error' />
+          {state.submitionError !== null
+            && <Alert message={state.submitionError} type='error' />
           }
-          {state.selectedClientId ?
-            <form>
+          {state.selectedClientId
+            ? <form>
               <Grid container spacing={0} justify='space-between'>
-              {state.userIsAdmin &&
-                <Grid item xs={12}>
+                {state.userIsAdmin
+                && <Grid item xs={12}>
                   <DatePicker
                     label='Fecha del pago'
                     date={state.date}
@@ -274,10 +274,10 @@ class RegisterPayment extends React.Component<Props, State> {
                     }}
                   />
                 </Grid>
-              }
+                }
                 {/*
                 // @ts-ignore grid-md-6 is missing in type system*/}
-                <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                   <FormControl fullWidth margin='normal'>
                     <InputLabel htmlFor='clientId'>Cliente</InputLabel>
                     <Select
@@ -298,7 +298,7 @@ class RegisterPayment extends React.Component<Props, State> {
                 </Grid>
                 {/*
                 // @ts-ignore grid-md-6 is missing in type system*/}
-                <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                   <PriceField
                     label='Dinero recibido'
                     onChange={this.handleChange('moneyAmount')}
@@ -322,7 +322,7 @@ class RegisterPayment extends React.Component<Props, State> {
                   <Grid container spacing={0} justify='space-between'>
                     {/*
                     // @ts-ignore grid-md-6 is missing in type system*/}
-                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                       <DatePicker
                         label='Fecha de la factura'
                         date={state.invoiceDate}
@@ -334,13 +334,13 @@ class RegisterPayment extends React.Component<Props, State> {
                     </Grid>
                     {/*
                     // @ts-ignore grid-md-6 is missing in type system*/}
-                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                       <div className={classes.invoiceNumberContainer}>
                         <TextField
                           label='No. Factura'
                           type='number'
                           variant='standard'
-                          inputProps={{min: 0}}
+                          inputProps={{ min: 0 }}
                           fullWidth
                           onChange={this.handleChange('invoiceNumber')}
                           value={state.invoiceNumber}
@@ -365,7 +365,7 @@ class RegisterPayment extends React.Component<Props, State> {
                   <Grid container spacing={0} justify='space-between'>
                     {/*
                     // @ts-ignore grid-md-6 is missing in type system */}
-                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                       <DatePicker
                         label='Inicio'
                         date={state.startDate}
@@ -379,7 +379,7 @@ class RegisterPayment extends React.Component<Props, State> {
                     </Grid>
                     {/*
                     // @ts-ignore grid-md-6 is missing in type system */}
-                    <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                       <DatePicker
                         label='Finalizacion'
                         date={state.endDate}
@@ -391,8 +391,8 @@ class RegisterPayment extends React.Component<Props, State> {
                     </Grid>
                   </Grid>
                 </Collapse>
-                {state.userIsAdmin &&
-                  <Grid item xs={12}>
+                {state.userIsAdmin
+                  && <Grid item xs={12}>
                     <Typography variant='body2'>
                       Pago en planta
                       <Switch
@@ -414,8 +414,7 @@ class RegisterPayment extends React.Component<Props, State> {
                 </Grid>
               </Grid>
             </form>
-            :
-            <Alert
+            : <Alert
               type='error'
               message='Error interno en cliente seleccionado'
             />
@@ -456,7 +455,7 @@ const styles: StyleRulesCallback<Theme, Props> = theme => ({
   md6: {
     [theme.breakpoints.up('md')]: {
       maxWidth: '48%',
-    }
+    },
   },
 })
 
