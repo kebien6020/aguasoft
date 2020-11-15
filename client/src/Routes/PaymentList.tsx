@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, LinkProps } from 'react-router-dom'
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
@@ -10,17 +10,17 @@ import LoadingScreen from '../components/LoadingScreen'
 import Payments from '../components/Payments'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import { Payment } from '../models'
-import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
+import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse, MakeOptional } from '../utils'
 
 import Pagination from 'material-ui-flat-pagination'
-import * as moment from 'moment'
+import moment from 'moment'
 
 interface PaymentPageResponse {
   payments: Payment[]
   totalCount: number
 }
 
-type Props = AuthRouteComponentProps<any> & PropClasses
+type Props = AuthRouteComponentProps<unknown> & PropClasses
 
 interface State {
   payments: Payment[] | null
@@ -39,12 +39,12 @@ class PaymentList extends React.Component<Props, State> {
       payments: null,
       totalCount: 0,
       offset: 0,
-      disablePagination: false
+      disablePagination: false,
     }
   }
 
   componentDidMount() {
-    this.updatePayments(this.state.offset)
+    void this.updatePayments(this.state.offset)
   }
 
   updatePayments = async (offset: number) => {
@@ -56,7 +56,7 @@ class PaymentList extends React.Component<Props, State> {
 
     if (!isErrorResponse(res)) {
       const { payments, totalCount } = res
-      this.setState({payments, totalCount})
+      this.setState({ payments, totalCount })
     } else {
       console.error(res.error)
     }
@@ -67,8 +67,8 @@ class PaymentList extends React.Component<Props, State> {
 
     const { props } = this
 
-    const result : ErrorResponse | SuccessResponse = await
-      fetchJsonAuth('/api/payments/' + paymentId, props.auth, {
+    const result =
+      await fetchJsonAuth<SuccessResponse>(`/api/payments/${paymentId}`, props.auth, {
         method: 'delete',
       })
 
@@ -83,19 +83,23 @@ class PaymentList extends React.Component<Props, State> {
 
       payment.deletedAt = moment().toISOString()
 
-      this.setState({payments})
+      this.setState({ payments })
     } else {
       console.error(result.error)
     }
   }
 
-  handlePageChange = async (_event: any, offset: number) => {
-    this.setState({disablePagination: true})
+  handlePageChange = async (_event: unknown, offset: number) => {
+    this.setState({ disablePagination: true })
     await this.updatePayments(offset)
-    this.setState({offset, disablePagination: false})
+    this.setState({ offset, disablePagination: false })
   }
 
-  renderLinkBack = React.forwardRef((props: any, ref: any) => <Link to='/' ref={ref} {...props} />)
+  renderLinkBack = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
+    function HomeLink(props, ref) {
+      return <Link to='/' innerRef={ref} {...props} />
+    }
+  )
 
   renderPagination = () => (
     <Pagination
@@ -111,9 +115,9 @@ class PaymentList extends React.Component<Props, State> {
   render() {
     const { state } = this
 
-    if (state.payments === null) {
+    if (state.payments === null)
       return <LoadingScreen text='Cargando pagos...' />
-    }
+
 
     return (
       <Layout title='Todos los Pagos' container={ResponsiveContainer}>
@@ -145,10 +149,10 @@ const styles : StyleRulesCallback<Theme, Props> = _theme => ({
   },
   pagination: {
     textAlign: 'center',
-  }
+  },
 })
 
 export default
-  adminOnly(
+adminOnly(
   withStyles(styles)(
     PaymentList))
