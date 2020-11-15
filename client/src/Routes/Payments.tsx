@@ -9,7 +9,6 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Paper from '@material-ui/core/Paper'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
-import { useSnackbar } from '../components/MySnackbar'
 import Layout from '../components/Layout'
 import Login, { LoginProps } from '../components/Login'
 import MyDatePicker, { MyDatePickerProps } from '../components/MyDatePicker'
@@ -18,12 +17,12 @@ import Title from '../components/Title'
 import { Payment } from '../models'
 import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse, MakeOptional } from '../utils'
 import useAuth from '../hooks/useAuth'
+import useSnackbar from '../hooks/useSnackbar'
 
 type PaymentsProps = AuthRouteComponentProps<unknown>;
 export default function Payments({ auth }: PaymentsProps): JSX.Element {
   // Date picker
   const [date, setDate] = useState(() => moment().startOf('day'))
-
 
   // Login to register payment
   const history = useHistory()
@@ -32,7 +31,7 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
   }, [history])
 
   // Snackbar
-  const [snackbar, setSnackbarError] = useSnackbar()
+  const setSnackbarError = useSnackbar()
 
   // Payment List
   const [payments, setPayments] = useState<Payment[]|null>(null)
@@ -55,11 +54,11 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
   const handleDeletePayment = useCallback(async (paymentId: number) => {
     if (!payments) return
 
-    const url = `/api/payment/${paymentId}`
+    const url = `/api/payments/${paymentId}`
     const result =
-      await fetchJsonAuth<SuccessResponse>(url, auth, {
-        method: 'delete',
-      })
+        await fetchJsonAuth<SuccessResponse>(url, auth, {
+          method: 'delete',
+        })
 
     if (!isErrorResponse(result)) {
       const paymentsCopy = [...payments]
@@ -73,8 +72,9 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
       setPayments(paymentsCopy)
     } else {
       console.error(result)
+      setSnackbarError('Error al eliminar el pago')
     }
-  }, [payments, auth])
+  }, [payments, auth, setSnackbarError])
 
   return (
     <Layout title='Pagos'>
@@ -101,8 +101,6 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
           Ver todos
         </Button>
       </ButtonWrapper>
-
-      {snackbar}
     </Layout>
   )
 }

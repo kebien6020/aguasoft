@@ -1,5 +1,6 @@
 import * as React from 'react'
-import * as moment from 'moment'
+import { useState } from 'react'
+import moment from 'moment'
 
 import {
   Avatar,
@@ -26,7 +27,7 @@ import { money } from '../utils'
 
 interface Props {
   payments: Payment[]
-  onDeletePayment: (paymentId: number) => unknown
+  onDeletePayment: (paymentId: number) => Promise<unknown>
 }
 
 const Payments = (props: Props): JSX.Element => {
@@ -67,6 +68,8 @@ const Payments = (props: Props): JSX.Element => {
 
     return classNames.join(' ')
   }
+
+  const [disabledDelete, setDisabledDelete] = useState<string|null>(null) // payment id
 
   return (
     <Grid container spacing={2}>
@@ -130,8 +133,18 @@ const Payments = (props: Props): JSX.Element => {
               </CardContent>
               <IconButton
                 className={classes.deleteButton}
-                onClick={() => props.onDeletePayment(payment.id)}
-                disabled={payment.deletedAt !== null}
+                onClick={async () => {
+                  try {
+                    setDisabledDelete(String(payment.id))
+                    await props.onDeletePayment(payment.id)
+                  } finally {
+                    setDisabledDelete(null)
+                  }
+                }}
+                disabled={
+                  payment.deletedAt !== null
+                  || String(payment.id) === disabledDelete
+                }
               >
                 <DeleteIcon />
               </IconButton>
