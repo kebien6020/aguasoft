@@ -5,7 +5,7 @@ import * as moment from 'moment'
 
 type DateChangeHandler = (date: moment.Moment) => unknown
 
-interface MyDatePickerProps {
+export interface MyDatePickerProps {
   label?: React.ReactNode
   date: moment.Moment | null
   onDateChange: DateChangeHandler

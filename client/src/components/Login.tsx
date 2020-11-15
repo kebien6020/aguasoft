@@ -21,7 +21,7 @@ interface User {
   role: string
 }
 
-interface LoginProps {
+export interface LoginProps {
   auth: Auth
   onSuccess?: () => unknown
   onFailure?: () => unknown
