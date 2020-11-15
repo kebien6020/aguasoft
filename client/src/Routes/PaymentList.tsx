@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { styled } from '@material-ui/core/styles'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import adminOnly from '../hoc/adminOnly'
@@ -102,13 +102,12 @@ class PaymentList extends React.Component<Props, State> {
   )
 
   renderPagination = () => (
-    <Pagination
+    <StyledPagination
       limit={ITEMS_PER_PAGE}
       offset={this.state.offset}
       total={this.state.totalCount}
       onClick={this.handlePageChange}
       disabled={this.state.disablePagination}
-      className={this.props.classes.pagination}
     />
   )
 
@@ -132,27 +131,8 @@ class PaymentList extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback<Theme, Props> = _theme => ({
-  appbar: {
-    flexGrow: 1,
-  },
-  backButton: {
-    marginLeft: -12,
-    marginRight: 20,
-  },
-  title: {
-    flexGrow: 1,
-    '& h6': {
-      fontSize: '48px',
-      fontWeight: 400,
-    },
-  },
-  pagination: {
-    textAlign: 'center',
-  },
+const StyledPagination = styled(Pagination)({
+  textAlign: 'center',
 })
 
-export default
-adminOnly(
-  withStyles(styles)(
-    PaymentList))
+export default adminOnly(PaymentList)
