@@ -3,7 +3,7 @@ import React from 'react'
 import Title from '../../../components/Title'
 import { TableChart as TableIcon } from '@material-ui/icons'
 import { Link, LinkProps } from 'react-router-dom'
-import { MakeOptional } from '../../../utils'
+import { MakeOptional } from '../../../utils/types'
 
 export const ToolsWidget = (): JSX.Element => {
   return (<>

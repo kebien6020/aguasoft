@@ -4,9 +4,10 @@ import LoadingIndicator from '../../../components/LoadingIndicator'
 import Title from '../../../components/Title'
 import { useSales } from '../../../hooks/api/useSales'
 import { Sell } from '../../../models'
-import { MakeRequired, money } from '../../../utils'
+import { money } from '../../../utils'
 import type { DateRange } from '../index'
 import groupBy from 'lodash.groupby'
+import { MakeRequired } from '../../../utils/types'
 
 type SellWithProduct = MakeRequired<Sell, 'Product'>
 

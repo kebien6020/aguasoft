@@ -44,6 +44,7 @@ const RegisterRelocation = lazy(() => import(/* webpackChunkName: "register-relo
 const RegisterEntry = lazy(() => import(/* webpackChunkName: "register-entry" */ './Routes/RegisterEntry'))
 const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Balance'))
 const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/dashboard/index'))
+const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
 
 const auth = new Auth()
 moment.locale('es')
@@ -85,6 +86,8 @@ const AppSwitch = () => (
     <Route exact private path='/balance' component={Balance} />
 
     <Route exact private path='/dashboard' component={Dashboard} />
+
+    <Route exact private path='/tools/billing-summary' component={BillingSummary} />
 
     <Route exact path='/' render={() => <Redirect to='/sells' />} />
   </Switch>

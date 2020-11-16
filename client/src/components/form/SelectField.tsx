@@ -19,12 +19,14 @@ export interface SelectFieldProps extends SelectControlProps {
       event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>,
       bag: ChangeOverrideBag
     ) => unknown
+  onBeforeChange?: (value: string) => boolean | void
 }
 
 const SelectField = (props: SelectFieldProps): JSX.Element => {
   const {
     name,
     onChangeOverride,
+    onBeforeChange = () => { /**/ },
     ...otherProps
   } = props
   const [field, meta] = useField(name)
@@ -35,6 +37,9 @@ const SelectField = (props: SelectFieldProps): JSX.Element => {
       errorMessage={meta.error}
       touched={meta.touched}
       onChange={(e) => {
+        const continueChange = onBeforeChange(e.target.value as string)
+        if (continueChange === false) return
+
         if (onChangeOverride)
           onChangeOverride(e, { field, meta })
         else

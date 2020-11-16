@@ -25,7 +25,7 @@ const SelectControl = (props: SelectControlProps): JSX.Element => {
   const {
     label,
     options,
-    emptyOption,
+    emptyOption = options === null ? 'Cargando…' : 'Seleccionar',
     helperText,
     errorMessage,
     touched,
