@@ -11,7 +11,7 @@ import Paca360Card from './summary/Paca360Card'
 import BotellonCard from './summary/BotellonCard'
 import HieloCard from './summary/HieloCard'
 import { InventoryMovement } from '../../models'
-import { MakeRequired } from '../../utils'
+import { MakeRequired } from '../../utils/types'
 
 // Storages can be null
 type RequiredInclusions = 'inventoryElementFrom' | 'inventoryElementTo'

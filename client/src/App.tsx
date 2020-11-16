@@ -1,22 +1,17 @@
-import * as React from 'react'
-import { Suspense, lazy } from 'react'
-import { BrowserRouter, Switch, Redirect } from 'react-router-dom'
-import { MuiThemeProvider } from '@material-ui/core/styles'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-
-import theme from './theme'
-import MuiPickersUtilsProvider from '@material-ui/pickers/MuiPickersUtilsProvider'
 import MomentUtils from '@date-io/moment'
-import * as moment from 'moment'
-import 'moment/locale/es'
-
 import CssBaseline from '@material-ui/core/CssBaseline'
-
+import { MuiThemeProvider, StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
+import MuiPickersUtilsProvider from '@material-ui/pickers/MuiPickersUtilsProvider'
+import moment from 'moment'
+import 'moment/locale/es'
+import React, { lazy, Suspense } from 'react'
+import { BrowserRouter, Redirect, Switch } from 'react-router-dom'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
-import SnackbarContext from './SnackbarContext'
 import LoadingScreen from './components/LoadingScreen'
 import { useSnackbar } from './components/MySnackbar'
+import SnackbarContext from './SnackbarContext'
+import theme from './theme'
 
 const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
@@ -44,6 +39,7 @@ const RegisterRelocation = lazy(() => import(/* webpackChunkName: "register-relo
 const RegisterEntry = lazy(() => import(/* webpackChunkName: "register-entry" */ './Routes/RegisterEntry'))
 const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Balance'))
 const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/dashboard/index'))
+const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
 
 const auth = new Auth()
 moment.locale('es')
@@ -85,6 +81,8 @@ const AppSwitch = () => (
     <Route exact private path='/balance' component={Balance} />
 
     <Route exact private path='/dashboard' component={Dashboard} />
+
+    <Route exact private path='/tools/billing-summary' component={BillingSummary} />
 
     <Route exact path='/' render={() => <Redirect to='/sells' />} />
   </Switch>

@@ -1,30 +1,44 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
-import { Client, ClientStatic } from '../db/models/clients'
-import { Price, PriceStatic } from '../db/models/prices'
-import { PaymentStatic } from '../db/models/payments'
-import { SellStatic } from '../db/models/sells'
+import { Client } from '../db/models/clients'
+import { Price } from '../db/models/prices'
 import { sequelize, Sequelize } from '../db/models'
 import * as moment from 'moment'
 import { Moment } from 'moment'
+import * as Yup from 'yup'
 
-const Clients = models.Clients as ClientStatic
-const Prices = models.Prices as PriceStatic
-const Payments = models.Payments as PaymentStatic
-const Sells = models.Sells as SellStatic
+const Clients = models.Clients
+const Prices = models.Prices
+const Payments = models.Payments
+const Sells = models.Sells
 
-export async function list(req: Request, res: Response, next: NextFunction) {
+export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    const schema = Yup.object({
+      includeNotes: Yup.string().oneOf(['true', 'false']).default('false').notRequired(),
+
+      // true -> only hidden, false -> only not hidden, not specified -> all
+      hidden: Yup.string().oneOf(['hidden', 'not-hidden', 'any']).default('any').notRequired(),
+    })
+
+    schema.validateSync(req.query)
+    const query = schema.cast(req.query)
+    const includeNotes = query.includeNotes as 'true'|'false'
+    const hidden = query.hidden as 'hidden'|'not-hidden'|'any'
+
     const attributes = ['id', 'name', 'code', 'defaultCash', 'hidden']
-    if (req.query.includeNotes = 'true') {
+    if (includeNotes === 'true')
       attributes.push('notes')
-    }
+
     const clients = await Clients.findAll({
       attributes,
       order: [
         Sequelize.literal('CASE WHEN `code` = \'001\' THEN 0 ELSE 1 END'),
-        'name'
+        'name',
       ],
+      where: {
+        ...(hidden !== 'any' && { hidden: hidden === 'hidden' }),
+      },
     })
 
     res.json(clients)
@@ -46,16 +60,16 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
     const lastCode = clients.find(cl => /\d{3}/.test(cl.code)).code
 
     // Utility pad function
-    const pad = (num: string, digits: number, padChar: string  = '0') =>
-      num.length >= digits ?
-        num :
-        new Array(digits - num.length + 1).join(padChar) + num
+    const pad = (num: string, digits: number, padChar = '0') =>
+      num.length >= digits
+        ? num
+        : new Array(digits - num.length + 1).join(padChar) + num
 
 
     const nextCode = pad(String(Number(lastCode) + 1), 3)
 
     res.json({
-      code: nextCode
+      code: nextCode,
     })
 
   } catch (e) {
@@ -79,9 +93,9 @@ function checkCreateEditInput(body: any) {
   for (const price of body.prices) {
     const allowedKeys = ['name', 'productId', 'value']
     for (const key in price) {
-      if (allowedKeys.indexOf(key) === -1) {
+      if (allowedKeys.indexOf(key) === -1)
         delete price[key]
-      }
+
     }
     if (typeof price.name !== 'string') paramError('prices[].name', 'string')
     if (typeof price.productId !== 'number') paramError('prices[].productId', 'number')
@@ -107,24 +121,24 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       code: req.body.code,
       defaultCash: req.body.defaultCash,
       notes: notes,
-      'Prices': req.body.prices
+      Prices: req.body.prices,
     }
 
     await sequelize.transaction(t => {
       return Clients.create(client as any, {
         include: [Prices],
-        transaction: t
+        transaction: t,
       })
     })
 
-    res.json({success: true})
+    res.json({ success: true })
 
   } catch (e) {
     next(e)
   }
 }
 
-async function getClient(idParam: string, includePrices: boolean = false) {
+async function getClient(idParam: string, includePrices = false) {
   const id = Number(idParam)
 
   if (isNaN(id)) {
@@ -136,10 +150,12 @@ async function getClient(idParam: string, includePrices: boolean = false) {
   let options = {}
   if (includePrices) {
     options = {
-      include: [{
-        model: Prices,
-        attributes: ['name', 'productId', 'value'],
-      }]
+      include: [
+        {
+          model: Prices,
+          attributes: ['name', 'productId', 'value'],
+        },
+      ],
     }
   }
 
@@ -163,16 +179,16 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     const client = await getClient(req.params.id)
 
     const newPrices = (req.body.prices as Array<any>).map(pr =>
-      Object.assign({}, pr, {clientId: client.id})
+      Object.assign({}, pr, { clientId: client.id })
     )
 
     await sequelize.transaction(async t => {
       // Delete all previous prices
       await Prices.destroy({
         where: {
-          clientId: client.id
+          clientId: client.id,
         },
-        transaction :t
+        transaction: t,
       })
 
       // Update attributes
@@ -181,7 +197,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         code: req.body.code,
         defaultCash: req.body.defaultCash,
         notes: notes,
-      }, {transaction: t})
+      }, { transaction: t })
 
       // Create new prices
       return Prices.bulkCreate(newPrices, {
@@ -190,7 +206,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
       })
     })
 
-    res.json({success: true})
+    res.json({ success: true })
 
   } catch (e) {
     next(e)
@@ -224,10 +240,10 @@ export async function remove(req: Request, res: Response, next: NextFunction) {
       })
 
       // Actually remove client
-      return client.destroy({transaction: t})
+      return client.destroy({ transaction: t })
     })
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }
@@ -237,9 +253,9 @@ export async function hide(req: Request, res: Response, next: NextFunction) {
   try {
     const client = await getClient(req.params.id)
 
-    await client.update({hidden: true})
+    await client.update({ hidden: true })
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }
@@ -249,9 +265,9 @@ export async function unhide(req: Request, res: Response, next: NextFunction) {
   try {
     const client = await getClient(req.params.id)
 
-    await client.update({hidden: false})
+    await client.update({ hidden: false })
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }
@@ -296,7 +312,7 @@ export async function balance(req: Request, res: Response, next: NextFunction) {
       })))
       .sort((a: Change, b: Change) => a.date.valueOf() - b.date.valueOf())
 
-    res.json({changes})
+    res.json({ changes })
   } catch (e) {
     next(e)
   }

@@ -1,42 +1,43 @@
-import * as React from 'react'
-import { Redirect, Link } from 'react-router-dom'
-
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Avatar from '@material-ui/core/Avatar'
+import Button from '@material-ui/core/Button'
+import Checkbox from '@material-ui/core/Checkbox'
+import * as colors from '@material-ui/core/colors'
 import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogActions from '@material-ui/core/DialogActions'
-import Avatar from '@material-ui/core/Avatar'
+import DialogTitle from '@material-ui/core/DialogTitle'
 import Divider from '@material-ui/core/Divider'
-import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemAvatar from '@material-ui/core/ListItemAvatar'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import Checkbox from '@material-ui/core/Checkbox'
-import PersonIcon from '@material-ui/icons/Person'
-import EditIcon from '@material-ui/icons/Edit'
+import { StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
+import { AttachMoney as MoneyIcon } from '@material-ui/icons'
+import NoteIcon from '@material-ui/icons/Chat'
 import DeleteIcon from '@material-ui/icons/Delete'
+import EditIcon from '@material-ui/icons/Edit'
+import MoreVertIcon from '@material-ui/icons/MoreVert'
+import PersonIcon from '@material-ui/icons/Person'
+import TableIcon from '@material-ui/icons/TableChart'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
-import NoteIcon from '@material-ui/icons/Chat'
-import { AttachMoney as MoneyIcon } from '@material-ui/icons'
-import * as colors from '@material-ui/core/colors'
-
+import * as React from 'react'
+import { Link, Redirect } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
-import Layout from '../components/Layout'
-import adminOnly from '../hoc/adminOnly'
-import { fetchJsonAuth, isErrorResponse } from '../utils'
-import { Client } from '../models'
-import LoadingScreen from '../components/LoadingScreen'
 import Alert from '../components/Alert'
+import Layout from '../components/Layout'
+import LoadingScreen from '../components/LoadingScreen'
 import ResponsiveContainer from '../components/ResponsiveContainer'
+import adminOnly from '../hoc/adminOnly'
+import { Client } from '../models'
+import { fetchJsonAuth, isErrorResponse } from '../utils'
+
+
 
 interface ClientWithNotes extends Client {
   notes: string
@@ -110,7 +111,7 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
     <List>
       <ListItem button onClick={() => props.onClientEdit(props.client)}>
         <ListItemIcon>
-          <EditIcon className={props.classes.editIcon} />
+          <EditIcon className={props.classes.mainIcon} />
         </ListItemIcon>
         <ListItemText primary='Editar' />
       </ListItem>
@@ -119,6 +120,16 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
           <MoneyIcon className={props.classes.balanceIcon} />
         </ListItemIcon>
         <ListItemText primary='Ver balance' />
+      </ListItem>
+      <ListItem
+        button
+        to={`/tools/billing-summary?clientId=${props.client.id}`}
+        component={Link}
+      >
+        <ListItemIcon>
+          <TableIcon className={props.classes.mainIcon} />
+        </ListItemIcon>
+        <ListItemText primary='Facturación' />
       </ListItem>
       {props.client.notes
         && <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
@@ -156,7 +167,7 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
 )
 
 const clientDialogStyles : StyleRulesCallback<Theme, ClientDialogProps> = theme => ({
-  editIcon: {
+  mainIcon: {
     color: theme.palette.primary.main,
   },
   balanceIcon: {
@@ -307,9 +318,9 @@ class ClientList extends React.Component<Props, State> {
 
     if (res.success) {
       const newClients = state.clients.map(cl => {
-        if (cl === client) 
+        if (cl === client)
           return { ...cl, hidden: true }
-        
+
         return cl
       })
 
@@ -332,9 +343,9 @@ class ClientList extends React.Component<Props, State> {
 
     if (res.success) {
       const newClients = state.clients.map(cl => {
-        if (cl === client) 
+        if (cl === client)
           return { ...cl, hidden: false }
-        
+
         return cl
       })
 
@@ -374,17 +385,17 @@ class ClientList extends React.Component<Props, State> {
     const { props, state } = this
     const { classes } = props
 
-    if (state.clients === null) 
+    if (state.clients === null)
       return <LoadingScreen text='Cargando clientes…' />
-    
 
-    if (state.redirectToEdit && state.selectedClient) 
+
+    if (state.redirectToEdit && state.selectedClient)
       return <Redirect push to={`/clients/${state.selectedClient.id}`} />
-    
 
-    if (state.redirectToBalance && state.selectedClient) 
+
+    if (state.redirectToBalance && state.selectedClient)
       return <Redirect push to={`/clients/${state.selectedClient.id}/balance`} />
-    
+
 
     const clients = state.showHidden
       ? state.clients

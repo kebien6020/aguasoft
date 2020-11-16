@@ -30,10 +30,17 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
       maxDate: yup.date().notRequired(),
       include: includeableSchema.notRequired(),
       paranoid: yup.bool().notRequired(),
+      clientId: yup.number().notRequired(),
     })
 
     schema.validateSync(req.query)
-    const { minDate, maxDate, include, paranoid = false } = schema.cast(req.query)
+    const {
+      minDate,
+      maxDate,
+      include,
+      paranoid = false,
+      clientId,
+    } = schema.cast(req.query)
 
     const dateFilter = Object.assign(
       {},
@@ -55,6 +62,7 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
       where: {
         date: dateFilter,
         deleted: paranoid,
+        ...(clientId && { clientId }),
       },
       include,
     })

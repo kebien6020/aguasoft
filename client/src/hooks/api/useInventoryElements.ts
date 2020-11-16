@@ -3,6 +3,7 @@ import useNonce from './useNonce'
 import useSnackbar from '../useSnackbar'
 import { InventoryElement } from '../../models'
 import { paramsToString, Params } from '../../utils'
+import { Option } from '../../utils/types'
 
 const useInventoryElements =
   (params?: Params): readonly [InventoryElement[] | null, () => void] => {
@@ -19,11 +20,6 @@ const useInventoryElements =
 
     return [inventoryElements, update] as const
   }
-
-type Option = {
-  value: string;
-  label: string;
-}
 
 export const optionsFromElements =
   (elements: readonly InventoryElement[] | null): Option[] | null => {

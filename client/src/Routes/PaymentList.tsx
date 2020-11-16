@@ -10,10 +10,11 @@ import LoadingScreen from '../components/LoadingScreen'
 import Payments from '../components/Payments'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import { Payment } from '../models'
-import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse, MakeOptional } from '../utils'
+import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
 
 import Pagination from 'material-ui-flat-pagination'
 import moment from 'moment'
+import { MakeOptional } from '../utils/types'
 
 interface PaymentPageResponse {
   payments: Payment[]
