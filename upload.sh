@@ -2,10 +2,10 @@ set -e
 set -x
 
 echo Building the client in production mode
-yarn build
+npm run build
 
 echo Building the server
-yarn build-server-js
+npm run build-server-js
 
 echo Backing up the database
 /usr/bin/ssh -t kevin@kevinpena.com "cd /var/www/aguasoft && node scripts/backup"
@@ -42,4 +42,4 @@ rsync -avzr -e "/usr/bin/ssh" \
   "./" "kevin@kevinpena.com:/var/www/aguasoft/" --delete-after
 
 echo Installing packages and running migrations
-/usr/bin/ssh -t kevin@kevinpena.com "cd /var/www/aguasoft && yarn --production && yarn migrate-prod"
+/usr/bin/ssh -t kevin@kevinpena.com "cd /var/www/aguasoft && npm install --production && npm run migrate-prod"
