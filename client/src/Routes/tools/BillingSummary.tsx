@@ -1,25 +1,57 @@
+import { Button, Grid, styled, TextField } from '@material-ui/core'
+import { useDebounce } from '@react-hook/debounce'
+import { pdf, PDFViewer } from '@react-pdf/renderer'
+import { endOfMonth, format, isSameDay, isSameMonth, parseISO, setDate, startOfMonth } from 'date-fns'
+import es from 'date-fns/locale/es'
+import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import DateControl from '../../components/controls/DateControl'
 import SelectControl from '../../components/controls/SelectControl'
 import Layout from '../../components/Layout'
 import Title from '../../components/Title'
 import { useClientOptions } from '../../hooks/api/useClients'
-import { useQueryParam } from '../../hooks/useQueryParam'
-import moment from 'moment'
-import { Button, Grid, Link, styled, TextField } from '@material-ui/core'
-import { BillingSummaryPdf, BillingSummaryPdfProps } from './components/BillingSummaryPdf'
-import { pdf, PDFViewer } from '@react-pdf/renderer'
 import { useSales } from '../../hooks/api/useSales'
+import { useQueryParam } from '../../hooks/useQueryParam'
 import { Sell } from '../../models'
-import { MakeRequired } from '../../utils/types'
-import { useDebounce } from '@react-hook/debounce'
-import { Alert } from '@material-ui/lab'
-import { endOfMonth, isSameDay, isSameMonth, format, startOfMonth, setDate, parseISO } from 'date-fns'
-import es from 'date-fns/locale/es'
 import { firstUpper } from '../../utils/helper'
+import { MakeRequired } from '../../utils/types'
+import { BillingSummaryPdf, BillingSummaryPdfProps } from './components/BillingSummaryPdf'
+import { PDFErrorBoundary } from './components/PDFErrorBoundary'
 
 const startOfPrevMonth = moment().subtract(1, 'month').startOf('month')
 const endOfPrevMonth = startOfPrevMonth.clone().endOf('month')
+
+const detectDownloadName = (clientName: string, begin: Date, end: Date) => {
+  const isFullMonth =
+      isSameMonth(begin, end)
+      && isSameDay(begin, startOfMonth(begin))
+      && isSameDay(end, endOfMonth(begin))
+
+  const month = firstUpper(format(begin, 'MMMM', { locale: es }))
+  if (isFullMonth)
+    return `${clientName} ${month}`
+
+
+  const isFirstHalf =
+      isSameMonth(begin, end)
+      && isSameDay(begin, startOfMonth(end))
+      && isSameDay(end, setDate(begin, 15))
+
+  if (isFirstHalf)
+    return `${clientName} ${month} - Quincena 1`
+
+
+  const isSecondHalf =
+      isSameMonth(begin, end)
+      && isSameDay(begin, setDate(begin, 16))
+      && isSameDay(end, endOfMonth(begin))
+
+  if (isSecondHalf)
+    return `${clientName} ${month} - Quincena 2`
+
+
+  return clientName
+}
 
 export type SaleWithProduct = MakeRequired<Sell, 'Product'>
 
@@ -60,38 +92,8 @@ const BillingSummary = (): JSX.Element => {
     if (!clientName || !beginDateIso || !endDateIso) return
     const begin = parseISO(beginDateIso)
     const end = parseISO(endDateIso)
-    const isFullMonth =
-      isSameMonth(begin, end)
-      && isSameDay(begin, startOfMonth(begin))
-      && isSameDay(end, endOfMonth(begin))
 
-    const month = firstUpper(format(begin, 'MMMM', { locale: es }))
-    if (isFullMonth) {
-      setDownloadName(`${clientName} ${month}`)
-      return
-    }
-
-    const isFirstHalf =
-      isSameMonth(begin, end)
-      && isSameDay(begin, startOfMonth(end))
-      && isSameDay(end, setDate(begin, 15))
-
-    if (isFirstHalf) {
-      setDownloadName(`${clientName} ${month} - Quincena 1`)
-      return
-    }
-
-    const isSecondHalf =
-      isSameMonth(begin, end)
-      && isSameDay(begin, setDate(begin, 16))
-      && isSameDay(end, endOfMonth(begin))
-
-    if (isSecondHalf) {
-      setDownloadName(`${clientName} ${month} - Quincena 2`)
-      return
-    }
-
-    setDownloadName(clientName)
+    setDownloadName(detectDownloadName(clientName, begin, end))
   }, [beginDateIso, clientName, endDateIso])
 
   return (
@@ -206,42 +208,3 @@ const Center = styled('div')({
   alignItems: 'center',
 })
 
-interface ErrorBoundaryProps {
-  children?: React.ReactNode
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean
-}
-
-class PDFErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError(_error: unknown) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true }
-  }
-
-  reloadPage(event: React.SyntheticEvent) {
-    event.preventDefault()
-    // eslint-disable-next-line no-self-assign
-    location.href = location.href
-  }
-
-  render() {
-    if (this.state.hasError) {
-      // Fallback UI
-      return (
-        <Alert severity='error'>
-          Sucedió un error al mostrar el PDF. Intenta{' '}
-          <Link href='#' onClick={this.reloadPage}>recargar la página</Link>.
-        </Alert>
-      )
-    }
-
-    return this.props.children
-  }
-}

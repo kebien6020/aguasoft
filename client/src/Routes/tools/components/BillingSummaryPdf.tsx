@@ -1,20 +1,20 @@
-import React from 'react'
-import type { SaleWithProduct } from '../BillingSummary'
 import ReactPDF, {
   Document,
   Font,
   Page as RPPage,
-  Text as RPText, View,
+  Text as RPText, View
 } from '@react-pdf/renderer'
-import { styled } from './styles'
-import { format, formatISO, parseISO, startOfDay, endOfDay, isSameDay } from 'date-fns'
+import { endOfDay, format, formatISO, isSameDay, parseISO, startOfDay } from 'date-fns'
 import es from 'date-fns/locale/es'
+import React from 'react'
 import RobotoBold from '../../../fonts/roboto/Roboto-Bold.ttf'
 import RobotoMedium from '../../../fonts/roboto/Roboto-Medium.ttf'
 import RobotoRegular from '../../../fonts/roboto/Roboto-Regular.ttf'
-import { isSameDayOrAfter, isSameDayOrBefore } from '../../../utils/dates'
-import { money } from '../../../utils'
 import theme from '../../../theme'
+import { money } from '../../../utils'
+import { isSameDayOrAfter, isSameDayOrBefore } from '../../../utils/dates'
+import type { SaleWithProduct } from '../BillingSummary'
+import { styled } from './styles'
 
 export interface BillingSummaryPdfProps {
   sales: SaleWithProduct[] // Must be ordered by date and not include deleted sales
