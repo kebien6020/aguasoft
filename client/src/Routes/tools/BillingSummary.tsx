@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import DateControl from '../../components/controls/DateControl'
 import SelectControl from '../../components/controls/SelectControl'
 import Layout from '../../components/Layout'
@@ -6,14 +6,17 @@ import Title from '../../components/Title'
 import { useClientOptions } from '../../hooks/api/useClients'
 import { useQueryParam } from '../../hooks/useQueryParam'
 import moment from 'moment'
-import { Button, Grid, Link, styled } from '@material-ui/core'
+import { Button, Grid, Link, styled, TextField } from '@material-ui/core'
 import { BillingSummaryPdf, BillingSummaryPdfProps } from './components/BillingSummaryPdf'
-import { BlobProvider, pdf, PDFViewer } from '@react-pdf/renderer'
+import { pdf, PDFViewer } from '@react-pdf/renderer'
 import { useSales } from '../../hooks/api/useSales'
 import { Sell } from '../../models'
 import { MakeRequired } from '../../utils/types'
 import { useDebounce } from '@react-hook/debounce'
 import { Alert } from '@material-ui/lab'
+import { endOfMonth, isSameDay, isSameMonth, format, startOfMonth, setDate, parseISO } from 'date-fns'
+import es from 'date-fns/locale/es'
+import { firstUpper } from '../../utils/helper'
 
 const startOfPrevMonth = moment().subtract(1, 'month').startOf('month')
 const endOfPrevMonth = startOfPrevMonth.clone().endOf('month')
@@ -36,7 +39,6 @@ const BillingSummary = (): JSX.Element => {
     clientId: clientId !== '' ? clientId : undefined,
     include: ['Product'],
   })
-
   const clientName = clientOptions?.find(c => c.value === clientId)?.label
   const title = clientName ? `Facturación ${clientName}` : undefined
 
@@ -50,6 +52,47 @@ const BillingSummary = (): JSX.Element => {
       }
     })()
   }, [sales, loadingSales]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [downloadName, setDownloadName] = useState('')
+
+  // Detect download name
+  useEffect(() => {
+    if (!clientName || !beginDateIso || !endDateIso) return
+    const begin = parseISO(beginDateIso)
+    const end = parseISO(endDateIso)
+    const isFullMonth =
+      isSameMonth(begin, end)
+      && isSameDay(begin, startOfMonth(begin))
+      && isSameDay(end, endOfMonth(begin))
+
+    const month = firstUpper(format(begin, 'MMMM', { locale: es }))
+    if (isFullMonth) {
+      setDownloadName(`${clientName} ${month}`)
+      return
+    }
+
+    const isFirstHalf =
+      isSameMonth(begin, end)
+      && isSameDay(begin, startOfMonth(end))
+      && isSameDay(end, setDate(begin, 15))
+
+    if (isFirstHalf) {
+      setDownloadName(`${clientName} ${month} - Quincena 1`)
+      return
+    }
+
+    const isSecondHalf =
+      isSameMonth(begin, end)
+      && isSameDay(begin, setDate(begin, 16))
+      && isSameDay(end, endOfMonth(begin))
+
+    if (isSecondHalf) {
+      setDownloadName(`${clientName} ${month} - Quincena 2`)
+      return
+    }
+
+    setDownloadName(clientName)
+  }, [beginDateIso, clientName, endDateIso])
 
   return (
     <Layout title='Facturación'>
@@ -80,6 +123,14 @@ const BillingSummary = (): JSX.Element => {
             DatePickerProps={{ fullWidth: true }}
           />
         </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label='Nombre de la descarga (editable)'
+            value={downloadName}
+            onChange={e => setDownloadName(e.target.value)}
+            fullWidth
+          />
+        </Grid>
       </Grid>
 
       <Title>Documento Generado</Title>
@@ -88,7 +139,7 @@ const BillingSummary = (): JSX.Element => {
           {pdfProps && (() => {
             const doc = <BillingSummaryPdf {...pdfProps} />
             return <>
-              <PDFDownloadLink doc={doc} />
+              <PDFDownloadLink doc={doc} name={downloadName} />
               <PDFPreview doc={doc} />
             </>
           })()}
@@ -119,12 +170,18 @@ const downloadFile = (blob: Blob, name: string) => {
   link.click()
 }
 
-const PDFDownloadLink = ({ doc }: DocProp) => {
+interface PDFDownloadLinkProps extends DocProp {
+  name: string
+}
+
+const PDFDownloadLink = ({ doc, name }: PDFDownloadLinkProps) => {
 
   const handleDownload = async () => {
     const blob = await pdf(doc).toBlob()
-    downloadFile(blob, 'Facturacion.pdf')
+    downloadFile(blob, `Facturacion ${name}.pdf`)
   }
+
+  const noName = name === ''
 
   return (
     <Button
@@ -135,8 +192,9 @@ const PDFDownloadLink = ({ doc }: DocProp) => {
         e.preventDefault()
         void handleDownload()
       }}
+      disabled={noName}
     >
-      Descargar
+      {noName ? 'Selecciona un nombre de la descarga' : 'Descargar'}
     </Button>
 
   )
