@@ -6,7 +6,7 @@
   },
   "test": {
     "dialect": "sqlite",
-    "storage": "test-db.sqlite",
+    "storage": ":memory:",
     "logQueryParameters": true
   },
   "production": {
