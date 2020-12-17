@@ -60,7 +60,7 @@ services:
     command: |
       /bin/sh -c '
         npx sequelize-cli db:migrate && \
-        npx sequelize-cli db:undo:all --env test && \
+        npx sequelize-cli db:migrate:undo:all --env test && \
         npx sequelize-cli db:migrate --env test
       '
 volumes:
