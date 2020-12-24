@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import { Includeable, Op } from 'sequelize'
+import * as yup from 'yup'
 import models, { sequelize } from '../db/models'
 import { Sell } from '../db/models/sells'
 import { Storage } from '../db/models/storages'
-import { Op, Includeable } from 'sequelize'
-import { CreateManualMovementArgs, createMovement } from './inventory'
 import { Mutable } from '../utils/types'
-import * as yup from 'yup'
+import { CreateManualMovementArgs, createMovement } from './inventory'
 
 const Sells = models.Sells
 const Prices = models.Prices
@@ -122,6 +122,7 @@ const productMovementDetails = {
   '007': [{ elementCode: 'hielo-2kg' }],
   '008': [{ elementCode: 'botella-600ml' }],
   '009': [{ elementCode: 'bolsa-360-congelada' }],
+  '010': [{ elementCode: 'bomba-electrica-botellon', storageCode: 'bodega' }],
 } as const
 
 type ProductCode = keyof typeof productMovementDetails
