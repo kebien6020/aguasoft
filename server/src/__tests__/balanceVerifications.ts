@@ -1,16 +1,17 @@
-import models from '../db/models'
-import createBalanceVerification from '../db/factories/balanceVerifications'
-import createUser from '../db/factories/users'
-import createClient from '../db/factories/clients'
-import createProduct from '../db/factories/products'
-import createSell from '../db/factories/sales'
-import createSpending from '../db/factories/spendings'
-import createPayment from '../db/factories/payments'
-
+import { format, formatISO, subDays } from 'date-fns'
 import * as request from 'supertest'
 import { SuperTest, Test } from 'supertest'
 import app from '../app'
+import createBalanceVerification from '../db/factories/balanceVerifications'
+import createClient from '../db/factories/clients'
+import createPayment from '../db/factories/payments'
+import createProduct from '../db/factories/products'
+import createSell from '../db/factories/sales'
+import createSpending from '../db/factories/spendings'
+import createUser from '../db/factories/users'
+import models from '../db/models'
 import { User } from '../db/models/users'
+
 import moment = require('moment')
 
 const {
@@ -23,6 +24,8 @@ const {
   Spendings,
   Users,
 } = models
+
+const formatDay = (date: Date) => format(date, 'yyyy-MM-dd')
 
 afterEach(async () => {
   const opts = { cascade: true, force: true }
@@ -53,7 +56,7 @@ describe('Model', () => {
       logging: logger,
     })
 
-    expect(promise).toResolve()
+    void expect(promise).toResolve()
 
     await promise
 
@@ -118,7 +121,7 @@ describe('Routes', () => {
       const expectedResponse = {
         error: expect.objectContaining({
           code: 'user_check_error',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -153,7 +156,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'required',
           path: 'date',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -172,7 +175,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'typeError',
           path: 'date',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -190,7 +193,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'required',
           path: 'amount',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -209,7 +212,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'typeError',
           path: 'amount',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -229,15 +232,29 @@ describe('Routes', () => {
 
     const url = '/api/balance'
 
+    type BalanceElement = {
+        date: string,
+        spendings: number,
+        sales: number,
+        payments: number,
+        balance: number,
+    }
+    interface BalanceSuccessResponse extends request.Response {
+      body: {
+        success: true,
+        data: BalanceElement[],
+      },
+    }
+
     it('returns an error if there are no verifications', async () => {
       const { agent } = await setup()
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: false,
         error: expect.objectContaining({
           code: 'no_verifications',
-        }),
+        }) as unknown,
       })
     })
 
@@ -249,7 +266,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -294,7 +311,7 @@ describe('Routes', () => {
         cash: true,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -339,7 +356,7 @@ describe('Routes', () => {
         cash: false,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -385,7 +402,7 @@ describe('Routes', () => {
         cash: true,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -438,7 +455,8 @@ describe('Routes', () => {
     it('lists the sum of the payments of the day balance in the balance', async () => {
       const { agent, user } = await setup()
 
-      const today = moment().format('YYYY-MM-DD')
+      const today = formatDay(new Date)
+      const now = formatISO(new Date)
       await createBalanceVerification({
         date: today,
         createdById: user.id,
@@ -451,14 +469,14 @@ describe('Routes', () => {
         clientId: client.id,
         value: 15000,
         directPayment: true,
-        date: today,
+        date: now,
       })
       await createPayment({
         userId: user.id,
         clientId: client.id,
         value: 5000,
         directPayment: false,
-        date: today,
+        date: now,
       })
 
       const res = await agent.get(url)
@@ -479,8 +497,10 @@ describe('Routes', () => {
     it('calculates the balance from the verification', async () => {
       const { user, agent } = await setup()
 
-      const yesterday = moment().subtract(1, 'day').format('YYYY-MM-DD')
-      const today = moment().format('YYYY-MM-DD')
+      const yesterday = formatDay(subDays(new Date, 1))
+      const yesterdayTimestamp = formatISO(subDays(new Date, 1))
+      const today = formatDay(new Date)
+      const todayTimestamp = formatISO(new Date)
       await createBalanceVerification({
         date: yesterday,
         createdById: user.id,
@@ -510,7 +530,7 @@ describe('Routes', () => {
       })
 
       await createPayment({
-        date: yesterday,
+        date: yesterdayTimestamp,
         userId: user.id,
         clientId: client.id,
         value: 3000,
@@ -518,7 +538,7 @@ describe('Routes', () => {
       })
 
       await createPayment({
-        date: today,
+        date: todayTimestamp,
         userId: user.id,
         clientId: client.id,
         value: 10000,
@@ -526,12 +546,12 @@ describe('Routes', () => {
       })
 
       await createSpending({
-        date: yesterday,
+        date: yesterdayTimestamp,
         userId: user.id,
         value: 2000,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       const expectedYesterdayBalance = 12000 + 5000 + 3000 - 2000
       expect(res.body.data[0]).toMatchObject({
@@ -581,7 +601,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         data: [
@@ -590,26 +610,26 @@ describe('Routes', () => {
             verification: expect.objectContaining({
               amount: 5000,
               adjustAmount: 0,
-            }),
+            }) as unknown,
             balance: 5000,
-          }),
+          }) as unknown,
           expect.objectContaining({
             date: tm2,
             spendings: 2000,
             balance: 3000,
-          }),
+          }) as unknown,
           expect.objectContaining({
             date: tm1,
             verification: expect.objectContaining({
               amount: 2000,
               adjustAmount: -1000,
-            }),
+            }) as unknown,
             balance: 2000,
-          }),
+          }) as unknown,
           expect.objectContaining({
             date: today,
             balance: 2000,
-          }),
+          }) as unknown,
         ],
       })
     })
@@ -627,7 +647,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url + `?minDate=${tm2}&maxDate=${tm1}`)
+      const res: BalanceSuccessResponse = await agent.get(url + `?minDate=${tm2}&maxDate=${tm1}`)
 
       expect(res.body.data).toEqual([
         expect.objectContaining({ date: tm2 }),
@@ -647,7 +667,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url + '?includes[]=verification.createdBy')
+      const res: BalanceSuccessResponse = await agent.get(url + '?includes[]=verification.createdBy')
 
       expect(res.body.data).toEqual([
         expect.objectContaining({
@@ -657,10 +677,51 @@ describe('Routes', () => {
               id: user.id,
               name: user.name,
               role: user.role,
-            }),
-          }),
+            }) as unknown,
+          }) as unknown,
         }),
       ])
+    })
+
+    it('uses the local timezone when grouping by day', async () => {
+      const { user, agent } = await setup()
+
+      const today = '2020-12-30'
+
+      await createBalanceVerification({
+        date: today,
+        amount: 5000,
+        adjustAmount: 0,
+        createdById: user.id,
+      })
+
+      const client = await createClient()
+
+      await createPayment({
+        date: '2020-12-31T04:38:14.576Z', // "today" at 23:38 in UTC+0
+        value: 8000,
+        userId: user.id,
+        clientId: client.id,
+        directPayment: true,
+      })
+
+      await createSpending({
+        date: '2020-12-30T06:38:14.576Z', // "today" at 1:38 in UTC+0
+        value: 4000,
+        userId: user.id,
+        directPayment: true,
+      })
+
+      const res: BalanceSuccessResponse = await agent.get(url)
+
+      expect(res.body).toMatchObject({
+        data: [
+          expect.objectContaining({
+            date: today,
+            balance: 5000 + 8000 - 4000,
+          }) as unknown,
+        ],
+      })
     })
 
   })
@@ -669,20 +730,20 @@ describe('Routes', () => {
     it('calculates the balance at a specific date', async () => {
       const { agent, user } = await setup()
 
-      const tm3 = moment().subtract(3, 'days').format('YYYY-MM-DD')
-      const tm2 = moment().subtract(2, 'days').format('YYYY-MM-DD')
-      const tm1 = moment().subtract(1, 'days').format('YYYY-MM-DD')
-      const today = moment().format('YYYY-MM-DD')
+      const now = new Date
+      const tm3 = subDays(now, 3)
+      const tm2 = subDays(now, 2)
+      const tm1 = subDays(now, 1)
 
       await createBalanceVerification({
-        date: tm3,
+        date: formatDay(tm3),
         adjustAmount: 0,
         amount: 5000,
         createdById: user.id,
       })
 
       await createBalanceVerification({
-        date: tm2,
+        date: formatDay(tm2),
         adjustAmount: -2000,
         amount: 3000,
         createdById: user.id,
@@ -691,21 +752,20 @@ describe('Routes', () => {
       const client = await createClient()
 
       await createPayment({
-        date: tm1,
+        date: formatISO(tm1),
         value: 10000,
         userId: user.id,
         clientId: client.id,
       })
 
       await createPayment({
-        date: today,
+        date: formatISO(now),
         value: 10000,
         userId: user.id,
         clientId: client.id,
       })
 
-      const res = await agent.get(`/api/balance/${tm1}`)
-
+      const res = await agent.get(`/api/balance/${formatDay(tm1)}`)
 
       expect(res.body).toMatchObject({
         success: true,

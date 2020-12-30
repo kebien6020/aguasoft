@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import * as moment from 'moment'
+import { Op, Sequelize } from 'sequelize'
 import * as yup from 'yup'
 import models from '../db/models'
 import { enumerateDaysBetweenDates } from '../utils/date'
-import * as moment from 'moment'
-import { Op, Sequelize } from 'sequelize'
 
 const {
   BalanceVerifications,
@@ -144,7 +144,7 @@ export async function listBalance(
           ...maxDateWhere,
         }
       ),
-      group: Sequelize.fn('date', Sequelize.col('date')),
+      group: Sequelize.fn('date', Sequelize.col('date'), 'localtime'),
       raw: true,
     }) as unknown as DaySpendings[]
 
@@ -157,19 +157,19 @@ export async function listBalance(
     const groupedPayments = await Payments.findAll({
       attributes: [
         [Sequelize.fn('sum', Sequelize.col('value')), 'valueSum'],
-        [Sequelize.fn('date', Sequelize.col('date')), 'date'],
+        [Sequelize.fn('date', Sequelize.col('date'), 'localtime'), 'date'],
       ],
       where: {
         directPayment: true,
         [Op.and]: Sequelize.where(
-          Sequelize.fn('date', Sequelize.col('date')),
+          Sequelize.fn('date', Sequelize.col('date'), 'localtime'),
           {
             [Op.gte]: firstVerification.date,
             ...maxDateWhere,
           }
         ),
       },
-      group: Sequelize.fn('date', Sequelize.col('date')),
+      group: Sequelize.fn('date', Sequelize.col('date'), 'localtime'),
       raw: true,
     }) as unknown as DayPayments[]
 
@@ -282,14 +282,14 @@ export async function showBalance(
     })
 
     const spendingsSum: number = await Spendings.aggregate('value', 'sum', {
-      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date')), {
+      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date'), 'localtime'), {
         [Op.gte]: closestVerification.date,
         [Op.lte]: date,
       }),
     })
 
     const paymentsSum: number = await Payments.aggregate('value', 'sum', {
-      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date')), {
+      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date'), 'localtime'), {
         [Op.gte]: closestVerification.date,
         [Op.lte]: date,
       }),
