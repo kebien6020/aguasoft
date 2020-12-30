@@ -1,16 +1,16 @@
-import models from '../db/models'
-import createBalanceVerification from '../db/factories/balanceVerifications'
-import createUser from '../db/factories/users'
-import createClient from '../db/factories/clients'
-import createProduct from '../db/factories/products'
-import createSell from '../db/factories/sales'
-import createSpending from '../db/factories/spendings'
-import createPayment from '../db/factories/payments'
-
 import * as request from 'supertest'
 import { SuperTest, Test } from 'supertest'
 import app from '../app'
+import createBalanceVerification from '../db/factories/balanceVerifications'
+import createClient from '../db/factories/clients'
+import createPayment from '../db/factories/payments'
+import createProduct from '../db/factories/products'
+import createSell from '../db/factories/sales'
+import createSpending from '../db/factories/spendings'
+import createUser from '../db/factories/users'
+import models from '../db/models'
 import { User } from '../db/models/users'
+
 import moment = require('moment')
 
 const {
@@ -53,7 +53,7 @@ describe('Model', () => {
       logging: logger,
     })
 
-    expect(promise).toResolve()
+    void expect(promise).toResolve()
 
     await promise
 
@@ -118,7 +118,7 @@ describe('Routes', () => {
       const expectedResponse = {
         error: expect.objectContaining({
           code: 'user_check_error',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -153,7 +153,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'required',
           path: 'date',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -172,7 +172,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'typeError',
           path: 'date',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -190,7 +190,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'required',
           path: 'amount',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -209,7 +209,7 @@ describe('Routes', () => {
           code: 'ValidationError',
           type: 'typeError',
           path: 'amount',
-        }),
+        }) as unknown,
         success: false,
       }
 
@@ -229,15 +229,29 @@ describe('Routes', () => {
 
     const url = '/api/balance'
 
+    type BalanceElement = {
+        date: string,
+        spendings: number,
+        sales: number,
+        payments: number,
+        balance: number,
+    }
+    interface BalanceSuccessResponse extends request.Response {
+      body: {
+        success: true,
+        data: BalanceElement[],
+      },
+    }
+
     it('returns an error if there are no verifications', async () => {
       const { agent } = await setup()
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: false,
         error: expect.objectContaining({
           code: 'no_verifications',
-        }),
+        }) as unknown,
       })
     })
 
@@ -249,7 +263,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -294,7 +308,7 @@ describe('Routes', () => {
         cash: true,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -339,7 +353,7 @@ describe('Routes', () => {
         cash: false,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -385,7 +399,7 @@ describe('Routes', () => {
         cash: true,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         success: true,
@@ -531,7 +545,7 @@ describe('Routes', () => {
         value: 2000,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       const expectedYesterdayBalance = 12000 + 5000 + 3000 - 2000
       expect(res.body.data[0]).toMatchObject({
@@ -581,7 +595,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url)
+      const res: BalanceSuccessResponse = await agent.get(url)
 
       expect(res.body).toMatchObject({
         data: [
@@ -590,26 +604,26 @@ describe('Routes', () => {
             verification: expect.objectContaining({
               amount: 5000,
               adjustAmount: 0,
-            }),
+            }) as unknown,
             balance: 5000,
-          }),
+          }) as unknown,
           expect.objectContaining({
             date: tm2,
             spendings: 2000,
             balance: 3000,
-          }),
+          }) as unknown,
           expect.objectContaining({
             date: tm1,
             verification: expect.objectContaining({
               amount: 2000,
               adjustAmount: -1000,
-            }),
+            }) as unknown,
             balance: 2000,
-          }),
+          }) as unknown,
           expect.objectContaining({
             date: today,
             balance: 2000,
-          }),
+          }) as unknown,
         ],
       })
     })
@@ -627,7 +641,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url + `?minDate=${tm2}&maxDate=${tm1}`)
+      const res: BalanceSuccessResponse = await agent.get(url + `?minDate=${tm2}&maxDate=${tm1}`)
 
       expect(res.body.data).toEqual([
         expect.objectContaining({ date: tm2 }),
@@ -647,7 +661,7 @@ describe('Routes', () => {
         createdById: user.id,
       })
 
-      const res = await agent.get(url + '?includes[]=verification.createdBy')
+      const res: BalanceSuccessResponse = await agent.get(url + '?includes[]=verification.createdBy')
 
       expect(res.body.data).toEqual([
         expect.objectContaining({
@@ -657,8 +671,8 @@ describe('Routes', () => {
               id: user.id,
               name: user.name,
               role: user.role,
-            }),
-          }),
+            }) as unknown,
+          }) as unknown,
         }),
       ])
     })
