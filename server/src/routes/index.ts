@@ -1,17 +1,17 @@
 import { Router } from 'express'
-
-import * as userHandlers from './users'
+import adminOnly from '../utils/adminOnly'
+import * as balanceHandlers from './balance'
 import * as clientHandlers from './clients'
-import * as productHandlers from './products'
-import * as priceHandlers from './prices'
-import * as sellHandlers from './sells'
-import * as paymentHandlers from './payments'
-import * as spendingHandlers from './spendings'
 import * as inventoryHandlers from './inventory'
 import * as machineCounterHandlers from './machineCounters'
-import * as balanceHandlers from './balance'
+import * as paymentHandlers from './payments'
+import * as priceHandlers from './prices'
+import * as productHandlers from './products'
+import * as sellHandlers from './sells'
+import * as spendingHandlers from './spendings'
+import * as userHandlers from './users'
 
-import adminOnly from '../utils/adminOnly'
+
 
 export const users = Router()
 users.get('/', userHandlers.list)
@@ -78,3 +78,5 @@ export const balance = Router()
 balance.get('/', balanceHandlers.listBalance)
 balance.post('/verification', balanceHandlers.createBalanceVerification)
 balance.get('/:date', balanceHandlers.showBalance)
+
+export { default as analysis } from './analysis'

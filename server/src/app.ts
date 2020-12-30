@@ -1,17 +1,17 @@
-import * as path from 'path'
-import * as jwt from 'express-jwt'
-import * as jwks from 'jwks-rsa'
-import * as express from 'express'
-import { Request, Response, NextFunction } from 'express'
 import * as bodyParser from 'body-parser'
-import * as cors from 'cors'
-import * as session from 'express-session'
-import * as ConnectSessionSequelize from 'connect-session-sequelize'
 import * as compression from 'compression'
-import * as routes from './routes'
-import jsonErrorHandler from './utils/jsonErrors'
+import * as ConnectSessionSequelize from 'connect-session-sequelize'
+import * as cors from 'cors'
+import * as express from 'express'
+import { NextFunction, Request, Response } from 'express'
+import * as jwt from 'express-jwt'
+import * as session from 'express-session'
+import * as jwks from 'jwks-rsa'
+import * as path from 'path'
 import { sequelize } from './db/models'
 import { Error404 } from './errors'
+import * as routes from './routes'
+import jsonErrorHandler from './utils/jsonErrors'
 
 const SequelizeStore = ConnectSessionSequelize(session.Store)
 
@@ -71,6 +71,7 @@ app.use('/api/spendings', routes.spendings)
 app.use('/api/inventory', routes.inventory)
 app.use('/api/machine-counters', routes.machineCounters)
 app.use('/api/balance', routes.balance)
+app.use('/api/analysis', routes.analysis)
 
 app.use('/api', (req, _res, next) => {
   next(new Error404(`Route does not exist: ${req.method} ${req.path}`))

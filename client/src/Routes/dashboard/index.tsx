@@ -1,10 +1,11 @@
 import { Grid, GridProps, styled, Theme } from '@material-ui/core'
+import { endOfDay, startOfDay } from 'date-fns'
 import * as React from 'react'
 import { useState } from 'react'
 import Layout from '../../components/Layout'
 import adminOnly from '../../hoc/adminOnly'
 import { DateFilter, GroupByOption, initialGroupBy } from './components/DateFilter'
-import { startOfDay, endOfDay } from 'date-fns'
+import { DayMoneyWidget } from './components/DayMoneyWidget'
 import { SalesWidget } from './components/SalesWidget'
 import { ToolsWidget } from './components/ToolsWidget'
 
@@ -32,6 +33,9 @@ const Dashboard = (): JSX.Element => {
           <ToolsWidget />
         </OrderGrid>
         <Grid item xs={12} lg={8}>
+          <DayMoneyWidget
+            dateRange={dateRange}
+          />
           <SalesWidget
             rangeDescr={rangeDescr}
             dateRange={dateRange}
