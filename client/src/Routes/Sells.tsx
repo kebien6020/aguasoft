@@ -1,26 +1,28 @@
-import * as React from 'react'
-import { useState, useEffect, useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Paper from '@material-ui/core/Paper'
-
-
-import { useSnackbar } from '../components/MySnackbar'
-import Login from '../components/Login'
-import SellList, { Sell } from '../components/Sells'
-import MyDatePicker from '../components/MyDatePicker'
-import DayOverview from '../components/DayOverview'
-import Layout from '../components/Layout'
-import Title from '../components/Title'
-import { fetchJsonAuth, ErrorResponse, isErrorResponse } from '../utils'
-
+import { makeStyles } from '@material-ui/core/styles'
+import { isToday } from 'date-fns'
 import * as moment from 'moment'
 import { Moment } from 'moment'
 import 'moment/locale/es'
-import useAuth from '../hooks/useAuth'
+import * as React from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
+import DayOverview from '../components/DayOverview'
+import Layout from '../components/Layout'
+import Login from '../components/Login'
+import MyDatePicker from '../components/MyDatePicker'
+import { useSnackbar } from '../components/MySnackbar'
+import SellList, { Sell } from '../components/Sells'
+import Title from '../components/Title'
 import useNonce from '../hooks/api/useNonce'
+import useAuth from '../hooks/useAuth'
+import useUser from '../hooks/useUser'
+import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
+
+
+
+
 moment.locale('es')
 
 export interface Filter {
@@ -102,11 +104,16 @@ export default function Sells(): JSX.Element {
     return true
   })
 
-  const sellList =
-    filteredSells && <SellList
-      sells={filteredSells}
-      refresh={refresh}
-    />
+  const handleUserError = useCallback((error: ErrorResponse['error']) => {
+    if (error.code === 'no_user') {
+      // ignore not logged in
+      return
+    }
+    setSnackbarError(`Error al cargar el usuario actual: ${error.message}`)
+  }, [setSnackbarError])
+  const { isAdmin } = useUser(handleUserError)
+
+  const enableDelete = Boolean(isAdmin) || isToday(date.toDate())
 
   return (
     <Layout title='Ventas'>
@@ -122,8 +129,12 @@ export default function Sells(): JSX.Element {
       }
 
       <Title>Ventas del Día</Title>
-      {sells
-        ? sellList
+      {filteredSells
+        ? <SellList
+          sells={filteredSells}
+          refresh={refresh}
+          disableDelete={!enableDelete}
+        />
         : <CircularProgress className={classes.centerBlock} />
       }
 
