@@ -1,26 +1,24 @@
-import * as React from 'react'
-import { useState, useEffect, useCallback } from 'react'
-import { useHistory, Link } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import * as moment from 'moment'
-import { Moment } from 'moment'
-
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Paper from '@material-ui/core/Paper'
-
+import { makeStyles } from '@material-ui/core/styles'
+import moment, { Moment } from 'moment'
+import * as React from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { Link, LinkProps, useHistory } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
-import { useSnackbar } from '../components/MySnackbar'
 import Layout from '../components/Layout'
 import Login from '../components/Login'
 import MyDatePicker from '../components/MyDatePicker'
-import SpendingList from '../components/Spendings';
+import SpendingList from '../components/Spendings'
 import Title from '../components/Title'
+import useSnackbar from '../hooks/useSnackbar'
 import { Spending } from '../models'
-import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
+import { ErrorResponse, fetchJsonAuth, isErrorResponse, SuccessResponse } from '../utils'
+import { MakeOptional } from '../utils/types'
 
-type SpendingsProps = AuthRouteComponentProps<{}>;
-export default function Spendings({auth}: SpendingsProps) {
+type SpendingsProps = AuthRouteComponentProps<unknown>;
+export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   const classes = useStyles()
 
   // Date picker
@@ -50,7 +48,7 @@ export default function Spendings({auth}: SpendingsProps) {
     </Paper>
 
   // Snackbar
-  const [snackbar, setSnackbarError] = useSnackbar()
+  const setSnackbarError = useSnackbar()
 
   // Payment List
   const [spendings, setSpendings] = useState<Spending[]|null>(null)
@@ -69,13 +67,13 @@ export default function Spendings({auth}: SpendingsProps) {
       }
     }
 
-    updateSpendings()
-  }, [date])
+    void updateSpendings()
+  }, [date, auth, setSnackbarError])
 
   const handleDeleteSpending = useCallback(async (spendingId: number) => {
     if (!spendings) return
 
-    const url = '/api/spending/' + spendingId
+    const url = `/api/spendings/${spendingId}`
     const result : ErrorResponse | SuccessResponse =
       await fetchJsonAuth(url, auth, {
         method: 'delete',
@@ -96,15 +94,6 @@ export default function Spendings({auth}: SpendingsProps) {
     }
   }, [spendings, auth])
 
-  const spendingList =
-    spendings && <SpendingList
-       spendings={spendings}
-       onDeleteSpending={handleDeleteSpending}
-    />
-
-  const renderLinkSpendings = React.forwardRef((props: any, ref: any) =>
-    <Link to='/spendings/list' ref={ref} {...props} />)
-
   return (
     <Layout title='Salidas'>
       <Title>Registrar Salida</Title>
@@ -113,22 +102,20 @@ export default function Spendings({auth}: SpendingsProps) {
       {datePicker}
 
       <Title>Salidas del día</Title>
-      {spendings ?
-        spendingList :
-        <CircularProgress className={classes.centerBlock} />
+      {spendings
+        ? <SpendingList spendings={spendings} onDeleteSpending={handleDeleteSpending} />
+        : <CircularProgress className={classes.centerBlock} />
       }
 
       <div className={classes.seeMoreContainer}>
         <Button
           variant='outlined'
           color='primary'
-          component={renderLinkSpendings}
+          component={SpendingListLink}
         >
           Ver todas
         </Button>
       </div>
-
-      {snackbar}
     </Layout>
   )
 }
@@ -152,3 +139,10 @@ const useStyles = makeStyles(theme => ({
     display: 'block',
   },
 }))
+
+const SpendingListLink = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
+  function SpendingListLink(props, ref) {
+    return <Link to='/spendings/list' ref={ref} {...props} />
+  }
+)
+

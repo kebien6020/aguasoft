@@ -1,39 +1,32 @@
-import * as React from 'react'
-
-import { Redirect } from 'react-router-dom'
 import {
-  Paper,
-  Typography,
-  Grid,
-  Switch,
   Button,
-  TextField,
-} from '@material-ui/core'
-
-import {
-  withStyles,
+  Grid,
+  Paper,
   StyleRulesCallback,
+  Switch,
+  TextField,
   Theme,
-} from '@material-ui/core/styles'
-
-import * as moment from 'moment'
-
+  Typography,
+  withStyles,
+} from '@material-ui/core'
+import moment from 'moment'
+import * as React from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
+import Alert from '../components/Alert'
 import Layout from '../components/Layout'
+import DatePicker from '../components/MyDatePicker'
+import PriceField from '../components/PriceField'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import Title from '../components/Title'
-import Alert from '../components/Alert'
-import PriceField from '../components/PriceField'
-import DatePicker from '../components/MyDatePicker'
 import { User } from '../models'
 import {
+  ErrorResponse,
   fetchJsonAuth,
   isErrorResponse,
-  ErrorResponse,
-  SuccessResponse
+  SuccessResponse,
 } from '../utils'
 
-interface Props extends AuthRouteComponentProps<{}>, PropClasses { }
+interface Props extends AuthRouteComponentProps<unknown>, PropClasses { }
 interface State {
   date: moment.Moment
   description: string
@@ -46,8 +39,6 @@ interface State {
   descriptionError: string | null
   moneyAmountError: string | null
   submitionError: string | null
-
-  redirectToHome: boolean
 }
 
 type ValChangeEvent = { target: { value: string } }
@@ -70,8 +61,6 @@ class RegisterSpending extends React.Component<Props, State> {
       descriptionError: null,
       moneyAmountError: null,
       submitionError: null,
-
-      redirectToHome: false,
     }
   }
 
@@ -86,7 +75,7 @@ class RegisterSpending extends React.Component<Props, State> {
       return
     }
 
-    this.setState({userIsAdmin: user.role === 'admin'})
+    this.setState({ userIsAdmin: user.role === 'admin' })
   }
 
   handleChange = (name: keyof State) => (event: ValChangeEvent) => {
@@ -94,32 +83,32 @@ class RegisterSpending extends React.Component<Props, State> {
     // may be re-used by react)
     const value = event.target.value
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: value,
+      ...prevState,
+      [name]: value,
     }))
 
     // Error clearing
     const { state } = this
-    if (name === 'moneyAmount' && state.moneyAmountError !== null) {
-      this.setState({moneyAmountError: null})
-    }
-    if (name === 'description' && state.descriptionError !== null) {
-      this.setState({descriptionError: null})
-    }
+    if (name === 'moneyAmount' && state.moneyAmountError !== null)
+      this.setState({ moneyAmountError: null })
+
+    if (name === 'description' && state.descriptionError !== null)
+      this.setState({ descriptionError: null })
+
   }
 
   handleChangeChecked = (name: keyof State) => (event: CheckedChangeEvent) => {
     const value = event.target.checked
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: value,
+      ...prevState,
+      [name]: value,
     }))
   }
 
   handleChangeDate = (name: keyof State) => (date: moment.Moment) => {
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: date,
+      ...prevState,
+      [name]: date,
     }))
   }
 
@@ -128,18 +117,18 @@ class RegisterSpending extends React.Component<Props, State> {
     let ok = true
 
     if (state.description === '') {
-      this.setState({descriptionError: 'Obligatorio'})
+      this.setState({ descriptionError: 'Obligatorio' })
       ok = false
     } else if (state.description.length <= 3) {
-      this.setState({descriptionError: 'Descripción muy corta'})
+      this.setState({ descriptionError: 'Descripción muy corta' })
       ok = false
     }
 
     if (state.moneyAmount === '') {
-      this.setState({moneyAmountError: 'Obligatorio'})
+      this.setState({ moneyAmountError: 'Obligatorio' })
       ok = false
     } else if (Number(state.moneyAmount) === 0) {
-      this.setState({moneyAmountError: 'La salida no puede ser $0'})
+      this.setState({ moneyAmountError: 'La salida no puede ser $0' })
       ok = false
     }
 
@@ -165,9 +154,9 @@ class RegisterSpending extends React.Component<Props, State> {
       isTransfer: state.isTransfer,
     }
 
-    if (state.userIsAdmin) {
+    if (state.userIsAdmin)
       payload.date = state.date.toISOString()
-    }
+
 
     const response : SuccessResponse | ErrorResponse =
       await fetchJsonAuth('/api/spendings/new', props.auth, {
@@ -176,33 +165,29 @@ class RegisterSpending extends React.Component<Props, State> {
       })
 
     if (isErrorResponse(response)) {
-      this.setState({submitionError: 'Error al intentar registrar la salida.'})
+      this.setState({ submitionError: 'Error al intentar registrar la salida.' })
       console.error(response.error)
       return
     }
 
-    this.setState({redirectToHome: true})
+    this.props.history.push('/spendings')
   }
 
   render() {
     const { props, state } = this
     const { classes } = props
 
-    if (state.redirectToHome) {
-      return <Redirect to='/' push />
-    }
-
     return (
       <Layout title='Registrar Salida' container={ResponsiveContainer}>
         <Paper className={classes.paper}>
           <Title>Registrar Salida</Title>
-          {state.submitionError !== null &&
-            <Alert message={state.submitionError} type='error' />
+          {state.submitionError !== null
+            && <Alert message={state.submitionError} type='error' />
           }
           <form>
             <Grid container spacing={0} justify='space-between'>
-              {state.userIsAdmin &&
-                <Grid item xs={12}>
+              {state.userIsAdmin
+                && <Grid item xs={12}>
                   <DatePicker
                     label='Fecha de la salida'
                     date={state.date}
@@ -215,7 +200,7 @@ class RegisterSpending extends React.Component<Props, State> {
               }
               {/*
               // @ts-ignore grid-md-6 is missing in type system*/}
-              <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+              <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                 <TextField
                   label='Descripción'
                   onChange={this.handleChange('description')}
@@ -228,7 +213,7 @@ class RegisterSpending extends React.Component<Props, State> {
               </Grid>
               {/*
               // @ts-ignore grid-md-6 is missing in type system*/}
-              <Grid item xs={12} md={6} classes={{'grid-md-6': classes.md6}}>
+              <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
                 <PriceField
                   label='Dinero de salida'
                   onChange={this.handleChange('moneyAmount')}
@@ -302,7 +287,7 @@ const styles: StyleRulesCallback<Theme, Props> = theme => ({
   md6: {
     [theme.breakpoints.up('md')]: {
       maxWidth: '48%',
-    }
+    },
   },
 })
 
