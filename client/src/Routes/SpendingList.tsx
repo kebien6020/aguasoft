@@ -1,31 +1,24 @@
+import { StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
+import Pagination from 'material-ui-flat-pagination'
+import moment from 'moment'
 import * as React from 'react'
-import { Link } from 'react-router-dom'
-
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import AppBar from '@material-ui/core/AppBar'
-import IconButton from '@material-ui/core/IconButton'
-import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-import BackIcon from '@material-ui/icons/ArrowBack'
-
+import { Link, LinkProps } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
-import adminOnly from '../hoc/adminOnly'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
-import Spendings from '../components/Spendings'
 import ResponsiveContainer from '../components/ResponsiveContainer'
+import Spendings from '../components/Spendings'
+import adminOnly from '../hoc/adminOnly'
 import { Spending } from '../models'
-import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
-
-import Pagination from 'material-ui-flat-pagination'
-import * as moment from 'moment'
+import { ErrorResponse, fetchJsonAuth, isErrorResponse, SuccessResponse } from '../utils'
+import { MakeOptional } from '../utils/types'
 
 interface SpendingPageResponse {
   spendings: Spending[]
   totalCount: number
 }
 
-type Props = AuthRouteComponentProps<any> & PropClasses
+type Props = AuthRouteComponentProps<unknown> & PropClasses
 
 interface State {
   spendings: Spending[] | null
@@ -44,12 +37,12 @@ class SpendingList extends React.Component<Props, State> {
       spendings: null,
       totalCount: 0,
       offset: 0,
-      disablePagination: false
+      disablePagination: false,
     }
   }
 
-  componentDidMount() {
-    this.updateSpendings(this.state.offset)
+  async componentDidMount() {
+    await this.updateSpendings(this.state.offset)
   }
 
   updateSpendings = async (offset: number) => {
@@ -61,7 +54,7 @@ class SpendingList extends React.Component<Props, State> {
 
     if (!isErrorResponse(res)) {
       const { spendings, totalCount } = res
-      this.setState({spendings, totalCount})
+      this.setState({ spendings, totalCount })
     } else {
       console.error(res.error)
     }
@@ -73,9 +66,9 @@ class SpendingList extends React.Component<Props, State> {
     const { props } = this
 
     const result : ErrorResponse | SuccessResponse = await
-      fetchJsonAuth('/api/spendings/' + spendingId, props.auth, {
-        method: 'delete',
-      })
+    fetchJsonAuth(`/api/spendings/${spendingId}`, props.auth, {
+      method: 'delete',
+    })
 
     if (!isErrorResponse(result)) {
       const spendings = [...this.state.spendings]
@@ -88,19 +81,23 @@ class SpendingList extends React.Component<Props, State> {
 
       spending.deletedAt = moment().toISOString()
 
-      this.setState({spendings})
+      this.setState({ spendings })
     } else {
       console.error(result.error)
     }
   }
 
-  handlePageChange = async (_event: any, offset: number) => {
-    this.setState({disablePagination: true})
+  handlePageChange = async (_event: unknown, offset: number) => {
+    this.setState({ disablePagination: true })
     await this.updateSpendings(offset)
-    this.setState({offset, disablePagination: false})
+    this.setState({ offset, disablePagination: false })
   }
 
-  renderLinkBack = React.forwardRef((props: any, ref: any) => <Link to='/' ref={ref} {...props} />)
+  renderLinkBack = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
+    function BackLink(props, ref) {
+      return <Link to='/' ref={ref} {...props} />
+    }
+  )
 
   renderPagination = () => (
     <Pagination
@@ -114,30 +111,13 @@ class SpendingList extends React.Component<Props, State> {
   )
 
   render() {
-    const { props, state } = this
-    const { classes } = props
+    const { state } = this
 
-    if (state.spendings === null) {
+    if (state.spendings === null)
       return <LoadingScreen text='Cargando salidas...' />
-    }
 
     return (
       <Layout title='Lista de salidas'>
-        <AppBar position='static' className={classes.appbar}>
-          <Toolbar>
-            <IconButton
-              className={classes.backButton}
-              color='inherit'
-              aria-label='Back'
-              component={this.renderLinkBack}
-            >
-              <BackIcon />
-            </IconButton>
-            <Typography variant='h6' color='inherit' className={classes.title}>
-              Pagos
-            </Typography>
-          </Toolbar>
-        </AppBar>
         <ResponsiveContainer>
           {this.renderPagination()}
           <Spendings
@@ -168,10 +148,10 @@ const styles : StyleRulesCallback<Theme, Props> = _theme => ({
   },
   pagination: {
     textAlign: 'center',
-  }
+  },
 })
 
 export default
-  adminOnly(
+adminOnly(
   withStyles(styles)(
     SpendingList))
