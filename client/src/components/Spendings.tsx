@@ -1,6 +1,3 @@
-import * as React from 'react'
-import * as moment from 'moment'
-
 import {
   Avatar,
   Card,
@@ -11,16 +8,14 @@ import {
   IconButton,
   Typography,
 } from '@material-ui/core'
-
+import * as colors from '@material-ui/core/colors'
 import { makeStyles } from '@material-ui/core/styles'
-
 import {
   Delete as DeleteIcon,
   ShoppingCart as CartIcon,
 } from '@material-ui/icons'
-
-import * as colors from '@material-ui/core/colors'
-
+import moment from 'moment'
+import * as React from 'react'
 import Alert from '../components/Alert'
 import { Spending } from '../models'
 import { money } from '../utils'
@@ -37,7 +32,7 @@ const Spendings = (props: Props): JSX.Element => {
     const timestamp = moment(deletedAt)
     const date = timestamp.format('DD-MMM-YYYY')
     const time = timestamp.format('hh:mm a')
-    return `Este pago fue eliminado el ${date} a las ${time}.`
+    return `Esta salida fue eliminada el ${date} a las ${time}.`
   }
 
   const getCardClass = (spending: Spending) => {
