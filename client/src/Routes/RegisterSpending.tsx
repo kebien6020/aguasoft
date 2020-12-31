@@ -11,7 +11,6 @@ import {
 } from '@material-ui/core'
 import moment from 'moment'
 import * as React from 'react'
-import { Redirect } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Alert from '../components/Alert'
 import Layout from '../components/Layout'
@@ -40,8 +39,6 @@ interface State {
   descriptionError: string | null
   moneyAmountError: string | null
   submitionError: string | null
-
-  redirectToHome: boolean
 }
 
 type ValChangeEvent = { target: { value: string } }
@@ -64,8 +61,6 @@ class RegisterSpending extends React.Component<Props, State> {
       descriptionError: null,
       moneyAmountError: null,
       submitionError: null,
-
-      redirectToHome: false,
     }
   }
 
@@ -175,16 +170,12 @@ class RegisterSpending extends React.Component<Props, State> {
       return
     }
 
-    this.setState({ redirectToHome: true })
+    this.props.history.push('/spendings')
   }
 
   render() {
     const { props, state } = this
     const { classes } = props
-
-    if (state.redirectToHome)
-      return <Redirect to='/' push />
-
 
     return (
       <Layout title='Registrar Salida' container={ResponsiveContainer}>
