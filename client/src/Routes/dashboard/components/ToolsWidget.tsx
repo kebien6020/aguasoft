@@ -1,8 +1,8 @@
 import { List, ListItem, ListItemIcon, ListItemText, Paper } from '@material-ui/core'
-import React from 'react'
-import Title from '../../../components/Title'
 import { TableChart as TableIcon } from '@material-ui/icons'
+import React from 'react'
 import { Link, LinkProps } from 'react-router-dom'
+import Title from '../../../components/Title'
 import { MakeOptional } from '../../../utils/types'
 
 export const ToolsWidget = (): JSX.Element => {
@@ -21,5 +21,11 @@ export const ToolsWidget = (): JSX.Element => {
   </>)
 }
 
-const LinkToBillingSummary = (props: MakeOptional<LinkProps, 'to'>) =>
-  <Link to='/tools/billing-summary' {...props} />
+type LinkToBillingSummaryProps = MakeOptional<LinkProps, 'to'>
+const LinkToBillingSummary = React.forwardRef<HTMLAnchorElement, LinkToBillingSummaryProps>(
+  function LinkToBillingSummary(props, ref) {
+    return (
+      <Link to='/tools/billing-summary' ref={ref} {...props} />
+    )
+  }
+)
