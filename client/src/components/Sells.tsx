@@ -1,25 +1,20 @@
-import * as React from 'react'
-import { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-
 import Avatar from '@material-ui/core/Avatar'
 import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import IconButton from '@material-ui/core/IconButton'
+import CardHeader from '@material-ui/core/CardHeader'
 import * as colors from '@material-ui/core/colors'
-
+import Grid from '@material-ui/core/Grid'
+import IconButton from '@material-ui/core/IconButton'
+import { makeStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
 import DeleteIcon from '@material-ui/icons/Delete'
-
-import Alert from './Alert'
-
-import { money, fetchJsonAuth, isErrorResponse } from '../utils'
-
-import * as moment from 'moment'
-import useSnackbar from '../hooks/useSnackbar'
+import moment from 'moment'
+import * as React from 'react'
+import { useState } from 'react'
 import useAuth from '../hooks/useAuth'
+import useSnackbar from '../hooks/useSnackbar'
+import { fetchJsonAuth, isErrorResponse, money } from '../utils'
+import Alert from './Alert'
 
 export interface Sell {
   Client: {name: string, id: number, defaultCash: boolean},
@@ -39,9 +34,10 @@ export interface Sell {
 interface SaleCardProps {
   sale: Sell
   refresh: () => unknown
+  disableDelete?: boolean
 }
 
-const SaleCard = ({ sale, refresh }: SaleCardProps) => {
+const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false }: SaleCardProps) => {
   const classes = useStyles()
 
   const showSnackbar = useSnackbar()
@@ -111,6 +107,11 @@ const SaleCard = ({ sale, refresh }: SaleCardProps) => {
     return Math.floor(price) === Math.floor(basePrice)
   }
 
+  const effectiveDisableDelete =
+    sale.deleted
+    || disableDelete
+    || externalDisableDelete
+
   return (
     <Card className={getCardClass(sale)}>
       <div className={classes.cardMain}>
@@ -146,7 +147,7 @@ const SaleCard = ({ sale, refresh }: SaleCardProps) => {
         <IconButton
           className={classes.deleteButton}
           onClick={() => handleDeleteSell(sale.id)}
-          disabled={sale.deleted || disableDelete}
+          disabled={effectiveDisableDelete}
         >
           <DeleteIcon />
         </IconButton>
@@ -256,9 +257,10 @@ const useStyles = makeStyles(theme => ({
 interface SellsProps {
   sells: Sell[]
   refresh: () => unknown
+  disableDelete?: boolean
 }
 
-const Sells = ({ sells, refresh }: SellsProps): JSX.Element => (
+const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Element => (
   <Grid container spacing={2}>
     {sells?.length === 0 && <>
       <Grid item xs={12}>
@@ -270,7 +272,7 @@ const Sells = ({ sells, refresh }: SellsProps): JSX.Element => (
     {sells
       ? sells.map(sale => (
         <Grid item xs={12} key={sale.id}>
-          <SaleCard sale={sale} refresh={refresh} />
+          <SaleCard sale={sale} refresh={refresh} disableDelete={disableDelete} />
         </Grid>
       ))
       : 'Cargando ventas del día...'

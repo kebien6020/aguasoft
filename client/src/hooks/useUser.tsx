@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
-
-import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
+import { useEffect, useState } from 'react'
 import { User } from '../models'
+import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
 import useAuth from './useAuth'
+
 
 type Result = {
   user: User | null

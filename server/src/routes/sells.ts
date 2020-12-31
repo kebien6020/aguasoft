@@ -384,7 +384,7 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
 export async function del(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!req.session.userId) {
-      const e = Error('User is not logged in')
+      const e = Error('Debes iniciar sesión para eliminar ventas')
       e.name = 'user_check_error'
       throw e
     }

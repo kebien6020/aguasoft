@@ -1,9 +1,17 @@
-import { Request, Response, NextFunction } from 'express'
-import * as Sequelize from 'sequelize'
+import { NextFunction, Request, Response } from 'express'
 import { UnauthorizedError } from 'express-jwt'
+import * as Sequelize from 'sequelize'
+
+const hasStatus = (obj: unknown): obj is {status: number} => {
+  return (
+    typeof obj === 'object'
+    && 'status' in obj
+    && typeof (obj as { status: unknown }).status === 'number'
+  )
+}
 
 export default function jsonErrorHandler(
-  error: any,
+  error: unknown,
   req: Request,
   res: Response,
   _next: NextFunction,
@@ -12,7 +20,7 @@ export default function jsonErrorHandler(
     interface ErrorResponse {
       message: string
       code: string
-      errors?: any
+      errors?: unknown
     }
 
     let response: ErrorResponse = {
@@ -29,33 +37,23 @@ export default function jsonErrorHandler(
       response = {
         message: 'One or more database contraints did not pass',
         code: 'validation_error',
-        errors: (error as Sequelize.ValidationError).errors,
+        errors: (error).errors,
       }
-    } else if (error as Error instanceof UnauthorizedError) {
+    } else if (error instanceof UnauthorizedError) {
       response = {
-        message: (error as Error).message,
+        message: (error).message,
         code: 'unauthorized_error',
         errors: error,
       }
     } else if (error instanceof Error) {
-      response = { ...error, code: error.name }
-    } else if ((error as Error).name === 'Error') {
-      response = {
-        message: (error as Error).message,
-        code: 'unknown_error',
-      }
-    } else if ((error as any).message && (error as any).name) {
-      response = {
-        message: (error as any).message,
-        code: (error as any).name,
-      }
+      response = { ...error, code: error.name, message: error.message }
     }
 
     if (process.env.NODE_ENV !== 'test')
       console.log(req.url, response, error)
 
 
-    if (typeof (error as any).status === 'number')
+    if (hasStatus(error))
       res.status(error.status)
 
 
