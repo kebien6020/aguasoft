@@ -1,9 +1,4 @@
-import AppBar from '@material-ui/core/AppBar'
-import IconButton from '@material-ui/core/IconButton'
 import { StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
-import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-import BackIcon from '@material-ui/icons/ArrowBack'
 import Pagination from 'material-ui-flat-pagination'
 import moment from 'moment'
 import * as React from 'react'
@@ -116,29 +111,13 @@ class SpendingList extends React.Component<Props, State> {
   )
 
   render() {
-    const { props, state } = this
-    const { classes } = props
+    const { state } = this
 
     if (state.spendings === null)
       return <LoadingScreen text='Cargando salidas...' />
 
     return (
       <Layout title='Lista de salidas'>
-        <AppBar position='static' className={classes.appbar}>
-          <Toolbar>
-            <IconButton
-              className={classes.backButton}
-              color='inherit'
-              aria-label='Back'
-              component={this.renderLinkBack}
-            >
-              <BackIcon />
-            </IconButton>
-            <Typography variant='h6' color='inherit' className={classes.title}>
-              Pagos
-            </Typography>
-          </Toolbar>
-        </AppBar>
         <ResponsiveContainer>
           {this.renderPagination()}
           <Spendings
