@@ -73,7 +73,7 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   const handleDeleteSpending = useCallback(async (spendingId: number) => {
     if (!spendings) return
 
-    const url = `/api/spending/${spendingId}`
+    const url = `/api/spendings/${spendingId}`
     const result : ErrorResponse | SuccessResponse =
       await fetchJsonAuth(url, auth, {
         method: 'delete',
