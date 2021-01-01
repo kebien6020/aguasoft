@@ -69,6 +69,7 @@ router.get('/:date/day-money', handleErrors<{date: string}>(async (req, res) => 
   const paymentAmount = await Payments.sum('value', {
     where: {
       ...dateWhere,
+      directPayment: true,
     },
   })
 

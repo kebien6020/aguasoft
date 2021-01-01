@@ -47,7 +47,7 @@ const DayMoneyImpl = ({ date }: DayMoneyImplProps) => {
     <Content>
       <Descr title='Venta efectivo:'>{money(stats.cashSaleAmount)}</Descr>
       <Descr title='Salidas de dinero del día:'>{money(stats.spendingFromCashAmount)}</Descr>
-      <Descr title='Pagos:'>{money(stats.paymentAmount)}</Descr>
+      <Descr title='Pagos en planta:'>{money(stats.paymentAmount)}</Descr>
       <Descr title='Total:'>{money(total)}</Descr>
     </Content>
   )
