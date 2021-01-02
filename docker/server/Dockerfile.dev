@@ -10,3 +10,6 @@ RUN apk update \
   python3-dev \
   sqlite
 
+RUN apk add --no-cache tzdata
+
+ENV TZ=America/Bogota
