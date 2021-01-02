@@ -4,9 +4,7 @@ orbs:
   node: circleci/node@4.1.0
 jobs:
   test:
-    executor:
-      name: node/default
-      tag: '14.15.3'
+    executor: node/default
     environment:
       TZ: America/Bogota
     steps:
