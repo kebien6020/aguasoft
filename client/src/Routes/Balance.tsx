@@ -1,25 +1,29 @@
-import * as React from 'react'
-import { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import * as colors from '@material-ui/core/colors'
 import CardContent from '@material-ui/core/CardContent'
+import * as colors from '@material-ui/core/colors'
+import { makeStyles, styled } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import clsx from 'clsx'
-import { Moment } from 'moment'
-import * as moment from 'moment'
-
+import moment, { Moment } from 'moment'
+import * as React from 'react'
+import { useState } from 'react'
+import useDeepCompareEffect from 'use-deep-compare-effect'
 import BorderedCard from '../components/BorderedCard'
 import CardHeader from '../components/CardHeader'
 import DateControl from '../components/controls/DateControl'
 import Layout from '../components/Layout'
-import Title from '../components/Title'
-import { money, moneySign, fetchJsonAuth, isErrorResponse, paramsToString, Params } from '../utils'
-import useAuth from '../hooks/useAuth'
-import { BalanceVerification } from '../models'
-import useSnackbar from '../hooks/useSnackbar'
 import LoadingIndicator from '../components/LoadingIndicator'
-import useDeepCompareEffect from 'use-deep-compare-effect'
-import adminOnly from '../hoc/adminOnly'
+import Title from '../components/Title'
+import useAuth from '../hooks/useAuth'
+import useSnackbar from '../hooks/useSnackbar'
+import { BalanceVerification } from '../models'
+import {
+  fetchJsonAuth,
+  isErrorResponse,
+  money,
+  moneySign,
+  Params,
+  paramsToString,
+} from '../utils'
 
 type CardPricesProps = {
   titleOne: React.ReactNode
@@ -270,7 +274,6 @@ const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
 )
 
 const Balance = (): JSX.Element => {
-  const classes = useStyles()
   const [bDate, setBDate] = useState<Moment|null>(
     () => moment().subtract(1, 'month')
   )
@@ -287,7 +290,7 @@ const Balance = (): JSX.Element => {
       <Title>Balance General</Title>
 
       <Typography variant='caption'>Filtrar por Fecha</Typography>
-      <div className={classes.dateFilter}>
+      <DateFilter>
         <DateControl
           label='Fecha inicial'
           date={bDate}
@@ -298,7 +301,7 @@ const Balance = (): JSX.Element => {
             clearLabel: 'Borrar',
           }}
         />
-        <span className={classes.to}>→</span>
+        <ArrowRight />
         <DateControl
           label='Fecha final'
           date={eDate}
@@ -309,7 +312,7 @@ const Balance = (): JSX.Element => {
             clearLabel: 'Borrar',
           }}
         />
-      </div>
+      </DateFilter>
 
       {balanceData?.map(item =>
         <BalanceItemCard item={item} key={item.date} />
@@ -319,18 +322,17 @@ const Balance = (): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
-  dateFilter: {
-    display: 'flex',
-    flexFlow: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  to: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    lineHeight: '48px',
-  },
+const DateFilter = styled('div')({
+  display: 'flex',
+  flexFlow: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+})
+
+const ArrowRight = styled(props => <span {...props}>→</span>)(({ theme }) => ({
+  marginLeft: theme.spacing(1),
+  marginRight: theme.spacing(1),
+  lineHeight: '48px',
 }))
 
 export default Balance
