@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: docker/server
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - db-vol:/db
+    command: npm run start-server-autoreload
+    ports:
+      - 8020:3000
+  server-watch:
+    image: node:14-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - db-vol:/db
+    command: npm run watch-server-js
+  client-watch:
+    image: node:14-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - db-vol:/db
+    command: npm run watch-client-js
+  ensure-sqlite-symlink:
+    image: nouchka/sqlite3
+    working_dir: /app
+    volumes:
+      - .:/app
+      - db-vol:/db
+    entrypoint: /bin/sh
+    command: |
+      -c '
+        set -x
+        [ ! -f /app/db.sqlite ] && sqlite3 /app/db.sqlite "VACUUM;"
+        ln -s /app/db.sqlite* /db/
+      '
+  adminer:
+    build: 
+      context: docker/adminer
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+      - db-vol:/db
+    environment:
+      ADMINER_DESIGN: pepa-linha
+      ADMINER_PLUGINS: sqlite-connection-without-credentials
+    ports:
+      - 8021:8080
+  migrate:
+    image: node:14-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - db-vol:/db
+    command: |
+      /bin/sh -c '
+        npx sequelize-cli db:migrate && \
+        npx sequelize-cli db:migrate:undo:all --env test && \
+        npx sequelize-cli db:migrate --env test
+      '
+volumes:
+  db-vol:
+

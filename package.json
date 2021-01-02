@@ -12,10 +12,9 @@
     "migrate-prod": "sequelize db:migrate --env production",
     "start-server": "node server/dist/index.js",
     "start-server-autoreload": "nodemon server/dist/index.js -w server/dist",
-    "pretest": "sequelize db:migrate:undo:all --env test && sequelize db:migrate --env test",
-    "test": "cross-env PORT=3005 jest --runInBand",
+    "test": "cross-env PORT=3005 jest",
     "watch-client-js": "npm run build-client-dev -- -w",
-    "watch-server-js": "npm run build-server-js -- -w"
+    "watch-server-js": "npm run build-server-js -- -w --preserveWatchOutput"
   },
   "resolutions": {
     "@types/react": "^16.9.16",
@@ -73,6 +72,7 @@
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
     "@types/supertest": "^2.0.9",
+    "@types/umzug": "^2.3.0",
     "@types/use-deep-compare-effect": "^1.2.0",
     "@types/validator": "^13.0.0",
     "@types/yup": "^0.26.35",
@@ -110,6 +110,7 @@
     "ts-jest": "^26.4.4",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
+    "umzug": "^2.3.0",
     "webpack": "^4.42.1",
     "webpack-bundle-analyzer": "^3.6.1",
     "webpack-cli": "^3.3.11",

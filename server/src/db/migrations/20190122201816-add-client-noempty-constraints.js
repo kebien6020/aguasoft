@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
 const CODE_CK = 'Clients_code_noempty'
 const NAME_CK = 'Clients_name_noempty'
 
 const addCommon = (obj = {}) => Object.assign(obj, {
-  logging: console.log,
+  logging: false,
 })
 
-const raw = addCommon({raw: true})
+const raw = addCommon({ raw: true })
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -39,35 +39,35 @@ module.exports = {
       // Sequelize transactions run in a different connection, and the previous
       // directive only affects the current connection and is only
       // valid during the connection it is started in
-      sequelize.query('BEGIN TRANSACTION;', raw)
+      sequelize.query('BEGIN TRANSACTION;', raw),
     ).then(() =>
       // This pragma is SQLite specific, it auto switches off on COMMIT
-      sequelize.query('PRAGMA defer_foreign_keys = ON;', raw)
+      sequelize.query('PRAGMA defer_foreign_keys = ON;', raw),
     ).then(() =>
-      queryInterface.addConstraint('Clients', ['code'], checkNoEmptyCode)
+      queryInterface.addConstraint('Clients', ['code'], checkNoEmptyCode),
     ).then(() =>
-      queryInterface.addConstraint('Clients', ['name'], checkNoEmptyName)
+      queryInterface.addConstraint('Clients', ['name'], checkNoEmptyName),
     ).then(() =>
-      sequelize.query('COMMIT;', raw)
+      sequelize.query('COMMIT;', raw),
     ).catch(() =>
-      sequelize.query('ROLLBACK;', raw)
+      sequelize.query('ROLLBACK;', raw),
     )
   },
 
   down: (queryInterface, Sequelize) => {
     const sequelize = queryInterface.sequelize
     return sequelize.query('PRAGMA foreign_keys = OFF;', raw).then(() =>
-      sequelize.query('BEGIN TRANSACTION;', raw)
+      sequelize.query('BEGIN TRANSACTION;', raw),
     ).then(() =>
-      sequelize.query('PRAGMA defer_foreign_keys = ON;', raw)
+      sequelize.query('PRAGMA defer_foreign_keys = ON;', raw),
     ).then(() =>
-      queryInterface.removeConstraint('Clients', NAME_CK, addCommon())
+      queryInterface.removeConstraint('Clients', NAME_CK, addCommon()),
     ).then(() =>
-      queryInterface.removeConstraint('Clients', CODE_CK, addCommon())
+      queryInterface.removeConstraint('Clients', CODE_CK, addCommon()),
     ).then(() =>
-      sequelize.query('COMMIT;', raw)
+      sequelize.query('COMMIT;', raw),
     ).catch(() =>
-      sequelize.query('ROLLBACK;', raw)
+      sequelize.query('ROLLBACK;', raw),
     )
-  }
-};
+  },
+}

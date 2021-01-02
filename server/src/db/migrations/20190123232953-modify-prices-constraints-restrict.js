@@ -9,8 +9,6 @@ module.exports = {
 
     return sequelize.transaction(t => {
       const addCommon = (obj = {}) => Object.assign(obj, {
-        // This migration is critical so I want to see every query executed
-        logging: console.log,
         transaction: t,
       })
 

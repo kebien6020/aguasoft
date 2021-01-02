@@ -1,0 +1,15 @@
+FROM node:14-alpine
+
+RUN apk update \
+  && apk add --virtual build-dependencies \
+  build-base \
+  gcc \
+  wget \
+  git \
+  python-dev \
+  python3-dev \
+  sqlite
+
+RUN apk add --no-cache tzdata
+
+ENV TZ=America/Bogota
