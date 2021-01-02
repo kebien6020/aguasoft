@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
 const { fkValidationsDeferred } = require('../migration-utils')
 
-const options = {logging: console.log}
+const options = {}
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -18,11 +18,10 @@ module.exports = {
           type: 'check',
           name: 'Clients_notes_noempty',
           where: {
-            notes: { [ne]: '' }
+            notes: { [ne]: '' },
           },
-          logging: console.log,
-        })
-      )
+        }),
+      ),
     )
   },
 
@@ -31,7 +30,7 @@ module.exports = {
     // Not the end of the word but prefer not to undo this migration, instead
     // restore database from backup if possible
     return fkValidationsDeferred(queryInterface, options, () =>
-      queryInterface.removeColumn('Clients', 'notes', options)
+      queryInterface.removeColumn('Clients', 'notes', options),
     )
-  }
-};
+  },
+}

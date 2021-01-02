@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
 const { fkValidationsDeferred } = require('../migration-utils')
-const options = {logging: console.log}
+const options = {}
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return fkValidationsDeferred(queryInterface, options, () =>
       queryInterface.addColumn('Users', 'deletedAt', {
         type: Sequelize.DATE,
-      }, options)
+      }, options),
     )
   },
 
@@ -17,7 +17,7 @@ module.exports = {
     // Not the end of the world but prefer not to undo this migration, instead
     // restore database from backup if possible
     return fkValidationsDeferred(queryInterface, options, () =>
-      queryInterface.removeColumn('Users', 'deletedAt', options)
+      queryInterface.removeColumn('Users', 'deletedAt', options),
     )
-  }
-};
+  },
+}

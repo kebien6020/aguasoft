@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 const CLIENT_FKEY = 'Sells_clientId_fk'
 const PRODUCT_FKEY = 'Sells_productId_fk'
@@ -12,8 +12,6 @@ module.exports = {
       // for it/them are deleted
       onDelete: 'restrict',
       onUpdate: 'cascade',
-      // This migration is critical so I want to see every query executed
-      logging: console.log,
     }
 
     const clientOptions = Object.assign({}, commonOptions, {
@@ -41,14 +39,14 @@ module.exports = {
     })
 
     const sequelize = queryInterface.sequelize
-    const trans = (t, obj) => Object.assign(obj, {transaction: t})
+    const trans = (t, obj) => Object.assign(obj, { transaction: t })
 
     return sequelize.transaction(t =>
       queryInterface.addConstraint('Sells', ['clientId'], trans(t, clientOptions)).then(() =>
-        queryInterface.addConstraint('Sells', ['productId'], trans(t, productOptions))
+        queryInterface.addConstraint('Sells', ['productId'], trans(t, productOptions)),
       ).then(() =>
-        queryInterface.addConstraint('Sells', ['userId'], trans(t, userOptions))
-      )
+        queryInterface.addConstraint('Sells', ['userId'], trans(t, userOptions)),
+      ),
     )
   },
 
@@ -56,11 +54,11 @@ module.exports = {
     const sequelize = queryInterface.sequelize
 
     return sequelize.transaction(t =>
-      queryInterface.removeConstraint('Sells', PRODUCT_FKEY, {transaction: t}).then(() =>
-        queryInterface.removeConstraint('Sells', CLIENT_FKEY, {transaction: t})
+      queryInterface.removeConstraint('Sells', PRODUCT_FKEY, { transaction: t }).then(() =>
+        queryInterface.removeConstraint('Sells', CLIENT_FKEY, { transaction: t }),
       ).then(() =>
-        queryInterface.removeConstraint('Sells', USER_FKEY, {transaction: t})
-      )
+        queryInterface.removeConstraint('Sells', USER_FKEY, { transaction: t }),
+      ),
     )
-  }
-};
+  },
+}

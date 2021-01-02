@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -10,7 +10,6 @@ module.exports = {
     const sequelize = queryInterface.sequelize
     return sequelize.transaction(t => {
       const opts = (obj = {}) => Object.assign(obj, {
-        logging: console.log,
         transaction: t,
       })
       return queryInterface.addColumn('Spendings', 'id', Sequelize.INTEGER, opts())
@@ -20,12 +19,12 @@ module.exports = {
             autoIncrement: true,
             allowNull: false,
             primaryKey: true,
-          }, opts())
+          }, opts()),
         )
     })
   },
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.removeColumn('Spendings', 'id')
-  }
-};
+  },
+}
