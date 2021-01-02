@@ -5,7 +5,7 @@ orbs:
 jobs:
   test:
     docker:
-      - image: cimg/node:lts
+      - image: cimg/node:13.11
         environment:
           TZ: America/Bogota
     environment:
