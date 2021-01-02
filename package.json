@@ -12,7 +12,7 @@
     "migrate-prod": "sequelize db:migrate --env production",
     "start-server": "node server/dist/index.js",
     "start-server-autoreload": "nodemon server/dist/index.js -w server/dist",
-    "test": "cross-env PORT=3005 jest --runInBand",
+    "test": "cross-env PORT=3005 jest",
     "watch-client-js": "npm run build-client-dev -- -w",
     "watch-server-js": "npm run build-server-js -- -w"
   },

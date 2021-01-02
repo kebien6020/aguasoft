@@ -135,10 +135,10 @@ export async function listBalance(
     const groupedSpendings = await Spendings.findAll({
       attributes: [
         [Sequelize.fn('sum', Sequelize.col('value')), 'valueSum'],
-        [Sequelize.fn('date', Sequelize.col('date')), 'date'],
+        [Sequelize.fn('date', Sequelize.col('date'), 'localtime'), 'date'],
       ],
       where: Sequelize.where(
-        Sequelize.fn('date', Sequelize.col('date')),
+        Sequelize.fn('date', Sequelize.col('date'), 'localtime'),
         {
           [Op.gte]: firstVerification.date,
           ...maxDateWhere,
