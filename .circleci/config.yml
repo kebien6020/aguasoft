@@ -4,10 +4,7 @@ orbs:
   node: circleci/node@4.1.0
 jobs:
   test:
-    docker:
-      - image: cimg/node:13.11
-        environment:
-          TZ: America/Bogota
+    executor: node/default
     environment:
       TZ: America/Bogota
     steps:
