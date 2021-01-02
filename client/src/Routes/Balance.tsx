@@ -333,4 +333,4 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default adminOnly(Balance)
+export default Balance
