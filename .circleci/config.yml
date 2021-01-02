@@ -1,0 +1,20 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.1.0
+jobs:
+  test:
+    executor: node/default
+    environment:
+      TZ: America/Bogota
+    steps:
+      - run:
+          name: Setup timezone
+          command: sudo apt-get update && sudo apt-get install -y tzdata
+      - checkout
+      - node/install-packages
+      - run: npm test
+workflows:
+  node-tests:
+    jobs:
+      - test
