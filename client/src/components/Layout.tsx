@@ -11,7 +11,7 @@ import Drawer from '@material-ui/core/Drawer'
 import Hidden from '@material-ui/core/Hidden'
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
-import ToolBar from '@material-ui/core/ToolBar'
+import Toolbar from '@material-ui/core/Toolbar'
 import Tooltip from '@material-ui/core/Tooltip'
 import * as colors from '@material-ui/core/colors'
 
@@ -280,7 +280,7 @@ export default function Layout(props : Props): JSX.Element {
   return (
     <>
       <AppBar position='fixed' className={classes.appBar}>
-        <ToolBar>
+        <Toolbar>
           <IconButton
             color='inherit'
             onClick={handleDrawerToggle}
@@ -309,7 +309,7 @@ export default function Layout(props : Props): JSX.Element {
               Iniciar Sesion
             </Button>
           }
-        </ToolBar>
+        </Toolbar>
       </AppBar>
       <MainDrawer
         open={drawerOpen}
