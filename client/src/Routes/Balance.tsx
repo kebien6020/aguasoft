@@ -1,3 +1,4 @@
+import { Button, Tooltip } from '@material-ui/core'
 import CardContent from '@material-ui/core/CardContent'
 import * as colors from '@material-ui/core/colors'
 import { makeStyles, styled } from '@material-ui/core/styles'
@@ -6,6 +7,7 @@ import clsx from 'clsx'
 import moment, { Moment } from 'moment'
 import * as React from 'react'
 import { useState } from 'react'
+import { Link, LinkProps } from 'react-router-dom'
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import BorderedCard from '../components/BorderedCard'
 import CardHeader from '../components/CardHeader'
@@ -15,6 +17,7 @@ import LoadingIndicator from '../components/LoadingIndicator'
 import Title from '../components/Title'
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
+import useUser from '../hooks/useUser'
 import { BalanceVerification } from '../models'
 import {
   fetchJsonAuth,
@@ -24,6 +27,7 @@ import {
   Params,
   paramsToString,
 } from '../utils'
+import { MakeOptional } from '../utils/types'
 
 type CardPricesProps = {
   titleOne: React.ReactNode
@@ -288,6 +292,7 @@ const Balance = (): JSX.Element => {
   return (
     <Layout title='Balance General'>
       <Title>Balance General</Title>
+      <AddVerificationButton />
 
       <Typography variant='caption'>Filtrar por Fecha</Typography>
       <DateFilter>
@@ -321,6 +326,7 @@ const Balance = (): JSX.Element => {
     </Layout>
   )
 }
+export default Balance
 
 const DateFilter = styled('div')({
   display: 'flex',
@@ -335,4 +341,44 @@ const ArrowRight = styled(props => <span {...props}>→</span>)(({ theme }) => (
   lineHeight: '48px',
 }))
 
-export default Balance
+const AddVerificationButton = () => {
+  const isAdmin = useUser()?.isAdmin ?? false
+  const explanation = isAdmin
+    ? '' // Empty string tooltips are not displayed
+    : 'Solo usuario administrador puede crear una verificación'
+
+  return (
+    <ButtonWrapper>
+      <Tooltip title={explanation}>
+        {/*
+          This div is required because when the button is disabled it has no
+          pointer events and the tooltip doesn't show up
+         */}
+        <div>
+          <Button
+            variant='outlined'
+            color='primary'
+            disabled={!isAdmin}
+            component={LinkToCreateVerification}
+          >
+            Crear Verificación
+          </Button>
+        </div>
+      </Tooltip>
+    </ButtonWrapper>
+  )
+}
+
+const ButtonWrapper = styled('div')({
+  display: 'flex',
+  flexFlow: 'row',
+  justifyContent: 'center',
+})
+
+const LinkToCreateVerification = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
+  function LinkToCreateVerification(props, ref) {
+    return (
+      <Link to='/balance/verifications/new' ref={ref} {...props} />
+    )
+  }
+)

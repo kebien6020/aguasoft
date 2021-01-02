@@ -10,6 +10,7 @@ import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
 import { useSnackbar } from './components/MySnackbar'
+import { UserProvider } from './hooks/useUser'
 import SnackbarContext from './SnackbarContext'
 import theme from './theme'
 
@@ -88,7 +89,7 @@ const AppSwitch = () => (
   </Switch>
 )
 
-const App = () => {
+const Providers = ({ children }: {children: React.ReactNode}) => {
   const [snackbar, showMessage] = useSnackbar()
 
   return (
@@ -98,15 +99,25 @@ const App = () => {
           <MuiThemeProvider theme={theme}>
             <SnackbarContext.Provider value={showMessage}>
               {snackbar}
-              <CssBaseline />
-              <Suspense fallback={<LoadingScreen text='Cargando página…'/>}>
-                <AppSwitch />
-              </Suspense>
+              <UserProvider>
+                {children}
+              </UserProvider>
             </SnackbarContext.Provider>
           </MuiThemeProvider>
         </BrowserRouter>
       </MuiPickersUtilsProvider>
     </AuthContext.Provider>
+  )
+}
+
+const App = () => {
+  return (
+    <Providers>
+      <CssBaseline />
+      <Suspense fallback={<LoadingScreen text='Cargando página…'/>}>
+        <AppSwitch />
+      </Suspense>
+    </Providers>
   )
 }
 
