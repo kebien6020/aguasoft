@@ -14,7 +14,10 @@ jobs:
       - checkout
       - node/install-packages
       - run:
-          command: npm test
+          command: |
+            echo tz=$TZ
+            date
+            npm test
 workflows:
   node-tests:
     jobs:
