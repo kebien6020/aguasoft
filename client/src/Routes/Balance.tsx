@@ -1,4 +1,4 @@
-import { Button, Tooltip } from '@material-ui/core'
+import { Button, ButtonProps, Collapse, Tooltip } from '@material-ui/core'
 import CardContent from '@material-ui/core/CardContent'
 import * as colors from '@material-ui/core/colors'
 import { makeStyles, styled } from '@material-ui/core/styles'
@@ -7,7 +7,6 @@ import clsx from 'clsx'
 import moment, { Moment } from 'moment'
 import * as React from 'react'
 import { useState } from 'react'
-import { Link, LinkProps } from 'react-router-dom'
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import BorderedCard from '../components/BorderedCard'
 import CardHeader from '../components/CardHeader'
@@ -16,9 +15,11 @@ import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
 import Title from '../components/Title'
 import useAuth from '../hooks/useAuth'
+import { useNonce } from '../hooks/useNonce'
 import useSnackbar from '../hooks/useSnackbar'
+import { useToggle } from '../hooks/useToggle'
 import useUser from '../hooks/useUser'
-import { BalanceVerification } from '../models'
+import { BalanceItem, BalanceVerification } from '../models'
 import {
   fetchJsonAuth,
   isErrorResponse,
@@ -27,7 +28,7 @@ import {
   Params,
   paramsToString,
 } from '../utils'
-import { MakeOptional } from '../utils/types'
+import { CreateVerificationForm } from './balance/components/CreateVerificationForm'
 
 type CardPricesProps = {
   titleOne: React.ReactNode
@@ -212,14 +213,6 @@ const useVerificationCardStyles = makeStyles(theme => ({
   },
 }))
 
-type BalanceItem = {
-  balance: number
-  date: string
-  sales: number
-  spendings: number
-  payments: number
-  verification: BalanceVerification
-}
 type ListBalanceResponse = {
   success: boolean
   data: BalanceItem[]
@@ -229,6 +222,7 @@ const useBalanceData = (params: Params) => {
   const auth = useAuth()
   const showMessage = useSnackbar()
   const [balanceData, setBalanceData] = useState<BalanceItem[]|null>(null)
+  const [nonce, refresh] = useNonce()
   useDeepCompareEffect(() => {
     (async () => {
       const qs = paramsToString(params)
@@ -248,9 +242,9 @@ const useBalanceData = (params: Params) => {
 
       setBalanceData(response.data.reverse())
     })()
-  }, [auth, showMessage, params])
+  }, [auth, showMessage, params, nonce])
 
-  return balanceData
+  return [balanceData, { refresh }] as const
 }
 
 interface BalanceItemCardProps {
@@ -283,16 +277,21 @@ const Balance = (): JSX.Element => {
   )
   const [eDate, setEDate] = useState<Moment|null>(null)
 
-  const balanceData = useBalanceData({
+  const [balanceData, { refresh }] = useBalanceData({
     minDate: bDate?.format('YYYY-MM-DD'),
     maxDate: eDate?.format('YYYY-MM-DD'),
     includes: ['verification.createdBy'],
   })
 
+  const [showForm, { toggle }] = useToggle()
+
   return (
     <Layout title='Balance General'>
       <Title>Balance General</Title>
-      <AddVerificationButton />
+      <AddVerificationButton onClick={toggle} />
+      <Collapse in={showForm}>
+        <CreateVerificationForm onCreated={refresh} />
+      </Collapse>
 
       <Typography variant='caption'>Filtrar por Fecha</Typography>
       <DateFilter>
@@ -341,7 +340,7 @@ const ArrowRight = styled(props => <span {...props}>→</span>)(({ theme }) => (
   lineHeight: '48px',
 }))
 
-const AddVerificationButton = () => {
+const AddVerificationButton = (props: ButtonProps) => {
   const isAdmin = useUser()?.isAdmin ?? false
   const explanation = isAdmin
     ? '' // Empty string tooltips are not displayed
@@ -359,7 +358,7 @@ const AddVerificationButton = () => {
             variant='outlined'
             color='primary'
             disabled={!isAdmin}
-            component={LinkToCreateVerification}
+            {...props}
           >
             Crear Verificación
           </Button>
@@ -374,11 +373,3 @@ const ButtonWrapper = styled('div')({
   flexFlow: 'row',
   justifyContent: 'center',
 })
-
-const LinkToCreateVerification = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
-  function LinkToCreateVerification(props, ref) {
-    return (
-      <Link to='/balance/verifications/new' ref={ref} {...props} />
-    )
-  }
-)

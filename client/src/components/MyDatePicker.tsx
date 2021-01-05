@@ -7,7 +7,7 @@ type DateChangeHandler = (date: moment.Moment) => unknown
 
 export interface MyDatePickerProps {
   label?: React.ReactNode
-  date: moment.Moment | null
+  date: moment.Moment | Date | null
   onDateChange: DateChangeHandler
   DatePickerProps?: Partial<DatePickerProps>
   className?: string

@@ -40,7 +40,7 @@ services:
         ln -s /app/db.sqlite* /db/
       '
   adminer:
-    build: 
+    build:
       context: docker/adminer
       dockerfile: Dockerfile.dev
     volumes:
@@ -51,6 +51,7 @@ services:
       ADMINER_PLUGINS: sqlite-connection-without-credentials
     ports:
       - 8021:8080
+    user: root
   migrate:
     image: node:14-alpine
     working_dir: /app

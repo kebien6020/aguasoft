@@ -1,5 +1,7 @@
+import { subDays } from 'date-fns'
 import { NextFunction, Request, Response } from 'express'
 import * as moment from 'moment'
+import { UniqueConstraintError } from 'sequelize'
 import { Op, Sequelize } from 'sequelize'
 import * as yup from 'yup'
 import models from '../db/models'
@@ -30,18 +32,41 @@ export async function createBalanceVerification(
     const userId = Number(req.session.userId)
 
     const schema = yup.object({
-      date: yup.date().required(),
-      amount: yup.number().required(),
+      date: yup.date().typeError('Fecha de verificación debe ser una fecha válida').required(),
+      amount: yup.number().typeError('Valor debe ser un número').required(),
     })
 
     schema.validateSync(req.body)
     const body = schema.cast(req.body)
 
-    // TODO: Calculate from previous balance vs current amount to verify
-    const adjustAmount = 0
+    const adjustAmount = await (async () => {
+      const firstVerificationEver = await BalanceVerifications.findOne({
+        order: [['date', 'asc']],
+      })
+
+      if (!firstVerificationEver) {
+        // If this is the first verification to be created then the adjust
+        // amount can't be calculated. Default to 0.
+        return 0
+      }
+
+      const prevBalance = await calculateBalanceAt(subDays(body.date, 1))
+      return body.amount - prevBalance
+    })()
     const createdById = userId
 
-    await BalanceVerifications.create({ ...body, adjustAmount, createdById })
+    try {
+      await BalanceVerifications.create({ ...body, adjustAmount, createdById })
+    } catch (err) {
+      if (err instanceof UniqueConstraintError && err.errors.map(e => e.path).includes('date')) {
+        // Better message for unique constraint on date field
+        const friendlyErr = new Error('Ya hay una verificación para esta fecha')
+        friendlyErr.name = 'unique_date'
+        throw friendlyErr
+      }
+
+      throw err
+    }
 
     res.json({ success: true })
   } catch (err) {
@@ -235,6 +260,55 @@ export async function listBalance(
   }
 }
 
+async function calculateBalanceAt(date: Date) {
+  // Most recent verification before date
+  const closestVerification = await BalanceVerifications.findOne({
+    where: {
+      date: {
+        [Op.lte]: date,
+      },
+    },
+    order: [['date', 'desc']],
+  })
+
+  if (!closestVerification) {
+    const msg =
+          'Error lógico: Verificacion mas cercana no encontrada, esto no '
+        + 'debería suceder porque hay una verificación anterior'
+    throw new NoVerifications(msg)
+  }
+
+  const salesSum: number = await Sells.aggregate('value', 'sum', {
+    where: {
+      date: {
+        [Op.gte]: closestVerification.date,
+        [Op.lte]: date,
+      },
+      cash: true,
+      deleted: false,
+    },
+  })
+
+  const spendingsSum: number = await Spendings.aggregate('value', 'sum', {
+    where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date'), 'localtime'), {
+      [Op.gte]: closestVerification.date,
+      [Op.lte]: date,
+    }),
+  })
+
+  const paymentsSum: number = await Payments.aggregate('value', 'sum', {
+    where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date'), 'localtime'), {
+      [Op.gte]: closestVerification.date,
+      [Op.lte]: date,
+    }),
+  })
+
+  const balance =
+      closestVerification.amount + salesSum + paymentsSum - spendingsSum
+
+  return balance
+}
+
 export async function showBalance(
   req: Request,
   res: Response,
@@ -253,50 +327,7 @@ export async function showBalance(
     schema.validateSync(req.params)
     const { date } = schema.cast(req.params)
 
-    // Most recent verification before date
-    const closestVerification = await BalanceVerifications.findOne({
-      where: {
-        date: {
-          [Op.lte]: date,
-        },
-      },
-      order: [['date', 'desc']],
-    })
-
-    if (!closestVerification) {
-      const msg =
-          'Error lógico: Verificacion mas cercana no encontrada, esto no '
-        + 'debería suceder porque hay una verificación anterior'
-      throw new NoVerifications(msg)
-    }
-
-    const salesSum: number = await Sells.aggregate('value', 'sum', {
-      where: {
-        date: {
-          [Op.gte]: closestVerification.date,
-          [Op.lte]: date,
-        },
-        cash: true,
-        deleted: false,
-      },
-    })
-
-    const spendingsSum: number = await Spendings.aggregate('value', 'sum', {
-      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date'), 'localtime'), {
-        [Op.gte]: closestVerification.date,
-        [Op.lte]: date,
-      }),
-    })
-
-    const paymentsSum: number = await Payments.aggregate('value', 'sum', {
-      where: Sequelize.where(Sequelize.fn('date', Sequelize.col('date'), 'localtime'), {
-        [Op.gte]: closestVerification.date,
-        [Op.lte]: date,
-      }),
-    })
-
-    const balance =
-      closestVerification.amount + salesSum + paymentsSum - spendingsSum
+    const balance = await calculateBalanceAt(date)
 
     res.json({ success: true, data: balance })
 

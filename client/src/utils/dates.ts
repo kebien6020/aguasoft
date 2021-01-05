@@ -1,4 +1,5 @@
-import { addDays, isAfter, isBefore, isSameDay, startOfDay } from 'date-fns'
+import { addDays, format, isAfter, isBefore, isSameDay, startOfDay } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 export const isSameDayOrBefore = (a: Date, b: Date): boolean =>
   isSameDay(a, b)
@@ -22,3 +23,12 @@ export const enumerateDaysBetweenDates = (startDate: Date, endDate: Date): Date[
 
   return dates
 }
+
+export const formatDateonlyMachine = (date: Date): string =>
+  format(date, 'yyyy-MM-dd')
+
+export const formatMachine = (date: Date): string =>
+  date.toISOString()
+
+export const formatDateonlyHumanShort = (date: Date): string =>
+  format(date, 'dd/MMM/yy', { locale: es })

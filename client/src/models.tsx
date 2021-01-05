@@ -183,3 +183,12 @@ export interface Sell {
   readonly Product?: Product
   readonly Client?: Client
 }
+
+export type BalanceItem = {
+  readonly balance: number
+  readonly date: string
+  readonly sales: number
+  readonly spendings: number
+  readonly payments: number
+  readonly verification?: BalanceVerification
+}
