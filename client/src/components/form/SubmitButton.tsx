@@ -1,34 +1,38 @@
 import * as React from 'react'
-import { makeStyles } from '@material-ui/core'
+import { CircularProgress, styled } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { useFormikContext } from 'formik'
 
-const SubmitButton = (): JSX.Element => {
-  const classes = useSubmitButtonStyles()
+export type SubmitButtonProps = {children: React.ReactNode}
+const SubmitButton = ({ children }: SubmitButtonProps): JSX.Element => {
   const { isSubmitting } = useFormikContext()
 
   return (
-    <Grid item xs={12}>
-      <Button
-        variant='contained'
-        color='primary'
-        type='submit'
-        className={classes.button}
-        disabled={isSubmitting}
-      >
-        Registrar
-      </Button>
+    <Grid item xs={12} container direction='row' justify='center'>
+      <Wrapper>
+        <Button
+          variant='contained'
+          color='primary'
+          type='submit'
+          disabled={isSubmitting}
+        >
+          {children ?? 'Registrar'}
+        </Button>
+        {isSubmitting && <StyledProgress size={24} />}
+      </Wrapper>
     </Grid>
   )
 }
+export default SubmitButton
 
-const useSubmitButtonStyles = makeStyles({
-  button: {
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  },
+const Wrapper = styled('div')({
+  position: 'relative',
 })
 
-export default SubmitButton
+const StyledProgress = styled(CircularProgress)(({ theme }) => ({
+  color: theme.palette.primary.main,
+  position: 'absolute',
+  top: 'calc(50% - 12px)',
+  left: 'calc(50% - 12px)',
+}))

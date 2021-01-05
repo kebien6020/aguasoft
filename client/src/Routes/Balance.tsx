@@ -1,25 +1,34 @@
-import * as React from 'react'
-import { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import * as colors from '@material-ui/core/colors'
+import { Button, ButtonProps, Collapse, Tooltip } from '@material-ui/core'
 import CardContent from '@material-ui/core/CardContent'
+import * as colors from '@material-ui/core/colors'
+import { makeStyles, styled } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import clsx from 'clsx'
-import { Moment } from 'moment'
-import * as moment from 'moment'
-
+import moment, { Moment } from 'moment'
+import * as React from 'react'
+import { useState } from 'react'
+import useDeepCompareEffect from 'use-deep-compare-effect'
 import BorderedCard from '../components/BorderedCard'
 import CardHeader from '../components/CardHeader'
 import DateControl from '../components/controls/DateControl'
 import Layout from '../components/Layout'
-import Title from '../components/Title'
-import { money, moneySign, fetchJsonAuth, isErrorResponse, paramsToString, Params } from '../utils'
-import useAuth from '../hooks/useAuth'
-import { BalanceVerification } from '../models'
-import useSnackbar from '../hooks/useSnackbar'
 import LoadingIndicator from '../components/LoadingIndicator'
-import useDeepCompareEffect from 'use-deep-compare-effect'
-import adminOnly from '../hoc/adminOnly'
+import Title from '../components/Title'
+import useAuth from '../hooks/useAuth'
+import { useNonce } from '../hooks/useNonce'
+import useSnackbar from '../hooks/useSnackbar'
+import { useToggle } from '../hooks/useToggle'
+import useUser from '../hooks/useUser'
+import { BalanceItem, BalanceVerification } from '../models'
+import {
+  fetchJsonAuth,
+  isErrorResponse,
+  money,
+  moneySign,
+  Params,
+  paramsToString,
+} from '../utils'
+import { CreateVerificationForm } from './balance/components/CreateVerificationForm'
 
 type CardPricesProps = {
   titleOne: React.ReactNode
@@ -204,14 +213,6 @@ const useVerificationCardStyles = makeStyles(theme => ({
   },
 }))
 
-type BalanceItem = {
-  balance: number
-  date: string
-  sales: number
-  spendings: number
-  payments: number
-  verification: BalanceVerification
-}
 type ListBalanceResponse = {
   success: boolean
   data: BalanceItem[]
@@ -221,6 +222,7 @@ const useBalanceData = (params: Params) => {
   const auth = useAuth()
   const showMessage = useSnackbar()
   const [balanceData, setBalanceData] = useState<BalanceItem[]|null>(null)
+  const [nonce, refresh] = useNonce()
   useDeepCompareEffect(() => {
     (async () => {
       const qs = paramsToString(params)
@@ -240,9 +242,9 @@ const useBalanceData = (params: Params) => {
 
       setBalanceData(response.data.reverse())
     })()
-  }, [auth, showMessage, params])
+  }, [auth, showMessage, params, nonce])
 
-  return balanceData
+  return [balanceData, { refresh }] as const
 }
 
 interface BalanceItemCardProps {
@@ -270,24 +272,29 @@ const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
 )
 
 const Balance = (): JSX.Element => {
-  const classes = useStyles()
   const [bDate, setBDate] = useState<Moment|null>(
     () => moment().subtract(1, 'month')
   )
   const [eDate, setEDate] = useState<Moment|null>(null)
 
-  const balanceData = useBalanceData({
+  const [balanceData, { refresh }] = useBalanceData({
     minDate: bDate?.format('YYYY-MM-DD'),
     maxDate: eDate?.format('YYYY-MM-DD'),
     includes: ['verification.createdBy'],
   })
 
+  const [showForm, { toggle }] = useToggle()
+
   return (
     <Layout title='Balance General'>
       <Title>Balance General</Title>
+      <AddVerificationButton onClick={toggle} />
+      <Collapse in={showForm}>
+        <CreateVerificationForm onCreated={refresh} />
+      </Collapse>
 
       <Typography variant='caption'>Filtrar por Fecha</Typography>
-      <div className={classes.dateFilter}>
+      <DateFilter>
         <DateControl
           label='Fecha inicial'
           date={bDate}
@@ -298,7 +305,7 @@ const Balance = (): JSX.Element => {
             clearLabel: 'Borrar',
           }}
         />
-        <span className={classes.to}>→</span>
+        <ArrowRight />
         <DateControl
           label='Fecha final'
           date={eDate}
@@ -309,7 +316,7 @@ const Balance = (): JSX.Element => {
             clearLabel: 'Borrar',
           }}
         />
-      </div>
+      </DateFilter>
 
       {balanceData?.map(item =>
         <BalanceItemCard item={item} key={item.date} />
@@ -318,19 +325,51 @@ const Balance = (): JSX.Element => {
     </Layout>
   )
 }
+export default Balance
 
-const useStyles = makeStyles(theme => ({
-  dateFilter: {
-    display: 'flex',
-    flexFlow: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  to: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    lineHeight: '48px',
-  },
+const DateFilter = styled('div')({
+  display: 'flex',
+  flexFlow: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+})
+
+const ArrowRight = styled(props => <span {...props}>→</span>)(({ theme }) => ({
+  marginLeft: theme.spacing(1),
+  marginRight: theme.spacing(1),
+  lineHeight: '48px',
 }))
 
-export default adminOnly(Balance)
+const AddVerificationButton = (props: ButtonProps) => {
+  const isAdmin = useUser()?.isAdmin ?? false
+  const explanation = isAdmin
+    ? '' // Empty string tooltips are not displayed
+    : 'Solo usuario administrador puede crear una verificación'
+
+  return (
+    <ButtonWrapper>
+      <Tooltip title={explanation}>
+        {/*
+          This div is required because when the button is disabled it has no
+          pointer events and the tooltip doesn't show up
+         */}
+        <div>
+          <Button
+            variant='outlined'
+            color='primary'
+            disabled={!isAdmin}
+            {...props}
+          >
+            Crear Verificación
+          </Button>
+        </div>
+      </Tooltip>
+    </ButtonWrapper>
+  )
+}
+
+const ButtonWrapper = styled('div')({
+  display: 'flex',
+  flexFlow: 'row',
+  justifyContent: 'center',
+})

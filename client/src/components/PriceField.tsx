@@ -35,14 +35,14 @@ function NumberFormatCustom(props: NumFormatProps) {
   )
 }
 
-interface Props {
+export interface PriceFieldProps {
   label?: React.ReactNode
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  value?: Array<string | number | boolean> | string | number | boolean
+  value?: React.TextareaHTMLAttributes<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>['value']
   TextFieldProps?: TextFieldProps
 }
 
-const PriceField = (props: Props): JSX.Element => (
+const PriceField = (props: PriceFieldProps): JSX.Element => (
   <TextField
     label={props.label}
     margin='normal'

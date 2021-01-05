@@ -13,6 +13,7 @@ import Grid from '@material-ui/core/Grid'
 
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import Auth from '../Auth'
+import { withUser, WithUserProps } from '../hooks/useUser'
 
 interface User {
   id: number
@@ -30,7 +31,7 @@ export interface LoginProps {
   buttonColor?: string
 }
 
-type LoginPropsAll = LoginProps & PropClasses
+type LoginPropsAll = LoginProps & PropClasses & WithUserProps
 
 interface LoginState {
   userId: number | null
@@ -98,6 +99,9 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     }
 
     this.setState({ errorLogin: !check.result })
+
+    // Reload the user that propagates through context
+    this.props.user?.refresh()
 
     if (check.result) {
       if (props.onSuccess) props.onSuccess()
@@ -199,4 +203,4 @@ const styles: StyleRulesCallback<Theme, LoginProps> = _theme => ({
   },
 })
 
-export default withStyles(styles)(Login)
+export default withUser(withStyles(styles)(Login))
