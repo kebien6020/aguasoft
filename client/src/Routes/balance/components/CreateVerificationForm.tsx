@@ -1,5 +1,5 @@
 import { Grid, styled } from '@material-ui/core'
-import { subDays } from 'date-fns'
+import { addDays, startOfDay, subDays } from 'date-fns'
 import { useFormikContext } from 'formik'
 import React from 'react'
 import { DateField } from '../../../components/form/DateField'
@@ -84,6 +84,7 @@ const CreateVerificationFormImpl = () => {
   const adjust = prevBalance !== null && !isNaN(numVal) && value !== ''
     ? numVal - prevBalance
     : undefined
+  const tomorrow = startOfDay(addDays(new Date, 1))
 
   return (<>
     <Grid item>
@@ -92,6 +93,8 @@ const CreateVerificationFormImpl = () => {
         label='Fecha de la Verificación'
         DatePickerProps={{
           helperText: 'Toma efecto al inicio del día',
+          maxDate: tomorrow,
+          disableFuture: false,
         }}
       />
     </Grid>
