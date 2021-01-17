@@ -29,7 +29,7 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
   const classes = useStyles()
 
   // Create manual movement
-  const { isAdmin } = useUser()
+  const { isAdmin } = useUser() ?? {}
   const [showManualMovementForm, setShowManualMovementForm] = useState(false)
   const manualMovementButton =
     isAdmin && (
@@ -106,3 +106,4 @@ const useStyles = makeStyles(() => ({
 }))
 
 export default CurrentInventoryState
+

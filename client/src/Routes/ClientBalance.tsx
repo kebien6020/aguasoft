@@ -6,7 +6,6 @@ import Typography from '@material-ui/core/Typography'
 import * as colors from '@material-ui/core/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
-import adminOnly from '../hoc/adminOnly'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
 import { Client } from '../models'
@@ -68,7 +67,7 @@ class ClientBalance extends React.Component<Props, State> {
         date: moment(change.date).startOf('day'),
         total: change.value,
         changes: [change],
-        type: change.type
+        type: change.type,
       })
     }
 
@@ -85,19 +84,19 @@ class ClientBalance extends React.Component<Props, State> {
       // New group when:
       const newGroup =
         // no previous
-        prev === undefined ||
+        prev === undefined
         // do not mix types
-        prev.type !== change.type ||
+        || prev.type !== change.type
         // do not combine payments
-        prev.type === 'payment' ||
+        || prev.type === 'payment'
         // only combine from same day
-        !prev.date.isSame(change.date, 'day')
+        || !prev.date.isSame(change.date, 'day')
 
-      if (newGroup) {
+      if (newGroup)
         pushNewGroup(change, groups)
-      } else {
+      else
         addToLastGroup(change, prev)
-      }
+
     }
 
     for (let i = 0; i < groups.length; ++i) {
@@ -125,7 +124,7 @@ class ClientBalance extends React.Component<Props, State> {
 
     if (!isErrorResponse(response)) {
       const changeGroups = this.groupChanges(response.changes)
-      this.setState({changeGroups})
+      this.setState({ changeGroups })
     } else {
       console.error(response.error)
     }
@@ -135,7 +134,7 @@ class ClientBalance extends React.Component<Props, State> {
 
     if (!isErrorResponse(clResponse)) {
       const client = clResponse
-      this.setState({client})
+      this.setState({ client })
     } else {
       console.error(clResponse.error)
     }
@@ -146,7 +145,7 @@ class ClientBalance extends React.Component<Props, State> {
     return (
       <Card className={classes.card} key={key}>
         <div className={classes.cardDate}>
-          <Typography>{ch.date.format("DD/MMM/YY")}</Typography>
+          <Typography>{ch.date.format('DD/MMM/YY')}</Typography>
         </div>
         <div className={classes.cardType}>
           <Typography className={ch.type === 'sell' ? classes.sell : classes.payment}>
@@ -155,9 +154,9 @@ class ClientBalance extends React.Component<Props, State> {
         </div>
         <div className={classes.cardValue}>
           <Typography>
-            {ch.type === 'sell' ?
-              'Ventas del día:' :
-              'Valor pagado: '
+            {ch.type === 'sell'
+              ? 'Ventas del día:'
+              : 'Valor pagado: '
             }
             {money(ch.total)}
           </Typography>
@@ -175,13 +174,13 @@ class ClientBalance extends React.Component<Props, State> {
     const { props, state } = this
     const { classes } = props
 
-    if (state.changeGroups === null) {
+    if (state.changeGroups === null)
       return <LoadingScreen text='Cargando balance...' />
-    }
 
-    if (state.client === null) {
+
+    if (state.client === null)
       return <LoadingScreen text='Cargando cliente...' />
-    }
+
 
     return (
       <Layout title={'Balance Cliente: ' + state.client.name}>
@@ -237,7 +236,4 @@ const styles : StyleRulesCallback<Theme, Props> = theme => ({
   },
 })
 
-export default
-  adminOnly(
-  withStyles(styles)(
-    ClientBalance))
+export default withStyles(styles)(ClientBalance)
