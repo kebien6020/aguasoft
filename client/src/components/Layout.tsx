@@ -121,7 +121,7 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         text='Tablero'
         to='/dashboard'
         icon={<DashboardIcon />}
-        color={colors.orange[500]}
+        color={colors.blue.A700}
         fullWidth={open}
       />
       <DrawerItem

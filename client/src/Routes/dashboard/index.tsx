@@ -3,7 +3,6 @@ import { endOfDay, startOfDay } from 'date-fns'
 import * as React from 'react'
 import { useState } from 'react'
 import Layout from '../../components/Layout'
-import adminOnly from '../../hoc/adminOnly'
 import { DateFilter, GroupByOption, initialGroupBy } from './components/DateFilter'
 import { DayMoneyWidget } from './components/DayMoneyWidget'
 import { SalesWidget } from './components/SalesWidget'
@@ -46,7 +45,7 @@ const Dashboard = (): JSX.Element => {
   )
 }
 
-export default adminOnly(Dashboard)
+export default Dashboard
 
 const DashboardLayout = styled(props => <Layout title='Tablero' {...props} />)(({ theme }) => ({
   paddingTop: theme.spacing(4),
