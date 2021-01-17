@@ -16,7 +16,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import { StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
+import { createStyles, StyleRulesCallback, Theme, WithStyles, withStyles } from '@material-ui/core/styles'
 import { AttachMoney as MoneyIcon } from '@material-ui/icons'
 import NoteIcon from '@material-ui/icons/Chat'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -27,17 +27,15 @@ import TableIcon from '@material-ui/icons/TableChart'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import * as React from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Alert from '../components/Alert'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
 import ResponsiveContainer from '../components/ResponsiveContainer'
-import adminOnly from '../hoc/adminOnly'
 import { Client } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
-
-
+import { withUser, WithUserProps } from '../hooks/useUser'
 
 interface ClientWithNotes extends Client {
   notes: string
@@ -101,7 +99,7 @@ interface ClientDialogProps {
   onClientShowBalance: (cl: ClientWithNotes) => unknown
 }
 
-type ClientDialogAllProps = ClientDialogProps & PropClasses
+type ClientDialogAllProps = ClientDialogProps & PropClasses & WithUserProps
 
 const ClientDialogRaw = (props: ClientDialogAllProps) => (
   <Dialog open={props.open} onClose={props.onClose} fullWidth>
@@ -109,12 +107,12 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
       {props.client.name}
     </DialogTitle>
     <List>
-      <ListItem button onClick={() => props.onClientEdit(props.client)}>
+      {props.user?.isAdmin && <ListItem button onClick={() => props.onClientEdit(props.client)}>
         <ListItemIcon>
           <EditIcon className={props.classes.mainIcon} />
         </ListItemIcon>
         <ListItemText primary='Editar' />
-      </ListItem>
+      </ListItem>}
       <ListItem button onClick={() => props.onClientShowBalance(props.client)}>
         <ListItemIcon>
           <MoneyIcon className={props.classes.balanceIcon} />
@@ -131,7 +129,7 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
         </ListItemIcon>
         <ListItemText primary='Facturación' />
       </ListItem>
-      {props.client.notes
+      {props.user?.isAdmin && props.client.notes
         && <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
           <ListItemIcon>
             <NoteIcon />
@@ -139,7 +137,7 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
           <ListItemText primary='Ver info. de contacto' />
         </ListItem>
       }
-      <ListItem button onClick={() => props.client.hidden
+      {props.user?.isAdmin && <ListItem button onClick={() => props.client.hidden
         ? props.onClientUnhide(props.client)
         : props.onClientHide(props.client)
       }>
@@ -155,13 +153,13 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
             : 'Ocultar'
           }
         />
-      </ListItem>
-      <ListItem button onClick={() => props.onClientDelete(props.client)}>
+      </ListItem>}
+      {props.user?.isAdmin && <ListItem button onClick={() => props.onClientDelete(props.client)}>
         <ListItemIcon>
           <DeleteIcon className={props.classes.deleteIcon} />
         </ListItemIcon>
         <ListItemText primary='Eliminar' />
-      </ListItem>
+      </ListItem>}
     </List>
   </Dialog>
 )
@@ -181,9 +179,9 @@ const clientDialogStyles : StyleRulesCallback<Theme, ClientDialogProps> = theme 
   },
 })
 
-const ClientDialog = withStyles(clientDialogStyles)(ClientDialogRaw)
+const ClientDialog = withUser(withStyles(clientDialogStyles)(ClientDialogRaw))
 
-type Props = AuthRouteComponentProps<Record<string, unknown>> & PropClasses
+type Props = AuthRouteComponentProps<Record<string, unknown>> & WithStyles<typeof styles>
 
 interface State {
   clientsError: boolean
@@ -191,8 +189,6 @@ interface State {
   clientDialogOpen: boolean
   selectedClient: ClientWithNotes | null
   clientDeleteDialogOpen: boolean
-  redirectToEdit: boolean
-  redirectToBalance: boolean
   deletedClient: string | null // Client name if not null
   errorDeleting: boolean
   menuAnchor: HTMLElement | null
@@ -209,8 +205,6 @@ class ClientList extends React.Component<Props, State> {
       clientDialogOpen: false,
       selectedClient: null,
       clientDeleteDialogOpen: false,
-      redirectToEdit: false,
-      redirectToBalance: false,
       deletedClient: null,
       errorDeleting: false,
       menuAnchor: null,
@@ -300,9 +294,10 @@ class ClientList extends React.Component<Props, State> {
   }
 
   handleClientEdit = () => {
-    if (!this.state.selectedClient) return
+    const { selectedClient } = this.state
+    if (!selectedClient) return
 
-    this.setState({ redirectToEdit: true })
+    this.props.history.push(`/clients/${selectedClient.id}`)
   }
 
   handleClientHide = async () => {
@@ -375,27 +370,18 @@ class ClientList extends React.Component<Props, State> {
   handleNotesDialogClose = () => this.setState({ notesDialogOpen: false })
 
   handleClientShowBalance = () => {
-    if (!this.state.selectedClient) return
+    const { selectedClient } = this.state
+    if (!selectedClient) return
 
-    this.setState({ redirectToBalance: true })
+    this.props.history.push(`/clients/${selectedClient.id}/balance`)
   }
 
-  // eslint-disable-next-line complexity
   render() {
     const { props, state } = this
     const { classes } = props
 
     if (state.clients === null)
       return <LoadingScreen text='Cargando clientes…' />
-
-
-    if (state.redirectToEdit && state.selectedClient)
-      return <Redirect push to={`/clients/${state.selectedClient.id}`} />
-
-
-    if (state.redirectToBalance && state.selectedClient)
-      return <Redirect push to={`/clients/${state.selectedClient.id}/balance`} />
-
 
     const clients = state.showHidden
       ? state.clients
@@ -502,7 +488,7 @@ class ClientList extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback<Theme, Props> = _theme => ({
+const styles = createStyles({
   appbar: {
     flexGrow: 1,
   },
@@ -514,6 +500,8 @@ const styles : StyleRulesCallback<Theme, Props> = _theme => ({
     textAlign: 'center',
   },
 })
+
+export default withStyles(styles)(ClientList)
 
 interface AppBarExtraProps {
   showHidden: boolean
@@ -562,7 +550,3 @@ const AppBarExtra = ({ showHidden, onToggleHidden }: AppBarExtraProps) => {
   </>)
 }
 
-export default
-adminOnly(
-  withStyles(styles)(
-    ClientList))

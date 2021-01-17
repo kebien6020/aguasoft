@@ -171,7 +171,7 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         text='Clientes'
         to='/clients'
         icon={<PersonIcon />}
-        color={colors.orange[500]}
+        color={colors.blue.A700}
         fullWidth={open}
       />
     </>
@@ -261,7 +261,7 @@ export default function Layout(props : Props): JSX.Element {
   }, [])
 
   // User session
-  const { user } = useUser()
+  const { user } = useUser() ?? { user: null }
 
   const { pathname: currentPath } = useLocation()
 
