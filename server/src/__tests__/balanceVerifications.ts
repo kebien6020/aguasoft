@@ -97,7 +97,7 @@ describe('Routes', () => {
   const setup = async () => {
 
     const agent = request.agent(app)
-    const user = await createUser()
+    const user = await createUser({ role: 'admin' })
     await login(agent, user)
 
     return { user, agent } as const
