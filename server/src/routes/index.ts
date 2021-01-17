@@ -27,7 +27,7 @@ clients.get('/:id', clientHandlers.detail)
 clients.delete('/:id', adminOnly, clientHandlers.remove)
 clients.post('/:id/hide', adminOnly, clientHandlers.hide)
 clients.post('/:id/unhide', adminOnly, clientHandlers.unhide)
-clients.get('/:id/balance', adminOnly, clientHandlers.balance)
+clients.get('/:id/balance', clientHandlers.balance)
 
 export const products = Router()
 products.get('/', productHandlers.list)
