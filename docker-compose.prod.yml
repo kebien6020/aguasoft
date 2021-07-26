@@ -12,32 +12,32 @@ services:
     build:
       context: docker/nginx
       dockerfile: Dockerfile
-    image: kevinpena/dockerfile
+    image: kevinpena/nginx
     networks:
       - main
     ports:
       - 80:80
     volumes:
-      - nginx-etc:/etc/nginx
       - certbot-etc:/etc/letsencrypt
   certbot:
-    image: kevinpena/certbot
+    image: kevinpena/certbot-dns-digitalocean
     build:
       context: docker/certbot
       dockerfile: Dockerfile
-    networks:
-      - main
     volumes:
-      - nginx-etc:/etc/nginx
       - certbot-var-lib:/var/lib/letsencrypt
       - certbot-etc:/etc/letsencrypt
-    command: run --test-cert -n --nginx -d agua.kevinpena.com --agree-tos --email kevin.pena.prog@gmail.com
+    secrets:
+      - digitalocean_credentials
 
 networks:
   main:
 
 volumes:
   db:
-  nginx-etc:
   certbot-var-lib:
   certbot-etc:
+
+secrets:
+  digitalocean_credentials:
+    external: true

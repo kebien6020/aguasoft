@@ -1,11 +1,12 @@
 #!/bin/sh
 
 register() {
-  certbot run --test-cert -n \
+  certbot certonly --test-cert -n \
     --agree-tos \
-    -d agua.kevinpena.com \
     --email kevin.pena.prog@gmail.com \
-    --nginx
+    --dns-digitalocean \
+    --dns-digitalocean-credentials /run/secrets/digitalocean_credentials \
+    -d agua.kevinpena.com
 }
 
 register_if_required() {
