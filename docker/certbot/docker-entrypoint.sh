@@ -1,7 +1,7 @@
 #!/bin/sh
 
 register() {
-  certbot certonly --test-cert -n \
+  certbot certonly -n \
     --agree-tos \
     --email kevin.pena.prog@gmail.com \
     --dns-digitalocean \
