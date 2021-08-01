@@ -11,16 +11,16 @@ services:
       - db-vol:/db
     command: npm run start-server-autoreload
     ports:
-      - 8020:3000
+      - 3000:3000
   server-watch:
-    image: node:14-alpine
+    image: node:16-alpine
     working_dir: /app
     volumes:
       - .:/app
       - db-vol:/db
     command: npm run watch-server-js
   client-watch:
-    image: node:14-alpine
+    image: node:16-alpine
     working_dir: /app
     volumes:
       - .:/app
@@ -53,7 +53,7 @@ services:
       - 8021:8080
     user: root
   migrate:
-    image: node:14-alpine
+    image: node:16-alpine
     working_dir: /app
     volumes:
       - .:/app
@@ -66,4 +66,3 @@ services:
       '
 volumes:
   db-vol:
-

@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:16-alpine
 
 RUN apk update \
   && apk add --virtual build-dependencies \
@@ -6,7 +6,7 @@ RUN apk update \
   gcc \
   wget \
   git \
-  python-dev \
+  python2-dev \
   python3-dev \
   sqlite
 
