@@ -1,4 +1,5 @@
 #!/bin/sh
+set -x
 
 register() {
   certbot certonly -n \
@@ -10,7 +11,9 @@ register() {
 }
 
 register_if_required() {
-  [ ! -d /etc/letsencrypt/live ] && register
+  if [ ! -d /etc/letsencrypt/live ]; then
+    register
+  fi
 }
 
 register_if_required && crond -f
