@@ -25,7 +25,8 @@ COPY --from=builder /build/server/dist server/dist
 
 VOLUME ["/db"]
 EXPOSE 3000
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    TZ=America/Bogota
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["node", "server/dist/index.js"]
