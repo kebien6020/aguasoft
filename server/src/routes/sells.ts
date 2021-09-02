@@ -125,6 +125,7 @@ const productMovementDetails = {
   '008': [{ elementCode: 'botella-600ml' }],
   '009': [{ elementCode: 'bolsa-360-congelada' }],
   '010': [{ elementCode: 'bomba-electrica-botellon', storageCode: 'bodega' }],
+  '011': [], // No inventory control for barra-hielo
 } as const
 
 type ProductCode = keyof typeof productMovementDetails
