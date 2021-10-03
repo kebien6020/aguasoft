@@ -3,7 +3,7 @@ version: '3.8'
 services:
   aguasoft:
     build: .
-    image: kevinpena/aguasoft
+    image: kevinpena/aguasoft:20211002-01
     networks:
       - main
     volumes:
@@ -12,7 +12,7 @@ services:
     build:
       context: docker/nginx
       dockerfile: Dockerfile
-    image: kevinpena/nginx
+    image: kevinpena/nginx:20211002-01
     networks:
       - main
     ports:
@@ -21,7 +21,7 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
   certbot:
-    image: kevinpena/certbot-dns-digitalocean
+    image: kevinpena/certbot-dns-digitalocean:20211002-01
     build:
       context: docker/certbot
       dockerfile: Dockerfile
