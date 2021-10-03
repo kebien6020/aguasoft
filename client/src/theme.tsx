@@ -15,6 +15,9 @@ export default createMuiTheme({
       dark: '#005005',
       contrastText: '#fff',
     },
+    text: {
+      secondary: 'rgba(0,0,0,0.65)',
+    },
   },
   typography: {
     htmlFontSize: 10, // This makes the font really big

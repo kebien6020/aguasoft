@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { withStyles, Theme, StyleRulesCallback, styled } from '@material-ui/core/styles'
+import { Map as ImMap, List as ImList } from 'immutable'
 
 import Button from '@material-ui/core/Button'
 import FormControl from '@material-ui/core/FormControl'
@@ -16,13 +17,14 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
 import Checkbox from '@material-ui/core/Checkbox'
-import Typography from '@material-ui/core/Typography'
+import Typography, { TypographyProps } from '@material-ui/core/Typography'
 import AddIcon from '@material-ui/icons/Add'
 import RemoveIcon from '@material-ui/icons/Remove'
 
 import useSnackbar from '../hooks/useSnackbar'
 import Layout from '../components/Layout'
 import { fetchJsonAuth, money, isErrorResponse, NotEnoughInSourceError } from '../utils'
+import { MakeRequired } from '../utils/types'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import { Client } from '../models'
 
@@ -42,34 +44,6 @@ const styles: StyleRulesCallback<Theme, RegisterSaleProps> = theme => ({
     },
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-  },
-  qtyCell: {
-    textAlign: 'center',
-    [theme.breakpoints.down('md')]: {
-      '& button': {
-        minWidth: '24px',
-      },
-      '& span': {
-        width: undefined,
-      },
-    },
-  },
-  numericInput: {
-    width: theme.spacing(6),
-    marginRight: theme.spacing(1),
-    [theme.breakpoints.down('md')]: {
-      width: theme.spacing(3),
-      marginRight: 0,
-      fontSize: '1em',
-    },
-    '& input': {
-      textAlign: 'center',
-      '-moz-appearance': 'textfield',
-      '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-        '-webkit-appearance': 'none',
-        margin: 0,
-      },
-    },
   },
   credit: {
     textAlign: 'center',
@@ -110,27 +84,45 @@ const handleNumericFocus = (event: React.FocusEvent<HTMLInputElement>) => {
   inputElement.select()
 }
 
-interface NumericPickerProps extends PropClasses {
+interface NumericPickerProps {
   value: number
   onChange: (val: number) => unknown
 }
 const NumericPicker = (props: NumericPickerProps) => (
-  <React.Fragment>
-    <Input
+  <NoWrap>
+    <NumericInput
       type='number'
       value={props.value}
-      className={props.classes.numericInput}
       onFocus={handleNumericFocus}
       onChange={(event) => props.onChange(Number(event.target.value) || 0)}
     />
     <PlusButton onClick={() => props.onChange(props.value + 1)} />
     <MinusButton onClick={() => props.onChange(props.value - 1)}/>
-  </React.Fragment>
+  </NoWrap>
 )
 
-interface RegisterSaleProps extends PropClasses, AuthRouteComponentProps<unknown>, WithSnackbarProps {
+const NoWrap = styled('div')({
+  display: 'flex',
+  flexFlow: 'row nowrap',
+})
 
-}
+const NumericInput = styled(Input)(({ theme }) => ({
+  width: theme.spacing(6),
+  marginRight: theme.spacing(1),
+  [theme.breakpoints.down('md')]: {
+    width: theme.spacing(3),
+    marginRight: 0,
+    fontSize: '1em',
+  },
+  '& input': {
+    textAlign: 'center',
+    '-moz-appearance': 'textfield',
+    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+  },
+}))
 
 interface User {
   id: number
@@ -139,8 +131,23 @@ interface User {
 }
 
 interface SimplePrice {
+  id: number
   value: number
   name: string
+}
+
+interface ProductVariant {
+  readonly id: number
+  readonly productId: number
+  readonly code: string
+  readonly name: string
+  readonly basePrice: string | null
+  readonly createdAt: Date
+  readonly updatedAt: Date
+  readonly deletedAt: Date | null
+
+  // Possible inclussions
+  readonly Product?: Product
 }
 
 interface Product {
@@ -148,13 +155,11 @@ interface Product {
   code: string
   name: string
   basePrice: string
+
+  Variants?: ProductVariant[]
 }
 
-interface DetailedProduct extends Product {
-  qty: number
-  prices: SimplePrice[]
-  selectedPrice: SimplePrice
-}
+type SaleProduct = MakeRequired<Product, 'Variants'>
 
 interface Price {
   id: number
@@ -162,15 +167,6 @@ interface Price {
   productId: number
   value: number
   name: string
-}
-
-interface RegisterSaleState {
-  clientId: number | null
-  clients: Client[] | null
-  user: User | null
-  products: DetailedProduct[] | null
-  disableButton: boolean
-  cash: boolean
 }
 
 type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
@@ -197,6 +193,143 @@ function withSnackbar<T>(
   return Wrapped
 }
 
+interface SaleLineProps {
+  product: SaleProduct
+  variant: ProductVariant | undefined
+  productQty: number
+  selectedPrice: SimplePrice | undefined
+  productPrices: SimplePrice[] | undefined
+  onProductQtyChange: (id: number, variantId: number | undefined, qty: number) => unknown
+  onPriceChange: (id: number, variantId: number | undefined, price: SimplePrice) => unknown
+}
+
+const SaleLine = (props: SaleLineProps) => {
+  const {
+    product,
+    variant,
+    productQty,
+    productPrices,
+    selectedPrice,
+    onProductQtyChange,
+    onPriceChange,
+  } = props
+
+  const handlePriceChange = (event: InputEvent) => {
+    const priceId = Number(event.target.value)
+    const price = productPrices?.find(p => p.id === priceId)
+    if (!price) {
+      console.warn(
+        `Price id ${priceId} not found in list of prices`,
+        productPrices
+      )
+      return
+    }
+    onPriceChange(
+      product.id,
+      variant?.id,
+      price,
+    )
+  }
+
+  return (
+    <TableRow>
+      <TableCell>{product.code}</TableCell>
+      <TableCell>
+        <div>{product.name}</div>
+        {variant && <VariantName>{variant.name}</VariantName>}
+      </TableCell>
+      <QtyCell>
+        <NumericPicker
+          value={productQty}
+          onChange={qty => onProductQtyChange(product.id, variant?.id, qty)}
+        />
+      </QtyCell>
+      <TableCell align='right'>
+        <Select
+          id={`price-product-${product.id}`}
+          fullWidth
+          value={selectedPrice?.id ?? DEFAULT_PRICE_ID}
+          onChange={handlePriceChange}
+        >
+          {productPrices?.map((price, key) =>
+            <MenuItem key={key} value={price.id}>
+              {price.name} | {money(price.value, 2)}
+            </MenuItem>
+          ) ?? <MenuItem value='none'>Cargando…</MenuItem>}
+        </Select>
+      </TableCell>
+      <TableCell align='right'>
+        {selectedPrice !== undefined
+          ? money(selectedPrice.value * productQty)
+          : 'Cargando…'
+        }
+      </TableCell>
+    </TableRow>
+  )
+}
+
+const VariantName = (props: TypographyProps) =>
+  <Typography variant='caption' color='textSecondary' {...props} />
+
+const QtyCell = styled(TableCell)(({ theme }) => ({
+  textAlign: 'center',
+  [theme.breakpoints.down('md')]: {
+    '& button': {
+      minWidth: '24px',
+    },
+    '& span': {
+      width: undefined,
+    },
+  },
+}))
+
+interface TotalsRowProps {
+  lineStates: SaleLineState[]
+}
+
+const TotalsRow = ({ lineStates } : TotalsRowProps) => {
+  const total = lineStates.reduce((acc, l) => {
+    const qty = l.productQty
+    const price = l.selectedPrice.value
+    return acc + qty * price
+  }, 0)
+
+  return (
+    <TableRow>
+      <TableCell colSpan={3}></TableCell>
+      <TableCell>Total</TableCell>
+      <TableCell>
+        {money(total)}
+      </TableCell>
+    </TableRow>
+  )
+}
+
+type SaleLineKey = ImList<number|undefined> // actual wanted type: [number, number|undefined]
+
+interface SaleLineState {
+  productQty: number
+  selectedPrice: SimplePrice
+}
+
+const DEFAULT_PRICE_ID = -1
+
+type RegisterSaleProps =
+  PropClasses &
+  AuthRouteComponentProps<unknown> &
+  WithSnackbarProps
+
+interface RegisterSaleState {
+  clientId: number | null
+  clients: Client[] | null
+  user: User | null
+  products: SaleProduct[] | null
+  customPrices: Price[] | undefined
+  disableButton: boolean
+  cash: boolean
+  tableState: ImMap<SaleLineKey, SaleLineState>
+}
+
 class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState> {
 
   constructor(props: RegisterSaleProps) {
@@ -207,16 +340,48 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       clients: null,
       user: null,
       products: null,
+      customPrices: undefined,
+      tableState: ImMap<SaleLineKey, SaleLineState>(),
       disableButton: false,
       cash: false,
     }
   }
 
-  getCustomPrices(id: number, customPrices: Price[]) {
-    const prices = customPrices.filter((cp) => cp.productId === id)
+  getCustomPrices(productId: number, customPrices: Price[]) {
+    const prices = customPrices.filter((cp) => cp.productId === productId)
     if (prices.length > 0)
       return prices
     return undefined
+  }
+
+  productById(productId: number): Product|undefined {
+    return this.state.products?.find(p => p.id === productId)
+  }
+
+  pricesForProduct(productId: number, variantId: number|undefined): SimplePrice[] {
+    const customPrices = this.getCustomPrices(productId, this.state.customPrices ?? [])
+    const getDefaultPrices = () => {
+      const product = this.productById(productId)
+      if (!product) {
+        console.error(`Product with id ${productId} not found in the list`)
+        return []
+      }
+
+      const variant = product.Variants?.find(v => v.id === variantId)
+      const value = variant && variant.basePrice
+        ? Number(variant.basePrice)
+        : Number(product.basePrice)
+
+      return [
+        {
+          id: DEFAULT_PRICE_ID,
+          value,
+          name: 'Base',
+        },
+      ]
+    }
+
+    return customPrices ?? getDefaultPrices()
   }
 
   async componentDidMount() {
@@ -236,24 +401,40 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       return
     }
 
-    const products = await fetchJsonAuth<Product[]>('/api/products', auth)
+    const products = await fetchJsonAuth<SaleProduct[]>('/api/products?include[]=Variants', auth)
     if (isErrorResponse(products)) {
       console.error(products)
       return
     }
-    const detailedProducts: DetailedProduct[] = products.map(p => {
-      const prices =
-           this.getCustomPrices(p.id, customPrices)
-        || [{ value: Number(p.basePrice), name: 'Base' }]
-      
-      return {
-        ...p,
-        qty: 0,
-        prices,
-        selectedPrice: prices[0],
+
+    this.setState({ products, customPrices })
+
+    const tableState = products.reduce((tab, prod) => {
+      if (prod.Variants.length === 0) {
+        const key = ImList([prod.id, undefined])
+        const productPrices = this.pricesForProduct(prod.id, undefined)
+        const val = {
+          productQty: 0,
+          selectedPrice: productPrices?.[0],
+        }
+
+        return tab.set(key, val)
       }
-    })
-    this.setState({ products: detailedProducts })
+
+      const newTab = prod.Variants.reduce((tab, variant) => {
+        const key = ImList([prod.id, variant.id])
+        const selectedPrice = this.pricesForProduct(prod.id, variant.id)
+        const val = {
+          productQty: 0,
+          selectedPrice: selectedPrice?.[0],
+        }
+        return tab.set(key, val)
+      }, tab)
+
+      return newTab
+    }, ImMap<SaleLineKey, SaleLineState>())
+
+    this.setState({ tableState })
 
     const user = await fetchJsonAuth<User>('/api/users/getCurrent', auth)
     if (isErrorResponse(user)) {
@@ -261,10 +442,8 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       return
     }
 
-    if (user) 
+    if (user)
       this.setState({ user })
-    
-
   }
 
   submit = async () => {
@@ -275,13 +454,14 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
 
     if (!state.products) return
 
-    const sells = state.products.map(product => ({
+    const sells = [...state.tableState.entries()].map(([key, saleLine]) => ({
       date,
       clientId: state.clientId,
-      productId: product.id,
-      quantity: product.qty,
-      value: Math.round(product.selectedPrice.value * product.qty),
-      priceOverride: product.selectedPrice.value,
+      productId: key.get(0),
+      variantId: key.get(1),
+      quantity: saleLine.productQty,
+      value: Math.round(saleLine.selectedPrice.value * saleLine.productQty),
+      priceOverride: saleLine.selectedPrice.value,
       cash: state.cash,
     })).filter(sell => sell.quantity !== 0)
 
@@ -337,7 +517,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     }
 
     const currentProducts = this.state.products
-    const updatedProducts: DetailedProduct[] = currentProducts.map(p => {
+    const updatedProducts: SaleProduct[] = currentProducts.map(p => {
       const prices = this.getCustomPrices(p.id, customPrices)
                      || [{ value: Number(p.basePrice), name: 'Base' }]
       return {
@@ -357,44 +537,73 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     })
   }
 
-  handleProductQtyChange = (productId: number, qty: number) => {
+  handleProductQtyChange = (productId: number, variantId: number|undefined, qty: number) => {
     if (qty < 0) return
 
-    const { state } = this
+    if (!this.state.tableState) return
 
-    if (!state.products) return
+    const key = ImList([productId, variantId])
+    const lineState = this.state.tableState.get(key)
 
-    const products = state.products
-    const product = products.find(p => p.id === productId)
-    if (product) 
-      product.qty = qty
-    
+    if (!lineState) return
 
-    this.setState({ products })
+    const newTableState = this.state.tableState.set(key, {
+      ...lineState,
+      productQty: qty,
+    })
+
+    this.setState({ tableState: newTableState })
   }
 
   handleDefaultCashChange = (_event: unknown, checked: boolean) => {
     this.setState({ cash: !checked })
   }
 
-  handlePriceChange = (productId: number, priceName: string) => {
+  handlePriceChange = (productId: number, variantId: number|undefined, price: SimplePrice) => {
 
-    if (!this.state.products) return
+    if (!this.state.tableState) return
 
-    const modProducts = this.state.products.map(p => {
-      const selectedPrice =
-        p.prices.find(pr => pr.name === priceName) as SimplePrice
-      if (p.id === productId) {
-        return {
-          ...p,
-          selectedPrice,
-        }
-      } else {
-        return p
-      }
+    const key = ImList([productId, variantId])
+    const lineState = this.state.tableState.get(key)
+
+    if (!lineState) return
+
+    const newTableState = this.state.tableState.set(key, {
+      ...lineState,
+      selectedPrice: price,
     })
 
-    this.setState({ products: modProducts })
+    this.setState({ tableState: newTableState })
+  }
+
+  renderSaleLines = (product: SaleProduct): React.ReactNode => {
+    const variants: (ProductVariant|undefined)[] = product.Variants.length === 0
+      ? [undefined]
+      : product.Variants
+
+    return variants.map(variant => {
+      const variantId = variant?.id ?? -1
+      const key = ImList([product.id, variant?.id])
+      const saleLine = this.state.tableState.get(key)
+      if (!saleLine)
+        return null
+
+      const productPrices = this.pricesForProduct(product.id, variant?.id)
+      const selectedPrice = saleLine.selectedPrice
+
+      return (
+        <SaleLine
+          key={`${product.id}-${variantId}`}
+          product={product}
+          variant={variant}
+          productQty={saleLine.productQty}
+          productPrices={productPrices}
+          selectedPrice={selectedPrice}
+          onProductQtyChange={this.handleProductQtyChange}
+          onPriceChange={this.handlePriceChange}
+        />
+      )
+    })
   }
 
   render() {
@@ -451,57 +660,16 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {!state.products
-                    ? <TableRow>
+                  {state.products?.map(this.renderSaleLines) ?? (
+                    <TableRow>
                       <TableCell colSpan={5} style={{ textAlign: 'center' }}>
-                        Cargando...
+                          Cargando…
                       </TableCell>
                     </TableRow>
-                    // Loaded products
-                    : state.products.map((product, key) => (
-                      <TableRow key={key}>
-                        <TableCell>{product.code}</TableCell>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell className={classes.qtyCell}>
-                          <NumericPicker
-                            classes={classes}
-                            value={product.qty}
-                            onChange={(qty)=> this.handleProductQtyChange(product.id, qty)}
-                          />
-                        </TableCell>
-                        <TableCell align='right'>
-                          <Select
-                            id={`price-product-${product.id}`}
-                            fullWidth
-                            value={product.selectedPrice.name}
-                            onChange={(event) =>
-                              this.handlePriceChange(product.id, event.target.value as string)
-                            }
-                          >
-                            {product.prices
-                              ? product.prices.map((price, key) =>
-                                <MenuItem key={key} value={price.name}>
-                                  {price.name} | {money(price.value, 2)}
-                                </MenuItem>
-                              )
-                              : <MenuItem value='none'>Cargando...</MenuItem>
-                            }
-                          </Select>
-                        </TableCell>
-                        <TableCell align='right'>{money(product.selectedPrice.value * product.qty)}</TableCell>
-                      </TableRow>
-                    ))
-                  }
-                  {state.products
-                    // Total row
-                    && <TableRow>
-                      <TableCell colSpan={3}></TableCell>
-                      <TableCell>Total</TableCell>
-                      <TableCell>
-                        {money(state.products.reduce((acc, prod) => acc + prod.selectedPrice.value * prod.qty, 0))}
-                      </TableCell>
-                    </TableRow>
-                  }
+                  )}
+                  {state.products && (
+                    <TotalsRow lineStates={[...state.tableState.values()]}/>
+                  )}
                 </TableBody>
               </Table>
             </Grid>

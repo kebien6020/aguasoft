@@ -18,6 +18,7 @@ import { SpendingStatic } from './spendings'
 import { StorageStatic } from './storages'
 import { StorageStateStatic } from './storageStates'
 import { UserStatic } from './users'
+import { ProductVariantStatic } from './productVariant'
 const debug = makeDebug('app:db:setup')
 
 const thisFile = path.basename(module.filename)
@@ -71,6 +72,7 @@ export default models as {
     Payments: PaymentStatic
     Prices: PriceStatic
     Products: ProductStatic
+    ProductVariants: ProductVariantStatic
     Sells: SellStatic
     Session: SessionStatic
     Spendings: SpendingStatic
