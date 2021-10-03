@@ -22,6 +22,8 @@ WORKDIR /app
 COPY --from=prod-deps /build/node_modules node_modules
 COPY --from=builder /build/client/dist client/dist
 COPY --from=builder /build/server/dist server/dist
+COPY server/src/db/migrations/ server/src/db/migrations/
+COPY .sequelizerc .sequelizerc
 
 VOLUME ["/db"]
 EXPOSE 3000
