@@ -17,6 +17,7 @@ const {
   StorageStates,
   Clients,
   Products,
+  ProductVariants,
   Users,
   Sells,
   Session,
@@ -54,6 +55,7 @@ afterEach(async () => {
     Session.truncate(opts),
     Products.truncate(opts),
     Clients.truncate(opts),
+    ProductVariants.truncate(opts),
   ])
   await Users.truncate(opts)
 })
@@ -63,6 +65,11 @@ it('creates movements for termoencogible and tapa-valvula on sale of botellon-nu
   const client = await createClient()
   const product = await createProduct({
     code: '005', // botellon-nuevo
+  })
+  const variant = await ProductVariants.create({
+    productId: product.id,
+    code: 'tapa-valvula',
+    name: 'Tapa Válvula',
   })
   const invElemBotellonNuevo = await InventoryElements.findOne({
     where: { code: 'botellon-nuevo' },
@@ -114,8 +121,10 @@ it('creates movements for termoencogible and tapa-valvula on sale of botellon-nu
     quantity: 1,
   })
 
+  const saleForReq = { ...sale.toJSON(), variantId: variant.id }
+
   const data = {
-    sells: [sale.toJSON()],
+    sells: [saleForReq],
   }
 
   const res = await agent

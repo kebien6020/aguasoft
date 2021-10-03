@@ -135,9 +135,10 @@ const movementDetails = (code: string, variantCode?: string) : readonly Movement
     return undefined
 
   const productDetails = productMovementDetails[code]
+  const mainMovementDetails = productDetails.main as unknown as MovementDetails[]|undefined
 
   if (!variantCode)
-    return productDetails.main
+    return mainMovementDetails
 
   const variants = productDetails.variants as Record<string, MovementDetails[]|undefined>
 
@@ -145,7 +146,7 @@ const movementDetails = (code: string, variantCode?: string) : readonly Movement
   if (!variantMovementDetails)
     throw new VariantCodeNotFound(code, variantCode)
 
-  return variantMovementDetails
+  return mainMovementDetails.concat(variantMovementDetails)
 }
 
 const getLoggedUserId = (req: Request) => {
@@ -217,7 +218,7 @@ type SchemaType<T> = T extends yup.Schema<infer Q> ? Q : never
 
 const sellSchema = yup.object({
   cash: yup.boolean().required(),
-  priceOverride: yup.number().notRequired(),
+  priceOverride: yup.number().nullable(true),
   quantity: yup.number().required(),
   value: yup.number().required(),
   clientId: yup.number().required(),
@@ -267,7 +268,7 @@ export const bulkCreate = wrap(async (req: Request) => {
         where: { id: sell.productId },
       })
 
-      const variant = await ProductVariants.findOne({
+      const variant = sell.variantId && await ProductVariants.findOne({
         where: { id: sell.variantId },
       })
 
@@ -275,7 +276,7 @@ export const bulkCreate = wrap(async (req: Request) => {
         throw new Error(`No se encontró el producto ${String(sell.productId)}`)
 
 
-      const details = movementDetails(product.code, variant.code)
+      const details = movementDetails(product.code, variant?.code)
 
       const inventoryElements = await InventoryElements.findAll({
         where: {
