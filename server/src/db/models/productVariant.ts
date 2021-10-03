@@ -22,7 +22,7 @@ export interface ProductVariant extends ProductVariantAttributes, Model {
 export type ProductVariantStatic = ModelStatic<ProductVariant>
 
 export default function (sequelize: Sequelize): ProductVariantStatic {
-  const ProductVariants = <ProductVariantStatic> sequelize.define('ProductVariant', {
+  const ProductVariants = <ProductVariantStatic> sequelize.define('ProductVariants', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,

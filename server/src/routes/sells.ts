@@ -11,6 +11,7 @@ import { CreateManualMovementArgs, createMovement } from './inventory'
 const Sells = models.Sells
 const Prices = models.Prices
 const Products = models.Products
+const ProductVariants = models.ProductVariants
 const InventoryElements = models.InventoryElements
 const Storages = models.Storages
 const Users = models.Users
@@ -76,64 +77,46 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
 }
 
 export function create(_req: Request, _res: Response, next: NextFunction): void {
-  try {
-    throw Error('Method disabled')
-    // const body = req.body
-    //
-    // if (!req.session.userId) {
-    //   const e = Error('User is not logged in')
-    //   e.name = 'user_check_error'
-    //   throw e
-    // }
-    //
-    // body.userId = req.session.userId
-    //
-    // await Sells.create(body, {
-    //   // Only allow user input to control these attributes
-    //   fields: [
-    //     'date',
-    //     'clientId',
-    //     'productId',
-    //     'quantity',
-    //     'value',
-    //     'cash',
-    //     'userId'
-    //   ],
-    // })
-    //
-    // res.json({success: true})
-  } catch (e) {
-    next(e)
-  }
+  next(Error('Method disabled'))
 }
 
 const productMovementDetails = {
-  '001': [{ elementCode: 'paca-360' }],
-  '002': [{ elementCode: 'bolsa-6l' }],
-  '003': [
-    { elementCode: 'tapa-valvula', storageCode: 'trabajo' },
-    { elementCode: 'termoencogible', storageCode: 'trabajo' },
-  ],
-  '004': [{ elementCode: 'hielo-5kg' }],
-  '005': [
-    { elementCode: 'botellon-nuevo', storageCode: 'bodega' },
-    { elementCode: 'tapa-valvula', storageCode: 'trabajo' },
-    { elementCode: 'termoencogible', storageCode: 'trabajo' },
-  ],
-  '006': [{ elementCode: 'base-botellon' }],
-  '007': [{ elementCode: 'hielo-2kg' }],
-  '008': [{ elementCode: 'botella-600ml' }],
-  '009': [{ elementCode: 'bolsa-360-congelada' }],
-  '010': [{ elementCode: 'bomba-electrica-botellon', storageCode: 'bodega' }],
-  '011': [], // No inventory control for barra-hielo
+  '001': { main: [{ elementCode: 'paca-360' }], variants: {} },
+  '002': { main: [{ elementCode: 'bolsa-6l' }], variants: {} },
+  '003': {
+    main: [{ elementCode: 'termoencogible', storageCode: 'trabajo' }],
+    variants: {
+      'tapa-valvula': [{ elementCode: 'tapa-valvula', storageCode: 'trabajo' }],
+      'tapa-sencilla': [{ elementCode: 'tapa-sencilla', storageCode: 'trabajo' }],
+    },
+  },
+  '004': { main: [{ elementCode: 'hielo-5kg' }], variants: {} },
+  '005': {
+    main: [
+      { elementCode: 'botellon-nuevo', storageCode: 'bodega' },
+      { elementCode: 'termoencogible', storageCode: 'trabajo' },
+    ],
+    variants: {
+      'tapa-valvula': [{ elementCode: 'tapa-valvula', storageCode: 'trabajo' }],
+      'tapa-sencilla': [{ elementCode: 'tapa-sencilla', storageCode: 'trabajo' }],
+    },
+  },
+  '006': { main: [{ elementCode: 'base-botellon' }], variants: {} },
+  '007': { main: [{ elementCode: 'hielo-2kg' }], variants: {} },
+  '008': { main: [{ elementCode: 'botella-600ml' }], variants: {} },
+  '009': { main: [{ elementCode: 'bolsa-360-congelada' }], variants: {} },
+  '010': {
+    main: [{ elementCode: 'bomba-electrica-botellon', storageCode: 'bodega' }],
+    variants: {},
+  },
+  '011': { main: [], variants: {} }, // No inventory control for barra-hielo
 } as const
 
 type ProductCode = keyof typeof productMovementDetails
-type ElementCode = (typeof productMovementDetails)[ProductCode][number]['elementCode']
-type StorageCode = Extract<(typeof productMovementDetails)[ProductCode][number], {storageCode: string}>['storageCode']
+type StorageCode = 'trabajo' | 'bodega' | 'terminado'
 
 interface MovementDetails {
-  elementCode: ElementCode
+  elementCode: string
   storageCode?: StorageCode
 }
 
@@ -141,119 +124,210 @@ const isProductCode = (code: string): code is ProductCode => {
   return Object.prototype.hasOwnProperty.call(productMovementDetails, code) as boolean
 }
 
-const movementDetails = (code: string) : readonly MovementDetails[]|undefined => {
-  if (isProductCode(code)) return productMovementDetails[code]
-
-  return undefined
-}
-
-export async function bulkCreate(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    if (!req.session.userId) {
-      const e = Error('User is not logged in')
-      e.name = 'user_check_error'
-      throw e
-    }
-
-    const userId = req.session.userId as number
-
-    type Rec = Record<string, unknown>
-
-    let sells = (req.body as Rec)?.sells as Rec[]
-
-    sells = sells.map(s => Object.assign(s, { userId }))
-
-    const transaction = await sequelize.transaction()
-
-    try {
-      await Sells.bulkCreate(sells, {
-        // Only allow user input to control these attributes
-        fields: [
-          'date',
-          'clientId',
-          'productId',
-          'quantity',
-          'value',
-          'cash',
-          'userId',
-          'priceOverride',
-        ],
-        transaction,
-      })
-
-      for (const sell of sells) {
-
-        const product = await Products.findOne({
-          where: { id: sell.productId },
-        })
-
-        if (!product)
-          throw new Error(`No se encontró el producto ${String(sell.productId)}`)
-
-
-        const details = movementDetails(product.code)
-
-        const inventoryElements = await InventoryElements.findAll({
-          where: {
-            code: {
-              [Op.in]: details.map(d => d.elementCode),
-            },
-          },
-        })
-
-        const storageCodes = [...details.map(d => d.storageCode).filter(sc => sc), 'terminado'] as const
-
-        const storages = await Storages.findAll({
-          where: {
-            code: {
-              [Op.in]: storageCodes as Mutable<typeof storageCodes>,
-            },
-          },
-        })
-
-        for (const detail of details) {
-          const storageFromCode = detail.storageCode || 'terminado'
-          const elementCode = detail.elementCode
-
-          const storageFrom = storages.find(s => s.code === storageFromCode)
-          if (!storageFrom)
-            throw new Error(`No se encontró el almacen con el código ${storageFromCode}`)
-
-
-          const inventoryElement = inventoryElements.find(ie => ie.code === elementCode)
-          if (!inventoryElement)
-            throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
-
-
-          const movementData : CreateManualMovementArgs = {
-            inventoryElementFromId: inventoryElement.id,
-            inventoryElementToId: inventoryElement.id,
-            storageFromId: storageFrom.id,
-            storageToId: null,
-            quantityFrom: sell.quantity as number,
-            quantityTo: sell.quantity as number,
-            cause: 'sell',
-            createdBy: userId,
-          }
-
-          await createMovement(movementData, transaction)
-        }
-
-      }
-
-      await transaction.commit()
-
-      res.json({ success: true })
-    } catch (err) {
-      void transaction.rollback()
-
-      throw err
-    }
-  } catch (e) {
-    console.warn(e)
-    next(e)
+class VariantCodeNotFound extends Error { // Not AppError because this is configuration error
+  constructor(productCode: string, variantCode: string) {
+    super(`Product variant ${variantCode} not recognized for product code ${productCode}`)
   }
 }
+
+const movementDetails = (code: string, variantCode?: string) : readonly MovementDetails[]|undefined => {
+  if (!isProductCode(code))
+    return undefined
+
+  const productDetails = productMovementDetails[code]
+
+  if (!variantCode)
+    return productDetails.main
+
+  const variants = productDetails.variants as Record<string, MovementDetails[]|undefined>
+
+  const variantMovementDetails = variants[variantCode]
+  if (!variantMovementDetails)
+    throw new VariantCodeNotFound(code, variantCode)
+
+  return variantMovementDetails
+}
+
+const getLoggedUserId = (req: Request) => {
+  const userId = req.session?.userId as unknown
+
+  if (typeof userId !== 'number') {
+    const e = Error('User is not logged in')
+    e.name = 'user_check_error'
+    throw e
+  }
+
+  return userId
+}
+
+type ExpressHandler = (req: Request, res: Response, next: NextFunction) => unknown
+
+interface SuccessBody { success: true }
+interface ErrorBody {
+  success: false
+  error: {
+    message: string
+    code: string
+    // On validation_error
+    errors?: {
+      path: string
+      name: string
+    }[]
+  }
+}
+
+type SuccessRes<T> = {status: 200, body: T & SuccessBody }
+type Handler<T> = (req: Request) => Promise<SuccessRes<T>>
+
+const ok = <T extends Record<string, unknown>>(body?: T): SuccessRes<T> => ({
+  status: 200,
+  body: {
+    ...body,
+    success: true,
+  },
+})
+
+class AppError extends Error {
+  status = 500
+  code = 'unknown'
+}
+
+const wrap = <T>(hnd: Handler<T>): ExpressHandler =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const appRes = await hnd(req)
+      const status = appRes.status ?? 200
+      res.status(status).json(appRes.body)
+    } catch (err) {
+      if (err instanceof AppError) {
+        const body: ErrorBody = {
+          error: err,
+          success: false,
+        }
+        res.status(err.status).json(body)
+        return
+      }
+
+      console.warn(err)
+      next(err)
+    }
+  }
+
+type SchemaType<T> = T extends yup.Schema<infer Q> ? Q : never
+
+const sellSchema = yup.object({
+  cash: yup.boolean().required(),
+  priceOverride: yup.number().notRequired(),
+  quantity: yup.number().required(),
+  value: yup.number().required(),
+  clientId: yup.number().required(),
+  productId: yup.number().required(),
+  variantId: yup.number().notRequired(),
+})
+type SellInput = SchemaType<typeof sellSchema>
+
+const sellsRequestSchema = yup.object({
+  sells: yup.array().of(sellSchema),
+})
+
+type Rec = Record<string, unknown>
+
+const getSells = (body: Rec): SellInput[] => {
+  sellsRequestSchema.validateSync(body)
+  return sellsRequestSchema.cast(body).sells
+}
+
+export const bulkCreate = wrap(async (req: Request) => {
+  const userId = getLoggedUserId(req)
+  const sellsInput = getSells(req.body)
+
+  const date = new Date()
+
+  const sells = sellsInput.map(s => ({ ...s, userId, date }))
+
+  await sequelize.transaction(async (transaction) => {
+    await Sells.bulkCreate(sells, {
+      // Only allow user input to control these attributes
+      fields: [
+        'date',
+        'clientId',
+        'productId',
+        'quantity',
+        'value',
+        'cash',
+        'userId',
+        'priceOverride',
+      ],
+      transaction,
+    })
+
+    for (const sell of sells) {
+
+      const product = await Products.findOne({
+        where: { id: sell.productId },
+      })
+
+      const variant = await ProductVariants.findOne({
+        where: { id: sell.variantId },
+      })
+
+      if (!product)
+        throw new Error(`No se encontró el producto ${String(sell.productId)}`)
+
+
+      const details = movementDetails(product.code, variant.code)
+
+      const inventoryElements = await InventoryElements.findAll({
+        where: {
+          code: {
+            [Op.in]: details.map(d => d.elementCode),
+          },
+        },
+      })
+
+      const storageCodes = [...details.map(d => d.storageCode).filter(sc => sc), 'terminado'] as const
+
+      const storages = await Storages.findAll({
+        where: {
+          code: {
+            [Op.in]: storageCodes as Mutable<typeof storageCodes>,
+          },
+        },
+      })
+
+      for (const detail of details) {
+        const storageFromCode = detail.storageCode || 'terminado'
+        const elementCode = detail.elementCode
+
+        const storageFrom = storages.find(s => s.code === storageFromCode)
+        if (!storageFrom)
+          throw new Error(`No se encontró el almacen con el código ${storageFromCode}`)
+
+
+        const inventoryElement = inventoryElements.find(ie => ie.code === elementCode)
+        if (!inventoryElement)
+          throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
+
+
+        const movementData : CreateManualMovementArgs = {
+          inventoryElementFromId: inventoryElement.id,
+          inventoryElementToId: inventoryElement.id,
+          storageFromId: storageFrom.id,
+          storageToId: null,
+          quantityFrom: sell.quantity,
+          quantityTo: sell.quantity,
+          cause: 'sell',
+          createdBy: userId,
+        }
+
+        await createMovement(movementData, transaction)
+      }
+    }
+
+  })
+
+  return ok()
+})
 
 export async function listDay(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {

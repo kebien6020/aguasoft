@@ -42,7 +42,7 @@ export default function (sequelize: Sequelize): ProductStatic {
   Products.associate = function(models) {
     // associations can be defined here
     Products.hasMany(models.Sells)
-    Products.hasMany(models.ProductVariant, { as: 'Variants' })
+    Products.hasMany(models.ProductVariants, { as: 'Variants' })
   }
   return Products
 }
