@@ -354,14 +354,19 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     return undefined
   }
 
-  productById(productId: number): Product|undefined {
-    return this.state.products?.find(p => p.id === productId)
+  productById(productId: number, products: SaleProduct[]|null): Product|undefined {
+    return products?.find(p => p.id === productId)
   }
 
-  pricesForProduct(productId: number, variantId: number|undefined): SimplePrice[] {
-    const customPrices = this.getCustomPrices(productId, this.state.customPrices ?? [])
+  pricesForProduct(
+    productId: number,
+    variantId: number|undefined,
+    customPrices: Price[],
+    products: SaleProduct[]|null
+  ): SimplePrice[] {
+    const customPricesProduct = this.getCustomPrices(productId, customPrices)
     const getDefaultPrices = () => {
-      const product = this.productById(productId)
+      const product = this.productById(productId, products)
       if (!product) {
         console.error(`Product with id ${productId} not found in the list`)
         return []
@@ -381,7 +386,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       ]
     }
 
-    return customPrices ?? getDefaultPrices()
+    return customPricesProduct ?? getDefaultPrices()
   }
 
   async componentDidMount() {
@@ -407,34 +412,9 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       return
     }
 
-    this.setState({ products, customPrices })
+    const tableState = this.newTableState(products, customPrices)
 
-    const tableState = products.reduce((tab, prod) => {
-      if (prod.Variants.length === 0) {
-        const key = ImList([prod.id, undefined])
-        const productPrices = this.pricesForProduct(prod.id, undefined)
-        const val = {
-          productQty: 0,
-          selectedPrice: productPrices?.[0],
-        }
-
-        return tab.set(key, val)
-      }
-
-      const newTab = prod.Variants.reduce((tab, variant) => {
-        const key = ImList([prod.id, variant.id])
-        const selectedPrice = this.pricesForProduct(prod.id, variant.id)
-        const val = {
-          productQty: 0,
-          selectedPrice: selectedPrice?.[0],
-        }
-        return tab.set(key, val)
-      }, tab)
-
-      return newTab
-    }, ImMap<SaleLineKey, SaleLineState>())
-
-    this.setState({ tableState })
+    this.setState({ products, customPrices, tableState })
 
     const user = await fetchJsonAuth<User>('/api/users/getCurrent', auth)
     if (isErrorResponse(user)) {
@@ -444,6 +424,37 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
 
     if (user)
       this.setState({ user })
+  }
+
+  newTableState(products: SaleProduct[], customPrices: Price[]) {
+    const oldTable = this.state.tableState ?? ImMap<SaleLineKey, SaleLineState>()
+
+    const tableState = products.reduce((tab, prod) => {
+      if (prod.Variants.length === 0) {
+        const key = ImList([prod.id, undefined])
+        const productPrices = this.pricesForProduct(prod.id, undefined, customPrices, products)
+        const val = {
+          productQty: oldTable.get(key)?.productQty ?? 0,
+          selectedPrice: productPrices?.[0],
+        }
+
+        return tab.set(key, val)
+      }
+
+      const newTab = prod.Variants.reduce((tab, variant) => {
+        const key = ImList([prod.id, variant.id])
+        const selectedPrice = this.pricesForProduct(prod.id, variant.id, customPrices, products)
+        const val = {
+          productQty: oldTable.get(key)?.productQty ?? 0,
+          selectedPrice: selectedPrice?.[0],
+        }
+        return tab.set(key, val)
+      }, tab)
+
+      return newTab
+    }, ImMap<SaleLineKey, SaleLineState>())
+
+    return tableState
   }
 
   submit = async () => {
@@ -510,31 +521,29 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       return
     }
 
-    const customPrices = await fetchJsonAuth<Price[]>(`/api/prices/${clientId}`, auth)
-    if (isErrorResponse(customPrices)) {
-      console.error(customPrices)
-      return
+    this.setState({ disableButton: true })
+
+    try {
+      const customPrices = await fetchJsonAuth<Price[]>(`/api/prices/${clientId}`, auth)
+      if (isErrorResponse(customPrices)) {
+        console.error(customPrices)
+        return
+      }
+
+      const client = this.state.clients ? this.state.clients.find(c => c.id === clientId) : null
+      const clientDefaultCash = client ? client.defaultCash : false
+      const tableState = this.newTableState(this.state.products, customPrices)
+
+      this.setState({
+        cash: clientDefaultCash,
+        clientId,
+        customPrices,
+        tableState,
+      })
+    } finally {
+      this.setState({ disableButton: false })
     }
 
-    const currentProducts = this.state.products
-    const updatedProducts: SaleProduct[] = currentProducts.map(p => {
-      const prices = this.getCustomPrices(p.id, customPrices)
-                     || [{ value: Number(p.basePrice), name: 'Base' }]
-      return {
-        ...p,
-        prices,
-        selectedPrice: prices[0],
-      }
-    })
-
-    const client = this.state.clients ? this.state.clients.find(c => c.id === clientId) : null
-    const clientDefaultCash = client ? client.defaultCash : false
-
-    this.setState({
-      products: updatedProducts,
-      cash: clientDefaultCash,
-      clientId,
-    })
   }
 
   handleProductQtyChange = (productId: number, variantId: number|undefined, qty: number) => {
@@ -588,7 +597,12 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
       if (!saleLine)
         return null
 
-      const productPrices = this.pricesForProduct(product.id, variant?.id)
+      const productPrices = this.pricesForProduct(
+        product.id,
+        variant?.id,
+        this.state.customPrices ?? [],
+        this.state.products,
+      )
       const selectedPrice = saleLine.selectedPrice
 
       return (
