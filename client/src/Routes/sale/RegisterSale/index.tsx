@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback, styled } from '@material-ui/core/styles'
+import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 import { Map as ImMap, List as ImList } from 'immutable'
 
 import Button from '@material-ui/core/Button'
@@ -17,302 +17,18 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
 import Checkbox from '@material-ui/core/Checkbox'
-import Typography, { TypographyProps } from '@material-ui/core/Typography'
-import AddIcon from '@material-ui/icons/Add'
-import RemoveIcon from '@material-ui/icons/Remove'
+import Typography from '@material-ui/core/Typography'
 
-import useSnackbar from '../hooks/useSnackbar'
-import Layout from '../components/Layout'
-import { fetchJsonAuth, money, isErrorResponse, NotEnoughInSourceError } from '../utils'
-import { MakeRequired } from '../utils/types'
-import { AuthRouteComponentProps } from '../AuthRoute'
-import { Client } from '../models'
-
-const styles: StyleRulesCallback<Theme, RegisterSaleProps> = theme => ({
-  title: {
-    textAlign: 'center',
-    paddingTop: theme.spacing(2),
-  },
-  paper: {
-    minHeight: '80vh',
-    width: '90%',
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      width: '98%',
-    },
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-  },
-  credit: {
-    textAlign: 'center',
-    marginTop: theme.spacing(4),
-  },
-  button: {
-    color: 'white',
-  },
-})
-
-interface SqIconButtonProps {
-  children: JSX.Element
-  onClick: () => unknown
-}
-const SqIconButton = ({ children, onClick }: SqIconButtonProps) => (
-  <Button
-    disableRipple
-    onClick={onClick}
-    size='small'
-    variant='contained'
-    color='secondary'
-  >
-    {children}
-  </Button>
-)
-
-interface PlusButtonProps { onClick: () => unknown }
-const PlusButton = (props: PlusButtonProps) => (
-  <SqIconButton onClick={props.onClick}><AddIcon /></SqIconButton>
-)
-
-interface MinusButtonProps { onClick: () => unknown }
-const MinusButton = (props: MinusButtonProps) => (
-  <SqIconButton onClick={props.onClick}><RemoveIcon /></SqIconButton>
-)
-const handleNumericFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-  const inputElement = event.target
-  inputElement.select()
-}
-
-interface NumericPickerProps {
-  value: number
-  onChange: (val: number) => unknown
-}
-const NumericPicker = (props: NumericPickerProps) => (
-  <NoWrap>
-    <NumericInput
-      type='number'
-      value={props.value}
-      onFocus={handleNumericFocus}
-      onChange={(event) => props.onChange(Number(event.target.value) || 0)}
-    />
-    <PlusButton onClick={() => props.onChange(props.value + 1)} />
-    <MinusButton onClick={() => props.onChange(props.value - 1)}/>
-  </NoWrap>
-)
-
-const NoWrap = styled('div')({
-  display: 'flex',
-  flexFlow: 'row nowrap',
-})
-
-const NumericInput = styled(Input)(({ theme }) => ({
-  width: theme.spacing(6),
-  marginRight: theme.spacing(1),
-  [theme.breakpoints.down('md')]: {
-    width: theme.spacing(3),
-    marginRight: 0,
-    fontSize: '1em',
-  },
-  '& input': {
-    textAlign: 'center',
-    '-moz-appearance': 'textfield',
-    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-      '-webkit-appearance': 'none',
-      margin: 0,
-    },
-  },
-}))
-
-interface User {
-  id: number
-  code:string
-  name: string
-}
-
-interface SimplePrice {
-  id: number
-  value: number
-  name: string
-}
-
-interface ProductVariant {
-  readonly id: number
-  readonly productId: number
-  readonly code: string
-  readonly name: string
-  readonly basePrice: string | null
-  readonly createdAt: Date
-  readonly updatedAt: Date
-  readonly deletedAt: Date | null
-
-  // Possible inclussions
-  readonly Product?: Product
-}
-
-interface Product {
-  id: number
-  code: string
-  name: string
-  basePrice: string
-
-  Variants?: ProductVariant[]
-}
-
-type SaleProduct = MakeRequired<Product, 'Variants'>
-
-interface Price {
-  id: number
-  clientId: number
-  productId: number
-  value: number
-  name: string
-}
-
-type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
-
-interface WithSnackbarProps {
-  showMessage: ReturnType<typeof useSnackbar>
-}
-
-function withSnackbar<T>(
-  Component: React.ComponentType<T>
-) {
-
-  const Wrapped = (props: T & Partial<WithSnackbarProps>) => {
-    const showMessage = useSnackbar()
-
-    return <Component showMessage={showMessage} {...props} />
-  }
-
-  const displayName =
-    Component.displayName || Component.name || 'Component'
-
-  Wrapped.displayName = `withSnackbar(${displayName})`
-
-  return Wrapped
-}
-
-interface SaleLineProps {
-  product: SaleProduct
-  variant: ProductVariant | undefined
-  productQty: number
-  selectedPrice: SimplePrice | undefined
-  productPrices: SimplePrice[] | undefined
-  onProductQtyChange: (id: number, variantId: number | undefined, qty: number) => unknown
-  onPriceChange: (id: number, variantId: number | undefined, price: SimplePrice) => unknown
-}
-
-const SaleLine = (props: SaleLineProps) => {
-  const {
-    product,
-    variant,
-    productQty,
-    productPrices,
-    selectedPrice,
-    onProductQtyChange,
-    onPriceChange,
-  } = props
-
-  const handlePriceChange = (event: InputEvent) => {
-    const priceId = Number(event.target.value)
-    const price = productPrices?.find(p => p.id === priceId)
-    if (!price) {
-      console.warn(
-        `Price id ${priceId} not found in list of prices`,
-        productPrices
-      )
-      return
-    }
-    onPriceChange(
-      product.id,
-      variant?.id,
-      price,
-    )
-  }
-
-  return (
-    <TableRow>
-      <TableCell>{product.code}</TableCell>
-      <TableCell>
-        <div>{product.name}</div>
-        {variant && <VariantName>{variant.name}</VariantName>}
-      </TableCell>
-      <QtyCell>
-        <NumericPicker
-          value={productQty}
-          onChange={qty => onProductQtyChange(product.id, variant?.id, qty)}
-        />
-      </QtyCell>
-      <TableCell align='right'>
-        <Select
-          id={`price-product-${product.id}`}
-          fullWidth
-          value={selectedPrice?.id ?? DEFAULT_PRICE_ID}
-          onChange={handlePriceChange}
-        >
-          {productPrices?.map((price, key) =>
-            <MenuItem key={key} value={price.id}>
-              {price.name} | {money(price.value, 2)}
-            </MenuItem>
-          ) ?? <MenuItem value='none'>Cargando…</MenuItem>}
-        </Select>
-      </TableCell>
-      <TableCell align='right'>
-        {selectedPrice !== undefined
-          ? money(selectedPrice.value * productQty)
-          : 'Cargando…'
-        }
-      </TableCell>
-    </TableRow>
-  )
-}
-
-const VariantName = (props: TypographyProps) =>
-  <Typography variant='caption' color='textSecondary' {...props} />
-
-const QtyCell = styled(TableCell)(({ theme }) => ({
-  textAlign: 'center',
-  [theme.breakpoints.down('md')]: {
-    '& button': {
-      minWidth: '24px',
-    },
-    '& span': {
-      width: undefined,
-    },
-  },
-}))
-
-interface TotalsRowProps {
-  lineStates: SaleLineState[]
-}
-
-const TotalsRow = ({ lineStates } : TotalsRowProps) => {
-  const total = lineStates.reduce((acc, l) => {
-    const qty = l.productQty
-    const price = l.selectedPrice.value
-    return acc + qty * price
-  }, 0)
-
-  return (
-    <TableRow>
-      <TableCell colSpan={3}></TableCell>
-      <TableCell>Total</TableCell>
-      <TableCell>
-        {money(total)}
-      </TableCell>
-    </TableRow>
-  )
-}
-
-type SaleLineKey = ImList<number|undefined> // actual wanted type: [number, number|undefined]
-
-interface SaleLineState {
-  productQty: number
-  selectedPrice: SimplePrice
-}
-
-const DEFAULT_PRICE_ID = -1
+import Layout from '../../../components/Layout'
+import { fetchJsonAuth, isErrorResponse, NotEnoughInSourceError } from '../../../utils'
+import { AuthRouteComponentProps } from '../../../AuthRoute'
+import { Client } from '../../../models'
+import { SaleProduct, ProductVariant, SimplePrice, User, Price, Product } from './types/models'
+import { WithSnackbarProps, withSnackbar } from './hoc/withSnackbar'
+import { DEFAULT_PRICE_ID } from './enum'
+import { SaleLine } from './components/SaleLine'
+import { InputEvent, SaleLineKey, SaleLineState } from './types/util'
+import { TotalsRow } from './components/TotalsRow'
 
 type RegisterSaleProps =
   PropClasses &
@@ -719,5 +435,31 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     )
   }
 }
+
+const styles: StyleRulesCallback<Theme, RegisterSaleProps> = theme => ({
+  title: {
+    textAlign: 'center',
+    paddingTop: theme.spacing(2),
+  },
+  paper: {
+    minHeight: '80vh',
+    width: '90%',
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      width: '98%',
+    },
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
+  credit: {
+    textAlign: 'center',
+    marginTop: theme.spacing(4),
+  },
+  button: {
+    color: 'white',
+  },
+})
 
 export default withStyles(styles)(withSnackbar(RegisterSale))

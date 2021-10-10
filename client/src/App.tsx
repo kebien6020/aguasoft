@@ -16,7 +16,7 @@ import theme from './theme'
 
 const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
-const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/RegisterSale'))
+const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/RegisterSale'))
 const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
 const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
