@@ -8,9 +8,8 @@ import {
   BelongsToGetAssociationMixin,
   BelongsToSetAssociationMixin,
 } from 'sequelize'
-import { Server } from 'socket.io'
+import { io } from '../../io'
 
-let io = null as Server | null
 
 export interface StorageState extends Model {
   readonly storageId: number
@@ -70,11 +69,9 @@ export default function(sequelize: Sequelize) {
   }
 
   StorageStates.addHook('afterSave', (arg: StorageState) => {
-    if (!io) io = require('../../index').io
-
     debug('app:socketio')('Emitting storageStatesChanged')
     io.emit('storageStatesChanged', {
-      data : arg.toJSON(),
+      data: arg.toJSON(),
     })
   })
 
