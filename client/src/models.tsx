@@ -182,6 +182,7 @@ export interface Sell {
   // Possible inclussions
   readonly Product?: Product
   readonly Client?: Client
+  readonly User?: User
 }
 
 export type BalanceItem = {
