@@ -25,6 +25,7 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
         association: yup.string().required(),
         as: yup.string(),
         attributes: yup.array().of(yup.string()),
+        paranoid: yup.boolean(),
         include: yup.lazy(() => includeableSchema.default(undefined)),
       })
     }))

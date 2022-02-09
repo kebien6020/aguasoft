@@ -29,6 +29,7 @@ export const SalesWidget = ({ rangeDescr, dateRange }: SalesWidgetProps): JSX.El
     'include[0][association]': 'Product',
     'include[0][attributes][]': 'name',
     'include[1][association]': 'User',
+    'include[1][paranoid]': 'false',
     'include[1][attributes][]': 'name',
   })
 

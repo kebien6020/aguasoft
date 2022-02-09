@@ -3,7 +3,7 @@ version: '3.8'
 services:
   aguasoft:
     build: .
-    image: kevinpena/aguasoft:20220209-01
+    image: kevinpena/aguasoft:20220209-02
     networks:
       - main
     volumes:
