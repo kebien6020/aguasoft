@@ -10,6 +10,8 @@ import groupBy from 'lodash.groupby'
 import { MakeRequired } from '../../../utils/types'
 
 type SellWithProduct = MakeRequired<Sell, 'Product'>
+type SellWithUser = MakeRequired<Sell, 'User'>
+type SellWithInclusions = SellWithProduct & SellWithUser
 
 interface SalesWidgetProps {
   dateRange: DateRange
@@ -21,11 +23,13 @@ const sumValues = (acc: number, sale: Sell) => acc + sale.value
 export const SalesWidget = ({ rangeDescr, dateRange }: SalesWidgetProps): JSX.Element => {
   const { minDate, maxDate } = dateRange
 
-  const [sales] = useSales<SellWithProduct>({
+  const [sales] = useSales<SellWithInclusions>({
     minDate: minDate.toISOString(),
     maxDate: maxDate.toISOString(),
     'include[0][association]': 'Product',
     'include[0][attributes][]': 'name',
+    'include[1][association]': 'User',
+    'include[1][attributes][]': 'name',
   })
 
   return (
@@ -35,6 +39,7 @@ export const SalesWidget = ({ rangeDescr, dateRange }: SalesWidgetProps): JSX.El
       {sales ? <>
         <Totals sales={sales} />
         <Products sales={sales} />
+        <ByUser sales={sales} />
       </> : <>
         <LoadingIndicator />
       </>}
@@ -110,7 +115,7 @@ const Products = ({ sales }: ProductsProps) => {
   const pct = (value: number) => `(${Math.round(value / total * 100)}%)`
 
   return (
-    <ProductsWrapper>
+    <TableWrapper>
       <StyledTable>
         <TableHead>
           <TableRow>
@@ -136,11 +141,11 @@ const Products = ({ sales }: ProductsProps) => {
           </TableRow>
         </TableBody>
       </StyledTable>
-    </ProductsWrapper>
+    </TableWrapper>
   )
 }
 
-const ProductsWrapper = styled(Paper)(({ theme }) => ({
+const TableWrapper = styled(Paper)(({ theme }) => ({
   marginTop: theme.spacing(3),
   padding: theme.spacing(2),
 }))
@@ -150,3 +155,50 @@ const StyledTable = styled(Table)({
     textAlign: 'center',
   },
 })
+
+
+interface ByUserProps {
+  sales: SellWithUser[]
+}
+
+const ByUser = ({ sales }: ByUserProps) => {
+  const sumValue = (acc: number, sale: Sell) => acc + sale.value
+  const aggregate = Object.entries(groupBy(sales, 'userId'))
+    .map(([uId, userSales]) => ({
+      userId: uId,
+      saleCash: userSales.filter(s => s.cash).reduce(sumValue, 0),
+      salePost: userSales.filter(s => !s.cash).reduce(sumValue, 0),
+      user: userSales[0].User,
+    }))
+
+  const totalCash = aggregate.reduce((acc, u) => acc + u.saleCash, 0)
+  const totalPost = aggregate.reduce((acc, u) => acc + u.salePost, 0)
+
+  return (
+    <TableWrapper>
+      <StyledTable>
+        <TableHead>
+          <TableRow>
+            <TableCell>Usuario</TableCell>
+            <TableCell>Venta Efectivo</TableCell>
+            <TableCell>Venta Post-fechado</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {aggregate.map(row =>
+            <TableRow key={row.userId}>
+              <TableCell>{row.user.name}</TableCell>
+              <TableCell>{money(row.saleCash)}</TableCell>
+              <TableCell>{money(row.salePost)}</TableCell>
+            </TableRow>
+          )}
+          <TableRow>
+            <TableCell>Total</TableCell>
+            <TableCell>{money(totalCash)}</TableCell>
+            <TableCell>{money(totalPost)}</TableCell>
+          </TableRow>
+        </TableBody>
+      </StyledTable>
+    </TableWrapper>
+  )
+}
