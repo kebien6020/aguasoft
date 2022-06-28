@@ -13,7 +13,7 @@ function normalFontTheme(prevTheme: Theme): Theme {
   return createMuiTheme(options)
 }
 
-export default function normalFontadminOnly<P>(
+export default function normalFont<P>(
   component: React.ComponentType<P>
 ): React.ComponentType<P> {
   return class NormalFont extends React.Component<P> {

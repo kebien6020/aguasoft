@@ -12,6 +12,8 @@ services:
     command: npm run start-server-autoreload
     ports:
       - 3000:3000
+    environment:
+      DEBUG: 'app:socketio'
   server-watch:
     image: node:16-alpine
     working_dir: /app

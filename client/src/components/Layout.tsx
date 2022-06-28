@@ -25,6 +25,7 @@ import {
   SwapHoriz as MovementsIcon,
   TrendingUp,
   Dashboard as DashboardIcon,
+  SettingsRemote as RemoteIcon,
 } from '@material-ui/icons'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
@@ -172,6 +173,13 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
         to='/clients'
         icon={<PersonIcon />}
         color={colors.blue.A700}
+        fullWidth={open}
+      />
+      <DrawerItem
+        text='Control Remoto'
+        to='/remote'
+        icon={<RemoteIcon />}
+        color={colors.orange[500]}
         fullWidth={open}
       />
     </>

@@ -178,3 +178,5 @@ export function scrollToRef<T extends HTMLElement>(ref: React.RefObject<T>): voi
   if (ref.current)
     window.scrollTo(0, ref.current.offsetTop)
 }
+
+export const sleep = (ms: number): Promise<void> => new Promise(res => setTimeout(res, ms))

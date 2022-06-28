@@ -80,3 +80,4 @@ balance.post('/verification', adminOnly, balanceHandlers.createBalanceVerificati
 balance.get('/:date', balanceHandlers.showBalance)
 
 export { default as analysis } from './analysis'
+export { default as remote } from './remote'

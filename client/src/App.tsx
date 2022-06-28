@@ -41,6 +41,8 @@ const RegisterEntry = lazy(() => import(/* webpackChunkName: "register-entry" */
 const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Balance'))
 const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/dashboard/index'))
 const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
+const RemoteList = lazy(() => import(/* webpackChunkName: "remote-list" */ './Routes/remote'))
+const RemoteTankControl = lazy(() => import(/* webpackChunkName: "remote-tank-control" */ './Routes/remote/tank-control'))
 
 const auth = new Auth()
 moment.locale('es')
@@ -84,6 +86,9 @@ const AppSwitch = () => (
     <Route exact private path='/dashboard' component={Dashboard} />
 
     <Route exact private path='/tools/billing-summary' component={BillingSummary} />
+
+    <Route exact private path='/remote' component={RemoteList} />
+    <Route exact private path='/remote/control/agua-tank-control' component={RemoteTankControl} />
 
     <Route exact path='/' render={() => <Redirect to='/sells' />} />
   </Switch>
