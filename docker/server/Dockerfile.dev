@@ -6,7 +6,6 @@ RUN apk update \
   gcc \
   wget \
   git \
-  python2-dev \
   python3-dev \
   sqlite
 

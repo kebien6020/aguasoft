@@ -110,7 +110,7 @@ const productMovementDetails = {
     main: [{ elementCode: 'bomba-electrica-botellon', storageCode: 'bodega' }],
     variants: {},
   },
-  '011': { main: [], variants: {} }, // No inventory control for barra-hielo
+  '011': { main: [{ elementCode: 'barra-hielo' }], variants: {} },
 } as const
 
 type ProductCode = keyof typeof productMovementDetails

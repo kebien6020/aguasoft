@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { useFormikContext } from 'formik'
 
-export type SubmitButtonProps = {children: React.ReactNode}
+export type SubmitButtonProps = {children?: React.ReactNode}
 const SubmitButton = ({ children }: SubmitButtonProps): JSX.Element => {
   const { isSubmitting } = useFormikContext()
 

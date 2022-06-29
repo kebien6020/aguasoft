@@ -38,9 +38,9 @@ const Collapse = (props: CollapseProps) => {
       }}
       {...props}
     >
-        <Grid container spacing={2}>
-          {props.children}
-        </Grid>
+      <Grid container spacing={2}>
+        {props.children}
+      </Grid>
     </MuiCollapse>
   )
 }
@@ -55,11 +55,12 @@ const useCollapseStyles = makeStyles({
 })
 
 type ProductionType =
-    'bolsa-360'
+  | 'bolsa-360'
   | 'paca-360'
   | 'bolsa-6l'
   | 'hielo-5kg'
   | 'bolsa-360-congelada'
+  | 'barra-hielo'
 
 interface ProductionTypeOption {
   value: ProductionType
@@ -67,11 +68,12 @@ interface ProductionTypeOption {
 }
 
 const productionTypeOptions : ProductionTypeOption[] = [
-  {value: 'bolsa-360', label: 'Bolsas de 360 Individuales'},
-  {value: 'paca-360', label: 'Empaque de Pacas 360'},
-  {value: 'bolsa-6l', label: 'Bolsas de 6 Litros'},
-  {value: 'hielo-5kg', label: 'Hielo 5Kg'},
-  {value: 'bolsa-360-congelada', label: 'Bolsa 360 Congelada'},
+  { value: 'bolsa-360', label: 'Bolsas de 360 Individuales' },
+  { value: 'paca-360', label: 'Empaque de Pacas 360' },
+  { value: 'bolsa-6l', label: 'Bolsas de 6 Litros' },
+  { value: 'hielo-5kg', label: 'Hielo 5Kg' },
+  { value: 'bolsa-360-congelada', label: 'Bolsa 360 Congelada' },
+  { value: 'barra-hielo', label: 'Barras de Hielo' },
 ]
 
 interface Values {
@@ -84,16 +86,20 @@ interface Values {
 
 const validationSchema = Yup.object({
   productionType: Yup.mixed<ProductionType>().oneOf(productionTypeOptions.map(opt => opt.value)).required(),
-  counterStart: Yup.mixed().when('productionType', {is: 'bolsa-360',
+  counterStart: Yup.mixed().when('productionType', {
+    is: 'bolsa-360',
     then: Yup.number().integer().positive().required(),
   }),
-  counterEnd: Yup.mixed().when('productionType', {is: 'bolsa-360',
+  counterEnd: Yup.mixed().when('productionType', {
+    is: 'bolsa-360',
     then: Yup.number().integer().positive().moreThan(Yup.ref('counterStart')).required(),
   }),
-  amount: Yup.mixed().when('productionType', {is: 'paca-360',
+  amount: Yup.mixed().when('productionType', {
+    is: t => t === 'paca-360' || t === 'barra-hielo',
     then: Yup.number().integer().min(0).required(),
   }),
-  damaged: Yup.mixed().when('productionType', {is: 'paca-360',
+  damaged: Yup.mixed().when('productionType', {
+    is: 'paca-360',
     then: Yup.number().integer().min(0).required(),
   }),
 })
@@ -137,7 +143,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
   return null
 }
 
-const RegisterProduction = () => {
+const RegisterProduction = (): JSX.Element => {
   const classes = useStyles()
   const auth = useAuth()
   const showMessage = useSnackbar()
@@ -156,12 +162,12 @@ const RegisterProduction = () => {
   })
 
   useEffect(() => {
-    if (lastMachineCounter !== null) {
-      setInitialValues(prev => ({...prev, counterStart: String(lastMachineCounter.value)}))
-    }
+    if (lastMachineCounter !== null)
+      setInitialValues(prev => ({ ...prev, counterStart: String(lastMachineCounter.value) }))
+
   }, [lastMachineCounter])
 
-  const [detectDamaged, setDetectDamaged] = useState(true);
+  const [detectDamaged, setDetectDamaged] = useState(true)
 
   const [nonce, setNonce] = useState(1)
   const updateIntermediateState = useCallback(() =>
@@ -174,17 +180,17 @@ const RegisterProduction = () => {
   })
 
   const quantityInIntermediate =
-    intermediateState && !isErrorResponse(intermediateState) ?
-      intermediateState['bolsa-360'] :
-      null
+    intermediateState && !isErrorResponse(intermediateState)
+      ? intermediateState['bolsa-360']
+      : null
 
   const history = useHistory()
-  const handleSubmit = async (values: Values, {setFieldValue, setSubmitting} : FormikHelpers<Values>) => {
+  const handleSubmit = async (values: Values, { setFieldValue, setSubmitting } : FormikHelpers<Values>) => {
     const url = '/api/inventory/movements/production'
 
     const pType = values.productionType
 
-    let payload : Object = {
+    let payload : Record<string, unknown> = {
       productionType: pType,
     }
 
@@ -201,6 +207,13 @@ const RegisterProduction = () => {
         ...payload,
         amount: Number(values.amount),
         damaged: Number(values.damaged),
+      }
+    }
+
+    if (pType === 'barra-hielo') {
+      payload = {
+        ...payload,
+        amount: Number(values.amount),
       }
     }
 
@@ -249,7 +262,7 @@ const RegisterProduction = () => {
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({values}) => <>
+          {({ values }) => <>
             <Grid item xs={12}>
               <SelectField
                 name='productionType'
@@ -274,7 +287,7 @@ const RegisterProduction = () => {
               </Grid>
             </Collapse>
             <Collapse in={
-                 values.productionType === 'bolsa-360'
+              values.productionType === 'bolsa-360'
               && isNumber(values.counterStart)
               && isNumber(values.counterEnd)
               && Number(values.counterStart) < Number(values.counterEnd)
@@ -292,7 +305,7 @@ const RegisterProduction = () => {
                   label='Cantidad de Pacas producida'
                 />
               </Grid>
-              <Grid item xs={12} lg={6} style={{display: 'flex', flexFlow: 'column', justifyContent: 'flex-end'}}>
+              <Grid item xs={12} lg={6} style={{ display: 'flex', flexFlow: 'column', justifyContent: 'flex-end' }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -313,7 +326,7 @@ const RegisterProduction = () => {
               </Grid>
             </Collapse>
             <Collapse in={
-                 values.productionType === 'bolsa-6l'
+              values.productionType === 'bolsa-6l'
               || values.productionType === 'hielo-5kg'
               || values.productionType === 'bolsa-360-congelada'
             }>
@@ -327,6 +340,14 @@ const RegisterProduction = () => {
                 <TextField
                   name='damaged'
                   label='Bolsas dañadas'
+                />
+              </Grid>
+            </Collapse>
+            <Collapse in={values.productionType === 'barra-hielo'}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  name='amount'
+                  label='Cantidad producida'
                 />
               </Grid>
             </Collapse>
@@ -353,7 +374,7 @@ const useStyles = makeStyles(theme => ({
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
-  }
+  },
 }))
 
-export default RegisterProduction;
+export default RegisterProduction
