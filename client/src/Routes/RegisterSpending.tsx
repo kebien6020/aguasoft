@@ -26,7 +26,7 @@ import {
   SuccessResponse,
 } from '../utils'
 
-interface Props extends AuthRouteComponentProps<unknown>, PropClasses { }
+interface Props extends AuthRouteComponentProps, PropClasses { }
 interface State {
   date: moment.Moment
   description: string
@@ -67,7 +67,7 @@ class RegisterSpending extends React.Component<Props, State> {
   async componentDidMount() {
     const { props } = this
 
-    const user : User | ErrorResponse =
+    const user: User | ErrorResponse =
       await fetchJsonAuth('/api/users/getCurrent', props.auth)
 
     if (isErrorResponse(user)) {
@@ -147,7 +147,7 @@ class RegisterSpending extends React.Component<Props, State> {
       isTransfer: boolean
       date?: string
     }
-    const payload : Payload = {
+    const payload: Payload = {
       description: state.description,
       value: Number(state.moneyAmount),
       fromCash: state.fromCash,
@@ -158,7 +158,7 @@ class RegisterSpending extends React.Component<Props, State> {
       payload.date = state.date.toISOString()
 
 
-    const response : SuccessResponse | ErrorResponse =
+    const response: SuccessResponse | ErrorResponse =
       await fetchJsonAuth('/api/spendings/new', props.auth, {
         method: 'post',
         body: JSON.stringify(payload),
@@ -185,7 +185,7 @@ class RegisterSpending extends React.Component<Props, State> {
             && <Alert message={state.submitionError} type='error' />
           }
           <form>
-            <Grid container spacing={0} justify='space-between'>
+            <Grid container spacing={0} justifyContent='space-between'>
               {state.userIsAdmin
                 && <Grid item xs={12}>
                   <DatePicker

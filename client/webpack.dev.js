@@ -21,7 +21,7 @@ module.exports = merge(common, {
     }),
     new webpack.EnvironmentPlugin({
       'NODE_ENV': 'development',
-      'NODE_DEBUG': undefined,
+      'NODE_DEBUG': '',
     }),
   ],
 })

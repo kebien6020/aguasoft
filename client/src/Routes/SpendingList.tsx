@@ -18,7 +18,7 @@ interface SpendingPageResponse {
   totalCount: number
 }
 
-type Props = AuthRouteComponentProps<unknown> & PropClasses
+type Props = AuthRouteComponentProps & PropClasses
 
 interface State {
   spendings: Spending[] | null
@@ -65,10 +65,10 @@ class SpendingList extends React.Component<Props, State> {
 
     const { props } = this
 
-    const result : ErrorResponse | SuccessResponse = await
-    fetchJsonAuth(`/api/spendings/${spendingId}`, props.auth, {
-      method: 'delete',
-    })
+    const result: ErrorResponse | SuccessResponse = await
+      fetchJsonAuth(`/api/spendings/${spendingId}`, props.auth, {
+        method: 'delete',
+      })
 
     if (!isErrorResponse(result)) {
       const spendings = [...this.state.spendings]
@@ -131,7 +131,7 @@ class SpendingList extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback<Theme, Props> = _theme => ({
+const styles: StyleRulesCallback<Theme, Props> = _theme => ({
   appbar: {
     flexGrow: 1,
   },
@@ -152,6 +152,6 @@ const styles : StyleRulesCallback<Theme, Props> = _theme => ({
 })
 
 export default
-adminOnly(
-  withStyles(styles)(
-    SpendingList))
+  adminOnly(
+    withStyles(styles)(
+      SpendingList))

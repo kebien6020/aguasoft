@@ -24,9 +24,9 @@ interface State {
 }
 
 export default
-function adminOnly<P extends AuthRouteComponentProps<unknown>>(
-  component: React.ComponentType<P>
-): React.ComponentType<P> {
+  function adminOnly<P extends AuthRouteComponentProps>(
+    component: React.ComponentType<P>
+  ): React.ComponentType<P> {
 
   return class AdminRoute extends React.Component<P, State> {
     constructor(props: P) {
@@ -40,7 +40,7 @@ function adminOnly<P extends AuthRouteComponentProps<unknown>>(
     async componentDidMount() {
       const { props } = this
       type UserResponse = User | UserError
-      const user : UserResponse =
+      const user: UserResponse =
         await fetchJsonAuth('/api/users/getCurrent', props.auth)
 
       if (user) {

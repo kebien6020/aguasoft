@@ -20,7 +20,7 @@ import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import { MakeOptional } from '../utils/types'
 
-type PaymentsProps = AuthRouteComponentProps<unknown>;
+type PaymentsProps = AuthRouteComponentProps;
 export default function Payments({ auth }: PaymentsProps): JSX.Element {
   // Date picker
   const [date, setDate] = useState(() => moment().startOf('day'))
@@ -35,7 +35,7 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
   const setSnackbarError = useSnackbar()
 
   // Payment List
-  const [payments, setPayments] = useState<Payment[]|null>(null)
+  const [payments, setPayments] = useState<Payment[] | null>(null)
   useEffect(() => {
     (async () => {
       setPayments(null)
@@ -57,9 +57,9 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
 
     const url = `/api/payments/${paymentId}`
     const result =
-        await fetchJsonAuth<SuccessResponse>(url, auth, {
-          method: 'delete',
-        })
+      await fetchJsonAuth<SuccessResponse>(url, auth, {
+        method: 'delete',
+      })
 
     if (!isErrorResponse(result)) {
       const paymentsCopy = [...payments]
@@ -111,7 +111,7 @@ const PaperLogin = styled(
     const auth = useAuth()
     return (
       <Paper>
-        <Login auth={auth} {...props}/>
+        <Login auth={auth} {...props} />
       </Paper>
     )
   }

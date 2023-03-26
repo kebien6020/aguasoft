@@ -21,7 +21,7 @@ interface PaymentPageResponse {
   totalCount: number
 }
 
-type Props = AuthRouteComponentProps<unknown> & PropClasses
+type Props = AuthRouteComponentProps & PropClasses
 
 interface State {
   payments: Payment[] | null

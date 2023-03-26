@@ -13,7 +13,7 @@ const Collapse = (props: CollapseProps): JSX.Element => {
       component={GridItemXs12}
       classes={{
         hidden: classes.hidden,
-        container: classes.container,
+        wrapper: classes.container,
       }}
       {...props}
     >
