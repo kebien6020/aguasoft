@@ -8,6 +8,7 @@ const MomentLocalesPlugin = require('moment-locales-webpack-plugin')
 const relPath = (p) => path.join(__dirname, p)
 const BUILD_WITH_STATS = process.env.BUILD_WITH_STATS || false
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
   entry: relPath('./src/index.tsx'),
   output: {
@@ -16,7 +17,16 @@ module.exports = {
   },
   // Currently we need to add '.ts' to the resolve.extensions array.
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx']
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    fallback: {
+      // All of these are required because webpack 5 removed node polyfills and react-pdf uses some of them
+      stream: require.resolve('stream-browserify'), // Needed by react-pdf, blob-stream, restructure
+      zlib: require.resolve('browserify-zlib'), // Needed by react-pdf
+      util: require.resolve('util'), // Needed by blob-stream, restructure
+      assert: require.resolve('assert'), // Needed by browserify-zlib
+      process: require.resolve('process/browser'), // Needed by assert
+      buffer: require.resolve('buffer'), // Needed by react-pdf
+    }
   },
   // Add the loader for .ts files.
   module: {
@@ -48,6 +58,12 @@ module.exports = {
       // CleanWebpackPlugin is removing dist/index.html in dev but is not
       // being emitted again
       cache: false,
+    }),
+    // Work around for Buffer is undefined:
+    // https://github.com/webpack/changelog-v5/issues/10
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser',
     }),
   ].concat(BUILD_WITH_STATS ? [
     new BundleAnalyzerPlugin({

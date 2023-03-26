@@ -34,7 +34,7 @@ const setup = async () => {
 
 afterAll(async () => {
   if (server.listening) {
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       server.close((err) => {
         if (err) {
           reject(err)

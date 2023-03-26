@@ -8,9 +8,9 @@ export function make(overrides?: Record<string, unknown>): Client {
   return Clients.build({
     name: faker.name.findName(),
     code: faker.random.alphaNumeric(3),
-    defaultCash: faker.random.boolean(),
+    defaultCash: faker.datatype.boolean(),
     hidden: false,
-    notes: faker.random.boolean() ? faker.lorem.sentence() : null,
+    notes: faker.datatype.boolean() ? faker.lorem.sentence() : null,
 
     ...overrides,
   })

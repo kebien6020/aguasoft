@@ -1,4 +1,4 @@
-FROM node:16.5 as builder
+FROM node:18.14 as builder
 
 WORKDIR /build
 COPY package.json package-lock.json ./
@@ -8,13 +8,13 @@ COPY server server
 COPY tsconfig.base.json tsconfig.base.json
 RUN npm run build && npm run build-server-js
 
-FROM node:16.5 as prod-deps
+FROM node:18.14 as prod-deps
 
 WORKDIR /build
 COPY package.json package-lock.json ./
-RUN npm install --production
+RUN npm install --omit=dev
 
-FROM node:16.5-slim
+FROM node:18.14-slim
 
 RUN apt-get update -y && apt-get install -y dumb-init
 
