@@ -5,6 +5,7 @@
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config client/webpack.prod.js",
     "build-client-dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config client/webpack.dev.js",
     "build-server-js": "copyfiles -f ./server/src/db/config.json ./server/dist/db && tsc -p server",
+    "build-all-parallel": "npm-run-all -p build build-server-js",
     "dev": "npm-run-all -p dev-server watch-client-js",
     "dev-server": "npm-run-all -p watch-server-js start-server-autoreload",
     "lint": "eslint --ext .js,.ts .",

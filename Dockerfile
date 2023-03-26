@@ -6,7 +6,7 @@ RUN npm install
 COPY client client
 COPY server server
 COPY tsconfig.base.json tsconfig.base.json
-RUN npm run build && npm run build-server-js
+RUN npm run build-all-parallel
 
 FROM node:18.14 as prod-deps
 
