@@ -38,7 +38,7 @@ import {
   SuccessResponse,
 } from '../utils'
 
-interface Props extends AuthRouteComponentProps<unknown>, PropClasses { }
+interface Props extends AuthRouteComponentProps, PropClasses { }
 interface State {
   clients: Client[] | null
 
@@ -97,7 +97,7 @@ class RegisterPayment extends React.Component<Props, State> {
 
   async componentDidMount() {
     const { props } = this
-    const clients : Client[] | ErrorResponse =
+    const clients: Client[] | ErrorResponse =
       await fetchJsonAuth('/api/clients', props.auth)
 
     if (isErrorResponse(clients)) {
@@ -111,7 +111,7 @@ class RegisterPayment extends React.Component<Props, State> {
 
     this.setState({ clients: activeClients, selectedClientId })
 
-    const user : User | ErrorResponse =
+    const user: User | ErrorResponse =
       await fetchJsonAuth('/api/users/getCurrent', props.auth)
 
     if (isErrorResponse(user)) {
@@ -206,7 +206,7 @@ class RegisterPayment extends React.Component<Props, State> {
       directPayment?: boolean
       date?: string
     }
-    const payload : Payload = {
+    const payload: Payload = {
       value: Number(state.moneyAmount),
       clientId: Number(state.selectedClientId),
     }
@@ -226,7 +226,7 @@ class RegisterPayment extends React.Component<Props, State> {
       payload.date = state.date.toISOString()
     }
 
-    const response : SuccessResponse | ErrorResponse =
+    const response: SuccessResponse | ErrorResponse =
       await fetchJsonAuth('/api/payments/new', props.auth, {
         method: 'post',
         body: JSON.stringify(payload),
@@ -262,18 +262,18 @@ class RegisterPayment extends React.Component<Props, State> {
           }
           {state.selectedClientId
             ? <form>
-              <Grid container spacing={0} justify='space-between'>
+              <Grid container spacing={0} justifyContent='space-between'>
                 {state.userIsAdmin
-                && <Grid item xs={12}>
-                  <DatePicker
-                    label='Fecha del pago'
-                    date={state.date}
-                    onDateChange={this.handleChangeDate('date')}
-                    DatePickerProps={{
-                      fullWidth: true,
-                    }}
-                  />
-                </Grid>
+                  && <Grid item xs={12}>
+                    <DatePicker
+                      label='Fecha del pago'
+                      date={state.date}
+                      onDateChange={this.handleChangeDate('date')}
+                      DatePickerProps={{
+                        fullWidth: true,
+                      }}
+                    />
+                  </Grid>
                 }
                 {/*
                 // @ts-ignore grid-md-6 is missing in type system*/}
@@ -319,7 +319,7 @@ class RegisterPayment extends React.Component<Props, State> {
                   </Typography>
                 </Grid>
                 <Collapse in={state.invoiceEnabled} className={classes.collapse}>
-                  <Grid container spacing={0} justify='space-between'>
+                  <Grid container spacing={0} justifyContent='space-between'>
                     {/*
                     // @ts-ignore grid-md-6 is missing in type system*/}
                     <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
@@ -362,7 +362,7 @@ class RegisterPayment extends React.Component<Props, State> {
                   </Typography>
                 </Grid>
                 <Collapse in={state.datesEnabled} className={classes.collapse}>
-                  <Grid container spacing={0} justify='space-between'>
+                  <Grid container spacing={0} justifyContent='space-between'>
                     {/*
                     // @ts-ignore grid-md-6 is missing in type system */}
                     <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>

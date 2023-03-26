@@ -1,4 +1,4 @@
-declare module "connect-session-sequelize" {
+declare module 'connect-session-sequelize' {
   import * as Sequelize from 'sequelize'
   import * as session from 'express-session'
 
@@ -10,7 +10,7 @@ declare module "connect-session-sequelize" {
         data: any
         expires: any
       },
-      session: Express.Session
+      session: session.Session
     ) => {
       data: any
       expires: any
@@ -25,10 +25,13 @@ declare module "connect-session-sequelize" {
 
     export class SequelizeStore extends session.Store {
       constructor(options: SequelizeStoreOptions)
+      get(sid: string, callback: (err: any, session?: session.SessionData) => void): void
+      set(sid: string, session: session.SessionData, callback?: (err?: any) => void): void
+      destroy(sid: string, callback?: (err?: any) => void): void
     }
   }
 
-  function ConnectSessionSequelize (
+  function ConnectSessionSequelize(
     store: typeof session.Store
   ): typeof ConnectSessionSequelize.SequelizeStore
 

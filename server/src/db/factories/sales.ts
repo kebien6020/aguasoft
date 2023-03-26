@@ -10,10 +10,10 @@ export function make(overrides?: Record<string, unknown>): Sell {
     clientId: null, // manual
     productId: null, // manual
     date: faker.date.recent(),
-    cash: faker.random.boolean(),
+    cash: faker.datatype.boolean(),
     priceOverride: null,
-    quantity: faker.random.number(10),
-    value: faker.random.number({ max: 20000, precision: 100 }),
+    quantity: faker.datatype.number(10),
+    value: faker.datatype.number({ max: 20000, precision: 100 }),
     deleted: false,
 
     ...overrides,

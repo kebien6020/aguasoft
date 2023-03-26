@@ -16,7 +16,7 @@ interface AuthRouteProps extends RouteProps {
   private?: boolean
 }
 
-export interface AuthRouteComponentProps<P> extends RouteComponentProps<P> {
+export interface AuthRouteComponentProps<P extends { [K in keyof P]?: string } = {}> extends RouteComponentProps<P> {
   auth: Auth
 }
 
@@ -62,7 +62,7 @@ class AuthRoute extends React.Component<AuthRouteProps> {
       const Component = component
       const renderRoute = (props: React.ComponentProps<typeof Component>) =>
         <Component auth={auth} {...outerProps} {...props} />
-      return <Route { ...outerProps } render={renderRoute} />
+      return <Route {...outerProps} render={renderRoute} />
     }
 
     if (authStatus === AuthStatus.PENDING) {

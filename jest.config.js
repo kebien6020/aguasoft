@@ -9,10 +9,10 @@ module.exports = {
     '<rootDir>/server/dist',
     '<rootDir>/client/dist',
   ],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.test.json',
-    },
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest', { tsconfig: 'tsconfig.test.json' },
+    ],
   },
-  setupFilesAfterEnv: ['jest-extended', './jest.setup.ts'],
+  setupFilesAfterEnv: ['jest-extended/all', './jest.setup.ts'],
 }

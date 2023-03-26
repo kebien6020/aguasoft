@@ -32,9 +32,8 @@ const Collapse = (props: CollapseProps) => {
     <MuiCollapse
       component={GridItemXs12}
       classes={{
-        // @ts-ignore hidden class rule is missing in ts definition file
         hidden: classes.hidden,
-        container: classes.container,
+        wrapper: classes.container,
       }}
       {...props}
     >
@@ -67,7 +66,7 @@ interface ProductionTypeOption {
   label: string
 }
 
-const productionTypeOptions : ProductionTypeOption[] = [
+const productionTypeOptions: ProductionTypeOption[] = [
   { value: 'bolsa-360', label: 'Bolsas de 360 Individuales' },
   { value: 'paca-360', label: 'Empaque de Pacas 360' },
   { value: 'bolsa-6l', label: 'Bolsas de 6 Litros' },
@@ -112,7 +111,7 @@ interface DamagedAutofillProps {
 const DamagedAutofill = (props: DamagedAutofillProps) => {
   const { detectDamaged, quantityInIntermediate } = props
 
-  const { values, setFieldValue } : FormikContextType<Values> = useFormikContext()
+  const { values, setFieldValue }: FormikContextType<Values> = useFormikContext()
 
   useEffect(() => {
     if (values.productionType !== 'paca-360') return
@@ -172,8 +171,8 @@ const RegisterProduction = (): JSX.Element => {
   const [nonce, setNonce] = useState(1)
   const updateIntermediateState = useCallback(() =>
     setNonce(prev => prev + 1)
-  , [])
-  const [intermediateState] = useFetch<{'bolsa-360': number}>('/api/inventory/state/intermediate', {
+    , [])
+  const [intermediateState] = useFetch<{ 'bolsa-360': number }>('/api/inventory/state/intermediate', {
     showError: showMessage,
     name: 'el estado actual del inventario',
     nonce,
@@ -185,12 +184,12 @@ const RegisterProduction = (): JSX.Element => {
       : null
 
   const history = useHistory()
-  const handleSubmit = async (values: Values, { setFieldValue, setSubmitting } : FormikHelpers<Values>) => {
+  const handleSubmit = async (values: Values, { setFieldValue, setSubmitting }: FormikHelpers<Values>) => {
     const url = '/api/inventory/movements/production'
 
     const pType = values.productionType
 
-    let payload : Record<string, unknown> = {
+    let payload: Record<string, unknown> = {
       productionType: pType,
     }
 
@@ -217,7 +216,7 @@ const RegisterProduction = (): JSX.Element => {
       }
     }
 
-    const response : SuccessResponse|ErrorResponse = await fetchJsonAuth(url, auth, {
+    const response: SuccessResponse | ErrorResponse = await fetchJsonAuth(url, auth, {
       method: 'post',
       body: JSON.stringify(payload),
     })

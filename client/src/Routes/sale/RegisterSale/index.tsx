@@ -32,7 +32,7 @@ import { TotalsRow } from './components/TotalsRow'
 
 type RegisterSaleProps =
   PropClasses &
-  AuthRouteComponentProps<unknown> &
+  AuthRouteComponentProps &
   WithSnackbarProps
 
 interface RegisterSaleState {
@@ -70,15 +70,15 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     return undefined
   }
 
-  productById(productId: number, products: SaleProduct[]|null): Product|undefined {
+  productById(productId: number, products: SaleProduct[] | null): Product | undefined {
     return products?.find(p => p.id === productId)
   }
 
   pricesForProduct(
     productId: number,
-    variantId: number|undefined,
+    variantId: number | undefined,
     customPrices: Price[],
-    products: SaleProduct[]|null
+    products: SaleProduct[] | null
   ): SimplePrice[] {
     const customPricesProduct = this.getCustomPrices(productId, customPrices)
     const getDefaultPrices = () => {
@@ -262,7 +262,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
 
   }
 
-  handleProductQtyChange = (productId: number, variantId: number|undefined, qty: number) => {
+  handleProductQtyChange = (productId: number, variantId: number | undefined, qty: number) => {
     if (qty < 0) return
 
     if (!this.state.tableState) return
@@ -284,7 +284,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
     this.setState({ cash: !checked })
   }
 
-  handlePriceChange = (productId: number, variantId: number|undefined, price: SimplePrice) => {
+  handlePriceChange = (productId: number, variantId: number | undefined, price: SimplePrice) => {
 
     if (!this.state.tableState) return
 
@@ -302,7 +302,7 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
   }
 
   renderSaleLines = (product: SaleProduct): React.ReactNode => {
-    const variants: (ProductVariant|undefined)[] = product.Variants.length === 0
+    const variants: (ProductVariant | undefined)[] = product.Variants.length === 0
       ? [undefined]
       : product.Variants
 
@@ -393,12 +393,12 @@ class RegisterSale extends React.Component<RegisterSaleProps, RegisterSaleState>
                   {state.products?.map(this.renderSaleLines) ?? (
                     <TableRow>
                       <TableCell colSpan={5} style={{ textAlign: 'center' }}>
-                          Cargando…
+                        Cargando…
                       </TableCell>
                     </TableRow>
                   )}
                   {state.products && (
-                    <TotalsRow lineStates={[...state.tableState.values()]}/>
+                    <TotalsRow lineStates={[...state.tableState.values()]} />
                   )}
                 </TableBody>
               </Table>

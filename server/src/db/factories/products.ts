@@ -8,7 +8,7 @@ export function make(overrides?: Record<string, unknown>): Product {
   return Products.build({
     name: faker.commerce.productName(),
     code: faker.random.alphaNumeric(3),
-    basePrice: faker.random.number({ max: 10000, precision: 100 }),
+    basePrice: faker.datatype.number({ max: 10000, precision: 100 }),
 
     ...overrides,
   })

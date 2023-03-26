@@ -17,7 +17,7 @@ import SellList, { Sell } from '../components/Sells'
 import Title from '../components/Title'
 import useNonce from '../hooks/api/useNonce'
 import useAuth from '../hooks/useAuth'
-import useUser from '../hooks/useUser'
+import { useUserFetch } from '../hooks/useUser'
 import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
 
 
@@ -54,7 +54,7 @@ export default function Sells(): JSX.Element {
   const [snackbar, setSnackbarError] = useSnackbar()
 
   // Sell List
-  const [sells, setSells] = useState<Sell[]|null>(null)
+  const [sells, setSells] = useState<Sell[] | null>(null)
   const [nonce, refresh] = useNonce()
   useEffect(() => {
     (async () => {
@@ -111,7 +111,7 @@ export default function Sells(): JSX.Element {
     }
     setSnackbarError(`Error al cargar el usuario actual: ${error.message}`)
   }, [setSnackbarError])
-  const { isAdmin } = useUser(handleUserError)
+  const { isAdmin } = useUserFetch(handleUserError)
 
   const enableDelete = Boolean(isAdmin) || isToday(date.toDate())
 

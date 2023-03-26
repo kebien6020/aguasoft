@@ -17,7 +17,7 @@ import { Spending } from '../models'
 import { ErrorResponse, fetchJsonAuth, isErrorResponse, SuccessResponse } from '../utils'
 import { MakeOptional } from '../utils/types'
 
-type SpendingsProps = AuthRouteComponentProps<unknown>;
+type SpendingsProps = AuthRouteComponentProps;
 export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   const classes = useStyles()
 
@@ -51,7 +51,7 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   const setSnackbarError = useSnackbar()
 
   // Payment List
-  const [spendings, setSpendings] = useState<Spending[]|null>(null)
+  const [spendings, setSpendings] = useState<Spending[] | null>(null)
   useEffect(() => {
     const updateSpendings = async () => {
       setSpendings(null)
@@ -74,7 +74,7 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
     if (!spendings) return
 
     const url = `/api/spendings/${spendingId}`
-    const result : ErrorResponse | SuccessResponse =
+    const result: ErrorResponse | SuccessResponse =
       await fetchJsonAuth(url, auth, {
         method: 'delete',
       })

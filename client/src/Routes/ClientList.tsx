@@ -164,7 +164,7 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
   </Dialog>
 )
 
-const clientDialogStyles : StyleRulesCallback<Theme, ClientDialogProps> = theme => ({
+const clientDialogStyles: StyleRulesCallback<Theme, ClientDialogProps> = theme => ({
   mainIcon: {
     color: theme.palette.primary.main,
   },
@@ -181,7 +181,7 @@ const clientDialogStyles : StyleRulesCallback<Theme, ClientDialogProps> = theme 
 
 const ClientDialog = withUser(withStyles(clientDialogStyles)(ClientDialogRaw))
 
-type Props = AuthRouteComponentProps<Record<string, unknown>> & WithStyles<typeof styles>
+type Props = AuthRouteComponentProps & WithStyles<typeof styles>
 
 interface State {
   clientsError: boolean

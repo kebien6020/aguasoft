@@ -64,21 +64,21 @@ fs
   })
 
 export default models as {
-    BalanceVerifications: BalanceVerificationStatic
-    Clients: ClientStatic
-    InventoryElements: InventoryElementStatic
-    InventoryMovements: InventoryMovementStatic
-    MachineCounters: MachineCounterStatic
-    Payments: PaymentStatic
-    Prices: PriceStatic
-    Products: ProductStatic
-    ProductVariants: ProductVariantStatic
-    Sells: SellStatic
-    Session: SessionStatic
-    Spendings: SpendingStatic
-    Storages: StorageStatic
-    StorageStates: StorageStateStatic
-    Users: UserStatic
+  BalanceVerifications: BalanceVerificationStatic
+  Clients: ClientStatic
+  InventoryElements: InventoryElementStatic
+  InventoryMovements: InventoryMovementStatic
+  MachineCounters: MachineCounterStatic
+  Payments: PaymentStatic
+  Prices: PriceStatic
+  Products: ProductStatic
+  ProductVariants: ProductVariantStatic
+  Sells: SellStatic
+  Session: SessionStatic
+  Spendings: SpendingStatic
+  Storages: StorageStatic
+  StorageStates: StorageStateStatic
+  Users: UserStatic
 }
 
 // Add sequelize instance and class to the exports

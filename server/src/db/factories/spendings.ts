@@ -8,9 +8,9 @@ export function make(overrides?: Record<string, unknown>): Spending {
   return Spendings.build({
     date: faker.date.recent(),
     description: faker.lorem.sentence(),
-    value: faker.random.number({ max: 100000, precision: 100 }),
-    fromCash: faker.random.boolean(),
-    isTransfer: faker.random.number(100) <= 5,
+    value: faker.datatype.number({ max: 100000, precision: 100 }),
+    fromCash: faker.datatype.boolean(),
+    isTransfer: faker.datatype.number(100) <= 5,
 
     ...overrides,
   })

@@ -81,6 +81,13 @@ app.use('/api', (req, _res, next) => {
 // in any route or middleware
 app.use(jsonErrorHandler)
 
+// https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation
+declare module 'express-session' {
+  interface Session {
+    userId?: number
+  }
+}
+
 // Check the routes that require logged user
 function checkUser(req: Request, res: Response, next: NextFunction) {
   if (typeof req.session.userId === 'number')

@@ -4,6 +4,8 @@ import * as path from 'path'
 import { Sequelize } from 'sequelize'
 import * as Umzug from 'umzug'
 import { sequelize } from './server/src/db/models'
+import 'jest-extended'
+import 'jest-extended/all' // Register matchers
 
 const umzug = new Umzug({
   migrations: {
@@ -18,9 +20,13 @@ const umzug = new Umzug({
 
 const migrate = async () => {
   await umzug.up()
-  console.log('Migations performed successfully')
 }
 
 beforeAll(async () => {
-  await migrate()
+  try {
+    await migrate()
+  } catch (e) {
+    console.error('Error running migrations during test', e)
+    throw e
+  }
 })
