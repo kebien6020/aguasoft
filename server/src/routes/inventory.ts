@@ -239,7 +239,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       sortDir: yup.string()
         .lowercase()
         .oneOf(['asc', 'desc'])
-        .default('asc') as yup.StringSchema<'asc'|'desc'>,
+        .default('asc'),
       minDate: yup.date(),
       maxDate: yup.date(),
       cause: yup.string(),
@@ -254,7 +254,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
     const query = schema.cast(req.query)
 
     let where: WhereOptions = {}
-    const createdAt : {[Op.gte]?: Date, [Op.lte]?: Date} = {}
+    const createdAt: { [Op.gte]?: Date, [Op.lte]?: Date } = {}
     if (query.minDate)
       createdAt[Op.gte] = query.minDate
 
@@ -307,6 +307,7 @@ type InventoryElementCode =
   | 'bolsa-6l-raw'
   | 'bolsa-360'
   | 'bolsa-hielo-5kg'
+  | 'bolsa-hielo-2kg'
   | 'barra-hielo'
 
 type ProductionType =
@@ -314,6 +315,7 @@ type ProductionType =
   | 'paca-360'
   | 'bolsa-6l'
   | 'hielo-5kg'
+  | 'hielo-2kg'
   | 'bolsa-360-congelada'
   | 'barra-hielo'
 
@@ -327,7 +329,7 @@ interface ProductionInfoElement {
   damaged: null | Without<ProductionInfoElement, 'damaged'>
 }
 
-const productionInfo : {[idx in ProductionType] : ProductionInfoElement} = {
+const productionInfo: { [idx in ProductionType]: ProductionInfoElement } = {
   'bolsa-360': {
     storageFrom: null,
     storageTo: 'intermedia',
@@ -371,6 +373,18 @@ const productionInfo : {[idx in ProductionType] : ProductionInfoElement} = {
       inventoryElementTo: 'bolsa-hielo-5kg',
     },
   },
+  'hielo-2kg': {
+    storageFrom: 'trabajo',
+    storageTo: 'terminado',
+    inventoryElementFrom: 'bolsa-hielo-2kg',
+    inventoryElementTo: 'hielo-2kg',
+    damaged: {
+      storageFrom: 'trabajo',
+      storageTo: null,
+      inventoryElementFrom: 'bolsa-hielo-2kg',
+      inventoryElementTo: 'bolsa-hielo-2kg',
+    },
+  },
   'bolsa-360-congelada': {
     storageFrom: 'intermedia',
     storageTo: 'terminado',
@@ -409,8 +423,8 @@ export async function productionMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       productionType: yup.mixed<ProductionType>().oneOf(Object.keys(productionInfo) as ProductionType[]).required(),
       amount: yup.number().integer().min(0).required(),
-      damaged: yup.mixed<number|null>().when('productionType', {
-        is: (type: ProductionType) => productionInfo[type].damaged !== null,
+      damaged: yup.mixed<number | null>().when('productionType', {
+        is: (type: ProductionType) => productionInfo[type]?.damaged !== null,
         then: yup.number().integer().min(0).required(),
       }),
       counterEnd: yup.mixed<number|undefined>().when('productionType', {
@@ -643,7 +657,7 @@ export async function damageMovement(req: Request, res: Response, next: NextFunc
       throw new Error(`No se encontró el almacen con el código ${storageCode}`)
 
 
-    const movementData : CreateManualMovementArgs = {
+    const movementData: CreateManualMovementArgs = {
       inventoryElementFromId: inventoryElement.id,
       inventoryElementToId: inventoryElement.id,
       storageFromId: storage.id,
@@ -722,7 +736,7 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
       throw new Error('No se encontró el almacen con el código intermedia')
 
 
-    const movementData : CreateManualMovementArgs = {
+    const movementData: CreateManualMovementArgs = {
       inventoryElementFromId: inventoryElementFrom.id,
       inventoryElementToId: inventoryElementTo.id,
       storageFromId: storageFrom.id,
@@ -798,7 +812,7 @@ export async function relocationMovement(req: Request, res: Response, next: Next
       throw new Error(`No se encontró el almacen con el código ${storageCodes[1]}`)
 
 
-    const movementData : CreateManualMovementArgs = {
+    const movementData: CreateManualMovementArgs = {
       inventoryElementFromId: inventoryElement.id,
       inventoryElementToId: inventoryElement.id,
       storageFromId: storageFrom.id,
@@ -816,7 +830,7 @@ export async function relocationMovement(req: Request, res: Response, next: Next
 
       if (elementCode === 'rollo-360') {
         // Remove previous element
-        const movementData : CreateManualMovementArgs = {
+        const movementData: CreateManualMovementArgs = {
           inventoryElementFromId: inventoryElement.id,
           inventoryElementToId: inventoryElement.id,
           storageFromId: storageTo.id,
@@ -896,7 +910,7 @@ export async function entryMovement(req: Request, res: Response, next: NextFunct
       throw new Error(`No se encontró el almacen con el código ${storageCode}`)
 
 
-    const movementData : CreateManualMovementArgs = {
+    const movementData: CreateManualMovementArgs = {
       inventoryElementFromId: inventoryElement.id,
       inventoryElementToId: inventoryElement.id,
       storageFromId: null,
