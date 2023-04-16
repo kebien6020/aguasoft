@@ -77,7 +77,7 @@ export default function(sequelize: Sequelize): SellStatic {
       where: {
         [Op.or]: [
           { date: { [Op.lt]: '2022-09-01' } },
-          { date: { [Op.gt]: '2022-10-09' } },
+          { date: { [Op.gt]: '2022-10-14' } },
           { productId: { [Op.ne]: 5 } },
         ],
       },
