@@ -12,6 +12,8 @@ services:
     command: npm run start-server-autoreload
     ports:
       - 3000:3000
+    environment: {}
+      # DEBUG: sql:*
   server-watch:
     image: node:18-alpine
     working_dir: /app
