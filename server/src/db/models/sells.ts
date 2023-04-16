@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
+import { Sequelize, DataTypes, Model, Op } from 'sequelize'
 import { ModelStatic } from '../type-utils'
 import { Product } from './products'
 import { Client } from './clients'
@@ -25,8 +25,8 @@ export interface Sell extends SellAttriutes, Model {
 
 export type SellStatic = ModelStatic<Sell>
 
-export default function (sequelize: Sequelize): SellStatic {
-  const Sells = <SellStatic> sequelize.define('Sells', {
+export default function(sequelize: Sequelize): SellStatic {
+  const Sells = <SellStatic>sequelize.define('Sells', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -71,6 +71,16 @@ export default function (sequelize: Sequelize): SellStatic {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+  }, {
+    defaultScope: {
+      where: {
+        [Op.or]: [
+          { date: { [Op.lt]: '2022-09-01' } },
+          { date: { [Op.gt]: '2022-10-09' } },
+          { productId: { [Op.ne]: 5 } },
+        ],
+      },
     },
   })
   Sells.associate = function(models) {
