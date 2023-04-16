@@ -58,6 +58,7 @@ type ProductionType =
   | 'paca-360'
   | 'bolsa-6l'
   | 'hielo-5kg'
+  | 'hielo-2kg'
   | 'bolsa-360-congelada'
   | 'barra-hielo'
 
@@ -71,6 +72,7 @@ const productionTypeOptions: ProductionTypeOption[] = [
   { value: 'paca-360', label: 'Empaque de Pacas 360' },
   { value: 'bolsa-6l', label: 'Bolsas de 6 Litros' },
   { value: 'hielo-5kg', label: 'Hielo 5Kg' },
+  { value: 'hielo-2kg', label: 'Hielo 2Kg' },
   { value: 'bolsa-360-congelada', label: 'Bolsa 360 Congelada' },
   { value: 'barra-hielo', label: 'Barras de Hielo' },
 ]
@@ -94,11 +96,11 @@ const validationSchema = Yup.object({
     then: Yup.number().integer().positive().moreThan(Yup.ref('counterStart')).required(),
   }),
   amount: Yup.mixed().when('productionType', {
-    is: t => t === 'paca-360' || t === 'barra-hielo',
+    is: (t: string) => ['paca-360', 'barra-hielo', 'hielo-5kg', 'hielo-2kg'].includes(t),
     then: Yup.number().integer().min(0).required(),
   }),
   damaged: Yup.mixed().when('productionType', {
-    is: 'paca-360',
+    is: (t: string) => ['paca-360', 'hielo-5kg', 'hielo-2kg'].includes(t),
     then: Yup.number().integer().min(0).required(),
   }),
 })
@@ -129,7 +131,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
     } else {
       setFieldValue('damaged', '0')
     }
-  }, [detectDamaged, quantityInIntermediate, values.amount])
+  }, [detectDamaged, quantityInIntermediate, values.amount, values.productionType])
 
   const prevProductionType = usePrevious(values.productionType)
 
@@ -137,7 +139,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
     // When changing to productionType other than paca-360, reset damaged to 0
     if (prevProductionType === 'paca-360' && values.productionType !== 'paca-360')
       setFieldValue('damaged', '0')
-  }, [values.productionType])
+  }, [values.productionType, prevProductionType])
 
   return null
 }
@@ -171,7 +173,7 @@ const RegisterProduction = (): JSX.Element => {
   const [nonce, setNonce] = useState(1)
   const updateIntermediateState = useCallback(() =>
     setNonce(prev => prev + 1)
-    , [])
+  , [])
   const [intermediateState] = useFetch<{ 'bolsa-360': number }>('/api/inventory/state/intermediate', {
     showError: showMessage,
     name: 'el estado actual del inventario',
@@ -201,7 +203,7 @@ const RegisterProduction = (): JSX.Element => {
       }
     }
 
-    if (pType === 'paca-360' || pType === 'bolsa-6l' || pType === 'hielo-5kg' || pType === 'bolsa-360-congelada') {
+    if (['paca-360', 'bolsa-6l', 'hielo-5kg', 'hielo-2kg', 'bolsa-360-congelada'].includes(pType)) {
       payload = {
         ...payload,
         amount: Number(values.amount),
@@ -293,7 +295,9 @@ const RegisterProduction = (): JSX.Element => {
             }>
               <Grid item xs={12}>
                 <Typography>
-                  Se registrará una producción de {Number(values.counterEnd) - Number(values.counterStart)} bolsas de 360ml individuales.
+                  Se registrará una producción de
+                  {Number(values.counterEnd) - Number(values.counterStart)}
+                  bolsas de 360ml individuales.
                 </Typography>
               </Grid>
             </Collapse>
@@ -327,6 +331,7 @@ const RegisterProduction = (): JSX.Element => {
             <Collapse in={
               values.productionType === 'bolsa-6l'
               || values.productionType === 'hielo-5kg'
+              || values.productionType === 'hielo-2kg'
               || values.productionType === 'bolsa-360-congelada'
             }>
               <Grid item xs={12} md={6}>
