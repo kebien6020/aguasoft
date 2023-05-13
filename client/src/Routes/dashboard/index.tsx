@@ -7,6 +7,7 @@ import { DateFilter, GroupByOption, initialGroupBy } from './components/DateFilt
 import { DayMoneyWidget } from './components/DayMoneyWidget'
 import { SalesWidget } from './components/SalesWidget'
 import { ToolsWidget } from './components/ToolsWidget'
+import { DamageWidget } from './components/DamageWidget'
 
 export type DateRange = {
   minDate: Date
@@ -39,6 +40,7 @@ const Dashboard = (): JSX.Element => {
             rangeDescr={rangeDescr}
             dateRange={dateRange}
           />
+          <DamageWidget dateRange={dateRange} />
         </Grid>
       </Grid>
     </DashboardLayout>
