@@ -18,17 +18,17 @@ const Users = models.Users
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const includeableSchema: yup.ArraySchema<Includeable> = yup.array().of<Includeable>(yup.lazy((val) => {
-      if (typeof val === 'string') return yup.string()
-
-      return yup.object({
+    const includeableSchema: yup.ArraySchema<yup.SchemaOf<Includeable>> = yup.array().of(yup.mixed().oneOf([
+      yup.string(),
+      yup.object({
         association: yup.string().required(),
         as: yup.string(),
         attributes: yup.array().of(yup.string()),
         paranoid: yup.boolean(),
         include: yup.lazy(() => includeableSchema.default(undefined)),
-      })
-    }))
+      }),
+    ]))
+
     const schema = yup.object({
       minDate: yup.date().notRequired(),
       maxDate: yup.date().notRequired(),
@@ -215,7 +215,7 @@ const wrap = <T>(hnd: Handler<T>): ExpressHandler =>
     }
   }
 
-type SchemaType<T> = T extends yup.Schema<infer Q> ? Q : never
+type SchemaType<T> = T extends yup.BaseSchema<infer Q> ? Q : never
 
 const sellSchema = yup.object({
   cash: yup.boolean().required(),
