@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, Op } from 'sequelize'
+import { Sequelize, DataTypes, Model /* , Op */ } from 'sequelize'
 import { ModelStatic } from '../type-utils'
 import { Product } from './products'
 import { Client } from './clients'
@@ -73,15 +73,15 @@ export default function(sequelize: Sequelize): SellStatic {
       defaultValue: false,
     },
   }, {
-    defaultScope: {
-      where: {
-        [Op.or]: [
-          { date: { [Op.lt]: '2022-09-01' } },
-          { date: { [Op.gt]: '2022-10-14' } },
-          { productId: { [Op.ne]: 5 } },
-        ],
-      },
-    },
+    // defaultScope: {
+    //   where: {
+    //     [Op.or]: [
+    //       { date: { [Op.lt]: '2022-09-01' } },
+    //       { date: { [Op.gt]: '2022-10-14' } },
+    //       { productId: { [Op.ne]: 5 } },
+    //     ],
+    //   },
+    // },
   })
   Sells.associate = function(models) {
     // associations can be defined here
