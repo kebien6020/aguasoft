@@ -3,7 +3,8 @@ const baseUrl = window.location.origin
 const domain = 'kevinpena.auth0.com'
 const clientID = 'HIWjFo1TbHBO1nezMkcLew22aTYvBi7L'
 const redirectUri = baseUrl + '/authCallback'
-const silentRedirectUri = baseUrl + '/silentAuth'
+// For now, removed silent auth
+// const silentRedirectUri = baseUrl + '/silentAuth'
 const audience = 'https://soft.agualaif.com'
 const scope = 'openid read:fullapi'
 
@@ -38,8 +39,7 @@ export default class Auth {
     return new Promise((resolve, reject) => {
       this.auth0.renewAuth(
         {
-          redirectUri: silentRedirectUri,
-          usePostMessage: true,
+          usePostMessage: false,
         },
         (err: auth0.Auth0Error | null, authResult: auth0.Auth0DecodedHash) => {
           if (err) {
@@ -99,10 +99,13 @@ export default class Auth {
   }
 
   saveAuth(authResult: auth0.Auth0DecodedHash): void {
-    if (authResult && authResult.accessToken && authResult.idToken)
+    console.log('Saving auth token to localStorage')
+    if (authResult && authResult.accessToken && authResult.idToken) {
       this.setSession(authResult)
-    else
+    } else {
+      console.error('error with auth result', authResult)
       throw Error('Invalid authResult')
+    }
 
   }
 
