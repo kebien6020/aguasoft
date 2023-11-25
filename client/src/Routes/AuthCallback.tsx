@@ -15,12 +15,13 @@ const AuthCallback = () => {
     (async () => {
       try {
         await auth.handleAuthentication()
+        history.push('/')
       } catch (err: unknown) {
         console.error('AuthCallback: error with authentication data', err)
         setError('Error al iniciar sesion')
       }
     })()
-  }, [auth])
+  }, [auth, history])
 
   const goHome = () => history.push('/')
 
