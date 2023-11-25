@@ -6,6 +6,7 @@ export interface FetchAuthOptions extends RequestInit {
   // allow to override fetch for testing purposes
   fetch?: (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>
   retry?: boolean // when true we are retrying the request
+  redirectOnAuthError?: boolean
 }
 
 export async function fetchJsonAuth<R = SuccessResponse>(
@@ -14,7 +15,10 @@ export async function fetchJsonAuth<R = SuccessResponse>(
   options: FetchAuthOptions = {}
 ) : Promise<R|ErrorResponse> {
 
-  const fetch = options.fetch || window.fetch
+  const {
+    fetch = window.fetch,
+    redirectOnAuthError = true,
+  } = options
 
   const baseHeaders = {
     Authorization: 'bearer ' + auth.getAccessToken(),
@@ -36,21 +40,10 @@ export async function fetchJsonAuth<R = SuccessResponse>(
     isErrorResponse(data)
     && data.error.errors?.[0]?.name === 'UnauthorizedError'
 
-  // In case of token error try renewing it with silentAuth and retry
+  // In case of token error, go to login
   if (invalidToken || authError) {
-
-    const success = await auth.renew()
-
-    if (success && !opts.retry) {
-      // retry
-      const newOpts = Object.assign({}, options, { retry: true })
-      return fetchJsonAuth(url, auth, newOpts)
-    } else {
-      // silent auth failed, let's do a flashy auth
-      auth.login()
-      return { success: false, error: { code: 'not_authenticated', message: 'No autenticado' } }
-    }
-
+    // if (redirectOnAuthError) auth.login()
+    return { success: false, error: { code: 'not_authenticated', message: 'No autenticado' } }
   }
 
   return data

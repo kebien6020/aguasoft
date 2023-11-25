@@ -15,17 +15,20 @@ import jsonErrorHandler from './utils/jsonErrors'
 
 const SequelizeStore = ConnectSessionSequelize(session.Store)
 
+const googleClientID = '327533471227-niedralk7louhbv330rm2lk1r8mgcv9g.apps.googleusercontent.com'
+const googleIssuer = 'https://accounts.google.com'
+const googleJwks = 'https://www.googleapis.com/oauth2/v3/certs'
+
 // Set up the jwt middleware
 const authCheck = jwt({
   secret: jwks.expressJwtSecret({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: 'https://kevinpena.auth0.com/.well-known/jwks.json',
+    jwksUri: googleJwks,
   }),
-  // This is the identifier we set when we created the API
-  audience: 'https://soft.agualaif.com',
-  issuer: 'https://kevinpena.auth0.com/',
+  audience: googleClientID,
+  issuer: googleIssuer,
   algorithms: ['RS256'],
 })
 
@@ -55,7 +58,12 @@ app.use(sessionMiddleware)
 // Serve static assets
 const STATIC_FOLDER = path.resolve(__dirname, '../../client/dist')
 const INDEX_FILE = path.resolve(__dirname, '../../client/dist/index.html')
-app.use(express.static(STATIC_FOLDER))
+app.use(express.static(STATIC_FOLDER, {
+  setHeaders(res, _path, _stat) {
+    if (process.env.NODE_ENV !== 'production') 
+      res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade')
+  },
+}))
 
 // API routes
 if (process.env.NODE_ENV === 'production')
@@ -101,6 +109,8 @@ app.get('/sell', checkUser)
 
 // Serve the SPA for any unhandled route (it handles 404)
 app.get('*', (_req, res) => {
+  if (process.env.NODE_ENV !== 'production') 
+    res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade')
   res.sendFile(INDEX_FILE)
 })
 

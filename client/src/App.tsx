@@ -17,8 +17,6 @@ import theme from './theme'
 const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
 const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/RegisterSale'))
-const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
-const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
 const MonitorSells = lazy(() => import(/* webpackChunkName: "monitor-sells" */ './Routes/MonitorSells'))
 const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
@@ -41,15 +39,15 @@ const RegisterEntry = lazy(() => import(/* webpackChunkName: "register-entry" */
 const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Balance'))
 const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/dashboard/index'))
 const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
+const ExternalLogin = lazy(() => import(/* webpackChunkName: "external-login" */ './Routes/ExternalLogin'))
 
 const auth = new Auth()
 moment.locale('es')
 
 const AppSwitch = () => (
   <Switch>
-    <Route exact path='/authCallback' component={AuthCallback} />
-    <Route exact path='/silentAuth' component={SilentAuth} />
     <Route exact path='/logout' component={Logout} />
+    <Route exact path='/login' component={ExternalLogin} />
 
     <Route exact private path='/check' component={CheckUser} />
 
