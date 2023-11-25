@@ -6,6 +6,7 @@ export interface FetchAuthOptions extends RequestInit {
   // allow to override fetch for testing purposes
   fetch?: (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>
   retry?: boolean // when true we are retrying the request
+  failOnAuthError?: boolean
 }
 
 export async function fetchJsonAuth<R = SuccessResponse>(
@@ -37,7 +38,7 @@ export async function fetchJsonAuth<R = SuccessResponse>(
     && data.error.errors?.[0]?.name === 'UnauthorizedError'
 
   // In case of token error try renewing it with silentAuth and retry
-  if (invalidToken || authError) {
+  if (!options.failOnAuthError && (invalidToken || authError)) {
 
     const success = await auth.renew()
 

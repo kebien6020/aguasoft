@@ -18,16 +18,22 @@ const Users = models.Users
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const includeableSchema: yup.ArraySchema<yup.SchemaOf<Includeable>> = yup.array().of(yup.mixed().oneOf([
-      yup.string(),
-      yup.object({
+    // Limitation of yup typing. It says that a Lazy<StringSchema|ObjectSchema>
+    // is not assignable to AnySchema
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const includeableSchema: yup.ArraySchema<yup.SchemaOf<Includeable>> = yup.array().of(yup.lazy(value => {
+
+      if (typeof value === 'string') return yup.string()
+
+      return yup.object({
         association: yup.string().required(),
         as: yup.string(),
         attributes: yup.array().of(yup.string()),
         paranoid: yup.boolean(),
         include: yup.lazy(() => includeableSchema.default(undefined)),
-      }),
-    ]))
+      })
+    }))
 
     const schema = yup.object({
       minDate: yup.date().notRequired(),
@@ -468,7 +474,7 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
       throw e
     }
 
-    const userId = req.session.userId as number
+    const userId = req.session.userId 
 
     const sellId = req.params.id
     const sell = await Sells.findByPk(sellId)
