@@ -21,8 +21,6 @@ import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
-const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
-const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
 const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/client-editor/index'))
 const ClientList = lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/client-list/index'))
@@ -46,12 +44,12 @@ const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Route
 const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
 const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Batches'))
 const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/Register'))
+const ExternalLogin = lazy(() => import(/* webpackChunkName: "external-login" */ './Routes/ExternalLogin'))
 
 const AppSwitch = () => (
   <Routes>
-    <Route path='/authCallback' element={<AuthCallback />} />
-    <Route path='/silentAuth' element={<SilentAuth />} />
     <Route path='/logout' element={<Logout />} />
+    <Route path='/login' element={<ExternalLogin />} />
 
     <Route path='/check' element={<RequireAuth><CheckUser /></RequireAuth>} />
 
