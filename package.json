@@ -44,7 +44,7 @@
     "sequelize": "^5.22.5",
     "sequelize-cli": "^5.5.1",
     "socket.io": "^2.5.0",
-    "socket.io-parser": "^3.4.2",
+    "socket.io-parser": "^3.4.3",
     "sqlite3": "^5.1.6",
     "use-deep-compare-effect": "^1.8.1",
     "yup": "^0.32.11"
