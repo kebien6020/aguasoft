@@ -34,7 +34,7 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
       attributes,
       order: [
         Sequelize.literal('CASE WHEN `code` = \'001\' THEN 0 ELSE 1 END'),
-        'name',
+        Sequelize.literal('`name` COLLATE NOCASE'),
       ],
       where: {
         ...(hidden !== 'any' && { hidden: hidden === 'hidden' }),
