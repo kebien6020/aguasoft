@@ -73,7 +73,7 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
       setPayments(paymentsCopy)
     } else {
       console.error(result)
-      setSnackbarError('Error al eliminar el pago')
+      setSnackbarError('Error al eliminar el pago: ' + result.error.message)
     }
   }, [payments, auth, setSnackbarError])
 

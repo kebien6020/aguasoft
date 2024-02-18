@@ -1,4 +1,3 @@
-import { isToday, parse } from 'date-fns'
 import { NextFunction, Request, Response } from 'express'
 import { Includeable, Op } from 'sequelize'
 import * as yup from 'yup'
@@ -483,9 +482,8 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
       throw Error('Venta ya habia sido eliminada')
 
     const user = await Users.findByPk(userId)
-    const sellDate = parse(sell.date, 'yyyy-MM-dd', new Date)
-    if (!isToday(sellDate) && user.role !== 'admin') {
-      const e = new Error('Solo usuarios admin pueden eliminar ventas del pasado')
+    if (user.role !== 'admin') {
+      const e = new Error('Solo usuarios admin pueden eliminar ventas')
       e.name = 'user_permission'
       throw e
     }

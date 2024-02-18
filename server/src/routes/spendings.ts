@@ -1,12 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import { Op, Includeable } from 'sequelize'
 import models from '../db/models'
-import { SpendingStatic } from '../db/models/spendings'
-import { UserStatic } from '../db/models/users'
 import * as moment from 'moment'
 
-const Spendings = models.Spendings as SpendingStatic
-const Users = models.Users as UserStatic
+const Spendings = models.Spendings 
+const Users = models.Users 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -20,9 +18,9 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
     const user = await Users.findByPk(req.session.userId)
 
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin') 
       body.date = moment().toISOString()
-    }
+    
 
     body.userId = req.session.userId
 
@@ -38,7 +36,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       ],
     })
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }
@@ -46,8 +44,8 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function paginate(req: Request, res: Response, next: NextFunction) {
   try {
-    let limit = Number(req.query.limit)
-    let offset = Number(req.query.offset)
+    const limit = Number(req.query.limit)
+    const offset = Number(req.query.offset)
 
     if (isNaN(limit)) {
       const e = Error('limit should be a number')
@@ -88,7 +86,7 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
 
     const totalCount = await Spendings.count()
 
-    res.json({spendings, totalCount})
+    res.json({ spendings, totalCount })
   } catch (e) {
     next(e)
   }
@@ -114,7 +112,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
         date: {
           [Op.gte]: day.toISOString(),
           [Op.lt]: day.add(1, 'day').toISOString(),
-        }
+        },
       },
       include: [
         {
@@ -168,11 +166,25 @@ export async function listRecent(req: Request, res: Response, next: NextFunction
 
 export async function del(req: Request, res: Response, next: NextFunction) {
   try {
+    if (!req.session.userId) {
+      const e = Error('Debes iniciar sesión para eliminar salidas')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = req.session.userId 
+    const user = await Users.findByPk(userId)
+    if (user.role !== 'admin') {
+      const e = new Error('Solo usuarios admin pueden eliminar salidas')
+      e.name = 'user_permission'
+      throw e
+    }
+
     const spendingId = req.params.id
     const spending = await Spendings.findByPk(spendingId)
     await spending.destroy()
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }

@@ -113,7 +113,7 @@ export default function Sells(): JSX.Element {
   }, [setSnackbarError])
   const { isAdmin } = useUserFetch(handleUserError)
 
-  const enableDelete = Boolean(isAdmin) || isToday(date.toDate())
+  const enableDelete = Boolean(isAdmin)
 
   return (
     <Layout title='Ventas'>
