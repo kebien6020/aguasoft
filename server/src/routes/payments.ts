@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Op, Includeable } from 'sequelize'
 import models from '../db/models'
-import { PaymentStatic } from '../db/models/payments'
-import { UserStatic } from '../db/models/users'
 import * as moment from 'moment'
 
 const Payments = models.Payments 
