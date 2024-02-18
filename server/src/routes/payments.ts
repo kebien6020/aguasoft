@@ -5,8 +5,8 @@ import { PaymentStatic } from '../db/models/payments'
 import { UserStatic } from '../db/models/users'
 import * as moment from 'moment'
 
-const Payments = models.Payments as PaymentStatic
-const Users = models.Users as UserStatic
+const Payments = models.Payments 
+const Users = models.Users 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -28,13 +28,13 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     body.userId = req.session.userId
 
     // Normalize dates
-    if (body.dateFrom) {
+    if (body.dateFrom) 
       body.dateFrom = moment(body.dateFrom).format('YYYY-MM-DD')
-    }
+    
 
-    if (body.dateTo) {
+    if (body.dateTo) 
       body.dateTo = moment(body.dateTo).format('YYYY-MM-DD')
-    }
+    
 
     await Payments.create(body, {
       // Only allow user input to control these attributes
@@ -47,11 +47,11 @@ export async function create(req: Request, res: Response, next: NextFunction) {
         'dateTo',
         'invoiceNo',
         'invoiceDate',
-        'directPayment'
+        'directPayment',
       ],
     })
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }
@@ -59,8 +59,8 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
 export async function paginate(req: Request, res: Response, next: NextFunction) {
   try {
-    let limit = Number(req.query.limit)
-    let offset = Number(req.query.offset)
+    const limit = Number(req.query.limit)
+    const offset = Number(req.query.offset)
 
     if (isNaN(limit)) {
       const e = Error('limit should be a number')
@@ -107,7 +107,7 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
 
     const totalCount = await Payments.count()
 
-    res.json({payments, totalCount})
+    res.json({ payments, totalCount })
   } catch (e) {
     next(e)
   }
@@ -135,7 +135,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
         date: {
           [Op.gte]: day.toISOString(),
           [Op.lt]: day.add(1, 'day').toISOString(),
-        }
+        },
       },
       include: [
         {
@@ -199,11 +199,26 @@ export async function listRecent(req: Request, res: Response, next: NextFunction
 
 export async function del(req: Request, res: Response, next: NextFunction) {
   try {
+
+    if (!req.session.userId) {
+      const e = Error('Debes iniciar sesión para eliminar pagos')
+      e.name = 'user_check_error'
+      throw e
+    }
+
+    const userId = req.session.userId 
+    const user = await Users.findByPk(userId)
+    if (user.role !== 'admin') {
+      const e = new Error('Solo usuarios admin pueden eliminar pagos')
+      e.name = 'user_permission'
+      throw e
+    }
+
     const paymentId = req.params.id
     const payment = await Payments.findByPk(paymentId)
     await payment.destroy()
 
-    res.json({success: true})
+    res.json({ success: true })
   } catch (e) {
     next(e)
   }

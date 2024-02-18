@@ -28,6 +28,7 @@ import { money } from '../utils'
 interface Props {
   payments: Payment[]
   onDeletePayment: (paymentId: number) => Promise<unknown>
+  deleteDisabled: boolean
 }
 
 const Payments = (props: Props): JSX.Element => {
@@ -133,17 +134,20 @@ const Payments = (props: Props): JSX.Element => {
               </CardContent>
               <IconButton
                 className={classes.deleteButton}
-                onClick={async () => {
-                  try {
-                    setDisabledDelete(String(payment.id))
-                    await props.onDeletePayment(payment.id)
-                  } finally {
-                    setDisabledDelete(null)
-                  }
+                onClick={() => {
+                  (async () => {
+                    try {
+                      setDisabledDelete(String(payment.id))
+                      await props.onDeletePayment(payment.id)
+                    } finally {
+                      setDisabledDelete(null)
+                    }
+                  })()
                 }}
                 disabled={
                   payment.deletedAt !== null
                   || String(payment.id) === disabledDelete
+                  || props.deleteDisabled
                 }
               >
                 <DeleteIcon />

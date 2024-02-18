@@ -91,8 +91,9 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
       setSpendings(spendingsCopy)
     } else {
       console.error(result)
+      setSnackbarError('Error al eliminar la salida: ' + result.error.message)
     }
-  }, [spendings, auth])
+  }, [spendings, auth, setSnackbarError])
 
   return (
     <Layout title='Salidas'>

@@ -65,10 +65,10 @@ class SpendingList extends React.Component<Props, State> {
 
     const { props } = this
 
-    const result: ErrorResponse | SuccessResponse = await
-      fetchJsonAuth(`/api/spendings/${spendingId}`, props.auth, {
-        method: 'delete',
-      })
+    const result: ErrorResponse | SuccessResponse =
+    await fetchJsonAuth(`/api/spendings/${spendingId}`, props.auth, {
+      method: 'delete',
+    })
 
     if (!isErrorResponse(result)) {
       const spendings = [...this.state.spendings]
@@ -152,6 +152,6 @@ const styles: StyleRulesCallback<Theme, Props> = _theme => ({
 })
 
 export default
-  adminOnly(
-    withStyles(styles)(
-      SpendingList))
+adminOnly(
+  withStyles(styles)(
+    SpendingList))
