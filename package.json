@@ -41,7 +41,7 @@
     "lodash.groupby": "^4.6.0",
     "moment": "^2.29.4",
     "process": "^0.11.10",
-    "sequelize": "^5.22.5",
+    "sequelize": "^6.29.0",
     "sequelize-cli": "^5.5.1",
     "socket.io": "^2.5.0",
     "socket.io-parser": "^3.4.2",
