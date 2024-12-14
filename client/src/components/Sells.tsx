@@ -17,10 +17,10 @@ import { fetchJsonAuth, isErrorResponse, money } from '../utils'
 import Alert from './Alert'
 
 export interface Sell {
-  Client: {name: string, id: number, defaultCash: boolean},
-  Product: {name: string},
-  User: {name: string; code: string},
-  Prices: {name: string; value: string}[],
+  Client: { name: string, id: number, defaultCash: boolean },
+  Product: { name: string },
+  User: { name: string; code: string },
+  Prices: { name: string; value: string }[],
   cash: boolean,
   date: string,
   id: number,
@@ -55,7 +55,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
       })
     } catch (error) {
       const msg =
-          'Error de conexión al eliminar la venta. Es posible que no '
+        'Error de conexión al eliminar la venta. Es posible que no '
         + 'haya conexión a internet en este momento'
       showSnackbar(msg)
       return
@@ -87,7 +87,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
     return classNames.join(' ')
   }
 
-  const userColorLookup : {[index:string] : string} = {
+  const userColorLookup: { [index: string]: string } = {
     '001': colors.blue[500],
     '002': colors.pink[500],
     '003': colors.green[500],
@@ -96,16 +96,6 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
   const getUserColor = (userCode: string) => (
     userColorLookup[userCode] || colors.grey[500]
   )
-
-  const getBasePrice = (sale: Sell) =>
-    Number(sale.Prices.filter(p => p.name === 'Base')[0].value)
-
-  const isBasePrice = (sale: Sell) => {
-    const price = sale.value / sale.quantity
-    const basePrice = getBasePrice(sale)
-
-    return Math.floor(price) === Math.floor(basePrice)
-  }
 
   const effectiveDisableDelete =
     sale.deleted
@@ -132,17 +122,12 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
         <CardContent>
           <Typography variant='body2'>
             {moment(sale.updatedAt).format('hh:mm a')}
-                      ({moment(sale.updatedAt).fromNow()})
+            ({moment(sale.updatedAt).fromNow()})
           </Typography>
           {sale.deleted && <>
             <Alert type='error' message='Esta venta fue eliminada' />
           </>}
-          {!isBasePrice(sale) && <>
-            <Alert
-              type='warning'
-              message={`Venta por un precio diferente al precio base (que es ${money(getBasePrice(sale))})`}
-            />
-          </>}
+          <BasePriceAlert sale={sale} />
         </CardContent>
         <IconButton
           className={classes.deleteButton}
@@ -265,7 +250,7 @@ const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Eleme
     {sells?.length === 0 && <>
       <Grid item xs={12}>
         <Typography variant='h5'>
-              No se registaron ventas este día.
+          No se registaron ventas este día.
         </Typography>
       </Grid>
     </>}
@@ -279,6 +264,40 @@ const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Eleme
     }
   </Grid>
 )
+
+const getBasePrice = (sale: Sell) => {
+  const basePriceObj = sale.Prices.find(p => p.name === 'Base')
+  if (basePriceObj === undefined)
+    return undefined
+
+  return Number(basePriceObj.value)
+}
+
+const BasePriceAlert = ({ sale }: { sale: Sell }) => {
+  const basePrice = getBasePrice(sale)
+  if (basePrice === undefined) {
+    return (
+      <Alert
+        type='error'
+        message='No se encontró el precio base de este producto'
+      />
+    )
+  }
+
+  const price = sale.value / sale.quantity
+  const isBasePrice = Math.floor(price) === Math.floor(basePrice)
+
+  if (!isBasePrice) {
+    return (
+      <Alert
+        type='warning'
+        message={`Venta por un precio diferente al precio base (que es ${money(basePrice)})`}
+      />
+    )
+  }
+
+  return null
+}
 
 
 // See comment on component Login
