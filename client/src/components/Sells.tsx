@@ -21,6 +21,7 @@ export interface Sell {
   Product: { name: string },
   User: { name: string; code: string },
   Prices: { name: string; value: string }[],
+  Batch: null | { code: string, id: number },
   cash: boolean,
   date: string,
   id: number,
@@ -120,6 +121,11 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           subheader={`para ${sale.Client.name}`}
         />
         <CardContent>
+          {sale?.Batch?.code && (
+            <Typography variant='body2'>
+              Lote: {sale.Batch.code}
+            </Typography>
+          )}
           <Typography variant='body2'>
             {moment(sale.updatedAt).format('hh:mm a')}
             ({moment(sale.updatedAt).fromNow()})

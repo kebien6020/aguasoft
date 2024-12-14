@@ -7,7 +7,9 @@ export interface SelectOption {
   label: React.ReactNode
 }
 
-interface ChangeOverrideBag {
+export type ChangeEvent = React.ChangeEvent<{ name?: string | undefined; value: unknown; }>
+
+export interface ChangeOverrideBag {
   field: FieldInputProps<string>
   meta: FieldMetaProps<string>
 }
@@ -15,10 +17,10 @@ interface ChangeOverrideBag {
 export interface SelectFieldProps extends SelectControlProps {
   name: string
   onChangeOverride?:
-    (
-      event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>,
-      bag: ChangeOverrideBag
-    ) => unknown
+  (
+    event: ChangeEvent,
+    bag: ChangeOverrideBag
+  ) => unknown
   onBeforeChange?: (value: string) => boolean | void
 }
 

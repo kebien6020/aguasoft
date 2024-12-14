@@ -18,7 +18,7 @@ type Result<T> = [
 ]
 
 function useFetch<T>(
-  url: string,
+  url: string | null,
   hookOptions: UseFetchOptions
 ): Result<T> {
   const {
@@ -35,9 +35,11 @@ function useFetch<T>(
   const [loading, setLoading] = useState<boolean>(false)
   useDeepCompareEffect(() => {
     (async () => {
+      if (!url) return
+
       setLoading(true)
       try {
-        const response : T | ErrorResponse = await fetchJsonAuth(url, auth, options)
+        const response: T | ErrorResponse = await fetchJsonAuth(url, auth, options)
 
         if (!isErrorResponse(response)) {
           setData(response)

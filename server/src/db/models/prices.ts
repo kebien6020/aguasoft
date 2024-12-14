@@ -13,8 +13,14 @@ export interface Price extends Model {
 
 export type PriceStatic = ModelStatic<Price>
 
-export default function (sequelize: Sequelize) {
-  var Prices = <PriceStatic> sequelize.define('Prices', {
+export default function(sequelize: Sequelize) {
+  const Prices = <PriceStatic>sequelize.define('Prices', {
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER,
+    },
     value: {
       type: DataTypes.DECIMAL(20, 8),
       allowNull: false,
@@ -32,11 +38,11 @@ export default function (sequelize: Sequelize) {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-  });
+  })
   Prices.associate = function(models) {
     // associations can be defined here
     Prices.belongsTo(models.Clients)
     Prices.belongsTo(models.Products)
   }
-  return Prices;
-};
+  return Prices
+}

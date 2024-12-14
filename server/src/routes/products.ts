@@ -17,7 +17,7 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
     const query = schema.cast(req.query)
 
     const products = await Products.findAll({
-      attributes: ['id', 'name', 'code', 'basePrice'],
+      attributes: ['id', 'name', 'code', 'basePrice', 'batchCategoryId'],
       include: query.include,
     })
 

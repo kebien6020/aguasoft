@@ -19,6 +19,8 @@ import { StorageStatic } from './storages'
 import { StorageStateStatic } from './storageStates'
 import { UserStatic } from './users'
 import { ProductVariantStatic } from './productVariant'
+import { BatchCategoryStatic } from './batchCategories'
+import { BatchStatic } from './batches'
 const debug = makeDebug('app:db:setup')
 
 const thisFile = path.basename(module.filename)
@@ -79,6 +81,8 @@ export default models as {
   Storages: StorageStatic
   StorageStates: StorageStateStatic
   Users: UserStatic
+  BatchCategories: BatchCategoryStatic
+  Batches: BatchStatic
 }
 
 // Add sequelize instance and class to the exports

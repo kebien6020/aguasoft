@@ -1,15 +1,19 @@
 import { Request, Response, NextFunction } from 'express'
 import models from '../db/models'
-import { PriceStatic } from '../db/models/prices'
 
-const Prices = models.Prices as PriceStatic
+const Prices = models.Prices
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
-    const clientId = req.params.clientId as string
+    const clientId = req.params.clientId
+    const productId = req.query.productId as string | undefined
+
     const prices = await Prices.findAll({
       attributes: ['id', 'value', 'productId', 'name'],
-      where: {clientId: clientId},
+      where: {
+        clientId: clientId,
+        ...(productId ? { productId: productId } : {}),
+      },
     })
 
     res.json(prices)

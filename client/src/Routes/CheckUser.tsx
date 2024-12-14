@@ -1,15 +1,48 @@
 import * as React from 'react'
 import { Redirect } from 'react-router-dom'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import Modal from '@material-ui/core/Modal'
 
 import Layout from '../components/Layout'
-import { AuthRouteComponentProps } from '../AuthRoute'
 import Login from '../components/Login'
 import { parseParams } from '../utils'
+import { useState } from 'react'
+import useUser from '../hooks/useUser'
+import useAuth from '../hooks/useAuth'
 
-const styles: StyleRulesCallback<Theme, CheckUserProps> =
+const CheckUser = () => {
+  const classes = useStyles()
+  const [checked, setChecked] = useState(false)
+
+  const params = parseParams(window.location.search)
+  const redirectUrl = params.next ? params.next : '/sell'
+  const adminOnly = params.admin ? params.admin === 'true' : false
+  const userFromContext = useUser()
+  const auth = useAuth()
+
+  if (checked && userFromContext?.loggedIn)
+    return <Redirect to={redirectUrl} push />
+
+  return (
+    <Layout title='Verificación requerida'>
+      <Modal
+        open={true}
+      >
+        <div className={classes.paper}>
+          <Login
+            auth={auth}
+            adminOnly={adminOnly}
+            onSuccess={() => setChecked(true)}
+            text='Continuar'
+          />
+        </div>
+      </Modal>
+    </Layout>
+  )
+}
+
+const useStyles = makeStyles(
   ({ palette, spacing, shadows }) => ({
     paper: {
       position: 'absolute',
@@ -19,7 +52,7 @@ const styles: StyleRulesCallback<Theme, CheckUserProps> =
       padding: spacing(4),
       left: '50%',
       top: '50%',
-      transform: 'translateX(-50%) translateY(-50%)'
+      transform: 'translateX(-50%) translateY(-50%)',
     },
     field: {
       marginTop: spacing(2),
@@ -30,54 +63,6 @@ const styles: StyleRulesCallback<Theme, CheckUserProps> =
     button: {
       marginTop: spacing(4),
     },
-  })
+  }))
 
-interface CheckUserProps extends PropClasses, AuthRouteComponentProps<{}> {
-
-}
-
-interface CheckUserState {
-  checked: boolean
-}
-
-class CheckUser extends React.Component<CheckUserProps, CheckUserState> {
-
-  constructor(props: CheckUserProps) {
-    super(props)
-
-    this.state = {
-      checked: false,
-    }
-  }
-
-  render() {
-    const { props, state } = this
-    const { classes } = props
-    const params = parseParams(window.location.search)
-    const redirectUrl = params.next ? params.next : '/sell'
-    const adminOnly = params.admin ? params.admin === 'true' : false
-
-    if (state.checked) {
-      return <Redirect to={redirectUrl} push />
-    }
-
-    return (
-      <Layout title='Verificación requerida'>
-        <Modal
-          open={true}
-        >
-          <div className={classes.paper}>
-            <Login
-              auth={props.auth}
-              adminOnly={adminOnly}
-              onSuccess={() => this.setState({checked: true})}
-              text='Continuar'
-            />
-          </div>
-        </Modal>
-      </Layout>
-    )
-  }
-}
-
-export default withStyles(styles)(CheckUser)
+export default CheckUser

@@ -2,6 +2,7 @@ import { Sequelize, DataTypes, Model /* , Op */ } from 'sequelize'
 import { ModelStatic } from '../type-utils'
 import { Product } from './products'
 import { Client } from './clients'
+import { Batch } from './batches'
 
 export interface SellAttriutes {
   readonly id: number
@@ -13,6 +14,7 @@ export interface SellAttriutes {
   readonly userId: number
   readonly clientId: number
   readonly productId: number
+  readonly batchId: number
   readonly deleted: boolean
 }
 
@@ -21,6 +23,7 @@ export interface Sell extends SellAttriutes, Model {
   // Possible inclussions
   readonly Product?: Product
   readonly Client?: Client
+  readonly Batch?: Batch
 }
 
 export type SellStatic = ModelStatic<Sell>
@@ -67,6 +70,11 @@ export default function(sequelize: Sequelize): SellStatic {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    batchId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: null,
+    },
     deleted: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -88,6 +96,7 @@ export default function(sequelize: Sequelize): SellStatic {
     Sells.belongsTo(models.Users)
     Sells.belongsTo(models.Clients)
     Sells.belongsTo(models.Products)
+    Sells.belongsTo(models.Batches)
   }
   return Sells
 }

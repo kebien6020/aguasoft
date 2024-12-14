@@ -136,17 +136,17 @@ class VariantCodeNotFound extends Error { // Not AppError because this is config
   }
 }
 
-const movementDetails = (code: string, variantCode?: string) : readonly MovementDetails[]|undefined => {
+const movementDetails = (code: string, variantCode?: string): readonly MovementDetails[] | undefined => {
   if (!isProductCode(code))
     return undefined
 
   const productDetails = productMovementDetails[code]
-  const mainMovementDetails = productDetails.main as unknown as MovementDetails[]|undefined
+  const mainMovementDetails = productDetails.main as unknown as MovementDetails[] | undefined
 
   if (!variantCode)
     return mainMovementDetails
 
-  const variants = productDetails.variants as Record<string, MovementDetails[]|undefined>
+  const variants = productDetails.variants as Record<string, MovementDetails[] | undefined>
 
   const variantMovementDetails = variants[variantCode]
   if (!variantMovementDetails)
@@ -183,7 +183,7 @@ interface ErrorBody {
   }
 }
 
-type SuccessRes<T> = {status: 200, body: T & SuccessBody }
+type SuccessRes<T> = { status: 200, body: T & SuccessBody }
 type Handler<T> = (req: Request) => Promise<SuccessRes<T>>
 
 const ok = <T extends Record<string, unknown>>(body?: T): SuccessRes<T> => ({
@@ -230,6 +230,7 @@ const sellSchema = yup.object({
   clientId: yup.number().required(),
   productId: yup.number().required(),
   variantId: yup.number().notRequired(),
+  batchId: yup.number().notRequired(),
 })
 type SellInput = SchemaType<typeof sellSchema>
 
@@ -246,7 +247,7 @@ const getSells = (body: Rec): SellInput[] => {
 
 export const bulkCreate = wrap(async (req: Request) => {
   const userId = getLoggedUserId(req)
-  const sellsInput = getSells(req.body)
+  const sellsInput = getSells(req.body as Rec)
 
   const date = new Date()
 
@@ -264,6 +265,7 @@ export const bulkCreate = wrap(async (req: Request) => {
         'cash',
         'userId',
         'priceOverride',
+        'batchId',
       ],
       transaction,
     })
@@ -316,7 +318,7 @@ export const bulkCreate = wrap(async (req: Request) => {
           throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
 
 
-        const movementData : CreateManualMovementArgs = {
+        const movementData: CreateManualMovementArgs = {
           inventoryElementFromId: inventoryElement.id,
           inventoryElementToId: inventoryElement.id,
           storageFromId: storageFrom.id,
@@ -367,6 +369,10 @@ export async function listDay(req: Request, res: Response, next: NextFunction): 
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
+        {
+          model: models.Batches,
+          attributes: ['code', 'id'],
+        },
       ],
       order: [['updatedAt', 'DESC']],
     })
@@ -378,10 +384,10 @@ export async function listDay(req: Request, res: Response, next: NextFunction): 
     // Convert to array of plain objects so that we can
     // add extra members to it
     interface ResponseElem extends Sell {
-      Prices?: {name: string, value: string}[]
+      Prices?: { name: string, value: string }[]
     }
 
-    const sellsPlain : ResponseElem[] = sells.map(s => s.toJSON() as Sell)
+    const sellsPlain: ResponseElem[] = sells.map(s => s.toJSON() as Sell)
 
     for (const sell of sellsPlain) {
       const prices = allPrices.filter(price =>
@@ -473,7 +479,7 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
       throw e
     }
 
-    const userId = req.session.userId 
+    const userId = req.session.userId
 
     const sellId = req.params.id
     const sell = await Sells.findByPk(sellId)
@@ -538,7 +544,7 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
           throw new Error(`No se encontró el elemento de inventario con el código ${elementCode}`)
 
 
-        const movementData : CreateManualMovementArgs = {
+        const movementData: CreateManualMovementArgs = {
           inventoryElementFromId: inventoryElement.id,
           inventoryElementToId: inventoryElement.id,
           storageFromId: null,
