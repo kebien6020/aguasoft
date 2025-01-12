@@ -12,7 +12,7 @@ services:
     build:
       context: docker/nginx
       dockerfile: Dockerfile
-    image: kevinpena/nginx:20241214-01
+    image: kevinpena/nginx:20250111-01
     networks:
       - main
     ports:
