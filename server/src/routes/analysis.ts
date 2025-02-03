@@ -1,9 +1,9 @@
 import { endOfDay, startOfDay } from 'date-fns'
-import { Request, RequestHandler, Response, Router } from 'express'
-import { Params } from 'express-serve-static-core'
+import { Router } from 'express'
 import { Op } from 'sequelize'
 import * as Yup from 'yup'
 import models from '../db/models'
+import { handleErrors } from '../utils/route'
 
 const {
   Payments,
@@ -13,27 +13,6 @@ const {
 
 const router = Router()
 export default router
-
-interface RequestHandlerWithoutNext<P extends Params, ResBody, ReqBody, ReqQuery> {
-  (req: Request<P, ResBody, ReqBody, ReqQuery>, res: Response<ResBody>): unknown;
-}
-
-function handleErrors<
-  P extends Params = Record<string, string>,
-  ResBody = unknown,
-  ReqBody = unknown,
-  ReqQuery = unknown
->(
-  handler: RequestHandlerWithoutNext<P, ResBody, ReqBody, ReqQuery>
-): RequestHandler<P, ResBody, ReqBody, ReqQuery> {
-  return async (req, res, next) => {
-    try {
-      await handler(req, res)
-    } catch (err) {
-      next(err)
-    }
-  }
-}
 
 const validateAndCast = <S>(schema: Yup.BaseSchema<S>, value: unknown): S => {
   schema.validateSync(value)

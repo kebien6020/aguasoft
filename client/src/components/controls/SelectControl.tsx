@@ -15,7 +15,7 @@ export interface SelectControlProps extends SelectProps {
   name?: string
   label: React.ReactNode
   emptyOption?: React.ReactNode
-  options?: SelectOption[] | null
+  options?: readonly SelectOption[] | null
   helperText?: React.ReactNode
   touched?: boolean
   errorMessage?: string

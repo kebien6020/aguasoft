@@ -1,11 +1,32 @@
+import { MakeRequired } from './utils/types'
+
 export interface Product {
   id: number
   name: string
   code: string
   basePrice: string
+  batchCategoryId?: number
+
+  Variants?: Variant[]
+}
+
+export type ProductWithBatchCategory = MakeRequired<Product, 'batchCategoryId'>
+
+export interface Variant {
+  id: number
+  productId: number
+  code: string
+  name: string
+  basePrice: number | null
+  ProductId: number
+
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
 }
 
 export interface Price {
+  id: number
   value: string
   clientId: number
   productId: number
@@ -117,12 +138,12 @@ export interface InventoryMovement {
   readonly quantityFrom: string
   readonly quantityTo: string
   readonly cause:
-      'manual'
-    | 'in'
-    | 'relocation'
-    | 'production'
-    | 'sell'
-    | 'damage'
+  'manual'
+  | 'in'
+  | 'relocation'
+  | 'production'
+  | 'sell'
+  | 'damage'
   readonly createdBy: number
   readonly rollback: boolean
 
@@ -192,4 +213,21 @@ export type BalanceItem = {
   readonly spendings: number
   readonly payments: number
   readonly verification?: BalanceVerification
+}
+
+export interface BatchCategory {
+  readonly id: number
+  readonly code: string
+  readonly name: string
+  readonly expirationDays: number
+}
+
+export interface Batch {
+  readonly id: number
+  readonly code: string
+  readonly date: Date
+  readonly expirationDate: Date
+  readonly batchCategoryId: number
+
+  readonly BatchCategory?: BatchCategory
 }

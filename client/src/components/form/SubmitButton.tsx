@@ -4,18 +4,23 @@ import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { useFormikContext } from 'formik'
 
-export type SubmitButtonProps = {children?: React.ReactNode}
-const SubmitButton = ({ children }: SubmitButtonProps): JSX.Element => {
-  const { isSubmitting } = useFormikContext()
+export type SubmitButtonProps = {
+  children?: React.ReactNode
+  onlyEnableWhenValid?: boolean
+  disabled?: boolean
+}
+
+const SubmitButton = ({ children, onlyEnableWhenValid = false, disabled = false }: SubmitButtonProps): JSX.Element => {
+  const { isSubmitting, isValid } = useFormikContext()
 
   return (
-    <Grid item xs={12} container direction='row' justify='center'>
+    <Grid item xs={12} container direction='row' justifyContent='center'>
       <Wrapper>
         <Button
           variant='contained'
           color='primary'
           type='submit'
-          disabled={isSubmitting}
+          disabled={isSubmitting || (onlyEnableWhenValid && !isValid) || disabled}
         >
           {children ?? 'Registrar'}
         </Button>

@@ -1,8 +1,7 @@
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
-import { isToday } from 'date-fns'
-import * as moment from 'moment'
+import moment from 'moment'
 import { Moment } from 'moment'
 import 'moment/locale/es'
 import * as React from 'react'
@@ -75,7 +74,7 @@ export default function Sells(): JSX.Element {
   // Login to register sell
   const history = useHistory()
   const handleLogin = useCallback(() => {
-    history.push('/sell')
+    history.push('/sell2')
   }, [history])
   const loginElem =
     <Paper className={classes.login}>

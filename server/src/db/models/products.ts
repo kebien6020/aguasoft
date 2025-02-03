@@ -11,14 +11,16 @@ export interface Product extends Model {
 
   readonly id: number
 
+  readonly batchCategoryId: number
+
   // Possible inclussions
   readonly Variants?: ProductVariant[]
 }
 
 export type ProductStatic = ModelStatic<Product>
 
-export default function (sequelize: Sequelize): ProductStatic {
-  const Products = <ProductStatic> sequelize.define('Products', {
+export default function(sequelize: Sequelize): ProductStatic {
+  const Products = <ProductStatic>sequelize.define('Products', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -37,12 +39,17 @@ export default function (sequelize: Sequelize): ProductStatic {
       type: DataTypes.DECIMAL(20, 8),
       allowNull: false,
     },
+    batchCategoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   })
 
   Products.associate = function(models) {
     // associations can be defined here
     Products.hasMany(models.Sells)
     Products.hasMany(models.ProductVariants, { as: 'Variants' })
+    Products.belongsTo(models.BatchCategories, { foreignKey: 'batchCategoryId' })
   }
   return Products
 }

@@ -72,6 +72,8 @@ app.use('/api/inventory', routes.inventory)
 app.use('/api/machine-counters', routes.machineCounters)
 app.use('/api/balance', routes.balance)
 app.use('/api/analysis', routes.analysis)
+app.use('/api/batch-categories', routes.batchCategories)
+app.use('/api/batches', routes.batches)
 
 app.use('/api', (req, _res, next) => {
   next(new Error404(`Route does not exist: ${req.method} ${req.path}`))

@@ -41,6 +41,8 @@ const RegisterEntry = lazy(() => import(/* webpackChunkName: "register-entry" */
 const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Balance'))
 const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/dashboard/index'))
 const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
+const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Batches'))
+const RegisterSale2 = lazy(() => import(/* webpackChunkName: "register-sale2" */ './Routes/sale/Register'))
 
 const auth = new Auth()
 moment.locale('es')
@@ -54,6 +56,7 @@ const AppSwitch = () => (
     <Route exact private path='/check' component={CheckUser} />
 
     <Route exact private path='/sell' component={RegisterSale} />
+    <Route exact private path='/sell2' component={RegisterSale2} />
     <Route exact private path='/sells' component={Sells} />
     <Route exact private path='/monitor/sells' component={MonitorSells} />
 
@@ -82,6 +85,8 @@ const AppSwitch = () => (
     <Route exact private path='/balance' component={Balance} />
 
     <Route exact private path='/dashboard' component={Dashboard} />
+
+    <Route exact private path='/batches' component={Batches} />
 
     <Route exact private path='/tools/billing-summary' component={BillingSummary} />
 

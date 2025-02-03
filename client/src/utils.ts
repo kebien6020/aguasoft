@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import Auth from './Auth'
 
 const apiUrl = ''
@@ -13,7 +14,7 @@ export async function fetchJsonAuth<R = SuccessResponse>(
   url: string,
   auth: Auth,
   options: FetchAuthOptions = {}
-) : Promise<R|ErrorResponse> {
+): Promise<R | ErrorResponse> {
 
   const fetch = options.fetch || window.fetch
 
@@ -30,7 +31,7 @@ export async function fetchJsonAuth<R = SuccessResponse>(
   const allOpts: RequestInit = Object.assign({}, options, { headers, credentials: 'include' })
 
   const response = await fetch(apiUrl + url, allOpts)
-  const data = await response.json() as R|ErrorResponse
+  const data = await response.json() as R | ErrorResponse
 
   const invalidToken = !auth.isAuthenticated()
   const authError =
@@ -130,9 +131,9 @@ export function moneySign(
 
 export type ParamValue = string | number | undefined
 export type Param = ParamValue | readonly ParamValue[]
-export type Params = {[idx:string]: Param}
+export type Params = { [idx: string]: Param }
 
-function isValueArr(param: Param) : param is readonly ParamValue[] {
+function isValueArr(param: Param): param is readonly ParamValue[] {
   return Array.isArray(param)
 }
 
@@ -159,12 +160,12 @@ export function paramsToString(params?: Params): string {
   return searchParams.toString()
 }
 
-export function parseParams(str: string) : {[idx: string]: string | undefined} {
+export function parseParams(str: string): { [idx: string]: string | undefined } {
   return str
     .slice(1)
     .split('&')
     .map((pairStr: string) => pairStr.split('='))
-    .reduce((obj: {[key:string]: string}, pair: string[]) => {
+    .reduce((obj: { [key: string]: string }, pair: string[]) => {
       obj[pair[0]] = pair[1]
       return obj
     }, {})
@@ -178,4 +179,12 @@ export function isNumber(value: unknown): boolean {
 export function scrollToRef<T extends HTMLElement>(ref: React.RefObject<T>): void {
   if (ref.current)
     window.scrollTo(0, ref.current.offsetTop)
+}
+
+export function formatDateCol(date: Date) {
+  return format(date, 'dd-MMM-yyyy')
+}
+
+export function formatDateonly(date: Date) {
+  return format(date, 'yyyy-MM-dd')
 }

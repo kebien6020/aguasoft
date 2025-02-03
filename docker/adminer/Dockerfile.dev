@@ -2,7 +2,7 @@ FROM adminer:latest
 
 USER root
 
-RUN curl -fLo ./plugins/sqlite-connection-without-credentials.php https://github.com/FrancoisCapon/LoginToASqlite3DatabaseWithoutCredentialsWithAdminer/raw/4ff0a440416ba24c11955c35cc4923bc8008801b/fc-sqlite-connection-without-credentials.php
+COPY fc-sqlite-connection-without-credentials.php ./plugins/sqlite-connection-without-credentials.php
 
 USER adminer
 

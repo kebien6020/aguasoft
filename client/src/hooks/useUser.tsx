@@ -6,6 +6,7 @@ import useAuth from './useAuth'
 type Result = {
   user: User | null
   isAdmin: boolean | null
+  loggedIn: boolean | null
   refresh: () => void
 }
 
@@ -13,7 +14,8 @@ type OnError = (error: ErrorResponse['error']) => unknown
 
 export function useUserFetch(onError?: OnError): Result {
   const auth = useAuth()
-  const [user, setUser] = useState<User|null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null)
   const [nonce, refresh] = useReducer((prev: number) => prev + 1, 1)
 
   useEffect(() => {
@@ -23,17 +25,18 @@ export function useUserFetch(onError?: OnError): Result {
 
       if (!isErrorResponse(user)) {
         setUser(user)
+        setLoggedIn(true)
       } else {
-        if (onError)
-          onError(user.error)
+        onError?.(user.error)
+        setLoggedIn(false)
       }
     })()
   }, [auth, onError, nonce])
 
-  return { user, isAdmin: user && user.role === 'admin', refresh }
+  return { user, isAdmin: user && user.role === 'admin', loggedIn, refresh }
 }
 
-const UserContext = React.createContext<Result|null>(null)
+const UserContext = React.createContext<Result | null>(null)
 
 export type UserProviderProps = { children: React.ReactNode }
 export const UserProvider = ({ children }: UserProviderProps): JSX.Element => {
