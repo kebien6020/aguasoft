@@ -15,6 +15,7 @@ export function make(overrides?: Record<string, unknown>): Sell {
     quantity: faker.datatype.number(10),
     value: faker.datatype.number({ max: 20000, precision: 100 }),
     deleted: false,
+    batchId: null,
 
     ...overrides,
   })

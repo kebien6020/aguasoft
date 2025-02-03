@@ -230,7 +230,7 @@ const sellSchema = yup.object({
   clientId: yup.number().required(),
   productId: yup.number().required(),
   variantId: yup.number().notRequired(),
-  batchId: yup.number().notRequired(),
+  batchId: yup.number().nullable(true),
 })
 type SellInput = SchemaType<typeof sellSchema>
 
