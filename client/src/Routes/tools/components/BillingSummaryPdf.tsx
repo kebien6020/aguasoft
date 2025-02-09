@@ -2,7 +2,7 @@ import ReactPDF, {
   Document,
   Font,
   Page as RPPage,
-  Text as RPText, View
+  Text as RPText, View,
 } from '@react-pdf/renderer'
 import { endOfDay, format, formatISO, isSameDay, parseISO, startOfDay } from 'date-fns'
 import es from 'date-fns/locale/es'
@@ -146,7 +146,7 @@ const Page = styled(RPPage)({
 })
 
 const Table = styled(View)({
-  display: 'table',
+  display: 'flex',
   width: '100%',
   marginLeft: 0,
   marginRight: 0,
@@ -179,7 +179,7 @@ const HeaderText = styled(Text)({
   textAlign: 'center',
 })
 
-const HeaderCell = ({ children }: {children: string}) =>
+const HeaderCell = ({ children }: { children: string }) =>
   <Cell>
     <HeaderText>{children}</HeaderText>
   </Cell>
@@ -189,24 +189,22 @@ interface BodyRowProps extends ReactPDF.ViewProps {
 }
 const BodyRow = styled<BodyRowProps>(
   ({ idx, ...props }) => <Row {...props} />
-)(({ idx }) => [
-  {
-    borderTopWidth: 0,
-  },
-  { ...(idx % 2 === 0 ? { backgroundColor: theme.palette.primary.light } : undefined) },
-])
+)(({ idx }) => ({
+  borderTopWidth: 0,
+  ...(idx % 2 === 0 ? { backgroundColor: theme.palette.primary.light } : {}),
+}))
 
 const BodyText = styled(Text)({
   fontSize: 12,
   textAlign: 'center',
 })
 
-const BodyCell = ({ children }: {children: string}) =>
+const BodyCell = ({ children }: { children: string }) =>
   <Cell>
     <BodyText>{children}</BodyText>
   </Cell>
 
-const BodyCellLeft = ({ children }: {children: string}) =>
+const BodyCellLeft = ({ children }: { children: string }) =>
   <Cell>
     <BodyText style={{ textAlign: 'left' }}>{children}</BodyText>
   </Cell>
@@ -224,7 +222,7 @@ const FooterText = styled(Text)({
   textAlign: 'center',
 })
 
-const FooterCell = ({ children }: {children: string}) =>
+const FooterCell = ({ children }: { children: string }) =>
   <Cell>
     <FooterText>{children}</FooterText>
   </Cell>

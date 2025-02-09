@@ -15,9 +15,11 @@ module.exports = {
     path: relPath('./dist'),
     publicPath: '/',
   },
-  // Currently we need to add '.ts' to the resolve.extensions array.
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    alias: {
+      'react/jsx-runtime': 'react/jsx-runtime.js',
+    },
     fallback: {
       // All of these are required because webpack 5 removed node polyfills and react-pdf uses some of them
       stream: require.resolve('stream-browserify'), // Needed by react-pdf, blob-stream, restructure
@@ -28,17 +30,11 @@ module.exports = {
       buffer: require.resolve('buffer'), // Needed by react-pdf
     }
   },
-  // Add the loader for .ts files.
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        loader: 'ts-loader',
-        options: {
-          configFile: relPath('tsconfig.json'),
-          // disable type checker - we will use it in fork plugin
-          transpileOnly: true,
-        }
+        loader: 'babel-loader'
       },
       {
         test: /\.(png|svg|jpg|gif|ttf)$/,
