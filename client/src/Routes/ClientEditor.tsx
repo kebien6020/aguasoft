@@ -1,25 +1,27 @@
-import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
 
+import { ChangeEvent, Component } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Button from '@material-ui/core/Button'
-import Divider from '@material-ui/core/Divider'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogActions from '@material-ui/core/DialogActions'
-import IconButton from '@material-ui/core/IconButton'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogActions from '@mui/material/DialogActions'
+import IconButton from '@mui/material/IconButton'
 
-import DeleteIcon from '@material-ui/icons/Delete'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
@@ -91,8 +93,8 @@ interface DuplicatedPriceDialogProps {
 }
 
 const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => (
-  props.priceError !== null ?
-    <Dialog
+  props.priceError !== null
+    ? <Dialog
       open={props.priceError !== null}
       onClose={props.onClose}
     >
@@ -111,9 +113,9 @@ const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => (
     : null
 )
 
-type ValChangeEvent = React.ChangeEvent<{ value: string }>
+type ValChangeEvent = ChangeEvent<{ value: string }>
 
-class ClientEditor extends React.Component<Props, State> {
+class ClientEditor extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
@@ -145,18 +147,18 @@ class ClientEditor extends React.Component<Props, State> {
 
   async componentDidMount() {
     const { props, state } = this
-    const promises: [Promise<ClientDefaults|Client|ClientError>, Promise<Product[]>] = [
-      state.mode === 'CREATE' ?
-        fetchJsonAuth('/api/clients/defaultsForNew', props.auth) as Promise<ClientDefaults|ClientError> :
-        fetchJsonAuth('/api/clients/' + state.editId, props.auth) as Promise<DetailedClient|ClientError>,
+    const promises: [Promise<ClientDefaults | Client | ClientError>, Promise<Product[]>] = [
+      state.mode === 'CREATE'
+        ? fetchJsonAuth('/api/clients/defaultsForNew', props.auth) as Promise<ClientDefaults | ClientError>
+        : fetchJsonAuth(`/api/clients/${state.editId!}`, props.auth) as Promise<DetailedClient | ClientError>,
 
       fetchJsonAuth('/api/products/', props.auth) as Promise<Product[]>,
     ]
-    const [ defaults, products ] = await Promise.all(promises)
+    const [defaults, products] = await Promise.all(promises)
 
-    if (products) {
-      this.setState({products})
-    }
+    if (products)
+      this.setState({ products })
+
 
     if (defaults) {
       if (isClientError(defaults)) {
@@ -164,16 +166,16 @@ class ClientEditor extends React.Component<Props, State> {
         console.log(error)
         if (error.code === 'not_found') {
           const msg = 'No se encontró el cliente que se buscaba'
-                    + `, (Nota: id = ${state.editId}).`
-          this.setState({error: msg})
+            + `, (Nota: id = ${state.editId!}).`
+          this.setState({ error: msg })
         } else {
-          this.setState({error: error.message})
+          this.setState({ error: error.message })
         }
         return
       }
       if (state.mode === 'CREATE') {
         const createDefaults = defaults as ClientDefaults
-        this.setState({code: createDefaults.code})
+        this.setState({ code: createDefaults.code })
       } else {
         const editDefaults = defaults as DetailedClient
         this.setState({
@@ -182,7 +184,7 @@ class ClientEditor extends React.Component<Props, State> {
           defaultCash: editDefaults.defaultCash ? 'true' : 'false',
           notes: editDefaults.notes || '',
           prices: editDefaults.Prices.map(pr =>
-            Object.assign({}, pr, {value: String(pr.value)})
+            Object.assign({}, pr, { value: String(pr.value) })
           ),
         })
       }
@@ -195,22 +197,22 @@ class ClientEditor extends React.Component<Props, State> {
     // may be re-used by react)
     const value = event.target.value
     this.setState((prevState: State) => ({
-        ...prevState,
-        [name]: value,
+      ...prevState,
+      [name]: value,
     }))
 
     if (name === 'name') {
-      this.setState({errorEmptyName: false})
-      if (this.state.errorDuplicatedField === 'name') {
-        this.setState({errorDuplicatedField: null})
-      }
+      this.setState({ errorEmptyName: false })
+      if (this.state.errorDuplicatedField === 'name')
+        this.setState({ errorDuplicatedField: null })
+
     }
 
     if (name === 'code') {
-      this.setState({errorEmptyCode: false})
-      if (this.state.errorDuplicatedField === 'code') {
-        this.setState({errorDuplicatedField: null})
-      }
+      this.setState({ errorEmptyCode: false })
+      if (this.state.errorDuplicatedField === 'code')
+        this.setState({ errorDuplicatedField: null })
+
     }
   }
 
@@ -226,16 +228,18 @@ class ClientEditor extends React.Component<Props, State> {
       const products = this.state.products
       const product = products.find(p => p.id === price.productId) as Product
 
-      this.setState({errorDuplicatedPrice: {
-        priceName: price.name,
-        productName: product.name,
-      }})
+      this.setState({
+        errorDuplicatedPrice: {
+          priceName: price.name,
+          productName: product.name,
+        },
+      })
 
       return
     }
 
     this.setState({
-      prices: [...prevPrices, price]
+      prices: [...prevPrices, price],
     })
   }
 
@@ -243,13 +247,13 @@ class ClientEditor extends React.Component<Props, State> {
     const { props, state } = this
     let res = null
 
-    if (state.name === '') {
-      this.setState({errorEmptyName: true})
-    }
+    if (state.name === '')
+      this.setState({ errorEmptyName: true })
 
-    if (state.code === '') {
-      this.setState({errorEmptyCode: true})
-    }
+
+    if (state.code === '')
+      this.setState({ errorEmptyCode: true })
+
 
     if (state.code === '' || state.name === '') return
 
@@ -267,7 +271,7 @@ class ClientEditor extends React.Component<Props, State> {
         body,
       })
     } else {
-      res = await fetchJsonAuth('/api/clients/' + state.editId, props.auth, {
+      res = await fetchJsonAuth(`/api/clients/${state.editId!}`, props.auth, {
         method: 'PATCH',
         body,
       })
@@ -276,92 +280,94 @@ class ClientEditor extends React.Component<Props, State> {
     if (isErrorResponse(res)) {
       if (res.error.code === 'validation_error' && res.error.errors && res.error.errors[0]) {
         const field = res.error.errors[0].path
-        if (field === 'name' || field === 'code') {
-          this.setState({errorDuplicatedField: field})
-        }
+        if (field === 'name' || field === 'code')
+          this.setState({ errorDuplicatedField: field })
+
         return
       }
-      this.setState({errorSubmitting: true})
+      this.setState({ errorSubmitting: true })
       console.error(res)
       return
     }
 
-    this.setState({done: true})
+    this.setState({ done: true })
   }
 
   handlePriceDelete = (priceIndex: number) => {
     const prevPrices = this.state.prices
 
-    this.setState({ prices: [
-      ...prevPrices.slice(0, priceIndex),
-      ...prevPrices.slice(priceIndex + 1),
-    ]})
+    this.setState({
+      prices: [
+        ...prevPrices.slice(0, priceIndex),
+        ...prevPrices.slice(priceIndex + 1),
+      ],
+    })
   }
 
   render() {
     const { state, props } = this
 
-    if (state.products.length === 0) {
+    if (state.products.length === 0)
       return <LoadingScreen text='Cargando productos...' />
-    }
 
-    if (state.done) {
+
+    if (state.done)
       return <Redirect to='/clients' push />
-    }
+
 
     const { classes } = props
 
     const getProductName = (id: number) => {
       const product = state.products.find(p => p.id === id)
-      if (product) {
+      if (product)
         return product.name
-      }
-      return 'Producto con id ' + id
+
+      return `Producto con id ${id}`
     }
 
     const displayName = {
       name: 'nombre',
-      code: 'código'
+      code: 'código',
     }
 
     const getFieldDesc = (field: 'name' | 'code') =>
       `${displayName[field]} ${state[field]}`
 
     return (
-      <Layout title='Editando cliente' container={ResponsiveContainer}>
+      (<Layout title='Editando cliente' container={ResponsiveContainer}>
         <DuplicatedPriceDialog
           priceError={state.errorDuplicatedPrice}
-          onClose={() => this.setState({errorDuplicatedPrice: null})}
+          onClose={() => this.setState({ errorDuplicatedPrice: null })}
         />
-        {state.error ?
-          <Alert
+        {state.error
+          ? <Alert
             type='error'
             message={state.error}
-          /> :
-          <>
+          />
+          : <>
             <Paper className={classes.paper}>
               <Title>
-                {state.mode === 'CREATE' ?
-                  'Crear Nuevo Cliente' :
-                  `Editando Cliente ${state.name}`
+                {state.mode === 'CREATE'
+                  ? 'Crear Nuevo Cliente'
+                  : `Editando Cliente ${state.name}`
                 }
               </Title>
-              {state.errorSubmitting &&
-                <Alert
+              {state.errorSubmitting
+                && <Alert
                   type='error'
                   message={
-                    'Error ' +
-                    (state.mode === 'CREATE' ? 'creando' : 'actualizando') +
-                    ' el cliente favor intentarlo nuevamente'
+                    'Error '
+                    + (state.mode === 'CREATE' ? 'creando' : 'actualizando')
+                    + ' el cliente favor intentarlo nuevamente'
                   }
                 />
               }
-              {state.errorDuplicatedField &&
-                <Alert
+              {state.errorDuplicatedField
+                && <Alert
                   type='error'
                   message={
-                    'Error: El ' + getFieldDesc(state.errorDuplicatedField) +
-                    ' ya existe.'
+                    'Error: El ' + getFieldDesc(state.errorDuplicatedField)
+                    + ' ya existe.'
                   }
                 />
               }
@@ -426,7 +432,7 @@ class ClientEditor extends React.Component<Props, State> {
                   <IconButton
                     className={classes.deleteButton}
                     onClick={() => this.handlePriceDelete(idx)}
-                  >
+                    size="large">
                     <DeleteIcon />
                   </IconButton>
                 </Paper>
@@ -444,15 +450,15 @@ class ClientEditor extends React.Component<Props, State> {
                 fullWidth={true}
                 onClick={this.handleSubmit}
               >
-                {state.mode === 'CREATE' ?
-                  'Crear Cliente' :
-                  'Actualizar Cliente'
+                {state.mode === 'CREATE'
+                  ? 'Crear Cliente'
+                  : 'Actualizar Cliente'
                 }
               </Button>
             </Paper>
           </>
         }
-      </Layout>
+      </Layout>)
     )
   }
 }
@@ -472,7 +478,7 @@ const styles: StyleRulesCallback<Theme, Props> = theme => ({
     paddingBottom: theme.spacing(4),
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    position: 'relative'
+    position: 'relative',
   },
   deleteButton: {
     color: 'red',

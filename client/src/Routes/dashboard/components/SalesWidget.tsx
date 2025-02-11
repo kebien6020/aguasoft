@@ -1,4 +1,16 @@
-import { Grid, GridProps, Paper, styled, Table, TableBody, TableCell, TableHead, TableRow, Typography, TypographyProps } from '@material-ui/core'
+import {
+  Grid,
+  GridProps,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+  TypographyProps,
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
 import * as React from 'react'
 import LoadingIndicator from '../../../components/LoadingIndicator'
 import Title from '../../../components/Title'

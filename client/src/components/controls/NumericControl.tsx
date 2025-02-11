@@ -1,12 +1,18 @@
-import * as React from 'react'
-import { styled } from '@material-ui/core/styles'
-import Input, { InputProps } from '@material-ui/core/Input'
-import Button from '@material-ui/core/Button'
-import AddIcon from '@material-ui/icons/Add'
-import RemoveIcon from '@material-ui/icons/Remove'
-import { FormControl, FormHelperText, FormHelperTextProps, InputLabel, InputLabelProps } from '@material-ui/core'
+import { styled } from '@mui/material/styles'
+import {
+  Input,
+  InputProps,
+  Button,
+  FormControl,
+  FormHelperText,
+  FormHelperTextProps,
+  InputLabel,
+  InputLabelProps,
+} from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 
-export interface NumericControlProps extends Omit<InputProps, 'onChange'|'value'> {
+export interface NumericControlProps extends Omit<InputProps, 'onChange' | 'value'> {
   value: number
   onChange: (val: number) => unknown
   error?: boolean
@@ -45,7 +51,7 @@ export const NumericControl = ({
         {...props}
       />
       <PlusButton onClick={() => onChange(value + 1)} />
-      <MinusButton onClick={() => onChange(value - 1)}/>
+      <MinusButton onClick={() => onChange(value - 1)} />
     </NoWrap>
     {helperText && (
       <FormHelperText {...FormHelperTextProps}>
@@ -68,7 +74,7 @@ const NoWrap = styled('div')({
 const NumericInput = styled(Input)(({ theme }) => ({
   marginRight: theme.spacing(1),
   marginTop: 8,
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down('lg')]: {
     marginRight: 0,
     fontSize: '1em',
   },

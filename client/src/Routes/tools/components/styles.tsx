@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { ComponentType } from 'react'
 import type { Style } from '@react-pdf/types'
 
-type StyleProps = { style?: Style }
+type StyleProps = { style?: Style | Style[] }
 type StyleParam<P> = Style | ((props: P) => Style)
 type CT<P> = ComponentType<P>
 

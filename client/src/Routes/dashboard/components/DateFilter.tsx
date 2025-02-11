@@ -1,6 +1,6 @@
-import { FormControl, Grid, InputLabel, MenuItem, Select, styled } from '@material-ui/core'
-import { DatePicker } from '@material-ui/pickers/DatePicker'
-import * as React from 'react'
+import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { DatePicker } from '@mui/x-date-pickers'
 import { useState, useEffect } from 'react'
 import { startOfDay, endOfDay, startOfMonth, endOfMonth } from 'date-fns'
 import type { DateRange } from '../index'
@@ -45,9 +45,9 @@ export const DateFilter = ({
   }, [groupBy, onGroupByChange])
 
   return (
-    <Grid container spacing={2} justify='center'>
+    (<Grid container spacing={2} justifyContent='center'>
       <Grid item>
-        <FormControl>
+        <FormControl variant='outlined'>
           <InputLabel>Agrupar</InputLabel>
           <StyledSelect
             value={groupBy}
@@ -62,31 +62,31 @@ export const DateFilter = ({
         {groupBy === 'day' && <>
           <DatePicker
             label='Día'
-            format='DD [de] MMMM'
-
+            format="dd 'de' MMMM"
             value={date}
             onChange={date => {
               if (!date) return
-              setDate(date.toDate())
+              setDate(date)
             }}
-            disableFuture />
+            disableFuture
+          />
         </>}
         {groupBy === 'month' && <>
           <DatePicker
             label='Mes'
             views={['year', 'month']}
-            format='MMMM YYYY'
+            format='MMMM yyyy'
             openTo='month'
-
             value={date}
             onChange={date => {
               if (!date) return
-              setDate(date.startOf('month').toDate())
+              setDate(startOfMonth(date))
             }}
-            disableFuture />
+            disableFuture
+          />
         </>}
       </Grid>
-    </Grid>
+    </Grid>)
   )
 }
 

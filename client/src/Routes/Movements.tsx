@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useCallback, useState, useRef, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
-import Pagination from 'material-ui-flat-pagination'
+import makeStyles from '@mui/styles/makeStyles'
+import Paper from '@mui/material/Paper'
+import Grid from '@mui/material/Grid'
+import Pagination from '../components/pagination'
 
 import useAuth from '../hooks/useAuth'
 import useFetch from '../hooks/useFetch'
@@ -36,8 +36,8 @@ const Movements = () => {
   })
 
   const inventoryElementOptions =
-    inventoryElements &&
-    inventoryElements.map(ie => ({value: String(ie.id), label: ie.name}))
+    inventoryElements
+    && inventoryElements.map(ie => ({ value: String(ie.id), label: ie.name }))
 
   const [offset, setOffset] = useState(0)
   const [causeFilter, setCauseFilter] = useState('')
@@ -52,12 +52,12 @@ const Movements = () => {
   if (causeFilter) params.cause = causeFilter
   if (elementFilter) params.inventoryElementId = elementFilter
 
-  const {movements, totalCount, loading} = useMovements(params)
+  const { movements, totalCount, loading } = useMovements(params)
 
   // Handle filter change while on a high page number
   useEffect(() => {
     if (totalCount && offset > totalCount) {
-      const page = Math.floor(totalCount/ITEMS_PER_PAGE)
+      const page = Math.floor(totalCount / ITEMS_PER_PAGE)
       setOffset(page * ITEMS_PER_PAGE)
     }
   }, [offset, totalCount])
@@ -65,18 +65,18 @@ const Movements = () => {
   const scrollTargetRef = useRef<HTMLDivElement>(null)
 
   const renderPagination = () => (
-    totalCount &&
-      <Pagination
-        limit={ITEMS_PER_PAGE}
-        offset={offset}
-        total={totalCount}
-        onClick={(_, offset) => {
-          setOffset(offset)
-          scrollToRef(scrollTargetRef)
-        }}
-        disabled={loading}
-        className={classes.pagination}
-      />
+    totalCount
+    && <Pagination
+      limit={ITEMS_PER_PAGE}
+      offset={offset}
+      total={totalCount}
+      onClick={(_, offset) => {
+        setOffset(offset)
+        scrollToRef(scrollTargetRef)
+      }}
+      disabled={loading}
+      className={classes.pagination}
+    />
   )
 
   const [users] = useFetch<User[]>('/api/users', {
@@ -104,35 +104,30 @@ const Movements = () => {
   }, [history])
 
   return (
-    <Layout title='Movimientos'>
+    (<Layout title='Movimientos'>
       <Title>Registrar Salida de Bodega</Title>
-        <Paper className={classes.login}>
+      <Paper className={classes.login}>
         <Login onSuccess={goToRegisterRelocation} auth={auth} buttonColor='black' />
       </Paper>
-
       <Title>Registrar Producción</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterProduction} auth={auth} buttonColor='#2e7d32' />
       </Paper>
-
       <Title>Registrar Producto Dañado</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterDamaged} auth={auth} buttonColor='#c30808' />
       </Paper>
-
       <Title>Registrar Desempaque</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterUnpack} auth={auth} buttonColor='blueviolet' />
       </Paper>
-
       <Title>Registrar Ingreso de Insumos</Title>
       <Paper className={classes.login}>
         <Login onSuccess={goToRegisterEntry} auth={auth} buttonColor='rgb(255, 152, 0)' />
       </Paper>
-
-      <div ref={scrollTargetRef} style={{height: 0}} />
+      <div ref={scrollTargetRef} style={{ height: 0 }} />
       <Title>Movimientos recientes</Title>
-      <Grid container spacing={3} justify='center'>
+      <Grid container spacing={3} justifyContent='center'>
         <Grid item xs={12} md={6}>
           <SelectControl
             id='cause-filter'
@@ -170,8 +165,7 @@ const Movements = () => {
         ) : <LoadingIndicator />}
       </Grid>
       {renderPagination()}
-
-    </Layout>
+    </Layout>)
   )
 }
 
@@ -185,8 +179,8 @@ const useStyles = makeStyles(theme => ({
   '@global': {
     html: {
       scrollBehavior: 'smooth',
-    }
-  }
+    },
+  },
 }))
 
 export default Movements

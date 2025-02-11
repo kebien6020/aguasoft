@@ -1,18 +1,19 @@
-import * as React from 'react'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardHeader from '@material-ui/core/CardHeader'
-import Grid from '@material-ui/core/Grid'
-import * as moment from 'moment'
+import { useTheme } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
+import Grid from '@mui/material/Grid'
 
 import { InventoryMovement, User, Storage, InventoryElement } from '../../models'
-import { colors } from '@material-ui/core'
+import * as colors from '@mui/material/colors'
 import { movementCauseSlugToText } from '../../constants'
+import { formatDatetimeCol } from '../../utils'
+import type { CSSProperties, ReactNode } from 'react'
 
 interface DescriptionProps {
-  title: React.ReactNode
-  text: React.ReactNode
+  title: ReactNode
+  text: ReactNode
 }
 const Description = (props: DescriptionProps) => (
   <p style={{ marginTop: 0, marginBottom: 0 }}>
@@ -50,7 +51,7 @@ const MovementCard = (props: MovementCardProps): JSX.Element => {
   const elementTo = elements.find(e => e.id === movement.inventoryElementToId)
   const elementToName = elementTo ? elementTo.name : 'Desconocido'
 
-  const style = {} as React.CSSProperties
+  const style = {} as CSSProperties
 
   const theme = useTheme()
 
@@ -106,7 +107,7 @@ const MovementCard = (props: MovementCardProps): JSX.Element => {
             />
             <Description
               title='Fecha'
-              text={moment(movement.createdAt).format('DD/MMM hh:mm a')}
+              text={formatDatetimeCol(movement.createdAt)}
             />
             <Description
               title='Creado por'

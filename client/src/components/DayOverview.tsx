@@ -1,5 +1,4 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles'
 import { money } from '../utils'
 import { Sell } from './Sells'
 
@@ -13,13 +12,13 @@ import {
   MenuItem,
   ListItemAvatar,
   Avatar,
-} from '@material-ui/core'
+} from '@mui/material'
 
 import {
   Person as PersonIcon,
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 
-import * as colors from '@material-ui/core/colors'
+import * as colors from '@mui/material/colors'
 import { Filter } from '../Routes/Sells'
 
 interface Props {
@@ -28,7 +27,7 @@ interface Props {
   filter: Filter
 }
 
-const calcSell = (sells: Sell[], cash: boolean) : number => {
+const calcSell = (sells: Sell[], cash: boolean): number => {
   return sells.reduce((acc, sell) => {
     if (sell.cash === cash && !sell.deleted)
       return acc + sell.value
@@ -55,8 +54,8 @@ const aggregateProducts = (sells: Sell[], filter: Filter) => {
     .filter(([_name, qty]) => qty > 0)
 }
 
-type SimpleClient = {id: number, name: string, defaultCash: boolean}
-type CalculatedClient = SimpleClient & {totalSale: number}
+type SimpleClient = { id: number, name: string, defaultCash: boolean }
+type CalculatedClient = SimpleClient & { totalSale: number }
 
 const compareBy = <T extends Record<string, unknown>>(by: keyof T) => (a: T, b: T) => {
   if (a[by] < b[by]) return -1
@@ -66,7 +65,7 @@ const compareBy = <T extends Record<string, unknown>>(by: keyof T) => (a: T, b: 
 
 const DayOverview = (props: Props): JSX.Element => {
   const classes = useStyles()
-  const clients : SimpleClient[] = props.sells
+  const clients: SimpleClient[] = props.sells
     .map(s => ({ ...s.Client }))
     .filter((client, idx, arr) => {
       return arr.findIndex((cl) => cl.name === client.name) === idx
@@ -84,14 +83,14 @@ const DayOverview = (props: Props): JSX.Element => {
       }
     })
 
-  const users : Array<Sell['User']> = props.sells
+  const users: Array<Sell['User']> = props.sells
     .map(s => s.User)
     .filter((user, idx, arr) => {
       return arr.findIndex((u) => u.code === user.code) === idx
     })
     .sort(compareBy('code'))
 
-  const clientName = (val : string) => {
+  const clientName = (val: string) => {
     if (val === 'ALL') return 'Todos'
     const client = calcClients.find(cl => String(cl.id) === val)
     return client ? `${client.name} (${money(client.totalSale)})` : ''
@@ -112,7 +111,7 @@ const DayOverview = (props: Props): JSX.Element => {
       <Grid item xs={12}>
         <Paper className={classes.paper}>
           <Typography variant='subtitle2'>Productos vendidos en el día</Typography>
-          <FormControl fullWidth margin='normal'>
+          <FormControl fullWidth margin='normal' variant='standard'>
             <InputLabel htmlFor='client-filter'>Cliente</InputLabel>
             <Select
               inputProps={{
@@ -120,7 +119,7 @@ const DayOverview = (props: Props): JSX.Element => {
                 name: 'clientFilter',
               }}
               onChange={(event) => {
-                const clientId = event.target.value as string
+                const clientId = event.target.value
                 props.onFilterChange(prev => ({ ...prev, client: clientId }))
               }}
               value={props.filter.client}
@@ -145,7 +144,7 @@ const DayOverview = (props: Props): JSX.Element => {
               )}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin='normal'>
+          <FormControl fullWidth margin='normal' variant='standard'>
             <InputLabel htmlFor='client-filter'>Vendedor</InputLabel>
             <Select
               inputProps={{
@@ -153,7 +152,7 @@ const DayOverview = (props: Props): JSX.Element => {
                 name: 'userFilter',
               }}
               onChange={(event) => {
-                const userCode = event.target.value as string
+                const userCode = event.target.value
                 props.onFilterChange(prev => ({ ...prev, user: userCode }))
               }}
               value={props.filter.user}
@@ -164,7 +163,7 @@ const DayOverview = (props: Props): JSX.Element => {
                   value={String(user.code)}
                   key={String(user.code)}
                 >
-                    ({user.code}) {user.name}
+                  ({user.code}) {user.name}
                 </MenuItem>
               )}
             </Select>

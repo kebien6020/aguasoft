@@ -5,7 +5,7 @@ import ReactPDF, {
   Text as RPText, View,
 } from '@react-pdf/renderer'
 import { endOfDay, format, formatISO, isSameDay, parseISO, startOfDay } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 import React from 'react'
 import RobotoBold from '../../../fonts/roboto/Roboto-Bold.ttf'
 import RobotoMedium from '../../../fonts/roboto/Roboto-Medium.ttf'
@@ -79,8 +79,6 @@ export const BillingSummaryPdf = React.memo(
     }
 
     const total = salesDates.reduce((acc, s) => acc + s.value, 0)
-
-    console.log('render', Date.now(), props)
 
     return (
       <Document title={title}>

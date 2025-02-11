@@ -1,16 +1,14 @@
-import * as React from 'react'
-
 import {
   Card,
   CardContent,
   Typography,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import * as colors from '@material-ui/core/colors'
+} from '@mui/material'
+import makeStyles from '@mui/styles/makeStyles'
+import * as colors from '@mui/material/colors'
 
-import ErrorIcon from '@material-ui/icons/ErrorOutlined'
-import WarningIcon from '@material-ui/icons/Warning'
-import InfoIcon from '@material-ui/icons/Info'
+import ErrorIcon from '@mui/icons-material/ErrorOutlined'
+import WarningIcon from '@mui/icons-material/Warning'
+import InfoIcon from '@mui/icons-material/Info'
 import clsx from 'clsx'
 
 

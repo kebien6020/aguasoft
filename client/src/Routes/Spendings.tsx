@@ -1,10 +1,8 @@
-import Button from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
-import moment, { Moment } from 'moment'
-import * as React from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
+import Paper from '@mui/material/Paper'
+import makeStyles from '@mui/styles/makeStyles'
+import { forwardRef, useCallback, useEffect, useState } from 'react'
 import { Link, LinkProps, useHistory } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -16,14 +14,16 @@ import useSnackbar from '../hooks/useSnackbar'
 import { Spending } from '../models'
 import { ErrorResponse, fetchJsonAuth, isErrorResponse, SuccessResponse } from '../utils'
 import { MakeOptional } from '../utils/types'
+import { startOfDay } from 'date-fns'
+import { formatDateonlyMachine } from '../utils/dates'
 
 type SpendingsProps = AuthRouteComponentProps;
 export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   const classes = useStyles()
 
   // Date picker
-  const [date, setDate] = useState(() => moment().startOf('day'))
-  const handleDateChange = useCallback((date: Moment) => {
+  const [date, setDate] = useState(() => startOfDay(new Date))
+  const handleDateChange = useCallback((date: Date) => {
     setDate(date)
   }, [])
   const datePicker =
@@ -55,7 +55,7 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   useEffect(() => {
     const updateSpendings = async () => {
       setSpendings(null)
-      const url = '/api/spendings/listDay?day=' + date.format('YYYY-MM-DD')
+      const url = '/api/spendings/listDay?day=' + formatDateonlyMachine(date)
       const spendings: ErrorResponse | Spending[] =
         await fetchJsonAuth(url, auth)
 
@@ -86,7 +86,7 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
         console.error('Trying to mutate unknown spendingId', spendingId)
         return
       }
-      spending.deletedAt = moment().toISOString()
+      spending.deletedAt = (new Date).toISOString()
 
       setSpendings(spendingsCopy)
     } else {
@@ -141,7 +141,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const SpendingListLink = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
+const SpendingListLink = forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
   function SpendingListLink(props, ref) {
     return <Link to='/spendings/list' ref={ref} {...props} />
   }

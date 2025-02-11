@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { styled } from '@material-ui/core/styles'
-import Input from '@material-ui/core/Input'
+import { styled } from '@mui/material/styles'
+import Input from '@mui/material/Input'
 
 import { PlusButton, MinusButton } from './square-buttons'
 
@@ -35,7 +35,7 @@ const NoWrap = styled('div')({
 const NumericInput = styled(Input)(({ theme }) => ({
   width: theme.spacing(6),
   marginRight: theme.spacing(1),
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down('lg')]: {
     width: theme.spacing(3),
     marginRight: 0,
     fontSize: '1em',

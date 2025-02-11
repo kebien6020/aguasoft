@@ -1,16 +1,6 @@
-import {
-  Button,
-  Grid,
-  Paper,
-  StyleRulesCallback,
-  Switch,
-  TextField,
-  Theme,
-  Typography,
-  withStyles,
-} from '@material-ui/core'
-import moment from 'moment'
-import * as React from 'react'
+import { Button, Grid, Paper, Switch, TextField, Typography } from '@mui/material'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Alert from '../components/Alert'
 import Layout from '../components/Layout'
@@ -25,10 +15,13 @@ import {
   isErrorResponse,
   SuccessResponse,
 } from '../utils'
+import { Component } from 'react'
+import { startOfDay } from 'date-fns'
+import { Theme } from '../theme'
 
 interface Props extends AuthRouteComponentProps, PropClasses { }
 interface State {
-  date: moment.Moment
+  date: Date
   description: string
   moneyAmount: string
   fromCash: boolean
@@ -44,13 +37,13 @@ interface State {
 type ValChangeEvent = { target: { value: string } }
 type CheckedChangeEvent = { target: { checked: boolean } }
 
-class RegisterSpending extends React.Component<Props, State> {
+class RegisterSpending extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
 
     this.state = {
-      date: moment().startOf('day'),
+      date: startOfDay(new Date()),
       description: '',
       moneyAmount: '',
       fromCash: true,
@@ -105,7 +98,7 @@ class RegisterSpending extends React.Component<Props, State> {
     }))
   }
 
-  handleChangeDate = (name: keyof State) => (date: moment.Moment) => {
+  handleChangeDate = (name: keyof State) => (date: Date) => {
     this.setState((prevState: State) => ({
       ...prevState,
       [name]: date,
@@ -193,7 +186,11 @@ class RegisterSpending extends React.Component<Props, State> {
                     date={state.date}
                     onDateChange={this.handleChangeDate('date')}
                     DatePickerProps={{
-                      fullWidth: true,
+                      slotProps: {
+                        textField: {
+                          fullWidth: true,
+                        },
+                      },
                     }}
                   />
                 </Grid>

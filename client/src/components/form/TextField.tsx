@@ -1,8 +1,7 @@
-import * as React from 'react'
 import MuiTextField, {
   TextFieldProps as MuiTextFieldProps,
-} from '@material-ui/core/TextField'
-import { makeStyles } from '@material-ui/core/styles'
+} from '@mui/material/TextField'
+import makeStyles from '@mui/styles/makeStyles'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
 
 interface ChangeOverrideBag {
@@ -38,6 +37,7 @@ const TextField = (props: TextFieldProps): JSX.Element => {
       error={Boolean(meta.touched && meta.error)}
       helperText={meta.touched && meta.error ? meta.error : undefined}
       label={label}
+      variant='standard'
       {...field}
       {...otherProps}
       onChange={(e) => {

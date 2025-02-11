@@ -1,10 +1,9 @@
-import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
+import makeStyles from '@mui/styles/makeStyles'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 import { FormikHelpers } from 'formik'
 
 import useAuth from '../hooks/useAuth'
@@ -27,7 +26,8 @@ import { MachineCounter } from '../models'
 const validationSchema = Yup.object({
   element: Yup.string().required(),
   amount: Yup.number().integer().positive().required(),
-  counter: Yup.mixed().when('element', {is: 'rollo-360',
+  counter: Yup.mixed().when('element', {
+    is: 'rollo-360',
     then: Yup.number().integer().positive().moreThan(Yup.ref('previousCounter')).required(),
   }),
 })
@@ -43,7 +43,7 @@ const RegisterRelocation = () => {
     element: '',
     amount: '',
     counter: '',
-    previousCounter: null as number|null,
+    previousCounter: null as number | null,
   })
 
   type Values = typeof initialValues
@@ -65,7 +65,7 @@ const RegisterRelocation = () => {
     if (lastMachineCounter !== null) {
       setInitialValues(prev => ({
         ...prev,
-        previousCounter: lastMachineCounter.value
+        previousCounter: lastMachineCounter.value,
       }))
     }
   }, [lastMachineCounter])
@@ -73,9 +73,9 @@ const RegisterRelocation = () => {
   const [statesNonce, updateStates] = useNonce()
 
   const history = useHistory()
-  const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
+  const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/relocation'
-    let payload: Object = {
+    let payload: Record<string, unknown> = {
       inventoryElementCode: values.element,
       amount: Number(values.amount),
     }
@@ -89,25 +89,23 @@ const RegisterRelocation = () => {
 
     const response = await fetchJsonAuth(url, auth, {
       method: 'post',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (isErrorResponse(response)) {
       showMessage('Error: ' + response.error.message)
-      setSubmitting(false)
       return
     }
 
     showMessage('Guardado exitoso')
     updateStates()
     history.push('/movements')
-    setSubmitting(false)
   }
 
   return (
     <Layout title='Registrar Salida de Bodega'>
       <Paper className={classes.paper}>
-        <Title style={{marginBottom: 0}}>Registrar Salida de Bodega</Title>
+        <Title style={{ marginBottom: 0 }}>Registrar Salida de Bodega</Title>
         <Subtitle>Hacia área de trabajo</Subtitle>
 
         <Form
@@ -116,7 +114,7 @@ const RegisterRelocation = () => {
           onSubmit={handleSubmit}
           enableReinitialize
         >
-          {({values, setFieldValue}) => <>
+          {({ values, setFieldValue }) => <>
             <Grid item xs={12} md={6}>
               <SelectElementField
                 name='element'
@@ -129,9 +127,9 @@ const RegisterRelocation = () => {
                   const value = event.target.value
                   setFieldValue('element', value)
 
-                  if (value === 'rollo-360') {
+                  if (value === 'rollo-360')
                     setFieldValue('amount', '1')
-                  }
+
                 }}
               />
             </Grid>
@@ -140,9 +138,9 @@ const RegisterRelocation = () => {
                 name='amount'
                 label='Cantidad'
                 disabled={values.element === 'rollo-360'}
-                helperText={values.element === 'rollo-360' ?
-                  'Solo se permite 1 rollo de 360 al tiempo' :
-                  undefined
+                helperText={values.element === 'rollo-360'
+                  ? 'Solo se permite 1 rollo de 360 al tiempo'
+                  : undefined
                 }
               />
             </Grid>
@@ -160,7 +158,7 @@ const RegisterRelocation = () => {
               </Grid>
             </Collapse>
             <Collapse in={
-                 isNumber(values.counter)
+              isNumber(values.counter)
               && lastMachineCounter !== null
               && Number(values.counter) > lastMachineCounter.value
             }>

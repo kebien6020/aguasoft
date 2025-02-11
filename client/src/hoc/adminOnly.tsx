@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { ComponentType, Component } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import { User } from '../models'
@@ -24,11 +24,11 @@ interface State {
 }
 
 export default
-  function adminOnly<P extends AuthRouteComponentProps>(
-    component: React.ComponentType<P>
-  ): React.ComponentType<P> {
+function adminOnly<P extends AuthRouteComponentProps>(
+  component: ComponentType<P>
+): ComponentType<P> {
 
-  return class AdminRoute extends React.Component<P, State> {
+  return class AdminRoute extends Component<P, State> {
     constructor(props: P) {
       super(props)
       this.state = {

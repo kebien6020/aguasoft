@@ -1,7 +1,7 @@
-import { Grid, styled } from '@material-ui/core'
+import { Grid } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { addDays, startOfDay, subDays } from 'date-fns'
 import { useFormikContext } from 'formik'
-import React from 'react'
 import { DateField } from '../../../components/form/DateField'
 import Form from '../../../components/form/Form'
 import { PriceField } from '../../../components/form/PriceField'
@@ -16,6 +16,7 @@ import {
   moneySign,
   SuccessResponse,
 } from '../../../utils'
+import { Theme } from '../../../theme'
 
 const initialValues = {
   date: new Date,
@@ -71,10 +72,10 @@ export const CreateVerificationForm = ({ onCreated = noop }: CreateVerificationF
   )
 }
 
-const StyledForm = styled(Form)(({ theme }) => ({
+const StyledForm = styled(Form)(({ theme }: { theme: Theme }) => ({
   paddingTop: theme.spacing(3),
   paddingBottom: theme.spacing(3),
-}))
+})) as typeof Form
 
 const CreateVerificationFormImpl = () => {
   const { values } = useFormikContext<Values>()
@@ -92,7 +93,11 @@ const CreateVerificationFormImpl = () => {
         name='date'
         label='Fecha de la Verificación'
         DatePickerProps={{
-          helperText: 'Toma efecto al inicio del día',
+          slotProps: {
+            textField: {
+              helperText: 'Toma efecto al inicio del día',
+            },
+          },
           maxDate: tomorrow,
           disableFuture: false,
         }}
@@ -107,8 +112,7 @@ const CreateVerificationFormImpl = () => {
         }}
       />
     </Grid>
-
-    <Grid item xs={12} container direction='row' justify='center'>
+    <Grid item xs={12} container direction='row' justifyContent='center'>
       <SubmitButton>Crear</SubmitButton>
     </Grid>
   </>)

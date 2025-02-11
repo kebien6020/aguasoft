@@ -1,7 +1,6 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
+import makeStyles from '@mui/styles/makeStyles'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 
 import useAuth from '../hooks/useAuth'
 import useNonce from '../hooks/api/useNonce'
@@ -16,7 +15,7 @@ import SelectElementField from '../components/inventory/SelectElementField'
 import SubmitButton from '../components/form/SubmitButton'
 import adminOnly from '../hoc/adminOnly'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
-import { FormikHelpers } from 'formik'
+import { Theme } from '../theme'
 
 const initialValues = {
   element: '',
@@ -46,28 +45,25 @@ const RegisterEntry = () => {
 
   const [statesNonce, updateStates] = useNonce()
 
-  const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
+  const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/entry'
-    let payload: Object = {
+    const payload: Record<string, unknown> = {
       inventoryElementCode: values.element,
       amount: Number(values.amount),
     }
 
     const response = await fetchJsonAuth(url, auth, {
       method: 'post',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (isErrorResponse(response)) {
       showMessage('Error: ' + response.error.message)
-      setSubmitting(false)
       return
     }
 
     showMessage('Guardado exitoso')
-    setSubmitting(false)
     updateStates()
-    setSubmitting(false)
   }
 
   return (
@@ -80,31 +76,31 @@ const RegisterEntry = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-            <Grid item xs={12} md={6}>
-              <SelectElementField
-                name='element'
-                label='Elemento a ingresar a bodega'
-                emptyOption='Seleccione el elemento'
-                options={elementOptions}
-                statesNonce={statesNonce}
-                storageCode='bodega'
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                name='amount'
-                label='Cantidad'
-              />
-            </Grid>
+          <Grid item xs={12} md={6}>
+            <SelectElementField
+              name='element'
+              label='Elemento a ingresar a bodega'
+              emptyOption='Seleccione el elemento'
+              options={elementOptions}
+              statesNonce={statesNonce}
+              storageCode='bodega'
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              name='amount'
+              label='Cantidad'
+            />
+          </Grid>
 
-            <SubmitButton />
+          <SubmitButton />
         </Form>
       </Paper>
     </Layout>
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(4),

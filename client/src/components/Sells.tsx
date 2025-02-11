@@ -1,20 +1,19 @@
-import Avatar from '@material-ui/core/Avatar'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardHeader from '@material-ui/core/CardHeader'
-import * as colors from '@material-ui/core/colors'
-import Grid from '@material-ui/core/Grid'
-import IconButton from '@material-ui/core/IconButton'
-import { makeStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import DeleteIcon from '@material-ui/icons/Delete'
-import moment from 'moment'
-import * as React from 'react'
+import Avatar from '@mui/material/Avatar'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
+import * as colors from '@mui/material/colors'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import makeStyles from '@mui/styles/makeStyles'
+import Typography from '@mui/material/Typography'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { useState } from 'react'
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import { fetchJsonAuth, isErrorResponse, money } from '../utils'
 import Alert from './Alert'
+import { format, intlFormatDistance } from 'date-fns'
 
 export interface Sell {
   Client: { name: string, id: number, defaultCash: boolean },
@@ -104,7 +103,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
     || externalDisableDelete
 
   return (
-    <Card className={getCardClass(sale)}>
+    (<Card className={getCardClass(sale)}>
       <div className={classes.cardMain}>
         <CardHeader
           className={classes.cardHeader}
@@ -127,8 +126,8 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
             </Typography>
           )}
           <Typography variant='body2'>
-            {moment(sale.updatedAt).format('hh:mm a')}
-            ({moment(sale.updatedAt).fromNow()})
+            {format(new Date(sale.updatedAt), 'HH:mm a')}
+            ({intlFormatDistance(new Date(sale.updatedAt), new Date, { locale: 'es' })})
           </Typography>
           {sale.deleted && <>
             <Alert type='error' message='Esta venta fue eliminada' />
@@ -139,7 +138,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           className={classes.deleteButton}
           onClick={() => handleDeleteSell(sale.id)}
           disabled={effectiveDisableDelete}
-        >
+          size="large">
           <DeleteIcon />
         </IconButton>
       </div>
@@ -173,7 +172,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           </Typography>
         </div>
       </div>
-    </Card>
+    </Card>)
   )
 }
 

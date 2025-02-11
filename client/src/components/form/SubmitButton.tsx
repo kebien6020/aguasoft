@@ -1,7 +1,7 @@
-import * as React from 'react'
-import { CircularProgress, styled } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
+import { CircularProgress } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 import { useFormikContext } from 'formik'
 
 export type SubmitButtonProps = {

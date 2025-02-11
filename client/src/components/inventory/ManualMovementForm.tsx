@@ -1,7 +1,6 @@
-import * as React from 'react'
-import Grid from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
+import Grid from '@mui/material/Grid'
+import makeStyles from '@mui/styles/makeStyles'
+import Button from '@mui/material/Button'
 
 import useAuth from '../../hooks/useAuth'
 import { useSnackbar } from '../MySnackbar'
@@ -45,7 +44,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
       quantityTo: Number(values.quantityTo),
     }
 
-    let response : SuccessResponse | ErrorResponse
+    let response: SuccessResponse | ErrorResponse
     try {
       response = await fetchJsonAuth(url, auth, {
         body: JSON.stringify(payload),
@@ -83,7 +82,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
     && inventoryElements.map(ie => ({ value: String(ie.id), label: ie.name }))
 
   return (
-    <Form
+    (<Form
       onSubmit={handleSubmit}
       className={classes.form}
       initialValues={initialValues}
@@ -129,8 +128,9 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
         <Grid item xs={12} md={6}>
           <TextField
             name='quantityFrom'
-            label='Candidad'
+            label='Cantidad'
             type='number'
+            variant='standard'
             onChangeOverride={((e, { field }) => {
               field.onChange(e)
               setFieldValue('quantityTo', e.target.value)
@@ -140,17 +140,18 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
         <Grid item xs={12} md={6}>
           <TextField
             name='quantityTo'
-            label='Candidad Destino'
+            label='Cantidad Destino'
             type='number'
+            variant='standard'
           />
         </Grid>
-        <Grid item container justify='center'>
+        <Grid item container justifyContent='center'>
           <Button type='submit' variant='contained' color='primary'>
             Crear
           </Button>
         </Grid>
       </>)}
-    </Form>
+    </Form>)
   )
 }
 

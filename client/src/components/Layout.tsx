@@ -1,19 +1,16 @@
-import * as React from 'react'
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback, ReactNode, forwardRef, ComponentType, Component } from 'react'
 import { Link, LinkProps, useLocation } from 'react-router-dom'
 import { LocationDescriptor } from 'history'
-import clsx from 'clsx'
-import { makeStyles, Theme } from '@material-ui/core/styles'
 
-import AppBar from '@material-ui/core/AppBar'
-import Button from '@material-ui/core/Button'
-import Drawer from '@material-ui/core/Drawer'
-import Hidden from '@material-ui/core/Hidden'
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import Toolbar from '@material-ui/core/Toolbar'
-import Tooltip from '@material-ui/core/Tooltip'
-import * as colors from '@material-ui/core/colors'
+import AppBar from '@mui/material/AppBar'
+import Button, { ButtonProps } from '@mui/material/Button'
+import Drawer, { DrawerProps } from '@mui/material/Drawer'
+import Hidden from '@mui/material/Hidden'
+import IconButton from '@mui/material/IconButton'
+import Typography, { TypographyProps } from '@mui/material/Typography'
+import Toolbar from '@mui/material/Toolbar'
+import Tooltip from '@mui/material/Tooltip'
+import * as colors from '@mui/material/colors'
 
 import {
   AttachMoney as MoneyIcon,
@@ -25,17 +22,20 @@ import {
   SwapHoriz as MovementsIcon,
   TrendingUp,
   Dashboard as DashboardIcon,
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
 import useUser from '../hooks/useUser'
-import Avatar from '@material-ui/core/Avatar'
+import Avatar from '@mui/material/Avatar'
+import { styled } from '@mui/material/styles'
+import { Theme } from '../theme'
+import { useMediaQuery } from '@mui/material'
 
 const drawerWidth = 96
 const drawerWidthFull = 256
 
 interface DrawerItemProps {
-  icon: React.ReactNode,
+  icon: ReactNode,
   to: LocationDescriptor<unknown>
   text: string
   fullWidth: boolean
@@ -50,70 +50,74 @@ const DrawerItem = (props: DrawerItemProps) => {
     fullWidth,
     color = colors.grey[500],
   } = props
-  const classes = useDrawerItemClasses()
 
   const colorStyle = { color: color, borderColor: color }
 
   const button =
-    <Button variant='outlined' className={classes.icon} style={colorStyle}>
+    <DrawerIconButton style={colorStyle}>
       {icon}
-    </Button>
+    </DrawerIconButton>
 
   return (
-    <Link className={classes.container} to={to}>
+    <DrawerItemLink to={to}>
       {fullWidth
         ? button
         : <Tooltip title={text} placement='right'>
           {button}
         </Tooltip>
       }
-      {fullWidth
-        && <Typography
-          variant='h6'
-          className={classes.text}
-          style={colorStyle}
-        >
+      {fullWidth && (
+        <DrawerItemText style={colorStyle}>
           {text}
-        </Typography>
-      }
-    </Link>
+        </DrawerItemText>
+      )}
+    </DrawerItemLink>
   )
 }
+DrawerItem.displayName = 'DrawerItem'
 
-const useDrawerItemClasses = makeStyles(theme => ({
-  container: {
-    marginBottom: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    textDecoration: 'none',
+// Need to forward the ref for the tooltip to work
+const DrawerIconButtonImpl = forwardRef<HTMLButtonElement>((props, ref) =>
+  <Button variant='outlined' ref={ref} {...props} />
+)
+DrawerIconButtonImpl.displayName = 'DrawerIconButtonImpl'
+
+const DrawerIconButton = styled(DrawerIconButtonImpl)(({ theme }: { theme: Theme }) => ({
+  width: theme.spacing(10),
+  minWidth: theme.spacing(10),
+  height: theme.spacing(10),
+  borderRadius: theme.spacing(5),
+  marginRight: theme.spacing(2),
+  '& svg': {
+    fontSize: theme.spacing(6),
   },
-  icon: {
-    width: theme.spacing(10),
-    minWidth: theme.spacing(10),
-    height: theme.spacing(10),
-    borderRadius: theme.spacing(5),
-    marginRight: theme.spacing(2),
-    '& svg': {
-      fontSize: theme.spacing(6),
-    },
-  },
-  text: {
-    color: 'black',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    fontSize: '1.3rem',
-  },
-}))
+})) as typeof Button
+
+const DrawerItemLink = styled(Link)(({ theme }: { theme: Theme }) => ({
+  marginBottom: theme.spacing(1),
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  textDecoration: 'none',
+})) as typeof Link
+
+const DrawerItemText = styled(
+  (props: TypographyProps) => <Typography variant='h6' {...props} />
+)({
+  color: 'black',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  fontSize: '1.3rem',
+}) as typeof Typography
+
 
 interface MainDrawerProps {
   open: boolean
   onRequestClose: () => unknown
 }
 
-const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
+const MainDrawer = (props: MainDrawerProps) => {
   const { open, onRequestClose } = props
-  const classes = useDrawerStyles()
 
   const content =
     <>
@@ -176,73 +180,64 @@ const MainDrawer = React.forwardRef((props: MainDrawerProps, ref) => {
       />
     </>
 
-  const drawerClasses = {
-    paper: clsx(classes.drawerPaper, open && classes.drawerOpen),
+  const mobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
+
+  if (mobile) {
+    return (
+      <StyledDrawer
+        variant='temporary'
+        open={open}
+        onClose={onRequestClose}
+      >
+        {content}
+      </StyledDrawer>
+    )
   }
 
   return (
-    <>
-      <Hidden smUp implementation='js'> {/* mobile */}
-        <Drawer
-          classes={drawerClasses}
-          variant='temporary'
-          open={open}
-          onClose={onRequestClose}
-          ref={ref}
-        >
-          {content}
-        </Drawer>
-      </Hidden>
-      <Hidden xsDown implementation='js'> {/* desktop */}
-        <Drawer
-          classes={drawerClasses}
-          variant='permanent'
-          ref={ref}
-        >
-          <div className={classes.toolbar} />
-          {content}
-        </Drawer>
-      </Hidden>
-    </>
+    <StyledDrawer variant='permanent' open={open}>
+      <ToolbarDiv />
+      {content}
+    </StyledDrawer>
   )
-})
+}
 
-MainDrawer.displayName = 'MainDrawer'
-
-const useDrawerStyles = makeStyles((theme: Theme) => ({
-  drawerPaper: {
-    overflowY: 'auto',
-    overflowX: 'hidden',
-    padding: theme.spacing(1),
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerOpen: {
-    width: drawerWidthFull,
-  },
-  toolbar: theme.mixins.toolbar,
-}))
+const StyledDrawer = styled(Drawer)(({ theme, open }: { theme: Theme, open: boolean }) => {
+  return {
+    [theme.breakpoints.down('sm')]: {
+      zIndex: theme.zIndex.drawer + 2,
+    },
+    '& .MuiDrawer-paper': {
+      overflowY: 'auto',
+      overflowX: 'hidden',
+      padding: theme.spacing(1),
+      width: drawerWidth,
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      ...(open ? { width: drawerWidthFull } : {}),
+    },
+  }
+}) as typeof Drawer
 
 interface Props {
-  children: React.ReactNode
+  children: ReactNode
   className?: string
   title: string
-  container?: string | React.ComponentType<{className?: string}>
-  appBarExtra?: React.ReactNode
+  container?: string | ComponentType<{ className?: string }>
+  appBarExtra?: ReactNode
 }
 
 const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
   <ResponsiveContainer variant='wide' {...props} />
 
-const RouterLink = React.forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => (
+const RouterLink = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => (
   <Link innerRef={ref} {...props} />
 ))
 RouterLink.displayName = 'RouterLink'
 
-export default function Layout(props : Props): JSX.Element {
+export default function Layout(props: Props): JSX.Element {
   const {
     children,
     className,
@@ -250,12 +245,11 @@ export default function Layout(props : Props): JSX.Element {
     appBarExtra,
     container = WideResponsiveContainer,
   } = props
-  const classes = useStyles()
   // Drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
   const handleDrawerToggle = useCallback(() => {
-    setDrawerOpen(!drawerOpen)
-  }, [drawerOpen])
+    setDrawerOpen(prev => !prev)
+  }, [])
   const handleDrawerClose = useCallback(() => {
     setDrawerOpen(false)
   }, [])
@@ -265,7 +259,7 @@ export default function Layout(props : Props): JSX.Element {
 
   const { pathname: currentPath } = useLocation()
 
-  const userColorLookup : {[index:string] : string} = {
+  const userColorLookup: { [index: string]: string } = {
     '001': colors.blue[500],
     '002': colors.pink[500],
     '003': colors.green[500],
@@ -277,79 +271,118 @@ export default function Layout(props : Props): JSX.Element {
 
   const Container = container
   const containerProps = className ? { className } : undefined
-  return (
-    <>
-      <AppBar position='fixed' className={classes.appBar}>
-        <Toolbar>
-          <IconButton
-            color='inherit'
-            onClick={handleDrawerToggle}
-            edge='start'
-            className={classes.menuButton}
+  return (<>
+    <StyledAppBar position='fixed'>
+      <Toolbar>
+        <MenuButton
+          color='inherit'
+          onClick={handleDrawerToggle}
+          edge='start'
+          size="large">
+          <MenuIcon />
+        </MenuButton>
+        <Title>{title}</Title>
+        {appBarExtra}
+        {user
+          ? <StyledAvatar
+            aria-label={user.name}
+            style={{ backgroundColor: getUserColor(user.code) }}
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant='h6' color='inherit' className={classes.title}>
-            {title}
-          </Typography>
-          {appBarExtra}
-          {user
-            ? <Avatar
-              aria-label={user.name}
-              className={classes.avatar}
-              style={{ backgroundColor: getUserColor(user.code) }}
-            >
-              {user.name.charAt(0).toUpperCase()}
-            </Avatar>
-            : <Button
-              component={RouterLink}
-              to={`/check?next=${currentPath}`}
-              color='inherit'
-            >
-              Iniciar Sesion
-            </Button>
-          }
-        </Toolbar>
-      </AppBar>
-      <MainDrawer
-        open={drawerOpen}
-        onRequestClose={handleDrawerClose}
-      />
-      <div className={classes.content} onClick={handleDrawerClose}>
-        <div className={classes.toolbar} />
-        <Container {...containerProps}>
+            {user.name.charAt(0).toUpperCase()}
+          </StyledAvatar>
+          : <Button
+            component={RouterLink}
+            to={`/check?next=${currentPath}`}
+            color='inherit'
+          >
+            Iniciar Sesion
+          </Button>
+        }
+      </Toolbar>
+    </StyledAppBar>
+    <MainDrawer
+      open={drawerOpen}
+      onRequestClose={handleDrawerClose}
+    />
+    <ContentWrapper onClick={handleDrawerClose}>
+      <ToolbarDiv />
+      <Container {...containerProps}>
+        <PageLevelErrorBoundary>
           {children}
-        </Container>
-      </div>
-    </>
-  )
+        </PageLevelErrorBoundary>
+      </Container>
+    </ContentWrapper>
+  </>)
 }
 
-const useStyles = makeStyles(theme => ({
-  title: {
-    flexGrow: 1,
-    '& h6': {
-      fontSize: '48px',
-      fontWeight: 400,
-    },
+type PageLevelErrorBoundaryProps = {
+  children: ReactNode
+}
+
+class PageLevelErrorBoundary extends Component<PageLevelErrorBoundaryProps> {
+  state: { error: Error | undefined }
+
+  constructor(props: PageLevelErrorBoundaryProps) {
+    super(props)
+    this.state = { error: undefined }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+
+  render() {
+    const { error } = this.state
+    if (error) {
+      return (
+        <>
+          <Typography variant='h4'>
+            Se ha producido un error al mostrar la página
+          </Typography>
+          <Typography variant='body1'>
+            Enviar captura de pantalla incluyendo el siguiente mensaje:
+          </Typography>
+          <code>
+            <pre style={{ fontSize: 10, textWrap: 'wrap' }}>
+              {error.message}{'\n'}
+              {location.href}{'\n'}{'\n'}
+              {error.stack}
+            </pre>
+          </code>
+        </>
+      )
+    }
+
+    return this.props.children
+  }
+}
+
+const Title = styled(
+  (props: TypographyProps) => <Typography variant='h6' color='inherit' {...props} />
+)({
+  flexGrow: 1,
+  fontWeight: 500,
+}) as typeof Typography
+
+const StyledAppBar = styled(AppBar)(({ theme }: { theme: Theme }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+})) as typeof AppBar
+
+const MenuButton = styled(IconButton)(({ theme }: { theme: Theme }) => ({
+  marginRight: theme.spacing(2),
+})) as typeof IconButton
+
+const ToolbarDiv = styled('div')(({ theme }) =>
+  theme.mixins.toolbar
+) as unknown as 'div'
+
+const ContentWrapper = styled('div')(({ theme }) => ({
+  [theme.breakpoints.up('sm')]: {
+    paddingLeft: drawerWidth,
   },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-  },
-  toolbar: theme.mixins.toolbar,
-  content: {
-    [theme.breakpoints.up('sm')]: {
-      paddingLeft: drawerWidth,
-    },
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  hide: {
-    display: 'none',
-  },
-  avatar: {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-  },
-}))
+})) as unknown as 'div'
+
+const StyledAvatar = styled(Avatar)(({ theme }: { theme: Theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+})) as typeof Avatar

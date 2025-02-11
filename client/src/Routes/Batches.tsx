@@ -1,21 +1,21 @@
-import * as React from 'react'
 import Layout from '../components/Layout'
 import Title from '../components/Title'
 import Form from '../components/form/Form'
 import { FormikValues, FormikHelpers } from 'formik'
 import { DateField } from '../components/form/DateField'
 import SelectField from '../components/form/SelectField'
-import { Card, CardContent, CardHeader, Grid, Paper, Theme, Typography, styled } from '@material-ui/core'
+import { Card, CardContent, CardHeader, Grid, Paper, Theme, Typography } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import SubmitButton from '../components/form/SubmitButton'
 import { optionsFromBatchCategories, useBatchCategories } from '../hooks/api/useBatchCategories'
 import useSnackbar from '../hooks/useSnackbar'
 import Yup from '../components/form/Yup'
-import { fetchJsonAuth, formatDateCol, isErrorResponse } from '../utils'
+import { fetchJsonAuth, isErrorResponse } from '../utils'
 import useAuth from '../hooks/useAuth'
 import { useBatches } from '../hooks/api/useBatches'
 import type { Batch } from '../models'
 import LoadingIndicator from '../components/LoadingIndicator'
-import * as colors from '@material-ui/core/colors'
+import * as colors from '@mui/material/colors'
 
 const Batches = () => {
   const [batches, refresh] = useBatches({ include: ['BatchCategory'] })
@@ -102,7 +102,7 @@ const Wrapper = styled(Paper)({
 })
 
 interface BatchListProps {
-  batches: Batch[]|undefined
+  batches: Batch[] | undefined
 }
 
 const BatchList = ({ batches }: BatchListProps) => {
@@ -113,20 +113,15 @@ const BatchList = ({ batches }: BatchListProps) => {
   return (
     <>
       {batches.map(b =>
-        // <p key={String(b.id)}>
-        //   Codigo: {b.code}. Categoria: {b.BatchCategory?.name}
-        //   <br />Fecha de producción: {formatDateCol(b.date)}.
-        //   <br />Fecha de expiración: {formatDateCol(b.expirationDate)}.
-        // </p>
         <BatchCard batch={b} key={String(b.id)} />
       )}
     </>
   )
 }
 
-const BatchCard = ({ batch }: {batch: Batch}) => (
+const BatchCard = ({ batch }: { batch: Batch }) => (
   <StyledCard colorKey={batch.BatchCategory?.code ?? ''}>
-    <CardHeader title={batch.code}/>
+    <CardHeader title={batch.code} />
     <CardContent>
       <Typography variant='body2'>
         Categoría: {batch.BatchCategory?.name}
@@ -145,7 +140,7 @@ const colorMap = {
   'barra-hielo': colors.pink[500],
 } as Record<string, string>
 
-type StyledCardProps = {colorKey: string} & {theme: Theme}
+type StyledCardProps = { colorKey: string } & { theme: Theme }
 const StyledCard = styled(Card)(({ colorKey, theme }: StyledCardProps) => ({
   borderLeftWidth: 4,
   borderLeftStyle: 'solid',

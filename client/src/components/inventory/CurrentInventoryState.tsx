@@ -1,8 +1,7 @@
-import * as React from 'react'
 import { useState, useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
+import makeStyles from '@mui/styles/makeStyles'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 import * as socketio from 'socket.io-client'
 
 import useFetch from '../../hooks/useFetch'

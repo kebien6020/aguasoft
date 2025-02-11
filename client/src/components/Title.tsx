@@ -1,20 +1,18 @@
-import * as React from 'react'
+import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react'
 import clsx from 'clsx'
 
 import {
   Typography,
-} from '@material-ui/core'
-import { TypographyProps } from '@material-ui/core/Typography'
+} from '@mui/material'
+import { TypographyProps } from '@mui/material/Typography'
 
-import {
-  makeStyles,
-} from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles'
 
-type DivProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+type DivProps = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 interface TitleProps extends DivProps {
   TypographyProps?: TypographyProps
   className?: string
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 export default function Title(props: TitleProps): JSX.Element {

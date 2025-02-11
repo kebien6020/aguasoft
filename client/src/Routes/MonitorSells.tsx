@@ -1,40 +1,41 @@
-import * as React from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import { fetchJsonAuth, money, isErrorResponse } from '../utils'
+import { Theme } from '@mui/material/styles'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
+import { fetchJsonAuth, money, isErrorResponse, formatDateCol, parseDateonlyMachine } from '../utils'
 
-import Typography from '@material-ui/core/Typography'
-import Table from '@material-ui/core/Table'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableBody from '@material-ui/core/TableBody'
-import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import DeleteIcon from '@material-ui/icons/Delete'
-import UpdateIcon from '@material-ui/icons/Update'
+import Typography from '@mui/material/Typography'
+import Table from '@mui/material/Table'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TableHead from '@mui/material/TableHead'
+import TableBody from '@mui/material/TableBody'
+import IconButton from '@mui/material/IconButton'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import DeleteIcon from '@mui/icons-material/Delete'
+import UpdateIcon from '@mui/icons-material/Update'
 
 import MyDatePicker from '../components/MyDatePicker'
 
-import * as moment from 'moment'
-import 'moment/locale/es'
-moment.locale('es')
+import { Component } from 'react'
+import { formatDateonlyMachine } from '../utils/dates'
+import { format, isSameDay } from 'date-fns'
 
-interface MonitorSellsProps extends PropClasses, AuthRouteComponentProps<{}> {
+interface MonitorSellsProps extends PropClasses, AuthRouteComponentProps<Record<string, never>> {
 
 }
 
 interface MonitorSellsState {
-  date: moment.Moment,
+  date: Date,
   sells: Sell[] | null,
 }
 
 interface Sell {
-  Client: {name: string},
-  Product: {name: string},
-  User: {name: string},
+  Client: { name: string },
+  Product: { name: string },
+  User: { name: string },
   cash: boolean,
   date: string,
   id: number,
@@ -45,19 +46,19 @@ interface Sell {
   deleted: boolean
 }
 
-class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState> {
+class MonitorSells extends Component<MonitorSellsProps, MonitorSellsState> {
 
   constructor(props: MonitorSellsProps) {
     super(props)
     this.state = {
-      date: moment(),
+      date: new Date,
       sells: null,
     }
   }
 
-  handleDateChange = (date: moment.Moment) => {
-    this.setState({date})
-    this.updateContents(date)
+  handleDateChange = (date: Date) => {
+    this.setState({ date })
+    void this.updateContents(date)
   }
 
   handleClickDelete = async (sellId: number) => {
@@ -65,7 +66,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
 
     const { auth } = this.props
 
-    const result = await fetchJsonAuth('/api/sells/' + sellId, auth, {
+    const result = await fetchJsonAuth(`/api/sells/${sellId}`, auth, {
       method: 'delete',
     })
 
@@ -75,37 +76,37 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
       const sell = sells.find(s => s.id === sellId) as Sell
       sell.deleted = true
 
-      this.setState({sells})
+      this.setState({ sells })
     } else {
       console.log(result)
     }
   }
 
-  componentWillMount() {
-    this.updateContents(moment())
+  componentDidMount() {
+    void this.updateContents(new Date)
   }
 
-  updateContents = async (date: moment.Moment) => {
+  updateContents = async (date: Date) => {
     const { auth } = this.props
-    this.setState({sells: null})
+    this.setState({ sells: null })
     const sells = await fetchJsonAuth<Sell[]>(
-      '/api/sells/listDay?day=' + date.format('YYYY-MM-DD'),
+      '/api/sells/listDay?day=' + formatDateonlyMachine(date),
       auth
     )
 
-    if (isErrorResponse(sells)) {
+    if (isErrorResponse(sells))
       return
-    }
 
-    this.setState({sells})
+
+    this.setState({ sells })
   }
 
-  calcSell = (cash: boolean) : number => {
+  calcSell = (cash: boolean): number => {
     if (!this.state.sells) return 0
     return this.state.sells.reduce((acc, sell) => {
-      if (sell.cash === cash && !sell.deleted) {
+      if (sell.cash === cash && !sell.deleted)
         return acc + sell.value
-      }
+
       return acc
     }, 0)
   }
@@ -114,7 +115,7 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
     const { props, state } = this
     const { classes } = props
     return (
-      <React.Fragment>
+      (<>
         <Typography variant='h6' className={classes.title}>
           Ventas del Dia
         </Typography>
@@ -158,49 +159,49 @@ class MonitorSells extends React.Component<MonitorSellsProps, MonitorSellsState>
               <TableCell>Valor Total</TableCell>
               <TableCell>Registrado por</TableCell>
               <TableCell>Registrado en</TableCell>
-              <TableCell>{/*Eliminar*/}</TableCell>
+              <TableCell>{/* Eliminar*/}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {
-              state.sells ?
-              state.sells.map((sell, key) => (
-                <TableRow key={key} className={classes.row + (sell.deleted ? ' disabled' : '')}>
-                  <TableCell>{moment(sell.date, 'YYYY-MM-DD').format('DD-MMM-YYYY')}</TableCell>
-                  <TableCell>{sell.Product.name}</TableCell>
-                  <TableCell>{sell.Client.name}</TableCell>
-                  <TableCell>{sell.cash ? 'si' : 'no'}</TableCell>
-                  <TableCell>{money(sell.value / sell.quantity)}</TableCell>
-                  <TableCell>{sell.quantity}</TableCell>
-                  <TableCell>{money(sell.value)}</TableCell>
-                  <TableCell>{sell.User.name}</TableCell>
-                  <TableCell>{
-                    (moment(sell.date).isSame(sell.updatedAt, 'day')
-                     ? ''
-                     : moment(sell.date).format('DD-MMM-YYYY '))
-                    + moment(sell.updatedAt).format('hh:mm a')
-                  }</TableCell>
-                  <TableCell>
-                    <IconButton
-                      className={classes.deleteButton}
-                      onClick={() => this.handleClickDelete(sell.id)}
-                      disabled={sell.deleted}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              )) : (
-                <TableRow>
-                  <TableCell colSpan={8} style={{textAlign: 'center'}}>
-                    Cargando...
-                  </TableCell>
-                </TableRow>
-              )
+              state.sells
+                ? state.sells.map((sell, key) => (
+                  <TableRow key={key} className={classes.row + (sell.deleted ? ' disabled' : '')}>
+                    <TableCell>{formatDateCol(parseDateonlyMachine(sell.date))}</TableCell>
+                    <TableCell>{sell.Product.name}</TableCell>
+                    <TableCell>{sell.Client.name}</TableCell>
+                    <TableCell>{sell.cash ? 'si' : 'no'}</TableCell>
+                    <TableCell>{money(sell.value / sell.quantity)}</TableCell>
+                    <TableCell>{sell.quantity}</TableCell>
+                    <TableCell>{money(sell.value)}</TableCell>
+                    <TableCell>{sell.User.name}</TableCell>
+                    <TableCell>{
+                      (isSameDay(parseDateonlyMachine(sell.date), new Date(sell.updatedAt))
+                        ? ''
+                        : formatDateCol(parseDateonlyMachine(sell.date)) + ' '
+                        + format(new Date(sell.updatedAt), 'HH:mm a'))
+                    }</TableCell>
+                    <TableCell>
+                      <IconButton
+                        className={classes.deleteButton}
+                        onClick={() => this.handleClickDelete(sell.id)}
+                        disabled={sell.deleted}
+                        size="large">
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={8} style={{ textAlign: 'center' }}>
+                      Cargando...
+                    </TableCell>
+                  </TableRow>
+                )
             }
           </TableBody>
         </Table>
-      </React.Fragment>
+      </>)
     )
   }
 }

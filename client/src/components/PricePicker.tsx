@@ -1,24 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import * as React from 'react'
+import { Theme } from '@mui/material/styles'
 
-import { StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
 
-import Button from '@material-ui/core/Button'
-import AddIcon from '@material-ui/icons/AddCircle'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import TextField from '@material-ui/core/TextField'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
+import Button from '@mui/material/Button'
+import AddIcon from '@mui/icons-material/AddCircle'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import TextField from '@mui/material/TextField'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
 
 import PriceField from './PriceField'
 
 import { Product, Price } from '../models'
+import { Component } from 'react'
+import type { ChangeEvent } from 'react'
 
 export type IncompletePrice = Pick<Price, 'name' | 'productId' | 'value'>
 
@@ -37,9 +40,9 @@ interface State {
   currentPrice: string
 }
 
-type ValChangeEvent = React.ChangeEvent<{ value: string }>
+type ValChangeEvent = ChangeEvent<{ value: string }>
 
-class PricePicker extends React.Component<PropsAll, State> {
+class PricePicker extends Component<PropsAll, State> {
   state = {
     dialogOpen: false,
     name: 'Base',
@@ -82,7 +85,7 @@ class PricePicker extends React.Component<PropsAll, State> {
 
   }
 
-  handleProductChangeEvent = (event: ValChangeEvent) => {
+  handleProductChangeEvent = (event: SelectChangeEvent) => {
     const value = event.target.value
     this.handleProductChange(value)
   }
@@ -111,7 +114,7 @@ class PricePicker extends React.Component<PropsAll, State> {
     const { props, state } = this
     const { classes } = props
     return (
-      <React.Fragment>
+      <>
         <Button
           className={classes.button}
           variant='outlined'
@@ -171,12 +174,12 @@ class PricePicker extends React.Component<PropsAll, State> {
           </DialogActions>
 
         </Dialog>
-      </React.Fragment>
+      </>
     )
   }
 }
 
-const styles : StyleRulesCallback<Theme, Props> = theme => ({
+const styles: StyleRulesCallback<Theme, Props> = theme => ({
   button: {
     marginLeft: 'auto',
     marginRight: 'auto',

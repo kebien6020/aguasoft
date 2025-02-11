@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { styled } from '@material-ui/core/styles'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import Typography, { TypographyProps } from '@material-ui/core/Typography'
+import { styled } from '@mui/material/styles'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import Typography, { TypographyProps } from '@mui/material/Typography'
 
 import { SaleProduct, ProductVariant, SimplePrice } from '../types/models'
 import { NumericPicker } from './NumericPicker'
@@ -92,7 +92,7 @@ const VariantName = (props: TypographyProps) =>
 
 const QtyCell = styled(TableCell)(({ theme }) => ({
   textAlign: 'center',
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down('lg')]: {
     '& button': {
       minWidth: '24px',
     },

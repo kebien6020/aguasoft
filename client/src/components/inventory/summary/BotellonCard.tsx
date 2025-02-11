@@ -1,6 +1,5 @@
-import * as React from 'react'
-import { CardProps } from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
+import { CardProps } from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 
 import { DayMovements } from '../MovementSummary'
 import Description from '../../Description'
@@ -9,7 +8,7 @@ import SummaryCard from './SummaryCard'
 import SummaryCardHeader from './SummaryCardHeader'
 
 type BotellonCardProps = CardProps & {
-    dayMovements: DayMovements
+  dayMovements: DayMovements
 }
 
 const BotellonCard = (props: BotellonCardProps): JSX.Element => {

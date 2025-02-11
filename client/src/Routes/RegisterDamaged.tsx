@@ -1,8 +1,7 @@
-import * as React from 'react'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
+import makeStyles from '@mui/styles/makeStyles'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 import { useFormikContext, FormikHelpers } from 'formik'
 
 import useAuth from '../hooks/useAuth'
@@ -22,12 +21,12 @@ import Yup from '../components/form/Yup'
 import { InventoryElement, Storage } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 
-const useStorages = () : InventoryElement[] | null => {
+const useStorages = (): InventoryElement[] | null => {
   const url = '/api/inventory/storages'
   const showError = useSnackbar()
   const [storages] = useFetch<InventoryElement[]>(url, {
     showError,
-    name: 'la lista de almacenes'
+    name: 'la lista de almacenes',
   })
 
   return storages
@@ -58,7 +57,8 @@ const initialValues = {
 
 const validationSchema = Yup.object({
   damageType: Yup.mixed<DamageType>().oneOf(damageTypes as Writeable<typeof damageTypes>).required(),
-  storageCode: Yup.mixed().when('damageType', {is: 'general',
+  storageCode: Yup.mixed().when('damageType', {
+    is: 'general',
     then: Yup.string().required(),
   }),
   inventoryElementCode: Yup.string().required(),
@@ -71,9 +71,9 @@ interface DamageTypeOption extends SelectOption {
   value: DamageType
 }
 
-const damageTypeOptions : DamageTypeOption[] = [
-  {value: 'devolucion', label: 'Devolución'},
-  {value: 'general', label: 'General'},
+const damageTypeOptions: DamageTypeOption[] = [
+  { value: 'devolucion', label: 'Devolución' },
+  { value: 'general', label: 'General' },
 ]
 
 const RegisterDamaged = () => {
@@ -87,7 +87,7 @@ const RegisterDamaged = () => {
   const [statesNonce, updateStates] = useNonce()
   const history = useHistory()
   const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
-    const { damageType : dType } = values
+    const { damageType: dType } = values
 
     const url = '/api/inventory/movements/damage'
     let payload: Object = {
@@ -105,7 +105,7 @@ const RegisterDamaged = () => {
 
     const response = await fetchJsonAuth(url, auth, {
       method: 'post',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (isErrorResponse(response)) {
@@ -131,7 +131,7 @@ const RegisterDamaged = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({values}) => <>
+          {({ values }) => <>
             <Grid item xs={12}>
               <SelectField
                 name='damageType'

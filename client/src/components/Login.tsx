@@ -1,15 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { ChangeEvent, Component, KeyboardEvent } from 'react'
+import { Theme } from '@mui/material/styles'
 
-import FormControl from '@material-ui/core/FormControl'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
+
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import Auth from '../Auth'
@@ -41,9 +44,9 @@ interface LoginState {
   errorLogin: boolean
 }
 
-type InputEvent = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
+type InputEvent = ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
 
-class Login extends React.Component<LoginPropsAll, LoginState> {
+class Login extends Component<LoginPropsAll, LoginState> {
   constructor(props: LoginPropsAll) {
     super(props)
 
@@ -70,7 +73,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     this.setState({ users, userId: users[0].id })
   }
 
-  handleUserChange = (event: InputEvent) => {
+  handleUserChange = (event: SelectChangeEvent) => {
     const userId = event.target.value === 'none'
       ? null
       : Number(event.target.value)
@@ -118,7 +121,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
     })
   }
 
-  handleEnterAnywhere = (event: React.KeyboardEvent) => {
+  handleEnterAnywhere = (event: KeyboardEvent) => {
     if (event.key === 'Enter')
       void this.handleSubmit()
 
@@ -135,18 +138,18 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
       <Grid container spacing={3} className={classes.container}
         onKeyPress={this.handleEnterAnywhere}>
         <Grid item xs={12} md={6} lg={4} className={classes.elemContainer}>
-          <FormControl fullWidth className={classes.formControl} margin='dense'>
+          <FormControl fullWidth className={classes.formControl} margin='dense' variant='standard'>
             <InputLabel>Usuario</InputLabel>
             <Select
               fullWidth
               className={classes.field}
-              value={state.userId || 'none'}
+              value={state.userId === null ? 'none' : String(state.userId)}
               onChange={this.handleUserChange}
             >
               {state.users
                 ? state.users.map((user, key) =>
                   <MenuItem key={key} value={user.id}>
-                      ({user.code}) {user.name}
+                    ({user.code}) {user.name}
                   </MenuItem>
                 )
                 : <MenuItem value='none'>Cargando...</MenuItem>
@@ -166,6 +169,7 @@ class Login extends React.Component<LoginPropsAll, LoginState> {
               margin="dense"
               error={state.errorLogin}
               helperText={state.errorLogin ? 'Contraseña erronea' : null}
+              variant='standard'
             />
           </FormControl>
         </Grid>

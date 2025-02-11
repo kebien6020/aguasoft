@@ -1,5 +1,4 @@
-import * as React from 'react'
-import Grid, { GridProps as MuiGridProps } from '@material-ui/core/Grid'
+import Grid, { GridProps as MuiGridProps } from '@mui/material/Grid'
 import {
   Formik,
   FormikConfig,

@@ -22,7 +22,7 @@ export default class Auth {
     this.auth0.authorize()
   }
 
-  parseHash = () : Promise<auth0.Auth0DecodedHash> => {
+  parseHash = (): Promise<auth0.Auth0DecodedHash> => {
     return new Promise((resolve, reject) => {
       this.auth0.parseHash({ hash: window.location.hash }, (err, authResult) => {
         if (err) {
@@ -82,7 +82,7 @@ export default class Auth {
     // Check whether the current time is past the
     // access token's expiry time
     if (localStorage.expires_at) {
-      const expiresAt = JSON.parse(localStorage.expires_at) as number
+      const expiresAt = JSON.parse(localStorage.expires_at as string) as number
       return new Date().getTime() < expiresAt
     }
 

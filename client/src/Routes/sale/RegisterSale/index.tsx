@@ -1,23 +1,25 @@
 import * as React from 'react'
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles';
+import { StyleRulesCallback } from '@mui/styles';
+import withStyles from '@mui/styles/withStyles';
 import { Map as ImMap, List as ImList } from 'immutable'
 
-import Button from '@material-ui/core/Button'
-import FormControl from '@material-ui/core/FormControl'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Grid from '@material-ui/core/Grid'
-import Input from '@material-ui/core/Input'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Paper from '@material-ui/core/Paper'
-import Select from '@material-ui/core/Select'
-import Table from '@material-ui/core/Table'
-import TableRow from '@material-ui/core/TableRow'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableBody from '@material-ui/core/TableBody'
-import Checkbox from '@material-ui/core/Checkbox'
-import Typography from '@material-ui/core/Typography'
+import Button from '@mui/material/Button'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import Input from '@mui/material/Input'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
+import Table from '@mui/material/Table'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TableHead from '@mui/material/TableHead'
+import TableBody from '@mui/material/TableBody'
+import Checkbox from '@mui/material/Checkbox'
+import Typography from '@mui/material/Typography'
 
 import Layout from '../../../components/Layout'
 import { fetchJsonAuth, isErrorResponse, NotEnoughInSourceError } from '../../../utils'
@@ -447,7 +449,7 @@ const styles: StyleRulesCallback<Theme, RegisterSaleProps> = theme => ({
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       width: '98%',
     },
     paddingLeft: theme.spacing(2),

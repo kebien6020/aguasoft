@@ -1,6 +1,5 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import makeStyles from '@mui/styles/makeStyles'
+import CircularProgress from '@mui/material/CircularProgress'
 
 const LoadingIndicator = (): JSX.Element => {
   const classes = useStyles()

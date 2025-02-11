@@ -1,6 +1,5 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Card, { CardProps } from '@material-ui/core/Card'
+import makeStyles from '@mui/styles/makeStyles'
+import Card, { CardProps } from '@mui/material/Card'
 import clsx from 'clsx'
 
 type BorderedCardProps = CardProps & {

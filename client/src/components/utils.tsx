@@ -1,5 +1,4 @@
-import { styled } from '@material-ui/core'
-import React from 'react'
+import { styled } from '@mui/material/styles'
 
 export interface VSpaceProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: number
@@ -10,3 +9,11 @@ export const VSpace = styled('div')(({ size = 16 }: VSpaceProps) => ({
   width: '100%',
 }))
 
+
+export const Center = styled('div')({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100%',
+  width: '100%',
+})

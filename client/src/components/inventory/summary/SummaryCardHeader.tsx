@@ -1,6 +1,5 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import CardHeader, { CardHeaderProps } from '@material-ui/core/CardHeader'
+import makeStyles from '@mui/styles/makeStyles'
+import CardHeader, { CardHeaderProps } from '@mui/material/CardHeader'
 import clsx from 'clsx'
 
 const SummaryCardHeader = ({ className, ...otherProps }: CardHeaderProps): JSX.Element => {

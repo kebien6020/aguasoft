@@ -1,5 +1,4 @@
-import * as React from 'react'
-
+import { ChangeEvent, Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import {
   Paper,
@@ -13,15 +12,12 @@ import {
   Switch,
   Collapse,
   Button,
-} from '@material-ui/core'
+} from '@mui/material'
 
-import {
-  withStyles,
-  StyleRulesCallback,
-  Theme,
-} from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
 
-import moment from 'moment'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -37,20 +33,22 @@ import {
   ErrorResponse,
   SuccessResponse,
 } from '../utils'
+import { isAfter, startOfDay } from 'date-fns'
+import { formatDateonlyMachine } from '../utils/dates'
 
 interface Props extends AuthRouteComponentProps, PropClasses { }
 interface State {
   clients: Client[] | null
 
   selectedClientId: string | null
-  date: moment.Moment
+  date: Date
   moneyAmount: string
   invoiceEnabled: boolean
-  invoiceDate: moment.Moment
+  invoiceDate: Date
   invoiceNumber: string
   datesEnabled: boolean
-  startDate: moment.Moment
-  endDate: moment.Moment
+  startDate: Date
+  endDate: Date
   directPayment: boolean
 
   userIsAdmin: boolean
@@ -63,25 +61,27 @@ interface State {
   redirectToList: boolean
 }
 
-type ValChangeEvent = React.ChangeEvent<{ value: string }>
+type ValChangeEvent = ChangeEvent<{ value: string }>
 type CheckedChangeEvent = { target: { checked: boolean } }
 
-class RegisterPayment extends React.Component<Props, State> {
+class RegisterPayment extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
 
+    const startOfToday = startOfDay(new Date())
+
     this.state = {
       selectedClientId: null,
-      date: moment().startOf('day'),
+      date: startOfToday,
       clients: null,
       moneyAmount: '',
       invoiceEnabled: false,
-      invoiceDate: moment().startOf('day'),
+      invoiceDate: startOfToday,
       invoiceNumber: '',
       datesEnabled: false,
-      startDate: moment().startOf('day'),
-      endDate: moment().startOf('day'),
+      startDate: startOfToday,
+      endDate: startOfToday,
       directPayment: true,
 
       userIsAdmin: false,
@@ -149,7 +149,7 @@ class RegisterPayment extends React.Component<Props, State> {
     }))
   }
 
-  handleChangeDate = (name: keyof State) => (date: moment.Moment) => {
+  handleChangeDate = (name: keyof State) => (date: Date) => {
     this.setState((prevState: State) => ({
       ...prevState,
       [name]: date,
@@ -181,7 +181,7 @@ class RegisterPayment extends React.Component<Props, State> {
     }
 
     if (state.datesEnabled) {
-      if (state.startDate.isAfter(state.endDate)) {
+      if (isAfter(state.startDate, state.endDate)) {
         const msg = 'La fecha de inicio debe ser anterior a la fecha final'
         this.setState({ datesError: msg })
         ok = false
@@ -212,13 +212,13 @@ class RegisterPayment extends React.Component<Props, State> {
     }
 
     if (state.datesEnabled) {
-      payload.dateFrom = state.startDate.format('YYYY-MM-DD')
-      payload.dateTo = state.endDate.format('YYYY-MM-DD')
+      payload.dateFrom = formatDateonlyMachine(state.startDate)
+      payload.dateTo = formatDateonlyMachine(state.endDate)
     }
 
     if (state.invoiceEnabled) {
       payload.invoiceNo = state.invoiceNumber
-      payload.invoiceDate = state.invoiceDate.format('YYYY-MM-DD')
+      payload.invoiceDate = formatDateonlyMachine(state.invoiceDate)
     }
 
     if (state.userIsAdmin) {

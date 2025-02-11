@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { format, parse } from 'date-fns'
 import Auth from './Auth'
 
 const apiUrl = ''
@@ -104,9 +104,9 @@ export function money(
   const absFixed = Math.abs(Number(num) || 0).toFixed(decimals)
   const integerPart = String(parseInt(absFixed))
   const headLen = integerPart.length > 3 ? integerPart.length % 3 : 0
-  const numHeadWithSep = headLen ? integerPart.substr(0, headLen) + thouSep : ''
+  const numHeadWithSep = headLen ? integerPart.substring(0, headLen) + thouSep : ''
   const numRestWithSep = integerPart
-    .substr(headLen)
+    .substring(headLen)
     .replace(/(\d{3})(?=\d)/g, '$1' + thouSep)
   const decimalsStr = Math.abs(Number(absFixed) - Number(integerPart))
     .toFixed(decimals)
@@ -185,6 +185,18 @@ export function formatDateCol(date: Date) {
   return format(date, 'dd-MMM-yyyy')
 }
 
+export function formatDatetimeCol(date: Date) {
+  return format(date, 'dd-MMM-yyyy HH:mm a')
+}
+
+export function formatTimeonlyCol(date: Date) {
+  return format(date, 'HH:mm a')
+}
+
 export function formatDateonly(date: Date) {
   return format(date, 'yyyy-MM-dd')
+}
+
+export function parseDateonlyMachine(date: string) {
+  return parse(date, 'yyyy-MM-dd', new Date())
 }

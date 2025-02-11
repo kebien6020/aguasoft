@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Paper, Tooltip, styled } from '@material-ui/core'
-import { Add, AddOutlined, CloseOutlined } from '@material-ui/icons'
+import { memo, useCallback, useEffect, useMemo, useState, Fragment } from 'react'
+import { Button, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Paper, Tooltip } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { Add, AddOutlined, CloseOutlined } from '@mui/icons-material'
 import { useFormikContext } from 'formik'
 
 import Layout from '../../components/Layout'
@@ -85,7 +86,7 @@ const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine)
   }
 }
 
-const RegisterSale = React.memo(() => {
+const RegisterSale = memo(() => {
   const auth = useAuth()
   const showMsg = useSnackbar()
   const history = useHistory()
@@ -174,7 +175,7 @@ const cashOptions = [
   { value: 'false', label: 'Posfechado' },
 ]
 
-const RegisterSaleImpl = React.memo(() => {
+const RegisterSaleImpl = memo(() => {
   const user = useUser()
   const isAdmin = user?.isAdmin ?? false
   const [clients] = useClientOptions()
@@ -278,7 +279,7 @@ const RegisterSaleImpl = React.memo(() => {
 })
 RegisterSaleImpl.displayName = 'RegisterSaleImpl'
 
-const TotalPrice = React.memo(() => {
+const TotalPrice = memo(() => {
   const { values } = useFormikContext<Values>()
   const clientId = values.client !== '' ? Number(values.client) : undefined
 
@@ -290,7 +291,7 @@ const TotalPrice = React.memo(() => {
 })
 TotalPrice.displayName = 'TotalPrice'
 
-const TotalPriceImpl = React.memo(({ clientId }: { clientId: number }) => {
+const TotalPriceImpl = memo(({ clientId }: { clientId: number }) => {
   const { values } = useFormikContext<Values>()
   const [prices] = usePrices(clientId)
 
@@ -336,7 +337,7 @@ interface SaleLineFormsProps {
   onRemove: (idx: number) => void
 }
 
-const SaleLineForms = React.memo(({ onRemove, clientId }: SaleLineFormsProps) => {
+const SaleLineForms = memo(({ onRemove, clientId }: SaleLineFormsProps) => {
   const [products] = useProducts({ params: { include: ['Variants'] } })
   const { values } = useFormikContext<Values>()
   const saleLines = values.saleLines
@@ -344,12 +345,12 @@ const SaleLineForms = React.memo(({ onRemove, clientId }: SaleLineFormsProps) =>
   return (
     <>
       {saleLines.map((line, idx) => (
-        <React.Fragment key={idx}>
+        <Fragment key={idx}>
           <StyledPaper>
             <SaleLineForm idx={idx} onRemove={onRemove} line={line} products={products} clientId={clientId} />
           </StyledPaper>
           <VSpace />
-        </React.Fragment>
+        </Fragment>
       ))}
     </>
   )
@@ -453,10 +454,10 @@ const Hr = styled(VSpace)(({ theme }) => ({
   borderBottomColor: theme.palette.divider,
   marginLeft: -theme.spacing(2),
   marginRight: -theme.spacing(2),
-  width: `calc(100% + ${theme.spacing(2) * 2}px)`,
+  width: `calc(100% + calc(${theme.spacing(2)} * 2))`,
 }))
 
-const BatchField = React.memo(({ idx, product }: { idx: number, product: ProductWithBatchCategory }) => {
+const BatchField = memo(({ idx, product }: { idx: number, product: ProductWithBatchCategory }) => {
   const [batches, update] = useBatches({ batchCategoryId: product.batchCategoryId })
   const options = optionsFromBatches(batches ?? null)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
@@ -471,22 +472,20 @@ const BatchField = React.memo(({ idx, product }: { idx: number, product: Product
     update()
   }, [fieldName, update])
 
-  return (
-    <>
-      <SelectField name={fieldName} label='Lote' options={options} style={{ flex: 1 }} />
-      <Tooltip title='Crear nuevo lote' placement='bottom'>
-        <IconButton onClick={toggleAddDialog}>
-          <Add />
-        </IconButton>
-      </Tooltip>
-      <AddBatchDialog
-        product={product}
-        open={addDialogOpen}
-        onClose={closeDialog}
-        onCreated={handleBatchCreated}
-      />
-    </>
-  )
+  return (<>
+    <SelectField name={fieldName} label='Lote' options={options} style={{ flex: 1 }} />
+    <Tooltip title='Crear nuevo lote' placement='bottom'>
+      <IconButton onClick={toggleAddDialog} size="large">
+        <Add />
+      </IconButton>
+    </Tooltip>
+    <AddBatchDialog
+      product={product}
+      open={addDialogOpen}
+      onClose={closeDialog}
+      onCreated={handleBatchCreated}
+    />
+  </>)
 })
 BatchField.displayName = 'BatchField'
 
@@ -505,7 +504,7 @@ const addBatchInitialValues = {
   date: new Date(),
 }
 
-const AddBatchDialog = React.memo(({ product, open, onClose, onCreated }: AddBatchDialogProps) => {
+const AddBatchDialog = memo(({ product, open, onClose, onCreated }: AddBatchDialogProps) => {
   const [category] = useBatchCategory(product.batchCategoryId)
   const loading = category === null
   const auth = useAuth()

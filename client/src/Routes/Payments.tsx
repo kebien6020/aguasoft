@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { useHistory, Link, LinkProps } from 'react-router-dom'
-import { styled } from '@material-ui/core/styles'
-import moment from 'moment'
+import { styled } from '@mui/material/styles'
 
-import Button from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Paper from '@material-ui/core/Paper'
+import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
+import Paper from '@mui/material/Paper'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -19,11 +18,15 @@ import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import { MakeOptional } from '../utils/types'
+import { startOfDay } from 'date-fns'
+import { formatDateonlyMachine } from '../utils/dates'
+import { Theme } from '../theme'
+import { VSpace } from '../components/utils'
 
 type PaymentsProps = AuthRouteComponentProps;
 export default function Payments({ auth }: PaymentsProps): JSX.Element {
   // Date picker
-  const [date, setDate] = useState(() => moment().startOf('day'))
+  const [date, setDate] = useState(() => startOfDay(new Date))
 
   // Login to register payment
   const history = useHistory()
@@ -39,7 +42,7 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
   useEffect(() => {
     (async () => {
       setPayments(null)
-      const url = '/api/payments/listDay?day=' + date.format('YYYY-MM-DD')
+      const url = '/api/payments/listDay?day=' + formatDateonlyMachine(date)
       const payments: ErrorResponse | Payment[] =
         await fetchJsonAuth(url, auth)
 
@@ -68,7 +71,7 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
         console.error('Trying to mutate unknown paymentId', paymentId)
         return
       }
-      payment.deletedAt = moment().toISOString()
+      payment.deletedAt = (new Date).toISOString()
 
       setPayments(paymentsCopy)
     } else {
@@ -80,7 +83,8 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
   return (
     <Layout title='Pagos'>
       <Title>Registrar Pago</Title>
-      <PaperLogin onSuccess={handleLogin} />
+      <LoginAuth onSuccess={handleLogin} />
+      <VSpace />
 
       <DatePicker
         date={date}
@@ -106,18 +110,18 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
   )
 }
 
-const PaperLogin = styled(
-  (props: MakeOptional<LoginProps, 'auth'>) => {
-    const auth = useAuth()
-    return (
-      <Paper>
-        <Login auth={auth} {...props} />
-      </Paper>
-    )
-  }
-)(({ theme }) => ({
+const LoginAuth = (props: MakeOptional<LoginProps, 'auth'>) => {
+  const auth = useAuth()
+  return (
+    <LoginPaper>
+      <Login auth={auth} {...props} />
+    </LoginPaper>
+  )
+}
+
+const LoginPaper = styled(Paper)(({ theme }: { theme: Theme }) => ({
   padding: theme.spacing(2),
-}))
+})) as typeof Paper
 
 const ListLink = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
   function ListLink(props, ref) {
@@ -129,25 +133,24 @@ const ButtonWrapper = styled('div')({
   paddingTop: '8px',
   paddingBottom: '8px',
   textAlign: 'center',
-})
+}) as unknown as 'div'
 
 const LoadingIndicator = styled(CircularProgress)({
   marginLeft: 'auto',
   marginRight: 'auto',
   display: 'block',
-})
+}) as typeof CircularProgress
 
 const DatePicker = styled(
   (props: MyDatePickerProps) => (
     <MyDatePicker
       DatePickerProps={{
-        inputVariant: 'outlined',
         label: 'Fecha',
       }}
       {...props}
     />
   )
-)(({ theme }) => ({
+)(({ theme }: { theme: Theme }) => ({
   marginTop: theme.spacing(4),
   marginBottom: theme.spacing(0),
-}))
+})) as typeof MyDatePicker

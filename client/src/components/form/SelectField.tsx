@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
 import SelectControl, { SelectControlProps } from '../controls/SelectControl'
 

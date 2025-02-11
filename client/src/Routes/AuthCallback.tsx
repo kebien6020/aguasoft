@@ -1,15 +1,14 @@
-import * as React from 'react'
 import { useEffect, useState } from 'react'
 
 import LoadingScreen from '../components/LoadingScreen'
 import { useHistory } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
 
 const AuthCallback = () => {
   const auth = useAuth()
   const history = useHistory()
-  const [error, setError] = useState<string|undefined>(undefined)
+  const [error, setError] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     (async () => {

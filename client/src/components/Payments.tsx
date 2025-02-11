@@ -1,6 +1,4 @@
-import * as React from 'react'
 import { useState } from 'react'
-import moment from 'moment'
 
 import {
   Avatar,
@@ -11,24 +9,26 @@ import {
   Grid,
   IconButton,
   Typography,
-} from '@material-ui/core'
+} from '@mui/material'
 
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles'
 
 import {
   Delete as DeleteIcon,
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 
-import * as colors from '@material-ui/core/colors'
+import * as colors from '@mui/material/colors'
 
 import Alert from '../components/Alert'
 import { Payment } from '../models'
-import { money } from '../utils'
+import { formatDateCol, formatTimeonlyCol, money, parseDateonlyMachine } from '../utils'
+import { intlFormatDistance } from 'date-fns'
+import { Theme } from '../theme'
 
 interface Props {
   payments: Payment[]
   onDeletePayment: (paymentId: number) => Promise<unknown>
-  deleteDisabled: boolean
+  deleteDisabled?: boolean
 }
 
 const Payments = (props: Props): JSX.Element => {
@@ -38,7 +38,7 @@ const Payments = (props: Props): JSX.Element => {
     if (payment.invoiceDate === null || payment.invoiceNo === null)
       return null
 
-    const date = moment(payment.invoiceDate).format('DD-MMM-YYYY')
+    const date = formatDateCol(parseDateonlyMachine(payment.invoiceDate))
     const no = payment.invoiceNo
 
     return `Factura No. ${no} del ${date}`
@@ -48,16 +48,16 @@ const Payments = (props: Props): JSX.Element => {
     if (payment.dateFrom === null || payment.dateTo === null)
       return null
 
-    const from = moment(payment.dateFrom).format('DD-MMM-YYYY')
-    const to = moment(payment.dateTo).format('DD-MMM-YYYY')
+    const from = formatDateCol(parseDateonlyMachine(payment.dateFrom))
+    const to = formatDateCol(parseDateonlyMachine(payment.dateTo))
 
     return `Desde el ${from} hasta el ${to}`
   }
 
   const deletedInfo = (deletedAt: string) => {
-    const timestamp = moment(deletedAt)
-    const date = timestamp.format('DD-MMM-YYYY')
-    const time = timestamp.format('hh:mm a')
+    const timestamp = new Date(deletedAt)
+    const date = formatDateCol(timestamp)
+    const time = formatTimeonlyCol(timestamp)
     return `Este pago fue eliminado el ${date} a las ${time}.`
   }
 
@@ -70,16 +70,16 @@ const Payments = (props: Props): JSX.Element => {
     return classNames.join(' ')
   }
 
-  const [disabledDelete, setDisabledDelete] = useState<string|null>(null) // payment id
+  const [disabledDelete, setDisabledDelete] = useState<string | null>(null) // payment id
 
   return (
-    <Grid container spacing={2}>
+    (<Grid container spacing={2}>
       {props.payments && props.payments.length === 0
-          && <Grid item xs={12}>
-            <Typography variant='body1'>
-              No se registaron pagos este día.
-            </Typography>
-          </Grid>
+        && <Grid item xs={12}>
+          <Typography variant='body1'>
+            No se registaron pagos este día.
+          </Typography>
+        </Grid>
       }
       {props.payments.map((payment, idx) =>
         <Grid item key={idx} xs={12}>
@@ -92,44 +92,44 @@ const Payments = (props: Props): JSX.Element => {
                   <Avatar
                     className={classes.avatar}
                   >
-                      $
+                    $
                   </Avatar>
                 }
               />
               <CardContent>
                 {payment.invoiceDate && payment.invoiceNo
-                    && <>
-                      <Typography variant='body2'>
-                        {invoiceInfo(payment)}
-                      </Typography>
-                      <Divider />
-                    </>
+                  && <>
+                    <Typography variant='body2'>
+                      {invoiceInfo(payment)}
+                    </Typography>
+                    <Divider />
+                  </>
                 }
                 {payment.dateFrom && payment.dateTo
-                    && <>
-                      <Typography variant='body2'>
-                        {dateInfo(payment)}
-                      </Typography>
-                      <Divider />
-                    </>
+                  && <>
+                    <Typography variant='body2'>
+                      {dateInfo(payment)}
+                    </Typography>
+                    <Divider />
+                  </>
                 }
                 <Typography variant='body2'>
-                    Registrado por {payment.User.name}
+                  Registrado por {payment.User.name}
                 </Typography>
                 <Divider />
                 <Typography variant='body2'>
-                    Pagado el: {moment(payment.date).format('DD/MMM/YYYY')}
+                  Pagado el: {formatDateCol(new Date(payment.date))}
                 </Typography>
                 <Divider />
                 <Typography variant='body2'>
-                  {moment(payment.updatedAt).format('hh:mm a') + ' '}
-                    ({moment(payment.updatedAt).fromNow()})
+                  {formatTimeonlyCol(new Date(payment.updatedAt)) + ' '}
+                  ({intlFormatDistance(new Date(payment.updatedAt), new Date(), { locale: 'es' })})
                 </Typography>
                 {payment.deletedAt !== null
-                    && <Alert
-                      type='error'
-                      message={deletedInfo(payment.deletedAt)}
-                    />
+                  && <Alert
+                    type='error'
+                    message={deletedInfo(payment.deletedAt)}
+                  />
                 }
               </CardContent>
               <IconButton
@@ -149,7 +149,7 @@ const Payments = (props: Props): JSX.Element => {
                   || String(payment.id) === disabledDelete
                   || props.deleteDisabled
                 }
-              >
+                size="large">
                 <DeleteIcon />
               </IconButton>
             </div>
@@ -157,7 +157,7 @@ const Payments = (props: Props): JSX.Element => {
               <Typography
                 variant='overline'
                 className={classes.cardPriceHeader}>
-                  Cantidad Pagada
+                Cantidad Pagada
               </Typography>
               <div className={classes.cardPrice}>
                 <Typography
@@ -170,11 +170,11 @@ const Payments = (props: Props): JSX.Element => {
           </Card>
         </Grid>
       )}
-    </Grid>
+    </Grid>)
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   card: {
     display: 'flex',
     flexDirection: 'row',
@@ -194,7 +194,7 @@ const useStyles = makeStyles(theme => ({
     flex: '3',
     position: 'relative',
   },
-  cardHeader: { },
+  cardHeader: {},
   cardPrices: {
     flex: '1',
 

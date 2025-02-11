@@ -1,4 +1,3 @@
-import React from 'react'
 import Title from '../../../components/Title'
 import type { DateRange } from '../index'
 import {
@@ -8,14 +7,15 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  styled,
-} from '@material-ui/core'
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
 import useMovements from '../../../hooks/api/useMovements'
 import LoadingIndicator from '../../../components/LoadingIndicator'
 import { formatISO } from 'date-fns'
 import { InventoryElement, InventoryMovement } from '../../../models'
 import { MakeRequired } from '../../../utils/types'
 import groupBy from 'lodash.groupby'
+import { Theme } from '../../../theme'
 
 interface DamageWidgetProps {
   dateRange: DateRange
@@ -44,7 +44,7 @@ export const DamageWidget = ({ dateRange }: DamageWidgetProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading && <TableRow><LoadingIndicator /></TableRow>}
+            {loading && <LoadingIndicatorRow />}
             {error && 'Error cargando los datos de daño'}
             {!loading && !error
               && <DamageRows movements={movements as InventoryMovementWithInclusions[]} />
@@ -56,16 +56,24 @@ export const DamageWidget = ({ dateRange }: DamageWidgetProps) => {
   )
 }
 
-const TableWrapper = styled(Paper)(({ theme }) => ({
+const LoadingIndicatorRow = () => (
+  <TableRow>
+    <TableCell colSpan={2}>
+      <LoadingIndicator />
+    </TableCell>
+  </TableRow>
+)
+
+const TableWrapper = styled(Paper)(({ theme }: { theme: Theme }) => ({
   marginTop: theme.spacing(3),
   padding: theme.spacing(2),
-}))
+})) as typeof Paper
 
 const StyledTable = styled(Table)({
   '& *': {
     textAlign: 'center',
   },
-})
+}) as typeof Table
 
 type Row = {
   inventoryElementFrom: InventoryElement,

@@ -1,6 +1,5 @@
-import * as React from 'react'
-import CardContent from '@material-ui/core/CardContent'
-import { CardProps } from '@material-ui/core/Card'
+import CardContent from '@mui/material/CardContent'
+import { CardProps } from '@mui/material/Card'
 
 import Description from '../../Description'
 import SummaryCard from './SummaryCard'
@@ -78,7 +77,7 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
   const bolsasManualMovements = dayMovements
     ?.filter(movement => movement.cause === 'manual')
     ?.filter(movement =>
-         movement.inventoryElementFrom?.code === 'bolsa-6l'
+      movement.inventoryElementFrom?.code === 'bolsa-6l'
       || movement.inventoryElementTo?.code === 'bolsa-6l'
       || movement.inventoryElementFrom?.code === 'bolsa-6l-raw'
       || movement.inventoryElementTo?.code === 'bolsa-6l-raw'

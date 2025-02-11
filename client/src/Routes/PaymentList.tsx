@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 
-import { styled } from '@material-ui/core/styles'
+import { styled } from '@mui/material/styles'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import adminOnly from '../hoc/adminOnly'
@@ -12,8 +12,7 @@ import ResponsiveContainer from '../components/ResponsiveContainer'
 import { Payment } from '../models'
 import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
 
-import Pagination from 'material-ui-flat-pagination'
-import moment from 'moment'
+import Pagination from '../components/pagination'
 import { MakeOptional } from '../utils/types'
 
 interface PaymentPageResponse {
@@ -82,7 +81,7 @@ class PaymentList extends React.Component<Props, State> {
         return
       }
 
-      payment.deletedAt = moment().toISOString()
+      payment.deletedAt = (new Date).toISOString()
 
       this.setState({ payments })
     } else {

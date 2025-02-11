@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import Button from '@material-ui/core/Button'
-import AddIcon from '@material-ui/icons/Add'
-import RemoveIcon from '@material-ui/icons/Remove'
+import Button from '@mui/material/Button'
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 
 interface SqIconButtonProps {
   children: JSX.Element

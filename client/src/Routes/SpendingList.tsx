@@ -1,7 +1,7 @@
-import { StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
-import Pagination from 'material-ui-flat-pagination'
-import moment from 'moment'
-import * as React from 'react'
+import { Theme } from '@mui/material/styles'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
+import Pagination from '../components/pagination'
 import { Link, LinkProps } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -12,6 +12,7 @@ import adminOnly from '../hoc/adminOnly'
 import { Spending } from '../models'
 import { ErrorResponse, fetchJsonAuth, isErrorResponse, SuccessResponse } from '../utils'
 import { MakeOptional } from '../utils/types'
+import { Component, forwardRef } from 'react'
 
 interface SpendingPageResponse {
   spendings: Spending[]
@@ -29,7 +30,7 @@ interface State {
 
 const ITEMS_PER_PAGE = 30
 
-class SpendingList extends React.Component<Props, State> {
+class SpendingList extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
@@ -66,9 +67,9 @@ class SpendingList extends React.Component<Props, State> {
     const { props } = this
 
     const result: ErrorResponse | SuccessResponse =
-    await fetchJsonAuth(`/api/spendings/${spendingId}`, props.auth, {
-      method: 'delete',
-    })
+      await fetchJsonAuth(`/api/spendings/${spendingId}`, props.auth, {
+        method: 'delete',
+      })
 
     if (!isErrorResponse(result)) {
       const spendings = [...this.state.spendings]
@@ -79,7 +80,7 @@ class SpendingList extends React.Component<Props, State> {
         return
       }
 
-      spending.deletedAt = moment().toISOString()
+      spending.deletedAt = (new Date).toISOString()
 
       this.setState({ spendings })
     } else {
@@ -93,7 +94,7 @@ class SpendingList extends React.Component<Props, State> {
     this.setState({ offset, disablePagination: false })
   }
 
-  renderLinkBack = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
+  renderLinkBack = forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
     function BackLink(props, ref) {
       return <Link to='/' ref={ref} {...props} />
     }
@@ -151,7 +152,4 @@ const styles: StyleRulesCallback<Theme, Props> = _theme => ({
   },
 })
 
-export default
-adminOnly(
-  withStyles(styles)(
-    SpendingList))
+export default adminOnly(withStyles(styles)(SpendingList))

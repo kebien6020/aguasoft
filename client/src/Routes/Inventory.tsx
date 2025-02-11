@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import CurrentInventoryState from '../components/inventory/CurrentInventoryState'
 import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -19,9 +17,9 @@ const Inventory = () => {
   return (
     <Layout title='Inventario'>
       <CurrentInventoryState inventoryElements={inventoryElements} />
-      {inventoryElements ?
-        <MovementSummary /> :
-        <LoadingIndicator />
+      {inventoryElements
+        ? <MovementSummary />
+        : <LoadingIndicator />
       }
     </Layout>
   )

@@ -1,11 +1,11 @@
-import * as React from 'react'
+import { Component } from 'react'
 import { AuthRouteComponentProps } from '../AuthRoute'
 
-type LogoutProps = AuthRouteComponentProps<{}>
+type LogoutProps = AuthRouteComponentProps<Record<string, never>>
 
-export default class Logout extends React.Component<LogoutProps> {
+export default class Logout extends Component<LogoutProps> {
 
-  componentWillMount() {
+  componentDidMount() {
     this.props.auth.logout()
     this.props.history.push('/')
   }

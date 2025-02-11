@@ -1,16 +1,15 @@
-import { Button, ButtonProps, Collapse, Tooltip } from '@material-ui/core'
-import CardContent from '@material-ui/core/CardContent'
-import * as colors from '@material-ui/core/colors'
-import { makeStyles, styled } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
+import { Button, ButtonProps, Collapse, Tooltip } from '@mui/material'
+import CardContent from '@mui/material/CardContent'
+import * as colors from '@mui/material/colors'
+import { styled } from '@mui/material/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import Typography from '@mui/material/Typography'
 import clsx from 'clsx'
-import moment, { Moment } from 'moment'
-import * as React from 'react'
-import { useState } from 'react'
+import { useState, ReactNode } from 'react'
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import BorderedCard from '../components/BorderedCard'
 import CardHeader from '../components/CardHeader'
-import DateControl from '../components/controls/DateControl'
+import { ClearableDatePicker as DateControl } from '../components/MyDatePicker'
 import Layout from '../components/Layout'
 import LoadingIndicator from '../components/LoadingIndicator'
 import Title from '../components/Title'
@@ -22,6 +21,8 @@ import useUser from '../hooks/useUser'
 import { BalanceItem, BalanceVerification } from '../models'
 import {
   fetchJsonAuth,
+  formatDateCol,
+  formatDatetimeCol,
   isErrorResponse,
   money,
   moneySign,
@@ -29,10 +30,12 @@ import {
   paramsToString,
 } from '../utils'
 import { CreateVerificationForm } from './balance/components/CreateVerificationForm'
+import { addMonths, isValid } from 'date-fns'
+import { Theme } from '../theme'
 
 type CardPricesProps = {
-  titleOne: React.ReactNode
-  titleTwo: React.ReactNode
+  titleOne: ReactNode
+  titleTwo: ReactNode
   valueOne: number
   valueTwo: number
   className?: string
@@ -116,7 +119,7 @@ const useCardPricesStyles = makeStyles({
 
 type HistoryElementCardProps = {
   header: string
-  content: React.ReactNode
+  content: ReactNode
   delta: number
   balance: number
 }
@@ -145,7 +148,7 @@ const HistoryElementCard = (props: HistoryElementCardProps) => {
   )
 }
 
-const useHistoryElementCardStyles = makeStyles(theme => ({
+const useHistoryElementCardStyles = makeStyles((theme: Theme) => ({
   layout: {
     marginBottom: '16px',
   },
@@ -165,22 +168,22 @@ const useHistoryElementCardStyles = makeStyles(theme => ({
 }))
 
 type VerificationCardProps = {
-    verification: BalanceVerification
+  verification: BalanceVerification
 }
 
 const VerificationCard = (props: VerificationCardProps) => {
   const classes = useVerificationCardStyles()
 
   const { verification } = props
-  const date = moment(verification.date)
-  const createdAt = moment(verification.createdAt)
+  const date = new Date(verification.date)
+  const createdAt = new Date(verification.createdAt)
   return (
     <BorderedCard color={colors.green[500]} className={classes.layout}>
-      <CardHeader title={`Verificación ${date.format('DD-MMM-YYYY')}`} />
+      <CardHeader title={`Verificación ${formatDateCol(date)}`} />
       <div className={classes.body}>
         <CardContent className={classes.content}>
           Registrada por: {verification.createdBy?.name ?? 'Desconocido'}<br />
-          Registrada el: {createdAt.format('DD-MMM-YYYY hh:mm a')}
+          Registrada el: {formatDatetimeCol(createdAt)}
         </CardContent>
         <CardPrices
           titleOne='Ajuste'
@@ -194,7 +197,7 @@ const VerificationCard = (props: VerificationCardProps) => {
   )
 }
 
-const useVerificationCardStyles = makeStyles(theme => ({
+const useVerificationCardStyles = makeStyles((theme: Theme) => ({
   layout: {
     marginBottom: '16px',
   },
@@ -221,7 +224,7 @@ type ListBalanceResponse = {
 const useBalanceData = (params: Params) => {
   const auth = useAuth()
   const showMessage = useSnackbar()
-  const [balanceData, setBalanceData] = useState<BalanceItem[]|null>(null)
+  const [balanceData, setBalanceData] = useState<BalanceItem[] | null>(null)
   const [nonce, refresh] = useNonce()
   useDeepCompareEffect(() => {
     (async () => {
@@ -254,7 +257,7 @@ interface BalanceItemCardProps {
 const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
   <>
     <HistoryElementCard
-      header={moment(item.date).format('DD-MMM-YYYY')}
+      header={formatDateCol(new Date(item.date))}
       content={<>
         <div>Ventas en Efectivo: {money(item.sales)}</div>
         <div>Pagos: {money(item.payments)}</div>
@@ -272,14 +275,14 @@ const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
 )
 
 const Balance = (): JSX.Element => {
-  const [bDate, setBDate] = useState<Moment|null>(
-    () => moment().subtract(1, 'month')
+  const [bDate, setBDate] = useState<Date | null>(
+    () => addMonths(new Date, -1)
   )
-  const [eDate, setEDate] = useState<Moment|null>(null)
+  const [eDate, setEDate] = useState<Date | null>(null)
 
   const [balanceData, { refresh }] = useBalanceData({
-    minDate: bDate?.format('YYYY-MM-DD'),
-    maxDate: eDate?.format('YYYY-MM-DD'),
+    minDate: bDate === null ? undefined : formatDateCol(bDate),
+    maxDate: eDate === null ? undefined : formatDateCol(eDate),
     includes: ['verification.createdBy'],
   })
 
@@ -298,23 +301,13 @@ const Balance = (): JSX.Element => {
         <DateControl
           label='Fecha inicial'
           date={bDate}
-          onDateChange={date => setBDate(date.isValid() ? date : null)}
-          DatePickerProps={{
-            inputVariant: 'outlined',
-            clearable: true,
-            clearLabel: 'Borrar',
-          }}
+          onDateChange={date => setBDate(isValid(date) ? date : null)}
         />
         <ArrowRight />
         <DateControl
           label='Fecha final'
           date={eDate}
-          onDateChange={date => setEDate(date.isValid() ? date : null)}
-          DatePickerProps={{
-            inputVariant: 'outlined',
-            clearable: true,
-            clearLabel: 'Borrar',
-          }}
+          onDateChange={date => setEDate(isValid(date) ? date : null)}
         />
       </DateFilter>
 
@@ -332,13 +325,13 @@ const DateFilter = styled('div')({
   flexFlow: 'row',
   justifyContent: 'center',
   alignItems: 'center',
-})
+}) as unknown as 'div'
 
-const ArrowRight = styled(props => <span {...props}>→</span>)(({ theme }) => ({
+const ArrowRight = styled(props => <span {...props}>→</span>)(({ theme }: { theme: Theme }) => ({
   marginLeft: theme.spacing(1),
   marginRight: theme.spacing(1),
   lineHeight: '48px',
-}))
+})) as unknown as 'span'
 
 const AddVerificationButton = (props: ButtonProps) => {
   const isAdmin = useUser()?.isAdmin ?? false
@@ -372,4 +365,4 @@ const ButtonWrapper = styled('div')({
   display: 'flex',
   flexFlow: 'row',
   justifyContent: 'center',
-})
+}) as unknown as 'div'

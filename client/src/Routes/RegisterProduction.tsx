@@ -1,13 +1,11 @@
-import * as React from 'react'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Checkbox from '@material-ui/core/Checkbox'
-import MuiCollapse, { CollapseProps } from '@material-ui/core/Collapse'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Grid, { GridProps } from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
+import makeStyles from '@mui/styles/makeStyles'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
@@ -20,38 +18,11 @@ import SubmitButton from '../components/form/SubmitButton'
 import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
 import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse, NotEnoughInSourceError } from '../utils'
-import { useFormikContext, FormikContextType, FormikHelpers } from 'formik'
+import { useFormikContext, FormikContextType } from 'formik'
 import usePrevious from '../hooks/usePrevious'
 import { MachineCounter } from '../models'
-
-const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
-
-const Collapse = (props: CollapseProps) => {
-  const classes = useCollapseStyles()
-  return (
-    <MuiCollapse
-      component={GridItemXs12}
-      classes={{
-        hidden: classes.hidden,
-        wrapper: classes.container,
-      }}
-      {...props}
-    >
-      <Grid container spacing={2}>
-        {props.children}
-      </Grid>
-    </MuiCollapse>
-  )
-}
-
-const useCollapseStyles = makeStyles({
-  hidden: {
-    padding: '0 !important',
-  },
-  container: {
-    transitionProperty: 'height, padding',
-  },
-})
+import Collapse from '../components/Collapse'
+import { Theme } from '../theme'
 
 type ProductionType =
   | 'bolsa-360'
@@ -170,14 +141,9 @@ const RegisterProduction = (): JSX.Element => {
 
   const [detectDamaged, setDetectDamaged] = useState(true)
 
-  const [nonce, setNonce] = useState(1)
-  const updateIntermediateState = useCallback(() =>
-    setNonce(prev => prev + 1)
-  , [])
   const [intermediateState] = useFetch<{ 'bolsa-360': number }>('/api/inventory/state/intermediate', {
     showError: showMessage,
     name: 'el estado actual del inventario',
-    nonce,
   })
 
   const quantityInIntermediate =
@@ -186,7 +152,7 @@ const RegisterProduction = (): JSX.Element => {
       : null
 
   const history = useHistory()
-  const handleSubmit = async (values: Values, { setFieldValue, setSubmitting }: FormikHelpers<Values>) => {
+  const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/production'
 
     const pType = values.productionType
@@ -239,18 +205,11 @@ const RegisterProduction = (): JSX.Element => {
       })()
 
       showMessage('Error al registrar la producción: ' + msg)
-      setSubmitting(false)
       return
     }
 
-    setFieldValue('amount', '0')
-    setFieldValue('damaged', '0')
-
-    updateIntermediateState()
-
     showMessage('Guardado exitoso')
     history.push('/movements')
-    setSubmitting(false)
   }
 
   return (
@@ -365,7 +324,7 @@ const RegisterProduction = (): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(4),

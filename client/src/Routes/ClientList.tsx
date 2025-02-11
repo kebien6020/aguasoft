@@ -1,32 +1,35 @@
-import Avatar from '@material-ui/core/Avatar'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import * as colors from '@material-ui/core/colors'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Divider from '@material-ui/core/Divider'
-import IconButton from '@material-ui/core/IconButton'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
-import { createStyles, StyleRulesCallback, Theme, WithStyles, withStyles } from '@material-ui/core/styles'
-import { AttachMoney as MoneyIcon } from '@material-ui/icons'
-import NoteIcon from '@material-ui/icons/Chat'
-import DeleteIcon from '@material-ui/icons/Delete'
-import EditIcon from '@material-ui/icons/Edit'
-import MoreVertIcon from '@material-ui/icons/MoreVert'
-import PersonIcon from '@material-ui/icons/Person'
-import TableIcon from '@material-ui/icons/TableChart'
-import VisibilityIcon from '@material-ui/icons/Visibility'
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
-import * as React from 'react'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import * as colors from '@mui/material/colors'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import { Theme } from '@mui/material/styles'
+import { StyleRulesCallback, WithStyles } from '@mui/styles'
+import createStyles from '@mui/styles/createStyles'
+import withStyles from '@mui/styles/withStyles'
+import { AttachMoney as MoneyIcon } from '@mui/icons-material'
+import NoteIcon from '@mui/icons-material/Chat'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import PersonIcon from '@mui/icons-material/Person'
+import TableIcon from '@mui/icons-material/TableChart'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
+import { Component, MouseEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Alert from '../components/Alert'
@@ -196,7 +199,7 @@ interface State {
   notesDialogOpen: boolean
 }
 
-class ClientList extends React.Component<Props, State> {
+class ClientList extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
@@ -350,7 +353,7 @@ class ClientList extends React.Component<Props, State> {
     // TODO: Show some error if we fail to unhide the client
   }
 
-  handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => this.setState({ menuAnchor: event.currentTarget })
+  handleMenuOpen = (event: MouseEvent<HTMLElement>) => this.setState({ menuAnchor: event.currentTarget })
 
   handleMenuClose = () => this.setState({ menuAnchor: null })
 
@@ -510,8 +513,8 @@ interface AppBarExtraProps {
 
 
 const AppBarExtra = ({ showHidden, onToggleHidden }: AppBarExtraProps) => {
-  const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null)
-  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
+  const handleMenuOpen = (event: MouseEvent<HTMLButtonElement>) =>
     setMenuAnchor(event.currentTarget)
 
   const handleMenuClose = () => setMenuAnchor(null)
@@ -530,7 +533,7 @@ const AppBarExtra = ({ showHidden, onToggleHidden }: AppBarExtraProps) => {
       aria-haspopup='true'
       onClick={handleMenuOpen}
       color='inherit'
-    >
+      size="large">
       <MoreVertIcon />
     </IconButton>
     <Menu

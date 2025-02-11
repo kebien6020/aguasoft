@@ -3,7 +3,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const webpack = require('webpack')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const MomentLocalesPlugin = require('moment-locales-webpack-plugin')
 
 const relPath = (p) => path.join(__dirname, p)
 const BUILD_WITH_STATS = process.env.BUILD_WITH_STATS || false
@@ -45,9 +44,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new MomentLocalesPlugin({
-      localesToKeep: ['es'],
-    }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: relPath('./index.html'),

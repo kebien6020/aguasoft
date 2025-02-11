@@ -1,7 +1,5 @@
-import * as React from 'react'
 import { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import * as moment from 'moment'
+import makeStyles from '@mui/styles/makeStyles'
 
 import useMovements from '../../hooks/api/useMovements'
 import MyDatePicker from '../MyDatePicker'
@@ -12,6 +10,7 @@ import BotellonCard from './summary/BotellonCard'
 import HieloCard from './summary/HieloCard'
 import { InventoryMovement } from '../../models'
 import { MakeRequired } from '../../utils/types'
+import { endOfDay, startOfDay } from 'date-fns'
 
 // Storages can be null
 type RequiredInclusions = 'inventoryElementFrom' | 'inventoryElementTo'
@@ -21,13 +20,14 @@ const MovementSummary = (): JSX.Element => {
   const classes = useStyles()
 
   // Date picker
-  const [date, setDate] = useState(() => moment().startOf('day'))
+  const [date, setDate] = useState(() => startOfDay(new Date))
   const datePicker =
     <MyDatePicker
       date={date}
       onDateChange={setDate}
       DatePickerProps={{
-        inputVariant: 'outlined',
+        // TODO: Figure out new prop
+        // inputVariant: 'outlined',
         label: 'Fecha',
       }}
     />
@@ -35,8 +35,8 @@ const MovementSummary = (): JSX.Element => {
   // Load day movements
   const params = {
     include: ['storageFrom', 'storageTo', 'inventoryElementFrom', 'inventoryElementTo'],
-    minDate: date.startOf('day').toISOString(),
-    maxDate: date.endOf('day').toISOString(),
+    minDate: startOfDay(date).toISOString(),
+    maxDate: endOfDay(date).toISOString(),
   } as const
 
   const { movements } = useMovements(params)

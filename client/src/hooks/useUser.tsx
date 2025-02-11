@@ -1,4 +1,15 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import type {
+  ComponentType,
+  FunctionComponent,
+  ReactNode,
+} from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react'
 import { User } from '../models'
 import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
 import useAuth from './useAuth'
@@ -36,9 +47,9 @@ export function useUserFetch(onError?: OnError): Result {
   return { user, isAdmin: user && user.role === 'admin', loggedIn, refresh }
 }
 
-const UserContext = React.createContext<Result | null>(null)
+const UserContext = createContext<Result | null>(null)
 
-export type UserProviderProps = { children: React.ReactNode }
+export type UserProviderProps = { children: ReactNode }
 export const UserProvider = ({ children }: UserProviderProps): JSX.Element => {
   const userInfo = useUserFetch()
 
@@ -53,8 +64,8 @@ export interface WithUserProps {
   user: Result | null
 }
 export function withUser<P extends WithUserProps>(
-  Component: React.ComponentType<P>
-): React.FunctionComponent<Omit<P, 'user'>> {
+  Component: ComponentType<P>
+): FunctionComponent<Omit<P, 'user'>> {
   const WrappedComponent = (props: Omit<P, 'user'>) => (
     <UserContext.Consumer>
       {userInfo => <Component {...props as P} user={userInfo} />}

@@ -1,10 +1,9 @@
-import MomentUtils from '@date-io/moment'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import { MuiThemeProvider, StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
-import MuiPickersUtilsProvider from '@material-ui/pickers/MuiPickersUtilsProvider'
-import moment from 'moment'
-import 'moment/locale/es'
-import React, { lazy, Suspense } from 'react'
+import { CssBaseline, GlobalStyles } from '@mui/material'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
+import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Redirect, Switch } from 'react-router-dom'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
@@ -13,6 +12,7 @@ import { useSnackbar } from './components/MySnackbar'
 import { UserProvider } from './hooks/useUser'
 import SnackbarContext from './SnackbarContext'
 import theme from './theme'
+import { es } from 'date-fns/locale/es'
 
 const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
@@ -45,7 +45,6 @@ const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Ba
 const RegisterSale2 = lazy(() => import(/* webpackChunkName: "register-sale2" */ './Routes/sale/Register'))
 
 const auth = new Auth()
-moment.locale('es')
 
 const AppSwitch = () => (
   <Switch>
@@ -94,50 +93,57 @@ const AppSwitch = () => (
   </Switch>
 )
 
-const Providers = ({ children }: {children: React.ReactNode}) => {
+const Providers = ({ children }: { children: React.ReactNode }) => {
   const [snackbar, showMessage] = useSnackbar()
 
   return (
-    <AuthContext.Provider value={auth}>
-      <MuiPickersUtilsProvider utils={MomentUtils}>
+    (<AuthContext.Provider value={auth}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
         <BrowserRouter>
-          <MuiThemeProvider theme={theme}>
-            <SnackbarContext.Provider value={showMessage}>
-              {snackbar}
-              <UserProvider>
-                {children}
-              </UserProvider>
-            </SnackbarContext.Provider>
-          </MuiThemeProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+              <LegacyThemeProvider theme={theme}>
+                <SnackbarContext.Provider value={showMessage}>
+                  {snackbar}
+                  <UserProvider>
+                    {children}
+                  </UserProvider>
+                </SnackbarContext.Provider>
+              </LegacyThemeProvider>
+            </ThemeProvider>
+          </StyledEngineProvider>
         </BrowserRouter>
-      </MuiPickersUtilsProvider>
-    </AuthContext.Provider>
+      </LocalizationProvider>
+    </AuthContext.Provider>)
   )
 }
+
+const MyGlobalStyles = () => (
+  <GlobalStyles
+    styles={theme => ({
+      html: {
+        fontSize: 12,
+        [theme.breakpoints.up('sm')]: {
+          fontSize: 16,
+        },
+        [theme.breakpoints.up('md')]: {
+          fontSize: 18,
+        },
+      },
+    })}
+  />
+)
 
 const App = () => {
   return (
     <Providers>
       <CssBaseline />
-      <Suspense fallback={<LoadingScreen text='Cargando página…'/>}>
+      <MyGlobalStyles />
+      <Suspense fallback={<LoadingScreen text='Cargando página…' />}>
         <AppSwitch />
       </Suspense>
     </Providers>
   )
 }
 
-const styles : StyleRulesCallback<Theme, Record<string, unknown>> = theme => ({
-  '@global': {
-    html: {
-      fontSize: 12,
-      [theme.breakpoints.up('sm')]: {
-        fontSize: 16,
-      },
-      [theme.breakpoints.up('md')]: {
-        fontSize: 18,
-      },
-    },
-  },
-})
-
-export default withStyles(styles)(App)
+export default App

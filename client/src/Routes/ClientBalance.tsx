@@ -1,18 +1,17 @@
-import * as React from 'react'
-
-import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import Typography from '@material-ui/core/Typography'
-import * as colors from '@material-ui/core/colors'
+import { Theme } from '@mui/material/styles'
+import { StyleRulesCallback } from '@mui/styles'
+import withStyles from '@mui/styles/withStyles'
+import Card from '@mui/material/Card'
+import Typography from '@mui/material/Typography'
+import * as colors from '@mui/material/colors'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
 import { Client } from '../models'
-import { fetchJsonAuth, ErrorResponse, isErrorResponse, money } from '../utils'
-
-import { Moment } from 'moment'
-import * as moment from 'moment'
+import { fetchJsonAuth, ErrorResponse, isErrorResponse, money, formatDateCol } from '../utils'
+import { Component, Key } from 'react'
+import { isSameDay, startOfDay } from 'date-fns'
 
 interface Params {
   id: string
@@ -33,7 +32,7 @@ interface Change {
 }
 
 interface IncompleteChangeGroup {
-  date: Moment
+  date: Date
   total: number
   changes: Change[]
   type: 'sell' | 'payment'
@@ -48,7 +47,7 @@ type ChangesResponse = { changes: Change[] } | ErrorResponse
 
 type ClientResponse = Client | ErrorResponse
 
-class ClientBalance extends React.Component<Props, State> {
+class ClientBalance extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
@@ -64,7 +63,7 @@ class ClientBalance extends React.Component<Props, State> {
 
     const pushNewGroup = (change: Change, groups: Groups) => {
       groups.push({
-        date: moment(change.date).startOf('day'),
+        date: startOfDay(change.date),
         total: change.value,
         changes: [change],
         type: change.type,
@@ -76,7 +75,7 @@ class ClientBalance extends React.Component<Props, State> {
       prev.changes.push(change)
     }
 
-    const groups : Groups = []
+    const groups: Groups = []
 
     for (const change of changes) {
       const prev = groups[groups.length - 1]
@@ -90,7 +89,7 @@ class ClientBalance extends React.Component<Props, State> {
         // do not combine payments
         || prev.type === 'payment'
         // only combine from same day
-        || !prev.date.isSame(change.date, 'day')
+        || !isSameDay(prev.date, change.date)
 
       if (newGroup)
         pushNewGroup(change, groups)
@@ -119,7 +118,7 @@ class ClientBalance extends React.Component<Props, State> {
     const { params } = props.match
     const clientId = params.id
 
-    const response : ChangesResponse =
+    const response: ChangesResponse =
       await fetchJsonAuth(`/api/clients/${clientId}/balance`, props.auth)
 
     if (!isErrorResponse(response)) {
@@ -140,12 +139,12 @@ class ClientBalance extends React.Component<Props, State> {
     }
   }
 
-  renderChangeGroup = (ch: ChangeGroup, key: React.Key) => {
+  renderChangeGroup = (ch: ChangeGroup, key: Key) => {
     const { classes } = this.props
     return (
       <Card className={classes.card} key={key}>
         <div className={classes.cardDate}>
-          <Typography>{ch.date.format('DD/MMM/YY')}</Typography>
+          <Typography>{formatDateCol(ch.date)}</Typography>
         </div>
         <div className={classes.cardType}>
           <Typography className={ch.type === 'sell' ? classes.sell : classes.payment}>
@@ -192,7 +191,7 @@ class ClientBalance extends React.Component<Props, State> {
   }
 }
 
-const styles : StyleRulesCallback<Theme, Props> = theme => ({
+const styles: StyleRulesCallback<Theme, Props> = theme => ({
   appbar: {
     flexGrow: 1,
   },

@@ -1,10 +1,5 @@
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
-import moment from 'moment'
-import { Moment } from 'moment'
-import 'moment/locale/es'
-import * as React from 'react'
+import CircularProgress from '@mui/material/CircularProgress'
+import Paper from '@mui/material/Paper'
 import { useCallback, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import DayOverview from '../components/DayOverview'
@@ -18,11 +13,11 @@ import useNonce from '../hooks/api/useNonce'
 import useAuth from '../hooks/useAuth'
 import { useUserFetch } from '../hooks/useUser'
 import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
-
-
-
-
-moment.locale('es')
+import { startOfDay } from 'date-fns'
+import { formatDateonlyMachine } from '../utils/dates'
+import { VSpace, Center } from '../components/utils'
+import { styled } from '@mui/material/styles'
+import { Theme } from '../theme'
 
 export interface Filter {
   client: string
@@ -31,20 +26,17 @@ export interface Filter {
 
 export default function Sells(): JSX.Element {
   const auth = useAuth()
-  const classes = useStyles()
 
   // Date picker
-  const [date, setDate] = useState(() => moment().startOf('day'))
-  const handleDateChange = useCallback((date: Moment) => {
+  const [date, setDate] = useState(() => startOfDay(new Date))
+  const handleDateChange = useCallback((date: Date) => {
     setDate(date)
   }, [])
   const datePicker =
     <MyDatePicker
       date={date}
-      className={classes.datePicker}
       onDateChange={handleDateChange}
       DatePickerProps={{
-        inputVariant: 'outlined',
         label: 'Fecha',
       }}
     />
@@ -58,7 +50,7 @@ export default function Sells(): JSX.Element {
   useEffect(() => {
     (async () => {
       setSells(null)
-      const url = '/api/sells/listDay?day=' + date.format('YYYY-MM-DD')
+      const url = '/api/sells/listDay?day=' + formatDateonlyMachine(date)
       const sells: ErrorResponse | Sell[] =
         await fetchJsonAuth(url, auth)
 
@@ -77,9 +69,9 @@ export default function Sells(): JSX.Element {
     history.push('/sell2')
   }, [history])
   const loginElem =
-    <Paper className={classes.login}>
+    <LoginWrapper>
       <Login onSuccess={handleLogin} auth={auth} />
-    </Paper>
+    </LoginWrapper>
 
   // Filter
   const [filter, setFilter] = useState<Filter>({
@@ -118,13 +110,13 @@ export default function Sells(): JSX.Element {
     <Layout title='Ventas'>
       <Title>Registrar Venta</Title>
       {loginElem}
-
+      <VSpace />
       {datePicker}
 
       <Title>Resumen</Title>
       {sells
         ? <DayOverview sells={sells} onFilterChange={setFilter} filter={filter} />
-        : <CircularProgress className={classes.centerBlock} />
+        : <Center><CircularProgress /></Center>
       }
 
       <Title>Ventas del Día</Title>
@@ -134,7 +126,7 @@ export default function Sells(): JSX.Element {
           refresh={refresh}
           disableDelete={!enableDelete}
         />
-        : <CircularProgress className={classes.centerBlock} />
+        : <Center><CircularProgress /></Center>
       }
 
       {snackbar}
@@ -142,17 +134,6 @@ export default function Sells(): JSX.Element {
   )
 }
 
-const useStyles = makeStyles(theme => ({
-  login: {
-    padding: theme.spacing(2),
-  },
-  datePicker: {
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(0),
-  },
-  centerBlock: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    display: 'block',
-  },
-}))
+const LoginWrapper = styled(Paper)(({ theme }: { theme: Theme }) => ({
+  padding: theme.spacing(2),
+})) as typeof Paper

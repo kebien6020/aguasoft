@@ -1,8 +1,7 @@
-import * as React from 'react'
 import { Redirect } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles'
 
-import Modal from '@material-ui/core/Modal'
+import Modal from '@mui/material/Modal'
 
 import Layout from '../components/Layout'
 import Login from '../components/Login'

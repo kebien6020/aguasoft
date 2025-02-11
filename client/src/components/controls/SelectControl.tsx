@@ -1,10 +1,9 @@
-import * as React from 'react'
-import FormControl from '@material-ui/core/FormControl'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select, { SelectProps } from '@material-ui/core/Select'
-import { makeStyles } from '@material-ui/core/styles'
+import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectProps } from '@mui/material/Select'
+import makeStyles from '@mui/styles/makeStyles'
 
 export interface SelectOption {
   value: string
@@ -34,7 +33,7 @@ const SelectControl = (props: SelectControlProps): JSX.Element => {
   } = props
   const classes = useStyles()
   return (
-    <FormControl className={classes.formControl} error={Boolean(errorMessage && touched)}>
+    <FormControl className={classes.formControl} variant='standard' error={Boolean(errorMessage && touched)}>
       <InputLabel htmlFor={id}>{label}</InputLabel>
       <Select
         id={id}

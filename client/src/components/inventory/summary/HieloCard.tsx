@@ -1,6 +1,5 @@
-import * as React from 'react'
-import CardContent from '@material-ui/core/CardContent'
-import { CardProps } from '@material-ui/core/Card'
+import CardContent from '@mui/material/CardContent'
+import { CardProps } from '@mui/material/Card'
 
 import { DayMovements } from '../MovementSummary'
 import Description from '../../Description'
