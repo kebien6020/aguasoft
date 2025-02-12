@@ -16,7 +16,6 @@ import { es } from 'date-fns/locale/es'
 
 const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
-const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/RegisterSale'))
 const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
 const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
@@ -54,7 +53,6 @@ const AppSwitch = () => (
 
     <Route exact private path='/check' component={CheckUser} />
 
-    <Route exact private path='/sell' component={RegisterSale} />
     <Route exact private path='/sell2' component={RegisterSale2} />
     <Route exact private path='/sells' component={Sells} />
     <Route exact private path='/monitor/sells' component={MonitorSells} />

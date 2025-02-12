@@ -365,7 +365,7 @@ type SaleLineFormProps = {
   onRemove: (idx: number) => void
 }
 
-const SaleLineForm = React.memo(({ idx, products, line, onRemove, clientId }: SaleLineFormProps) => {
+const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLineFormProps) => {
   const productOpts = useMemo(() => optionsFromProducts(products), [products])
   const product = useMemo(() => products?.find(p => p.id === Number(line.productId)), [products, line.productId])
   const variants = useMemo(() => product?.Variants ?? [], [product])
