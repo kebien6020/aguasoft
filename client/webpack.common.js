@@ -16,9 +16,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    alias: {
-      'react/jsx-runtime': 'react/jsx-runtime.js',
-    },
     fallback: {
       // All of these are required because webpack 5 removed node polyfills and react-pdf uses some of them
       stream: require.resolve('stream-browserify'), // Needed by react-pdf, blob-stream, restructure
