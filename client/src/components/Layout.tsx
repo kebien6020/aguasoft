@@ -358,7 +358,7 @@ class PageLevelErrorBoundary extends Component<PageLevelErrorBoundaryProps> {
 }
 
 const Title = styled(
-  (props: TypographyProps) => <Typography variant='h6' color='inherit' {...props} />
+  (props: TypographyProps) => <Typography variant='h6' sx={{ color: 'inherit' }} {...props} />
 )({
   flexGrow: 1,
   fontWeight: 500,

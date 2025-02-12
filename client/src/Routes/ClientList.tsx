@@ -10,7 +10,6 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
@@ -39,6 +38,7 @@ import ResponsiveContainer from '../components/ResponsiveContainer'
 import { Client } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import { withUser, WithUserProps } from '../hooks/useUser'
+import ListItemButton from '@mui/material/ListItemButton'
 
 interface ClientWithNotes extends Client {
   notes: string
@@ -52,7 +52,7 @@ interface ClientItemProps extends PropClasses {
 
 const ClientItemRaw = ({ classes, client, className, onClick }: ClientItemProps) => (
   <>
-    <ListItem className={className} button onClick={onClick}>
+    <ListItemButton className={className} onClick={onClick}>
       <ListItemAvatar>
         <Avatar className={client.hidden
           ? classes.hiddenIcon
@@ -68,7 +68,7 @@ const ClientItemRaw = ({ classes, client, className, onClick }: ClientItemProps)
         }}
         secondary={client.notes && client.notes.split('\n')[0]}
       />
-    </ListItem>
+    </ListItemButton>
     <Divider />
   </>
 )
@@ -110,40 +110,39 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
       {props.client.name}
     </DialogTitle>
     <List>
-      {props.user?.isAdmin && <ListItem button onClick={() => props.onClientEdit(props.client)}>
+      {props.user?.isAdmin && <ListItemButton onClick={() => props.onClientEdit(props.client)}>
         <ListItemIcon>
           <EditIcon className={props.classes.mainIcon} />
         </ListItemIcon>
         <ListItemText primary='Editar' />
-      </ListItem>}
-      <ListItem button onClick={() => props.onClientShowBalance(props.client)}>
+      </ListItemButton>}
+      <ListItemButton onClick={() => props.onClientShowBalance(props.client)}>
         <ListItemIcon>
           <MoneyIcon className={props.classes.balanceIcon} />
         </ListItemIcon>
         <ListItemText primary='Ver balance' />
-      </ListItem>
-      <ListItem
-        button
+      </ListItemButton>
+      <ListItemButton
         to={`/tools/billing-summary?clientId=${props.client.id}`}
-        component={Link}
-      >
+        component={Link}>
         <ListItemIcon>
           <TableIcon className={props.classes.mainIcon} />
         </ListItemIcon>
         <ListItemText primary='Facturación' />
-      </ListItem>
+      </ListItemButton>
       {props.user?.isAdmin && props.client.notes
-        && <ListItem button onClick={() => props.onClientShowNotes(props.client)}>
+        && <ListItemButton onClick={() => props.onClientShowNotes(props.client)}>
           <ListItemIcon>
             <NoteIcon />
           </ListItemIcon>
           <ListItemText primary='Ver info. de contacto' />
-        </ListItem>
+        </ListItemButton>
       }
-      {props.user?.isAdmin && <ListItem button onClick={() => props.client.hidden
-        ? props.onClientUnhide(props.client)
-        : props.onClientHide(props.client)
-      }>
+      {props.user?.isAdmin && <ListItemButton
+        onClick={() => props.client.hidden
+          ? props.onClientUnhide(props.client)
+          : props.onClientHide(props.client)
+        }>
         <ListItemIcon>
           {props.client.hidden
             ? <VisibilityOffIcon />
@@ -156,13 +155,13 @@ const ClientDialogRaw = (props: ClientDialogAllProps) => (
             : 'Ocultar'
           }
         />
-      </ListItem>}
-      {props.user?.isAdmin && <ListItem button onClick={() => props.onClientDelete(props.client)}>
+      </ListItemButton>}
+      {props.user?.isAdmin && <ListItemButton onClick={() => props.onClientDelete(props.client)}>
         <ListItemIcon>
           <DeleteIcon className={props.classes.deleteIcon} />
         </ListItemIcon>
         <ListItemText primary='Eliminar' />
-      </ListItem>}
+      </ListItemButton>}
     </List>
   </Dialog>
 )
