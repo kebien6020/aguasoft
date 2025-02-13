@@ -1,4 +1,5 @@
 import { useState, useCallback, forwardRef } from 'react'
+import type { JSX } from 'react'
 import clsx from 'clsx'
 import makeStyles from '@mui/styles/makeStyles'
 

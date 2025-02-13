@@ -7,7 +7,7 @@ import {
   Select,
   MenuItem,
   Typography,
-  Grid,
+  Grid2 as Grid,
   TextField,
   Switch,
   Collapse,
@@ -16,8 +16,7 @@ import {
 
 import { Theme } from '@mui/material/styles'
 
-import { StyleRulesCallback } from '@mui/styles'
-import withStyles from '@mui/styles/withStyles'
+import { makeStyles } from '@mui/styles'
 
 import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
@@ -35,6 +34,7 @@ import {
 } from '../utils'
 import { isAfter, startOfDay } from 'date-fns'
 import { formatDateonlyMachine } from '../utils/dates'
+import useAuth from '../hooks/useAuth'
 
 interface Props extends AuthRouteComponentProps, PropClasses { }
 interface State {
@@ -262,22 +262,24 @@ class RegisterPayment extends Component<Props, State> {
           }
           {state.selectedClientId
             ? <form>
-              <Grid container spacing={0} justifyContent='space-between'>
+              <Grid container spacing={0} columnSpacing={2} justifyContent='space-between'>
                 {state.userIsAdmin
-                  && <Grid item xs={12}>
+                  && <Grid size={{ xs: 12 }}>
                     <DatePicker
                       label='Fecha del pago'
                       date={state.date}
                       onDateChange={this.handleChangeDate('date')}
                       DatePickerProps={{
-                        fullWidth: true,
+                        slotProps: {
+                          textField: {
+                            fullWidth: true,
+                          },
+                        },
                       }}
                     />
                   </Grid>
                 }
-                {/*
-                // @ts-ignore grid-md-6 is missing in type system*/}
-                <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth margin='normal'>
                     <InputLabel htmlFor='clientId'>Cliente</InputLabel>
                     <Select
@@ -296,9 +298,7 @@ class RegisterPayment extends Component<Props, State> {
                     </Select>
                   </FormControl>
                 </Grid>
-                {/*
-                // @ts-ignore grid-md-6 is missing in type system*/}
-                <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <PriceField
                     label='Dinero recibido'
                     onChange={this.handleChange('moneyAmount')}
@@ -309,7 +309,7 @@ class RegisterPayment extends Component<Props, State> {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant='body2'>
                     Incluir detalles de la Factura
                     <Switch
@@ -320,27 +320,27 @@ class RegisterPayment extends Component<Props, State> {
                 </Grid>
                 <Collapse in={state.invoiceEnabled} className={classes.collapse}>
                   <Grid container spacing={0} justifyContent='space-between'>
-                    {/*
-                    // @ts-ignore grid-md-6 is missing in type system*/}
-                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <DatePicker
                         label='Fecha de la factura'
                         date={state.invoiceDate}
                         onDateChange={this.handleChangeDate('invoiceDate')}
                         DatePickerProps={{
-                          fullWidth: true,
+                          slotProps: {
+                            textField: {
+                              fullWidth: true,
+                            },
+                          },
                         }}
                       />
                     </Grid>
-                    {/*
-                    // @ts-ignore grid-md-6 is missing in type system*/}
-                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <div className={classes.invoiceNumberContainer}>
                         <TextField
                           label='No. Factura'
                           type='number'
                           variant='standard'
-                          inputProps={{ min: 0 }}
+                          slotProps={{ htmlInput: { min: 0 } }}
                           fullWidth
                           onChange={this.handleChange('invoiceNumber')}
                           value={state.invoiceNumber}
@@ -351,7 +351,7 @@ class RegisterPayment extends Component<Props, State> {
                     </Grid>
                   </Grid>
                 </Collapse>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Typography variant='body2'>
                     Incluir periodo de pago
                     <Switch
@@ -363,36 +363,40 @@ class RegisterPayment extends Component<Props, State> {
                 </Grid>
                 <Collapse in={state.datesEnabled} className={classes.collapse}>
                   <Grid container spacing={0} justifyContent='space-between'>
-                    {/*
-                    // @ts-ignore grid-md-6 is missing in type system */}
-                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <DatePicker
                         label='Inicio'
                         date={state.startDate}
                         onDateChange={this.handleChangeDate('startDate')}
                         DatePickerProps={{
-                          fullWidth: true,
-                          error: state.datesError !== null,
-                          helperText: state.datesError,
+                          slotProps: {
+                            textField: {
+                              error: state.datesError !== null,
+                              fullWidth: true,
+                              helperText: state.datesError,
+                            },
+                          },
                         }}
                       />
                     </Grid>
-                    {/*
-                    // @ts-ignore grid-md-6 is missing in type system */}
-                    <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <DatePicker
                         label='Finalizacion'
                         date={state.endDate}
                         onDateChange={this.handleChangeDate('endDate')}
                         DatePickerProps={{
-                          fullWidth: true,
+                          slotProps: {
+                            textField: {
+                              fullWidth: true,
+                            },
+                          },
                         }}
                       />
                     </Grid>
                   </Grid>
                 </Collapse>
                 {state.userIsAdmin
-                  && <Grid item xs={12}>
+                  && <Grid size={{ xs: 12 }}>
                     <Typography variant='body2'>
                       Pago en planta
                       <Switch
@@ -402,7 +406,7 @@ class RegisterPayment extends Component<Props, State> {
                     </Typography>
                   </Grid>
                 }
-                <Grid item xs={12} className={classes.buttonContainer}>
+                <Grid size={{ xs: 12 }} className={classes.buttonContainer}>
                   <Button
                     variant='contained'
                     color='primary'
@@ -425,7 +429,7 @@ class RegisterPayment extends Component<Props, State> {
   }
 }
 
-const styles: StyleRulesCallback<Theme, Props> = theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(4),
     paddingRight: theme.spacing(4),
@@ -452,11 +456,13 @@ const styles: StyleRulesCallback<Theme, Props> = theme => ({
   collapse: {
     width: '100%',
   },
-  md6: {
-    [theme.breakpoints.up('md')]: {
-      maxWidth: '48%',
-    },
-  },
-})
+}))
 
-export default withStyles(styles)(RegisterPayment)
+const RegisterPaymentWrapper = () => {
+  const auth = useAuth()
+  const classes = useStyles()
+
+  return <RegisterPayment auth={auth} classes={classes} />
+}
+
+export default RegisterPaymentWrapper

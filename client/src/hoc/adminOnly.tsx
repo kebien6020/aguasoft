@@ -3,8 +3,9 @@ import { Redirect } from 'react-router-dom'
 
 import { User } from '../models'
 import { fetchJsonAuth } from '../utils'
-import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
+import useAuth from '../hooks/useAuth'
+import Auth from '../Auth'
 
 interface UserError {
   success: false
@@ -24,12 +25,13 @@ interface State {
 }
 
 export default
-function adminOnly<P extends AuthRouteComponentProps>(
+function adminOnly<P extends Record<string, unknown>>(
   component: ComponentType<P>
 ): ComponentType<P> {
 
-  return class AdminRoute extends Component<P, State> {
-    constructor(props: P) {
+  type IP = P & { auth: Auth }
+  class AdminRoute extends Component<IP, State> {
+    constructor(props: IP) {
       super(props)
       this.state = {
         errorNoUser: false,
@@ -77,4 +79,11 @@ function adminOnly<P extends AuthRouteComponentProps>(
       return <Component {...props} />
     }
   }
+
+  const AdminRouteWrapper = (props: P) => {
+    const auth = useAuth()
+    return <AdminRoute auth={auth} {...props} />
+  }
+
+  return AdminRouteWrapper
 }

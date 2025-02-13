@@ -1,7 +1,5 @@
-import { AuthRouteComponentProps } from '../AuthRoute'
 import { Theme } from '@mui/material/styles'
-import { StyleRulesCallback } from '@mui/styles'
-import withStyles from '@mui/styles/withStyles'
+import { makeStyles } from '@mui/styles'
 import { fetchJsonAuth, money, isErrorResponse, formatDateCol, parseDateonlyMachine } from '../utils'
 
 import Typography from '@mui/material/Typography'
@@ -22,9 +20,11 @@ import MyDatePicker from '../components/MyDatePicker'
 import { Component } from 'react'
 import { formatDateonlyMachine } from '../utils/dates'
 import { format, isSameDay } from 'date-fns'
+import useAuth from '../hooks/useAuth'
+import type Auth from '../Auth'
 
-interface MonitorSellsProps extends PropClasses, AuthRouteComponentProps<Record<string, never>> {
-
+type MonitorSellsProps = PropClasses & {
+  auth: Auth
 }
 
 interface MonitorSellsState {
@@ -206,7 +206,14 @@ class MonitorSells extends Component<MonitorSellsProps, MonitorSellsState> {
   }
 }
 
-const styles: StyleRulesCallback<Theme, MonitorSellsProps> = theme => ({
+const MonitorSellsWrapper = () => {
+  const auth = useAuth()
+  const classes = useStyles()
+
+  return <MonitorSells classes={classes} auth={auth} />
+}
+
+const useStyles = makeStyles((theme: Theme) => ({
   title: {
     textAlign: 'center',
     marginTop: theme.spacing(2),
@@ -236,6 +243,6 @@ const styles: StyleRulesCallback<Theme, MonitorSellsProps> = theme => ({
   updateButton: {
     fontSize: '16px',
   },
-})
+}))
 
-export default withStyles(styles)(MonitorSells)
+export default MonitorSellsWrapper

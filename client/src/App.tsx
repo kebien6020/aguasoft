@@ -43,53 +43,53 @@ const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-sum
 const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Batches'))
 const RegisterSale2 = lazy(() => import(/* webpackChunkName: "register-sale2" */ './Routes/sale/Register'))
 
-const auth = new Auth()
-
 const AppSwitch = () => (
   <Switch>
-    <Route exact path='/authCallback' component={AuthCallback} />
-    <Route exact path='/silentAuth' component={SilentAuth} />
-    <Route exact path='/logout' component={Logout} />
+    <Route exact path='/authCallback'><AuthCallback /></Route>
+    <Route exact path='/silentAuth'><SilentAuth /></Route>
+    <Route exact path='/logout'><Logout /></Route>
 
-    <Route exact private path='/check' component={CheckUser} />
+    <Route exact private path='/check'><CheckUser /></Route>
 
-    <Route exact private path='/sell2' component={RegisterSale2} />
-    <Route exact private path='/sells' component={Sells} />
-    <Route exact private path='/monitor/sells' component={MonitorSells} />
+    <Route exact private path='/sell2'><RegisterSale2 /></Route>
+    <Route exact private path='/sells'><Sells /></Route>
+    <Route exact private path='/monitor/sells'><MonitorSells /></Route>
 
-    <Route exact private path='/clients' component={ClientList} />
-    <Route exact private path='/clients/new' component={ClientEditor} />
-    <Route exact private path='/clients/:id' component={ClientEditor} />
-    <Route exact private path='/clients/:id/balance' component={ClientBalance} />
+    <Route exact private path='/clients'><ClientList /></Route>
+    <Route exact private path='/clients/new'><ClientEditor /></Route>
+    <Route exact private path='/clients/:id'><ClientEditor /></Route>
+    <Route exact private path='/clients/:id/balance'><ClientBalance /></Route>
 
-    <Route exact private path='/payment' component={RegisterPayment} />
-    <Route exact private path='/payments' component={Payments} />
-    <Route exact private path='/payments/list' component={PaymentList} />
+    <Route exact private path='/payment'><RegisterPayment /></Route>
+    <Route exact private path='/payments'><Payments /></Route>
+    <Route exact private path='/payments/list'><PaymentList /></Route>
 
-    <Route exact private path='/spending' component={RegisterSpending} />
-    <Route exact private path='/spendings' component={Spendings} />
-    <Route exact private path='/spendings/list' component={SpendingList} />
+    <Route exact private path='/spending'><RegisterSpending /></Route>
+    <Route exact private path='/spendings'><Spendings /></Route>
+    <Route exact private path='/spendings/list'><SpendingList /></Route>
 
-    <Route exact private path='/inventory' component={Inventory} />
+    <Route exact private path='/inventory'><Inventory /></Route>
 
-    <Route exact private path='/movements' component={Movements} />
-    <Route exact private path='/movements/production' component={RegisterProduction} />
-    <Route exact private path='/movements/damaged' component={RegisterDamaged} />
-    <Route exact private path='/movements/unpack' component={RegisterUnpack} />
-    <Route exact private path='/movements/relocation' component={RegisterRelocation} />
-    <Route exact private path='/movements/entry' component={RegisterEntry} />
+    <Route exact private path='/movements'><Movements /></Route>
+    <Route exact private path='/movements/production'><RegisterProduction /></Route>
+    <Route exact private path='/movements/damaged'><RegisterDamaged /></Route>
+    <Route exact private path='/movements/unpack'><RegisterUnpack /></Route>
+    <Route exact private path='/movements/relocation'><RegisterRelocation /></Route>
+    <Route exact private path='/movements/entry'><RegisterEntry /></Route>
 
-    <Route exact private path='/balance' component={Balance} />
+    <Route exact private path='/balance'><Balance /></Route>
 
-    <Route exact private path='/dashboard' component={Dashboard} />
+    <Route exact private path='/dashboard'><Dashboard /></Route>
 
-    <Route exact private path='/batches' component={Batches} />
+    <Route exact private path='/batches'><Batches /></Route>
 
-    <Route exact private path='/tools/billing-summary' component={BillingSummary} />
+    <Route exact private path='/tools/billing-summary'><BillingSummary /></Route>
 
     <Route exact path='/' render={() => <Redirect to='/sells' />} />
   </Switch>
 )
+
+const auth = new Auth()
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [snackbar, showMessage] = useSnackbar()

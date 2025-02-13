@@ -16,7 +16,7 @@ import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import { Theme } from '@mui/material/styles'
-import { StyleRulesCallback, WithStyles } from '@mui/styles'
+import { StyleRulesCallback, WithStyles, makeStyles } from '@mui/styles'
 import createStyles from '@mui/styles/createStyles'
 import withStyles from '@mui/styles/withStyles'
 import { AttachMoney as MoneyIcon } from '@mui/icons-material'
@@ -39,6 +39,7 @@ import { Client } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import { withUser, WithUserProps } from '../hooks/useUser'
 import ListItemButton from '@mui/material/ListItemButton'
+import useAuth from '../hooks/useAuth'
 
 interface ClientWithNotes extends Client {
   notes: string
@@ -490,7 +491,7 @@ class ClientList extends Component<Props, State> {
   }
 }
 
-const styles = createStyles({
+const useStyles = makeStyles({
   appbar: {
     flexGrow: 1,
   },
@@ -503,7 +504,13 @@ const styles = createStyles({
   },
 })
 
-export default withStyles(styles)(ClientList)
+const ClientListWrapper = () => {
+  const classes = useStyles()
+  const auth = useAuth()
+  return <ClientList classes={classes} auth={auth} />
+}
+
+export default ClientListWrapper
 
 interface AppBarExtraProps {
   showHidden: boolean

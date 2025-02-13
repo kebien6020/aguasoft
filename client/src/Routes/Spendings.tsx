@@ -4,7 +4,6 @@ import Paper from '@mui/material/Paper'
 import makeStyles from '@mui/styles/makeStyles'
 import { forwardRef, useCallback, useEffect, useState } from 'react'
 import { Link, LinkProps, useHistory } from 'react-router-dom'
-import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
 import Login from '../components/Login'
 import MyDatePicker from '../components/MyDatePicker'
@@ -16,9 +15,11 @@ import { ErrorResponse, fetchJsonAuth, isErrorResponse, SuccessResponse } from '
 import { MakeOptional } from '../utils/types'
 import { startOfDay } from 'date-fns'
 import { formatDateonlyMachine } from '../utils/dates'
+import useAuth from '../hooks/useAuth'
+import { Theme } from '../theme'
 
-type SpendingsProps = AuthRouteComponentProps;
-export default function Spendings({ auth }: SpendingsProps): JSX.Element {
+export default function Spendings() {
+  const auth = useAuth()
   const classes = useStyles()
 
   // Date picker
@@ -32,7 +33,11 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
       className={classes.datePicker}
       onDateChange={handleDateChange}
       DatePickerProps={{
-        inputVariant: 'outlined',
+        slotProps: {
+          textField: {
+            variant: 'outlined',
+          },
+        },
         label: 'Fecha',
       }}
     />
@@ -44,7 +49,7 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   }, [history])
   const loginElem =
     <Paper className={classes.login}>
-      <Login onSuccess={handleLogin} auth={auth} />
+      <Login onSuccess={handleLogin} />
     </Paper>
 
   // Snackbar
@@ -121,7 +126,7 @@ export default function Spendings({ auth }: SpendingsProps): JSX.Element {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   login: {
     padding: theme.spacing(2),
   },

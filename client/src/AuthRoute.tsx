@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Route, RouteProps, RouteComponentProps } from 'react-router-dom'
+import { Route, RouteProps } from 'react-router-dom'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -16,7 +16,7 @@ interface AuthRouteProps extends RouteProps {
   private?: boolean
 }
 
-export interface AuthRouteComponentProps<P extends { [K in keyof P]?: string } = {}> extends RouteComponentProps<P> {
+export interface AuthRouteComponentProps<P extends { [K in keyof P]?: string } = {}> {
   auth: Auth
 }
 
@@ -43,27 +43,12 @@ class AuthRoute extends React.Component<AuthRouteProps> {
   }
 
   render(): JSX.Element | null {
-    const { component, children, render, ...outerProps } = this.props
     const { authStatus } = this.state
     const auth = this.context
 
-    // Specifying children overwrites component
-    if (children)
-      return <Route {...outerProps}>{children}</Route>
+    if (authStatus === AuthStatus.GRANTED)
+      return <Route {...this.props} />
 
-
-    if (authStatus === AuthStatus.GRANTED) {
-      if (render)
-        return <Route {...outerProps} render={render} />
-
-
-      if (!component) return null
-
-      const Component = component
-      const renderRoute = (props: React.ComponentProps<typeof Component>) =>
-        <Component auth={auth} {...outerProps} {...props} />
-      return <Route {...outerProps} render={renderRoute} />
-    }
 
     if (authStatus === AuthStatus.PENDING) {
       return (

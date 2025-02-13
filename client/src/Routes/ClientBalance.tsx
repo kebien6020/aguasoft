@@ -1,23 +1,24 @@
 import { Theme } from '@mui/material/styles'
-import { StyleRulesCallback } from '@mui/styles'
-import withStyles from '@mui/styles/withStyles'
+import { makeStyles } from '@mui/styles'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import * as colors from '@mui/material/colors'
 
-import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
 import { Client } from '../models'
 import { fetchJsonAuth, ErrorResponse, isErrorResponse, money, formatDateCol } from '../utils'
 import { Component, Key } from 'react'
 import { isSameDay, startOfDay } from 'date-fns'
+import useAuth from '../hooks/useAuth'
+import { match, useRouteMatch } from 'react-router'
+import Auth from '../Auth'
 
 interface Params {
   id: string
 }
 
-type Props = AuthRouteComponentProps<Params> & PropClasses
+type Props = PropClasses & { auth: Auth } & { match: match<Params> }
 
 interface State {
   changeGroups: ChangeGroup[] | null
@@ -191,7 +192,7 @@ class ClientBalance extends Component<Props, State> {
   }
 }
 
-const styles: StyleRulesCallback<Theme, Props> = theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   appbar: {
     flexGrow: 1,
   },
@@ -233,6 +234,14 @@ const styles: StyleRulesCallback<Theme, Props> = theme => ({
       fontWeight: 400,
     },
   },
-})
+}))
 
-export default withStyles(styles)(ClientBalance)
+const ClientBalanceWrapper = () => {
+  const auth = useAuth()
+  const classes = useStyles()
+  const match = useRouteMatch<Params>()
+
+  return <ClientBalance classes={classes} auth={auth} match={match} />
+}
+
+export default ClientBalanceWrapper

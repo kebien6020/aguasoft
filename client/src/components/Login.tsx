@@ -1,10 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ChangeEvent, Component, KeyboardEvent } from 'react'
-import { Theme } from '@mui/material/styles'
 
-import { StyleRulesCallback } from '@mui/styles'
-import withStyles from '@mui/styles/withStyles'
+import { makeStyles } from '@mui/styles'
 
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
@@ -12,11 +8,12 @@ import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import Auth from '../Auth'
-import { withUser, WithUserProps } from '../hooks/useUser'
+import useUser, { WithUserProps } from '../hooks/useUser'
+import useAuth from '../hooks/useAuth'
 
 interface User {
   id: number
@@ -26,7 +23,6 @@ interface User {
 }
 
 export interface LoginProps {
-  auth: Auth
   onSuccess?: () => unknown
   onFailure?: () => unknown
   adminOnly?: boolean
@@ -34,7 +30,7 @@ export interface LoginProps {
   buttonColor?: string
 }
 
-type LoginPropsAll = LoginProps & PropClasses & WithUserProps
+type LoginPropsAll = LoginProps & PropClasses & WithUserProps & { auth: Auth }
 
 interface LoginState {
   userId: number | null
@@ -135,9 +131,13 @@ class Login extends Component<LoginPropsAll, LoginState> {
     const { state, props } = this
     const { classes } = this.props
     return (
-      <Grid container spacing={3} className={classes.container}
-        onKeyPress={this.handleEnterAnywhere}>
-        <Grid item xs={12} md={6} lg={4} className={classes.elemContainer}>
+      <Grid
+        container
+        spacing={3}
+        className={classes.container}
+        onKeyDown={this.handleEnterAnywhere}
+      >
+        <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
           <FormControl fullWidth className={classes.formControl} margin='dense' variant='standard'>
             <InputLabel>Usuario</InputLabel>
             <Select
@@ -157,7 +157,7 @@ class Login extends Component<LoginPropsAll, LoginState> {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={6} lg={4} className={classes.elemContainer}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
           <FormControl fullWidth className={classes.formControl}>
             <TextField
               fullWidth
@@ -173,13 +173,12 @@ class Login extends Component<LoginPropsAll, LoginState> {
             />
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={12} lg={4} className={classes.elemContainer}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
           <Button
             size='large'
             variant='contained'
             color='primary'
             fullWidth
-            className={classes.button}
             onClick={this.handleSubmit}
             style={{
               backgroundColor: props.buttonColor || undefined,
@@ -193,7 +192,7 @@ class Login extends Component<LoginPropsAll, LoginState> {
   }
 }
 
-const styles: StyleRulesCallback<Theme, LoginProps> = _theme => ({
+const useStyles = makeStyles({
   container: {
     marginTop: 0,
   },
@@ -202,9 +201,14 @@ const styles: StyleRulesCallback<Theme, LoginProps> = _theme => ({
     flexDirection: 'column',
     justifyContent: 'center',
   },
-  button: {
-    // marginTop: theme.spacing.unit * 4,
-  },
 })
 
-export default withUser(withStyles(styles)(Login))
+const LoginWrapper = (props: LoginProps) => {
+  const user = useUser()
+  const auth = useAuth()
+  const classes = useStyles()
+
+  return <Login auth={auth} user={user} classes={classes} {...props} />
+}
+
+export default LoginWrapper

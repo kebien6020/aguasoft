@@ -14,13 +14,14 @@ import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '
 
 import Pagination from '../components/pagination'
 import { MakeOptional } from '../utils/types'
+import useAuth from '../hooks/useAuth'
 
 interface PaymentPageResponse {
   payments: Payment[]
   totalCount: number
 }
 
-type Props = AuthRouteComponentProps & PropClasses
+type Props = AuthRouteComponentProps
 
 interface State {
   payments: Payment[] | null
@@ -135,4 +136,10 @@ const StyledPagination = styled(Pagination)({
   textAlign: 'center',
 })
 
-export default adminOnly(PaymentList)
+const PaymentListWrapper = () => {
+  const auth = useAuth()
+
+  return <PaymentList auth={auth} />
+}
+
+export default adminOnly(PaymentListWrapper)

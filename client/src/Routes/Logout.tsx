@@ -1,16 +1,17 @@
-import { Component } from 'react'
-import { AuthRouteComponentProps } from '../AuthRoute'
+import useAuth from '../hooks/useAuth'
+import { useEffect } from 'react'
+import { useHistory } from 'react-router'
 
-type LogoutProps = AuthRouteComponentProps<Record<string, never>>
+const Logout = () => {
+  const auth = useAuth()
+  const history = useHistory()
 
-export default class Logout extends Component<LogoutProps> {
+  useEffect(() => {
+    auth.logout()
+    history.push('/')
+  }, [auth, history])
 
-  componentDidMount() {
-    this.props.auth.logout()
-    this.props.history.push('/')
-  }
-
-  render() {
-    return <p>Cerrando sesion</p>
-  }
+  return (<p>Cerrando sesion</p>)
 }
+
+export default Logout

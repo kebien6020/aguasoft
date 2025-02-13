@@ -7,9 +7,8 @@ import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 
-import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
-import Login, { LoginProps } from '../components/Login'
+import Login from '../components/Login'
 import MyDatePicker, { MyDatePickerProps } from '../components/MyDatePicker'
 import PaymentList from '../components/Payments'
 import Title from '../components/Title'
@@ -23,8 +22,8 @@ import { formatDateonlyMachine } from '../utils/dates'
 import { Theme } from '../theme'
 import { VSpace } from '../components/utils'
 
-type PaymentsProps = AuthRouteComponentProps;
-export default function Payments({ auth }: PaymentsProps): JSX.Element {
+export default function Payments() {
+  const auth = useAuth()
   // Date picker
   const [date, setDate] = useState(() => startOfDay(new Date))
 
@@ -83,7 +82,9 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
   return (
     <Layout title='Pagos'>
       <Title>Registrar Pago</Title>
-      <LoginAuth onSuccess={handleLogin} />
+      <LoginPaper>
+        <Login onSuccess={handleLogin} />
+      </LoginPaper>
       <VSpace />
 
       <DatePicker
@@ -107,15 +108,6 @@ export default function Payments({ auth }: PaymentsProps): JSX.Element {
         </Button>
       </ButtonWrapper>
     </Layout>
-  )
-}
-
-const LoginAuth = (props: MakeOptional<LoginProps, 'auth'>) => {
-  const auth = useAuth()
-  return (
-    <LoginPaper>
-      <Login auth={auth} {...props} />
-    </LoginPaper>
   )
 }
 

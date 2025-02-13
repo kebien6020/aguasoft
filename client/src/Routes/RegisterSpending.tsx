@@ -1,7 +1,4 @@
-import { Button, Grid, Paper, Switch, TextField, Typography } from '@mui/material'
-import { StyleRulesCallback } from '@mui/styles'
-import withStyles from '@mui/styles/withStyles'
-import { AuthRouteComponentProps } from '../AuthRoute'
+import { Button, Grid2 as Grid, Paper, Switch, TextField, Typography } from '@mui/material'
 import Alert from '../components/Alert'
 import Layout from '../components/Layout'
 import DatePicker from '../components/MyDatePicker'
@@ -18,8 +15,14 @@ import {
 import { Component } from 'react'
 import { startOfDay } from 'date-fns'
 import { Theme } from '../theme'
+import Auth from '../Auth'
+import { History } from 'history'
+import useAuth from '../hooks/useAuth'
+import { useHistory } from 'react-router'
+import { makeStyles } from '@mui/styles'
 
-interface Props extends AuthRouteComponentProps, PropClasses { }
+type Props = PropClasses & { auth: Auth } & { history: History }
+
 interface State {
   date: Date
   description: string
@@ -180,7 +183,7 @@ class RegisterSpending extends Component<Props, State> {
           <form>
             <Grid container spacing={0} justifyContent='space-between'>
               {state.userIsAdmin
-                && <Grid item xs={12}>
+                && <Grid size={{ xs: 12 }}>
                   <DatePicker
                     label='Fecha de la salida'
                     date={state.date}
@@ -195,9 +198,7 @@ class RegisterSpending extends Component<Props, State> {
                   />
                 </Grid>
               }
-              {/*
-              // @ts-ignore grid-md-6 is missing in type system*/}
-              <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   label='Descripción'
                   onChange={this.handleChange('description')}
@@ -208,9 +209,7 @@ class RegisterSpending extends Component<Props, State> {
                   fullWidth
                 />
               </Grid>
-              {/*
-              // @ts-ignore grid-md-6 is missing in type system*/}
-              <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <PriceField
                   label='Dinero de salida'
                   onChange={this.handleChange('moneyAmount')}
@@ -221,7 +220,7 @@ class RegisterSpending extends Component<Props, State> {
                   }}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant='body2'>
                   De ganacias del día
                   <Switch
@@ -230,7 +229,7 @@ class RegisterSpending extends Component<Props, State> {
                   />
                 </Typography>
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant='body2'>
                   Es transferencia a Bogotá
                   <Switch
@@ -239,7 +238,7 @@ class RegisterSpending extends Component<Props, State> {
                   />
                 </Typography>
               </Grid>
-              <Grid item xs={12} className={classes.buttonContainer}>
+              <Grid size={{ xs: 12 }} className={classes.buttonContainer}>
                 <Button
                   variant='contained'
                   color='primary'
@@ -257,7 +256,7 @@ class RegisterSpending extends Component<Props, State> {
   }
 }
 
-const styles: StyleRulesCallback<Theme, Props> = theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(4),
     paddingRight: theme.spacing(4),
@@ -281,11 +280,14 @@ const styles: StyleRulesCallback<Theme, Props> = theme => ({
   buttonContainer: {
     paddingTop: theme.spacing(4),
   },
-  md6: {
-    [theme.breakpoints.up('md')]: {
-      maxWidth: '48%',
-    },
-  },
-})
+}))
 
-export default withStyles(styles)(RegisterSpending)
+const RegisterSpendingWrapper = () => {
+  const auth = useAuth()
+  const history = useHistory()
+  const classes = useStyles()
+
+  return <RegisterSpending auth={auth} history={history} classes={classes} />
+}
+
+export default RegisterSpendingWrapper
