@@ -4,7 +4,7 @@ import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Redirect, Switch } from 'react-router-dom'
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -13,13 +13,12 @@ import { UserProvider } from './hooks/useUser'
 import SnackbarContext from './SnackbarContext'
 import theme from './theme'
 import { es } from 'date-fns/locale/es'
+import { RequireAuth } from './RequireAuth'
 
-const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
 const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
 const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
-const MonitorSells = lazy(() => import(/* webpackChunkName: "monitor-sells" */ './Routes/MonitorSells'))
 const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
 const ClientList = lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
 const ClientBalance = lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/ClientBalance'))
@@ -41,7 +40,7 @@ const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Ba
 const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/dashboard/index'))
 const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
 const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Batches'))
-const RegisterSale2 = lazy(() => import(/* webpackChunkName: "register-sale2" */ './Routes/sale/Register'))
+const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/Register'))
 
 const AppSwitch = () => (
   <Switch>
@@ -49,41 +48,39 @@ const AppSwitch = () => (
     <Route exact path='/silentAuth'><SilentAuth /></Route>
     <Route exact path='/logout'><Logout /></Route>
 
-    <Route exact private path='/check'><CheckUser /></Route>
+    <Route exact path='/check'><RequireAuth><CheckUser /></RequireAuth></Route>
 
-    <Route exact private path='/sell2'><RegisterSale2 /></Route>
-    <Route exact private path='/sells'><Sells /></Route>
-    <Route exact private path='/monitor/sells'><MonitorSells /></Route>
+    <Route exact path='/sells'><RequireAuth><Sells /></RequireAuth></Route>
+    <Route exact path='/sell'><RequireAuth><RegisterSale /></RequireAuth></Route>
 
-    <Route exact private path='/clients'><ClientList /></Route>
-    <Route exact private path='/clients/new'><ClientEditor /></Route>
-    <Route exact private path='/clients/:id'><ClientEditor /></Route>
-    <Route exact private path='/clients/:id/balance'><ClientBalance /></Route>
+    <Route exact path='/clients'><RequireAuth><ClientList /></RequireAuth></Route>
+    <Route exact path='/clients/new'><RequireAuth><ClientEditor /></RequireAuth></Route>
+    <Route exact path='/clients/:id'><RequireAuth><ClientEditor /></RequireAuth></Route>
+    <Route exact path='/clients/:id/balance'><RequireAuth><ClientBalance /></RequireAuth></Route>
 
-    <Route exact private path='/payment'><RegisterPayment /></Route>
-    <Route exact private path='/payments'><Payments /></Route>
-    <Route exact private path='/payments/list'><PaymentList /></Route>
+    <Route exact path='/payment'><RequireAuth><RegisterPayment /></RequireAuth></Route>
+    <Route exact path='/payments'><RequireAuth><Payments /></RequireAuth></Route>
+    <Route exact path='/payments/list'><RequireAuth><PaymentList /></RequireAuth></Route>
 
-    <Route exact private path='/spending'><RegisterSpending /></Route>
-    <Route exact private path='/spendings'><Spendings /></Route>
-    <Route exact private path='/spendings/list'><SpendingList /></Route>
+    <Route exact path='/spending'><RequireAuth><RegisterSpending /></RequireAuth></Route>
+    <Route exact path='/spendings'><RequireAuth><Spendings /></RequireAuth></Route>
+    <Route exact path='/spendings/list'><RequireAuth><SpendingList /></RequireAuth></Route>
 
-    <Route exact private path='/inventory'><Inventory /></Route>
+    <Route exact path='/inventory'><RequireAuth><Inventory /></RequireAuth></Route>
 
-    <Route exact private path='/movements'><Movements /></Route>
-    <Route exact private path='/movements/production'><RegisterProduction /></Route>
-    <Route exact private path='/movements/damaged'><RegisterDamaged /></Route>
-    <Route exact private path='/movements/unpack'><RegisterUnpack /></Route>
-    <Route exact private path='/movements/relocation'><RegisterRelocation /></Route>
-    <Route exact private path='/movements/entry'><RegisterEntry /></Route>
+    <Route exact path='/movements'><RequireAuth><Movements /></RequireAuth></Route>
+    <Route exact path='/movements/production'><RequireAuth><RegisterProduction /></RequireAuth></Route>
+    <Route exact path='/movements/damaged'><RequireAuth><RegisterDamaged /></RequireAuth></Route>
+    <Route exact path='/movements/unpack'><RequireAuth><RegisterUnpack /></RequireAuth></Route>
+    <Route exact path='/movements/relocation'><RequireAuth><RegisterRelocation /></RequireAuth></Route>
+    <Route exact path='/movements/entry'><RequireAuth><RegisterEntry /></RequireAuth></Route>
 
-    <Route exact private path='/balance'><Balance /></Route>
+    <Route exact path='/balance'><RequireAuth><Balance /></RequireAuth></Route>
 
-    <Route exact private path='/dashboard'><Dashboard /></Route>
+    <Route exact path='/dashboard'><RequireAuth><Dashboard /></RequireAuth></Route>
+    <Route exact path='/tools/billing-summary'><RequireAuth><BillingSummary /></RequireAuth></Route>
 
-    <Route exact private path='/batches'><Batches /></Route>
-
-    <Route exact private path='/tools/billing-summary'><BillingSummary /></Route>
+    <Route exact path='/batches'><RequireAuth><Batches /></RequireAuth></Route>
 
     <Route exact path='/' render={() => <Redirect to='/sells' />} />
   </Switch>

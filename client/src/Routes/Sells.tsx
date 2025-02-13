@@ -67,7 +67,7 @@ export default function Sells(): JSX.Element {
   // Login to register sell
   const history = useHistory()
   const handleLogin = useCallback(() => {
-    history.push('/sell2')
+    history.push('/sell')
   }, [history])
   const loginElem =
     <LoginWrapper>

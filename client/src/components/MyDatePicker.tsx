@@ -1,5 +1,4 @@
 import type { JSX } from 'react'
-import type { JSX } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import { MobileDatePicker, MobileDatePickerProps } from '@mui/x-date-pickers/MobileDatePicker'
 import { DesktopDatePicker, DesktopDatePickerProps } from '@mui/x-date-pickers/DesktopDatePicker'

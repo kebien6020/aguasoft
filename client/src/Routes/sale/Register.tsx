@@ -190,7 +190,7 @@ const RegisterSaleImpl = memo(() => {
     // eslint-disable-next-line eqeqeq
     if (user?.loggedIn == null) return
     if (!user.loggedIn)
-      history.push('/check?next=/sell2')
+      history.push('/check?next=/sell')
 
   }, [user?.loggedIn, history])
 
