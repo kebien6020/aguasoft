@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useField } from 'formik'
 import PriceInput, { PriceFieldProps as PriceInputProps } from '../PriceField'
 

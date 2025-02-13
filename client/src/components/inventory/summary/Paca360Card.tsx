@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { CardProps } from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 

@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useField, useFormikContext } from 'formik'
 import { NumericControl, NumericControlProps } from '../controls/NumericControl'
 

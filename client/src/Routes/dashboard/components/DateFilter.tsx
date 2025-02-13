@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers'

@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import { money } from '../utils'
 import { Sell } from './Sells'

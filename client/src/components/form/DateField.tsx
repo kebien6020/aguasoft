@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { styled } from '@mui/material/styles'
 import { useField } from 'formik'
 import { MakeOptional } from '../../utils/types'

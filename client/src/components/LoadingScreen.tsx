@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
 

@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { Grid, GridProps, Theme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { endOfDay, startOfDay } from 'date-fns'

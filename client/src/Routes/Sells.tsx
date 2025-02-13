@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import { useCallback, useEffect, useState } from 'react'

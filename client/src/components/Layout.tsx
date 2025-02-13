@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import React, { useState, useCallback, ReactNode, forwardRef, ComponentType, Component } from 'react'
 import { Link, LinkProps, useLocation } from 'react-router-dom'
 import { LocationDescriptor } from 'history'

@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { Link, Alert } from '@mui/material'
 import { Component, ReactNode, SyntheticEvent } from 'react'
 

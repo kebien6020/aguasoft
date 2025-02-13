@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
 import SelectControl, { SelectControlProps } from '../controls/SelectControl'
 

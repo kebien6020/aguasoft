@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import Card, { CardProps } from '@mui/material/Card'
 import clsx from 'clsx'

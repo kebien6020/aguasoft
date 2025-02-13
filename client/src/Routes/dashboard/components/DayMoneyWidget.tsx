@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { Paper, Typography as T } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { Alert } from '@mui/material'

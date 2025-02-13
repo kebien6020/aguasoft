@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import makeStyles from '@mui/styles/makeStyles'

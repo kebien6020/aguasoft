@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useState } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 

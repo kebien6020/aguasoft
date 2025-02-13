@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { Button, ButtonProps, Collapse, Tooltip } from '@mui/material'
 import CardContent from '@mui/material/CardContent'
 import * as colors from '@mui/material/colors'

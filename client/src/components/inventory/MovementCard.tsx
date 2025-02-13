@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { useTheme } from '@mui/material/styles'
 import makeStyles from '@mui/styles/makeStyles'
 import Card from '@mui/material/Card'

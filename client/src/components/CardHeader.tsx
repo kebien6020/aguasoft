@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import MuiCardHeader, { CardHeaderProps } from '@mui/material/CardHeader'
 import clsx from 'clsx'

@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import Button from '@mui/material/Button'

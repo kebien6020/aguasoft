@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react'
 import clsx from 'clsx'
 

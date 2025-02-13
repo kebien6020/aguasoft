@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import MuiCollapse, { CollapseProps } from '@mui/material/Collapse'
 import Grid, { GridProps } from '@mui/material/Grid'
 import makeStyles from '@mui/styles/makeStyles'
