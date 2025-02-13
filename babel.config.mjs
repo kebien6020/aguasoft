@@ -14,8 +14,13 @@ export default {
       },
     ],
   ],
-  // Optimize mui imports
   plugins: [
+    [
+      'babel-plugin-react-compiler', {
+        target: '18',
+      },
+    ],
+    // Optimize mui imports
     [
       'babel-plugin-import', {
         libraryName: '@mui/material',

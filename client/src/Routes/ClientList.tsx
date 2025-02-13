@@ -16,9 +16,7 @@ import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import { Theme } from '@mui/material/styles'
-import { StyleRulesCallback, WithStyles, makeStyles } from '@mui/styles'
-import createStyles from '@mui/styles/createStyles'
-import withStyles from '@mui/styles/withStyles'
+import { StyleRulesCallback, makeStyles, withStyles } from '@mui/styles'
 import { AttachMoney as MoneyIcon } from '@mui/icons-material'
 import NoteIcon from '@mui/icons-material/Chat'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -29,8 +27,7 @@ import TableIcon from '@mui/icons-material/TableChart'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
 import { Component, MouseEvent, useState } from 'react'
-import { Link } from 'react-router'
-import { AuthRouteComponentProps } from '../AuthRoute'
+import { Link, NavigateFunction, useNavigate } from 'react-router'
 import Alert from '../components/Alert'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
@@ -40,6 +37,7 @@ import { fetchJsonAuth, isErrorResponse } from '../utils'
 import { withUser, WithUserProps } from '../hooks/useUser'
 import ListItemButton from '@mui/material/ListItemButton'
 import useAuth from '../hooks/useAuth'
+import Auth from '../Auth'
 
 interface ClientWithNotes extends Client {
   notes: string
@@ -64,8 +62,10 @@ const ClientItemRaw = ({ classes, client, className, onClick }: ClientItemProps)
       </ListItemAvatar>
       <ListItemText
         primary={client.name}
-        primaryTypographyProps={{
-          className: client.hidden ? classes.hiddenText : '',
+        slotProps={{
+          primary: {
+            className: client.hidden ? classes.hiddenText : '',
+          },
         }}
         secondary={client.notes && client.notes.split('\n')[0]}
       />
@@ -184,7 +184,7 @@ const clientDialogStyles: StyleRulesCallback<Theme, ClientDialogProps> = theme =
 
 const ClientDialog = withUser(withStyles(clientDialogStyles)(ClientDialogRaw))
 
-type Props = AuthRouteComponentProps & WithStyles<typeof styles>
+type Props = PropClasses & { auth: Auth } & { navigate: NavigateFunction }
 
 interface State {
   clientsError: boolean
@@ -300,7 +300,7 @@ class ClientList extends Component<Props, State> {
     const { selectedClient } = this.state
     if (!selectedClient) return
 
-    this.props.history.push(`/clients/${selectedClient.id}`)
+    void this.props.navigate(`/clients/${selectedClient.id}`)
   }
 
   handleClientHide = async () => {
@@ -376,7 +376,7 @@ class ClientList extends Component<Props, State> {
     const { selectedClient } = this.state
     if (!selectedClient) return
 
-    this.props.history.push(`/clients/${selectedClient.id}/balance`)
+    void this.props.navigate(`/clients/${selectedClient.id}/balance`)
   }
 
   render() {
@@ -507,7 +507,9 @@ const useStyles = makeStyles({
 const ClientListWrapper = () => {
   const classes = useStyles()
   const auth = useAuth()
-  return <ClientList classes={classes} auth={auth} />
+  const navigate = useNavigate()
+
+  return <ClientList classes={classes} auth={auth} navigate={navigate} />
 }
 
 export default ClientListWrapper

@@ -94,7 +94,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     (<AuthContext.Provider value={auth}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-        <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+        <BrowserRouter>
           <StyledEngineProvider injectFirst>
             <ThemeProvider theme={theme}>
               <LegacyThemeProvider theme={theme}>

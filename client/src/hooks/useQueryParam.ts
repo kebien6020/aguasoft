@@ -16,8 +16,8 @@ export const useQueryParam = (name: string, initialValue?: string): RetVal => {
 
   const setValue = useCallback((newVal: string) => {
     query.set(name, newVal)
-    location.search = query.toString()
-    navigate(location, { replace: true })
+    const url = `${location.pathname}?${query.toString()}`
+    void navigate(url, { replace: true })
   }, [navigate, location, name, query])
 
   // Set initial value if any
