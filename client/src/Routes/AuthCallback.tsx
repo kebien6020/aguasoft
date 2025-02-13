@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import LoadingScreen from '../components/LoadingScreen'
 import useAuth from '../hooks/useAuth'
 import { Button } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 const AuthCallback = () => {
   const auth = useAuth()

@@ -4,7 +4,7 @@ import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -94,7 +94,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     (<AuthContext.Provider value={auth}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
           <StyledEngineProvider injectFirst>
             <ThemeProvider theme={theme}>
               <LegacyThemeProvider theme={theme}>

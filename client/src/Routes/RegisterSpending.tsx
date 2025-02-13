@@ -18,7 +18,7 @@ import { Theme } from '../theme'
 import Auth from '../Auth'
 import useAuth from '../hooks/useAuth'
 import { makeStyles } from '@mui/styles'
-import { NavigateFunction, useNavigate } from 'react-router-dom'
+import { NavigateFunction, useNavigate } from 'react-router'
 
 type Props = PropClasses & { auth: Auth } & { navigate: NavigateFunction }
 

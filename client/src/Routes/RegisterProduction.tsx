@@ -30,7 +30,7 @@ import usePrevious from '../hooks/usePrevious'
 import { MachineCounter } from '../models'
 import Collapse from '../components/Collapse'
 import { Theme } from '../theme'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 type ProductionType =
   | 'bolsa-360'

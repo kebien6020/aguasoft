@@ -1,5 +1,5 @@
 import { ComponentType, Component } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router'
 
 import { User } from '../models'
 import { fetchJsonAuth } from '../utils'

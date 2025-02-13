@@ -11,7 +11,7 @@ import { fetchJsonAuth, ErrorResponse, isErrorResponse, money, formatDateCol } f
 import { Component, Key } from 'react'
 import { isSameDay, startOfDay } from 'date-fns'
 import useAuth from '../hooks/useAuth'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import Auth from '../Auth'
 
 interface Params {

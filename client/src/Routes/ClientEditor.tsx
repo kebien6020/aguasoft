@@ -3,7 +3,7 @@ import { StyleRulesCallback } from '@mui/styles'
 import withStyles from '@mui/styles/withStyles'
 
 import { ChangeEvent, Component } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router'
 
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'

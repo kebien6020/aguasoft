@@ -17,7 +17,7 @@ import Title from '../components/Title'
 import { Storage, InventoryElement, User } from '../models'
 import { Params, scrollToRef } from '../utils'
 import { movementCauseOptions } from '../constants'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { Theme } from '../theme'
 
 const ITEMS_PER_PAGE = 30

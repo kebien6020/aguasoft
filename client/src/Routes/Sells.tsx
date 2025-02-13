@@ -18,7 +18,7 @@ import { formatDateonlyMachine } from '../utils/dates'
 import { VSpace, Center } from '../components/utils'
 import { styled } from '@mui/material/styles'
 import { Theme } from '../theme'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 export interface Filter {
   client: string

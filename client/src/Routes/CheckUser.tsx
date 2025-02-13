@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router'
 import makeStyles from '@mui/styles/makeStyles'
 
 import Modal from '@mui/material/Modal'

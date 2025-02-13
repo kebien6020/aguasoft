@@ -39,7 +39,7 @@ import { fetchPrices } from '../../api/prices'
 import { FetchError } from '../../api/common'
 import { MakeRequired } from '../../utils/types'
 import { SaleForCreate, createSales } from '../../api/sales'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 type SaleLine = {
   productId: string | undefined

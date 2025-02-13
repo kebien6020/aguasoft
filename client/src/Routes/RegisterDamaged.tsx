@@ -19,7 +19,7 @@ import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { InventoryElement, Storage } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { Theme } from '../theme'
 
 const useStorages = (): InventoryElement[] | null => {

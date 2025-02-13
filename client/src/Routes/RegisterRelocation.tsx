@@ -20,7 +20,7 @@ import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { fetchJsonAuth, isErrorResponse, isNumber } from '../utils'
 import { MachineCounter } from '../models'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { Theme } from '../theme'
 
 const validationSchema = Yup.object({

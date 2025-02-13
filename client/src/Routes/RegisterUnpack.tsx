@@ -12,7 +12,7 @@ import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import { Theme } from '../theme'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 const initialValues = {
   amount: '',

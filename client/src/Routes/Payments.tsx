@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useEffect, useCallback } from 'react'
-import { Link, LinkProps, useNavigate } from 'react-router-dom'
+import { Link, LinkProps, useNavigate } from 'react-router'
 import { styled } from '@mui/material/styles'
 
 import Button from '@mui/material/Button'

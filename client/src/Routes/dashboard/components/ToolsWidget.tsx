@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 import { forwardRef } from 'react'
 import { List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material'
 import { TableChart as TableIcon } from '@mui/icons-material'
-import { Link, LinkProps } from 'react-router-dom'
+import { Link, LinkProps } from 'react-router'
 import Title from '../../../components/Title'
 import { MakeOptional } from '../../../utils/types'
 
