@@ -1,5 +1,15 @@
 import { memo, useCallback, useEffect, useMemo, useState, Fragment } from 'react'
-import { Button, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Paper, Tooltip } from '@mui/material'
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid2 as Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { Add, AddOutlined, CloseOutlined } from '@mui/icons-material'
 import { useFormikContext } from 'formik'
@@ -29,7 +39,7 @@ import { fetchPrices } from '../../api/prices'
 import { FetchError } from '../../api/common'
 import { MakeRequired } from '../../utils/types'
 import { SaleForCreate, createSales } from '../../api/sales'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 type SaleLine = {
   productId: string | undefined
@@ -89,7 +99,7 @@ const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine)
 const RegisterSale = memo(() => {
   const auth = useAuth()
   const showMsg = useSnackbar()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const handleSubmit = useCallback(async (values: Values) => {
     if (isNaN(Number(values.client))) {
@@ -147,9 +157,9 @@ const RegisterSale = memo(() => {
       return
     }
 
-    history.push('/sells')
+    navigate('/sells')
 
-  }, [auth, showMsg, history])
+  }, [auth, showMsg, navigate])
 
 
   return (
@@ -184,22 +194,22 @@ const RegisterSaleImpl = memo(() => {
 
   const clientId = isNaN(Number(values.client)) || Number(values.client) === 0 ? null : Number(values.client)
   const [client] = useClient(clientId)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   useEffect(() => {
     // eslint-disable-next-line eqeqeq
     if (user?.loggedIn == null) return
     if (!user.loggedIn)
-      history.push('/check?next=/sell')
+      navigate('/check?next=/sell')
 
-  }, [user?.loggedIn, history])
+  }, [user?.loggedIn, navigate])
 
   useEffect(() => {
     if (client?.defaultCash === undefined)
       return
 
     setFieldValue('cash', client.defaultCash ? 'true' : 'false')
-  }, [client?.defaultCash])
+  }, [client?.defaultCash, setFieldValue])
 
   const handleAdd = useCallback(() => {
     setFieldValue('saleLines', [
@@ -211,12 +221,12 @@ const RegisterSaleImpl = memo(() => {
         priceId: '',
       },
     ])
-  }, [values.saleLines])
+  }, [setFieldValue, values.saleLines])
 
   const handleRemove = useCallback((idx: number) => {
     const newLines = values.saleLines.filter((_, i) => i !== idx)
     setFieldValue('saleLines', newLines)
-  }, [values.saleLines])
+  }, [setFieldValue, values.saleLines])
 
   // Auto add a line when a client is selected
   useEffect(() => {
@@ -228,18 +238,18 @@ const RegisterSaleImpl = memo(() => {
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <StyledPaper>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <SelectField name='client' label='Cliente' options={clients} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               {client && (
                 <SelectField name='cash' label='Tipo de Venta' options={cashOptions} />
               )}
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               {isAdmin && (
                 <DateField name='date' label='Fecha de la Venta' />
               )}
@@ -248,7 +258,7 @@ const RegisterSaleImpl = memo(() => {
         </StyledPaper>
       </Grid>
       <VSpace />
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <SaleLineForms
           onRemove={handleRemove}
           clientId={Number(values.client)}
@@ -266,7 +276,7 @@ const RegisterSaleImpl = memo(() => {
         </StyledPaper>
       </Grid>
       <VSpace />
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <StyledPaper>
           <TotalPrice />
           <SubmitButton onlyEnableWhenValid>
@@ -388,7 +398,7 @@ const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLine
 
     setFieldValue(`saleLines[${idx}].priceId`, priceOptsFinal[0].value)
 
-  }, [priceOptsFinal, idx])
+  }, [priceOptsFinal, idx, setFieldValue])
 
   // Auto-select the first variant when available
   useEffect(() => {
@@ -397,30 +407,30 @@ const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLine
 
     setFieldValue(`saleLines[${idx}].variantId`, variantOpts[0].value)
 
-  }, [variantOpts])
+  }, [idx, setFieldValue, variantOpts])
 
   return (
     <Grid container spacing={1}>
-      <Grid item xs={12} container justifyContent='flex-end'>
+      <Grid size={{ xs: 12 }} container justifyContent='flex-end'>
         <IconButton onClick={() => onRemove(idx)} size='small' style={{ margin: -8 }}>
           <CloseOutlined />
         </IconButton>
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <SelectField name={`saleLines[${idx}].productId`} label='Producto' options={productOpts} />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         {(variantOpts?.length ?? 0) > 0 && (
           <SelectField name={`saleLines[${idx}].variantId`} label='Variante' options={variantOpts} emptyOption='Ninguna' />
         )}
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <NumericField name={`saleLines[${idx}].quantity`} label='Cantidad' />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <SelectField name={`saleLines[${idx}].priceId`} label='Precio' options={priceOptsFinal} emptyOption={emptyOption} />
       </Grid>
-      <BatchFieldGrid item xs={12} md={6}>
+      <BatchFieldGrid size={{ xs: 12, md: 6 }}>
         {product?.batchCategoryId ? <>
           <BatchField idx={idx} product={product as ProductWithBatchCategory} />
         </> : null}
@@ -429,11 +439,11 @@ const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLine
         </> : null}
       </BatchFieldGrid>
 
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Hr />
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         Precio Total: {money(line.quantity * selectedPrice)}
       </Grid>
 
@@ -470,7 +480,7 @@ const BatchField = memo(({ idx, product }: { idx: number, product: ProductWithBa
   const handleBatchCreated = useCallback((batch: Batch) => {
     setFieldValue(fieldName, String(batch.id))
     update()
-  }, [fieldName, update])
+  }, [fieldName, setFieldValue, update])
 
   return (<>
     <SelectField name={fieldName} label='Lote' options={options} style={{ flex: 1 }} />
@@ -547,15 +557,15 @@ const AddBatchDialog = memo(({ product, open, onClose, onCreated }: AddBatchDial
           initialValues={addBatchInitialValues}
           onSubmit={handleSubmit}
         >
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <DialogContentText>
               Creando un nuevo lote en la categoría: {category?.name ?? 'Cargando…'}
             </DialogContentText>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <DateField name='date' label='Fecha del Lote' />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <SubmitButton disabled={loading}>Crear Lote</SubmitButton>
           </Grid>
         </Form>

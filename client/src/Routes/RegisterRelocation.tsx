@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
 import makeStyles from '@mui/styles/makeStyles'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { FormikHelpers } from 'formik'
 
 import useAuth from '../hooks/useAuth'
 import useFetch from '../hooks/useFetch'
@@ -22,6 +20,8 @@ import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { fetchJsonAuth, isErrorResponse, isNumber } from '../utils'
 import { MachineCounter } from '../models'
+import { useNavigate } from 'react-router-dom'
+import { Theme } from '../theme'
 
 const validationSchema = Yup.object({
   element: Yup.string().required(),
@@ -72,7 +72,7 @@ const RegisterRelocation = () => {
 
   const [statesNonce, updateStates] = useNonce()
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/relocation'
     let payload: Record<string, unknown> = {
@@ -99,7 +99,7 @@ const RegisterRelocation = () => {
 
     showMessage('Guardado exitoso')
     updateStates()
-    history.push('/movements')
+    navigate('/movements')
   }
 
   return (
@@ -115,7 +115,7 @@ const RegisterRelocation = () => {
           enableReinitialize
         >
           {({ values, setFieldValue }) => <>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <SelectElementField
                 name='element'
                 label='Elemento a sacar de bodega'
@@ -133,7 +133,7 @@ const RegisterRelocation = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 name='amount'
                 label='Cantidad'
@@ -145,15 +145,16 @@ const RegisterRelocation = () => {
               />
             </Grid>
             <Collapse in={values.element === 'rollo-360'}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='counter'
                   label='Contador de la maquina'
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography>
-                  Esta accion mueve un rollo de la bodega al area de trabajo y remueve un rollo del area de trabajo (el rollo anterior vacío).
+                  Esta accion mueve un rollo de la bodega al area de trabajo y
+                  remueve un rollo del area de trabajo (el rollo anterior vacío).
                 </Typography>
               </Grid>
             </Collapse>
@@ -162,9 +163,10 @@ const RegisterRelocation = () => {
               && lastMachineCounter !== null
               && Number(values.counter) > lastMachineCounter.value
             }>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography>
-                  Cantidad desde el rollo anterior: {lastMachineCounter ? Number(values.counter) - lastMachineCounter.value : ''}.
+                  Cantidad desde el rollo anterior:
+                  {lastMachineCounter ? Number(values.counter) - lastMachineCounter.value : ''}.
                 </Typography>
               </Grid>
             </Collapse>
@@ -176,7 +178,7 @@ const RegisterRelocation = () => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(4),

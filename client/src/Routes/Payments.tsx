@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState, useEffect, useCallback } from 'react'
-import { useHistory, Link, LinkProps } from 'react-router-dom'
+import { Link, LinkProps, useNavigate } from 'react-router-dom'
 import { styled } from '@mui/material/styles'
 
 import Button from '@mui/material/Button'
@@ -28,10 +28,10 @@ export default function Payments() {
   const [date, setDate] = useState(() => startOfDay(new Date))
 
   // Login to register payment
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleLogin = useCallback(() => {
-    history.push('/payment')
-  }, [history])
+    navigate('/payment')
+  }, [navigate])
 
   // Snackbar
   const setSnackbarError = useSnackbar()

@@ -2,7 +2,6 @@ import type { JSX } from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import { useCallback, useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
 import DayOverview from '../components/DayOverview'
 import Layout from '../components/Layout'
 import Login from '../components/Login'
@@ -19,6 +18,7 @@ import { formatDateonlyMachine } from '../utils/dates'
 import { VSpace, Center } from '../components/utils'
 import { styled } from '@mui/material/styles'
 import { Theme } from '../theme'
+import { useNavigate } from 'react-router-dom'
 
 export interface Filter {
   client: string
@@ -65,13 +65,13 @@ export default function Sells(): JSX.Element {
   }, [date, auth, setSnackbarError, nonce])
 
   // Login to register sell
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleLogin = useCallback(() => {
-    history.push('/sell')
-  }, [history])
+    navigate('/sell')
+  }, [navigate])
   const loginElem =
     <LoginWrapper>
-      <Login onSuccess={handleLogin} auth={auth} />
+      <Login onSuccess={handleLogin} />
     </LoginWrapper>
 
   // Filter

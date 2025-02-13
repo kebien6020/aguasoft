@@ -3,7 +3,7 @@ import { StyleRulesCallback } from '@mui/styles'
 import withStyles from '@mui/styles/withStyles'
 
 import { ChangeEvent, Component } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -312,7 +312,7 @@ class ClientEditor extends Component<Props, State> {
 
 
     if (state.done)
-      return <Redirect to='/clients' push />
+      return <Navigate to='/clients' />
 
 
     const { classes } = props

@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { useHistory, useLocation } from 'react-router'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 const useQuery = () => new URLSearchParams(useLocation().search)
 
@@ -9,7 +9,7 @@ type RetVal = readonly [QueryParamValue, SetQueryParam]
 
 export const useQueryParam = (name: string, initialValue?: string): RetVal => {
   const query = useQuery()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
 
   const value = query.get(name)
@@ -17,8 +17,8 @@ export const useQueryParam = (name: string, initialValue?: string): RetVal => {
   const setValue = useCallback((newVal: string) => {
     query.set(name, newVal)
     location.search = query.toString()
-    history.replace(location)
-  }, [history, location, name, query])
+    navigate(location, { replace: true })
+  }, [navigate, location, name, query])
 
   // Set initial value if any
   useEffect(() => {

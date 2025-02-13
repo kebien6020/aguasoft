@@ -11,14 +11,14 @@ import { fetchJsonAuth, ErrorResponse, isErrorResponse, money, formatDateCol } f
 import { Component, Key } from 'react'
 import { isSameDay, startOfDay } from 'date-fns'
 import useAuth from '../hooks/useAuth'
-import { match, useRouteMatch } from 'react-router'
+import { useParams } from 'react-router-dom'
 import Auth from '../Auth'
 
 interface Params {
-  id: string
+  readonly id: string
 }
 
-type Props = PropClasses & { auth: Auth } & { match: match<Params> }
+type Props = PropClasses & { auth: Auth } & { params: Params }
 
 interface State {
   changeGroups: ChangeGroup[] | null
@@ -116,7 +116,7 @@ class ClientBalance extends Component<Props, State> {
 
   async componentDidMount() {
     const { props } = this
-    const { params } = props.match
+    const { params } = props
     const clientId = params.id
 
     const response: ChangesResponse =
@@ -239,9 +239,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 const ClientBalanceWrapper = () => {
   const auth = useAuth()
   const classes = useStyles()
-  const match = useRouteMatch<Params>()
+  const params = useParams() as unknown as Params
 
-  return <ClientBalance classes={classes} auth={auth} match={match} />
+  return <ClientBalance classes={classes} auth={auth} params={params} />
 }
 
 export default ClientBalanceWrapper

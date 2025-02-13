@@ -11,7 +11,7 @@ export interface SelectOption {
   label: React.ReactNode
 }
 
-export interface SelectControlProps extends SelectProps {
+export type SelectControlProps = SelectProps & {
   name?: string
   label: React.ReactNode
   emptyOption?: React.ReactNode

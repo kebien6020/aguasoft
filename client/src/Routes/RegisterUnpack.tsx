@@ -1,6 +1,5 @@
-import { useHistory } from 'react-router-dom'
 import makeStyles from '@mui/styles/makeStyles'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 
 import useAuth from '../hooks/useAuth'
@@ -13,6 +12,7 @@ import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
 import { Theme } from '../theme'
+import { useNavigate } from 'react-router-dom'
 
 const initialValues = {
   amount: '',
@@ -30,7 +30,7 @@ const RegisterUnpack = () => {
   const auth = useAuth()
   const showMessage = useSnackbar()
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/unpack'
     const payload = {
@@ -48,7 +48,7 @@ const RegisterUnpack = () => {
     }
 
     showMessage('Guardado exitoso')
-    history.push('/movements')
+    navigate('/movements')
   }
 
   return (
@@ -61,7 +61,7 @@ const RegisterUnpack = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               name='amount'
               label='Pacas a desempacar'

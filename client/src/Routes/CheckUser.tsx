@@ -1,4 +1,4 @@
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import makeStyles from '@mui/styles/makeStyles'
 
 import Modal from '@mui/material/Modal'
@@ -21,7 +21,7 @@ const CheckUser = () => {
   const auth = useAuth()
 
   if (checked && userFromContext?.loggedIn)
-    return <Redirect to={redirectUrl} push />
+    return <Navigate to={redirectUrl} />
 
   return (
     <Layout title='Verificación requerida'>

@@ -1,5 +1,5 @@
 import { ChangeEvent, Component } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import {
   Paper,
   FormControl,
@@ -250,7 +250,7 @@ class RegisterPayment extends Component<Props, State> {
 
 
     if (state.redirectToList)
-      return <Redirect to='/payments' push />
+      return <Navigate to='/payments' />
 
 
     return (

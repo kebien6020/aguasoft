@@ -1,6 +1,5 @@
-import { useHistory } from 'react-router-dom'
 import makeStyles from '@mui/styles/makeStyles'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import { useFormikContext, FormikHelpers } from 'formik'
 
@@ -20,6 +19,8 @@ import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { InventoryElement, Storage } from '../models'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
+import { useNavigate } from 'react-router-dom'
+import { Theme } from '../theme'
 
 const useStorages = (): InventoryElement[] | null => {
   const url = '/api/inventory/storages'
@@ -85,12 +86,12 @@ const RegisterDamaged = () => {
   const showMessage = useSnackbar()
 
   const [statesNonce, updateStates] = useNonce()
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleSubmit = async (values: Values, { setSubmitting }: FormikHelpers<Values>) => {
     const { damageType: dType } = values
 
     const url = '/api/inventory/movements/damage'
-    let payload: Object = {
+    let payload: Record<string, unknown> = {
       damageType: dType,
       amount: Number(values.amount),
       inventoryElementCode: values.inventoryElementCode,
@@ -118,7 +119,7 @@ const RegisterDamaged = () => {
     setSubmitting(false)
     updateStates()
 
-    history.push('/movements')
+    navigate('/movements')
   }
 
   return (
@@ -132,7 +133,7 @@ const RegisterDamaged = () => {
           onSubmit={handleSubmit}
         >
           {({ values }) => <>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <SelectField
                 name='damageType'
                 label='Tipo de Daño'
@@ -154,7 +155,7 @@ const RegisterDamaged = () => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(4),
@@ -182,7 +183,7 @@ const DevolucionForm = (props: DevolucionFormProps) => {
 
   return (
     <Collapse in={dType === 'devolucion'}>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <SelectElementField
           name='inventoryElementCode'
           label='Producto'
@@ -192,7 +193,7 @@ const DevolucionForm = (props: DevolucionFormProps) => {
           statesNonce={statesNonce}
         />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <TextField
           name='amount'
           label='Cantidad'
@@ -219,7 +220,7 @@ const GeneralForm = (props: GeneralFormProps) => {
 
   return (
     <Collapse in={dType === 'general'}>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <SelectField
           name='storageCode'
           label='Almacen'
@@ -227,7 +228,7 @@ const GeneralForm = (props: GeneralFormProps) => {
           options={storageOptions}
         />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <SelectElementField
           name='inventoryElementCode'
           label='Elemento de inventario'
@@ -237,7 +238,7 @@ const GeneralForm = (props: GeneralFormProps) => {
           statesNonce={statesNonce}
         />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <TextField
           name='amount'
           label='Cantidad'

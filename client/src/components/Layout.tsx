@@ -234,7 +234,7 @@ const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
   <ResponsiveContainer variant='wide' {...props} />
 
 const RouterLink = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => (
-  <Link innerRef={ref} {...props} />
+  <Link ref={ref} {...props} />
 ))
 RouterLink.displayName = 'RouterLink'
 

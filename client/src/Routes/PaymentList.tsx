@@ -98,7 +98,7 @@ class PaymentList extends React.Component<Props, State> {
 
   renderLinkBack = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
     function HomeLink(props, ref) {
-      return <Link to='/' innerRef={ref} {...props} />
+      return <Link to='/' ref={ref} {...props} />
     }
   )
 

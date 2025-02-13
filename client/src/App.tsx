@@ -4,7 +4,7 @@ import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -43,47 +43,47 @@ const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Ba
 const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/Register'))
 
 const AppSwitch = () => (
-  <Switch>
-    <Route exact path='/authCallback'><AuthCallback /></Route>
-    <Route exact path='/silentAuth'><SilentAuth /></Route>
-    <Route exact path='/logout'><Logout /></Route>
+  <Routes>
+    <Route path='/authCallback' element={<AuthCallback />} />
+    <Route path='/silentAuth' element={<SilentAuth />} />
+    <Route path='/logout' element={<Logout />} />
 
-    <Route exact path='/check'><RequireAuth><CheckUser /></RequireAuth></Route>
+    <Route path='/check' element={<RequireAuth><CheckUser /></RequireAuth>} />
 
-    <Route exact path='/sells'><RequireAuth><Sells /></RequireAuth></Route>
-    <Route exact path='/sell'><RequireAuth><RegisterSale /></RequireAuth></Route>
+    <Route path='/sells' element={<RequireAuth><Sells /></RequireAuth>} />
+    <Route path='/sell' element={<RequireAuth><RegisterSale /></RequireAuth>} />
 
-    <Route exact path='/clients'><RequireAuth><ClientList /></RequireAuth></Route>
-    <Route exact path='/clients/new'><RequireAuth><ClientEditor /></RequireAuth></Route>
-    <Route exact path='/clients/:id'><RequireAuth><ClientEditor /></RequireAuth></Route>
-    <Route exact path='/clients/:id/balance'><RequireAuth><ClientBalance /></RequireAuth></Route>
+    <Route path='/clients' element={<RequireAuth><ClientList /></RequireAuth>} />
+    <Route path='/clients/new' element={<RequireAuth><ClientEditor /></RequireAuth>} />
+    <Route path='/clients/:id' element={<RequireAuth><ClientEditor /></RequireAuth>} />
+    <Route path='/clients/:id/balance' element={<RequireAuth><ClientBalance /></RequireAuth>} />
 
-    <Route exact path='/payment'><RequireAuth><RegisterPayment /></RequireAuth></Route>
-    <Route exact path='/payments'><RequireAuth><Payments /></RequireAuth></Route>
-    <Route exact path='/payments/list'><RequireAuth><PaymentList /></RequireAuth></Route>
+    <Route path='/payment' element={<RequireAuth><RegisterPayment /></RequireAuth>} />
+    <Route path='/payments' element={<RequireAuth><Payments /></RequireAuth>} />
+    <Route path='/payments/list' element={<RequireAuth><PaymentList /></RequireAuth>} />
 
-    <Route exact path='/spending'><RequireAuth><RegisterSpending /></RequireAuth></Route>
-    <Route exact path='/spendings'><RequireAuth><Spendings /></RequireAuth></Route>
-    <Route exact path='/spendings/list'><RequireAuth><SpendingList /></RequireAuth></Route>
+    <Route path='/spending' element={<RequireAuth><RegisterSpending /></RequireAuth>} />
+    <Route path='/spendings' element={<RequireAuth><Spendings /></RequireAuth>} />
+    <Route path='/spendings/list' element={<RequireAuth><SpendingList /></RequireAuth>} />
 
-    <Route exact path='/inventory'><RequireAuth><Inventory /></RequireAuth></Route>
+    <Route path='/inventory' element={<RequireAuth><Inventory /></RequireAuth>} />
 
-    <Route exact path='/movements'><RequireAuth><Movements /></RequireAuth></Route>
-    <Route exact path='/movements/production'><RequireAuth><RegisterProduction /></RequireAuth></Route>
-    <Route exact path='/movements/damaged'><RequireAuth><RegisterDamaged /></RequireAuth></Route>
-    <Route exact path='/movements/unpack'><RequireAuth><RegisterUnpack /></RequireAuth></Route>
-    <Route exact path='/movements/relocation'><RequireAuth><RegisterRelocation /></RequireAuth></Route>
-    <Route exact path='/movements/entry'><RequireAuth><RegisterEntry /></RequireAuth></Route>
+    <Route path='/movements' element={<RequireAuth><Movements /></RequireAuth>} />
+    <Route path='/movements/production' element={<RequireAuth><RegisterProduction /></RequireAuth>} />
+    <Route path='/movements/damaged' element={<RequireAuth><RegisterDamaged /></RequireAuth>} />
+    <Route path='/movements/unpack' element={<RequireAuth><RegisterUnpack /></RequireAuth>} />
+    <Route path='/movements/relocation' element={<RequireAuth><RegisterRelocation /></RequireAuth>} />
+    <Route path='/movements/entry' element={<RequireAuth><RegisterEntry /></RequireAuth>} />
 
-    <Route exact path='/balance'><RequireAuth><Balance /></RequireAuth></Route>
+    <Route path='/balance' element={<RequireAuth><Balance /></RequireAuth>} />
 
-    <Route exact path='/dashboard'><RequireAuth><Dashboard /></RequireAuth></Route>
-    <Route exact path='/tools/billing-summary'><RequireAuth><BillingSummary /></RequireAuth></Route>
+    <Route path='/dashboard' element={<RequireAuth><Dashboard /></RequireAuth>} />
+    <Route path='/tools/billing-summary' element={<RequireAuth><BillingSummary /></RequireAuth>} />
 
-    <Route exact path='/batches'><RequireAuth><Batches /></RequireAuth></Route>
+    <Route path='/batches' element={<RequireAuth><Batches /></RequireAuth>} />
 
-    <Route exact path='/' render={() => <Redirect to='/sells' />} />
-  </Switch>
+    <Route path='/' element={<Navigate to='/sells' />} />
+  </Routes>
 )
 
 const auth = new Auth()

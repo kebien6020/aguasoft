@@ -16,12 +16,11 @@ import { Component } from 'react'
 import { startOfDay } from 'date-fns'
 import { Theme } from '../theme'
 import Auth from '../Auth'
-import { History } from 'history'
 import useAuth from '../hooks/useAuth'
-import { useHistory } from 'react-router'
 import { makeStyles } from '@mui/styles'
+import { NavigateFunction, useNavigate } from 'react-router-dom'
 
-type Props = PropClasses & { auth: Auth } & { history: History }
+type Props = PropClasses & { auth: Auth } & { navigate: NavigateFunction }
 
 interface State {
   date: Date
@@ -166,7 +165,7 @@ class RegisterSpending extends Component<Props, State> {
       return
     }
 
-    this.props.history.push('/spendings')
+    this.props.navigate('/spendings')
   }
 
   render() {
@@ -284,10 +283,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const RegisterSpendingWrapper = () => {
   const auth = useAuth()
-  const history = useHistory()
+  const navigate = useNavigate()
   const classes = useStyles()
 
-  return <RegisterSpending auth={auth} history={history} classes={classes} />
+  return <RegisterSpending auth={auth} navigate={navigate} classes={classes} />
 }
 
 export default RegisterSpendingWrapper

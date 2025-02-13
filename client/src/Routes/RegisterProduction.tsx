@@ -1,10 +1,9 @@
 import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
 import makeStyles from '@mui/styles/makeStyles'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
@@ -18,12 +17,20 @@ import SelectField from '../components/form/SelectField'
 import SubmitButton from '../components/form/SubmitButton'
 import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
-import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse, NotEnoughInSourceError } from '../utils'
+import {
+  isNumber,
+  fetchJsonAuth,
+  SuccessResponse,
+  ErrorResponse,
+  isErrorResponse,
+  NotEnoughInSourceError,
+} from '../utils'
 import { useFormikContext, FormikContextType } from 'formik'
 import usePrevious from '../hooks/usePrevious'
 import { MachineCounter } from '../models'
 import Collapse from '../components/Collapse'
 import { Theme } from '../theme'
+import { useNavigate } from 'react-router-dom'
 
 type ProductionType =
   | 'bolsa-360'
@@ -103,7 +110,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
     } else {
       setFieldValue('damaged', '0')
     }
-  }, [detectDamaged, quantityInIntermediate, values.amount, values.productionType])
+  }, [detectDamaged, quantityInIntermediate, setFieldValue, values.amount, values.productionType])
 
   const prevProductionType = usePrevious(values.productionType)
 
@@ -111,7 +118,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
     // When changing to productionType other than paca-360, reset damaged to 0
     if (prevProductionType === 'paca-360' && values.productionType !== 'paca-360')
       setFieldValue('damaged', '0')
-  }, [values.productionType, prevProductionType])
+  }, [values.productionType, prevProductionType, setFieldValue])
 
   return null
 }
@@ -152,7 +159,7 @@ const RegisterProduction = (): JSX.Element => {
       ? intermediateState['bolsa-360']
       : null
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/production'
 
@@ -210,7 +217,7 @@ const RegisterProduction = (): JSX.Element => {
     }
 
     showMessage('Guardado exitoso')
-    history.push('/movements')
+    navigate('/movements')
   }
 
   return (
@@ -224,7 +231,7 @@ const RegisterProduction = (): JSX.Element => {
           enableReinitialize
         >
           {({ values }) => <>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <SelectField
                 name='productionType'
                 label='Tipo de Producción'
@@ -233,14 +240,14 @@ const RegisterProduction = (): JSX.Element => {
               />
             </Grid>
             <Collapse in={values.productionType === 'bolsa-360'}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='counterStart'
                   label='Contador Total Inicial'
                   disabled
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='counterEnd'
                   label='Contador Total Final'
@@ -253,7 +260,7 @@ const RegisterProduction = (): JSX.Element => {
               && isNumber(values.counterEnd)
               && Number(values.counterStart) < Number(values.counterEnd)
             }>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography>
                   Se registrará una producción de
                   {Number(values.counterEnd) - Number(values.counterStart)}
@@ -262,13 +269,13 @@ const RegisterProduction = (): JSX.Element => {
               </Grid>
             </Collapse>
             <Collapse in={values.productionType === 'paca-360'}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   name='amount'
                   label='Cantidad de Pacas producida'
                 />
               </Grid>
-              <Grid item xs={12} lg={6} style={{ display: 'flex', flexFlow: 'column', justifyContent: 'flex-end' }}>
+              <Grid size={{ xs: 12, lg: 6 }} style={{ display: 'flex', flexFlow: 'column', justifyContent: 'flex-end' }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -279,7 +286,7 @@ const RegisterProduction = (): JSX.Element => {
                   label='Area intermedia queda vacía'
                 />
               </Grid>
-              <Grid item xs={12} lg={6}>
+              <Grid size={{ xs: 12, lg: 6 }}>
                 <DamagedAutofill detectDamaged={detectDamaged} quantityInIntermediate={quantityInIntermediate} />
                 <TextField
                   name='damaged'
@@ -294,13 +301,13 @@ const RegisterProduction = (): JSX.Element => {
               || values.productionType === 'hielo-2kg'
               || values.productionType === 'bolsa-360-congelada'
             }>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='amount'
                   label='Cantidad producida'
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='damaged'
                   label='Bolsas dañadas'
@@ -308,7 +315,7 @@ const RegisterProduction = (): JSX.Element => {
               </Grid>
             </Collapse>
             <Collapse in={values.productionType === 'barra-hielo'}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='amount'
                   label='Cantidad producida'

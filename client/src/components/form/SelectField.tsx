@@ -14,7 +14,7 @@ export interface ChangeOverrideBag {
   meta: FieldMetaProps<string>
 }
 
-export interface SelectFieldProps extends SelectControlProps {
+export type SelectFieldProps = SelectControlProps & {
   name: string
   onChangeOverride?:
   (

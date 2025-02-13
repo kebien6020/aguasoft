@@ -6,7 +6,7 @@ import useStorageStates from '../../hooks/api/useStorageStates'
 import SelectField, { SelectFieldProps } from '../form/SelectField'
 import useStorages from '../../hooks/api/useStorages'
 
-export interface SelectElementFieldProps extends SelectFieldProps {
+export type SelectElementFieldProps = SelectFieldProps & {
   statesNonce?: number
   storageCode: string
 }

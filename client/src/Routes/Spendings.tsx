@@ -3,7 +3,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import makeStyles from '@mui/styles/makeStyles'
 import { forwardRef, useCallback, useEffect, useState } from 'react'
-import { Link, LinkProps, useHistory } from 'react-router-dom'
+import { Link, LinkProps, useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import Login from '../components/Login'
 import MyDatePicker from '../components/MyDatePicker'
@@ -43,10 +43,10 @@ export default function Spendings() {
     />
 
   // Login to register spending
-  const history = useHistory()
+  const navigate = useNavigate()
   const handleLogin = useCallback(() => {
-    history.push('/spending')
-  }, [history])
+    navigate('/spending')
+  }, [navigate])
   const loginElem =
     <Paper className={classes.login}>
       <Login onSuccess={handleLogin} />

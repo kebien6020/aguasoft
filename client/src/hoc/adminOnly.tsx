@@ -1,5 +1,5 @@
 import { ComponentType, Component } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
 import { User } from '../models'
 import { fetchJsonAuth } from '../utils'
@@ -61,7 +61,7 @@ function adminOnly<P extends Record<string, unknown>>(
 
       const redirectToLogin = () => {
         const here = window.location.pathname
-        return <Redirect to={`/check?next=${here}&admin=true`} push={false} />
+        return <Navigate to={`/check?next=${here}&admin=true`} replace />
       }
 
       if (state.errorNoUser)

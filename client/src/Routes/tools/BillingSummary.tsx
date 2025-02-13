@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { Button, Grid, TextField } from '@mui/material'
+import { Button, Grid2 as Grid, TextField } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { useDebounce } from '@react-hook/debounce'
 import { pdf, PDFViewer } from '@react-pdf/renderer'
@@ -101,7 +101,7 @@ const BillingSummary = (): JSX.Element => {
     <Layout title='Facturación'>
       <Title>Configuración</Title>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <SelectControl
             name='client'
             label='Cliente'
@@ -110,23 +110,35 @@ const BillingSummary = (): JSX.Element => {
             onChange={e => setClientId(e.target.value as string)}
           />
         </Grid>
-        <Grid item xs={12} lg={6}>
+        <Grid size={{ xs: 12, lg: 6 }}>
           <DateControl
             label='Fecha de Inicio'
             date={beginDate}
             onDateChange={date => setBeginDateIso(date.toISOString())}
-            DatePickerProps={{ fullWidth: true }}
+            DatePickerProps={{
+              slotProps: {
+                textField: {
+                  fullWidth: true,
+                },
+              },
+            }}
           />
         </Grid>
-        <Grid item xs={12} lg={6}>
+        <Grid size={{ xs: 12, lg: 6 }}>
           <DateControl
             label='Fecha Final'
             date={endDate}
             onDateChange={date => setEndDateIso(date.toISOString())}
-            DatePickerProps={{ fullWidth: true }}
+            DatePickerProps={{
+              slotProps: {
+                textField: {
+                  fullWidth: true,
+                },
+              },
+            }}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             label='Nombre de la descarga (editable)'
             value={downloadName}

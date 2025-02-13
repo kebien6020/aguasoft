@@ -1,15 +1,15 @@
+import { useNavigate } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
 import { useEffect } from 'react'
-import { useHistory } from 'react-router'
 
 const Logout = () => {
   const auth = useAuth()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   useEffect(() => {
     auth.logout()
-    history.push('/')
-  }, [auth, history])
+    navigate('/')
+  }, [auth, navigate])
 
   return (<p>Cerrando sesion</p>)
 }
