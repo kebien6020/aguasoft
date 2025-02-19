@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { Op, Includeable } from 'sequelize'
-import models from '../db/models'
-import * as moment from 'moment'
+import { Clients, Payments, Users } from '../db/models.js'
+import moment from 'moment'
 
-const Payments = models.Payments 
-const Users = models.Users 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -26,13 +24,13 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     body.userId = req.session.userId
 
     // Normalize dates
-    if (body.dateFrom) 
+    if (body.dateFrom)
       body.dateFrom = moment(body.dateFrom).format('YYYY-MM-DD')
-    
 
-    if (body.dateTo) 
+
+    if (body.dateTo)
       body.dateTo = moment(body.dateTo).format('YYYY-MM-DD')
-    
+
 
     await Payments.create(body, {
       // Only allow user input to control these attributes
@@ -88,11 +86,11 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
       ],
       include: [
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name', 'id'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -137,11 +135,11 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
       },
       include: [
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name', 'id'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -176,11 +174,11 @@ export async function listRecent(req: Request, res: Response, next: NextFunction
       order: [['date', 'DESC'], ['updatedAt', 'DESC']],
       include: [
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name', 'id'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -204,7 +202,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       throw e
     }
 
-    const userId = req.session.userId 
+    const userId = req.session.userId
     const user = await Users.findByPk(userId)
     if (user.role !== 'admin') {
       const e = new Error('Solo usuarios admin pueden eliminar pagos')

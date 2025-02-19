@@ -1,19 +1,21 @@
 import { NextFunction, Request, Response } from 'express'
 import { Includeable, Op } from 'sequelize'
 import * as yup from 'yup'
-import models, { sequelize } from '../db/models'
-import { Sell } from '../db/models/sells'
-import { Storage } from '../db/models/storages'
-import { Mutable } from '../utils/types'
-import { CreateManualMovementArgs, createMovement } from './inventory'
+import { sequelize } from '../db/sequelize.js'
+import {
+  Sells,
+  Prices,
+  Products,
+  ProductVariants,
+  InventoryElements,
+  Storages,
+  Users,
+  Clients,
+  Batches,
+} from '../db/models.js'
+import { Mutable } from '../utils/types.js'
+import { CreateManualMovementArgs, createMovement } from './inventory.js'
 
-const Sells = models.Sells
-const Prices = models.Prices
-const Products = models.Products
-const ProductVariants = models.ProductVariants
-const InventoryElements = models.InventoryElements
-const Storages = models.Storages
-const Users = models.Users
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -357,20 +359,20 @@ export async function listDay(req: Request, res: Response, next: NextFunction): 
       },
       include: [
         {
-          model: models.Products,
+          model: Products,
           attributes: ['name', 'basePrice', 'id'],
         },
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name', 'id', 'defaultCash'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
         {
-          model: models.Batches,
+          model: Batches,
           attributes: ['code', 'id'],
         },
       ],
@@ -383,16 +385,16 @@ export async function listDay(req: Request, res: Response, next: NextFunction): 
 
     // Convert to array of plain objects so that we can
     // add extra members to it
-    interface ResponseElem extends Sell {
+    interface ResponseElem extends Sells {
       Prices?: { name: string, value: string }[]
     }
 
-    const sellsPlain: ResponseElem[] = sells.map(s => s.toJSON() as Sell)
+    const sellsPlain: ResponseElem[] = sells.map(s => s.toJSON() as Sells)
 
     for (const sell of sellsPlain) {
       const prices = allPrices.filter(price =>
         price.clientId === sell.Client.id
-        && price.productId === sell.Product.id
+        && price.productId === sell.Product.id,
       )
 
       if (prices.length !== 0) {
@@ -449,15 +451,15 @@ export async function listDayFrom(req: Request, res: Response, next: NextFunctio
       },
       include: [
         {
-          model: models.Products,
+          model: Products,
           attributes: ['name'],
         },
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name'],
           paranoid: false,
         } as Includeable,
@@ -534,7 +536,7 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
         const storageToCode = detail.storageCode || 'terminado'
         const elementCode = detail.elementCode
 
-        const storageTo = storages.find((s: Storage) => s.code === storageToCode)
+        const storageTo = storages.find((s: Storages) => s.code === storageToCode)
         if (!storageTo)
           throw new Error(`No se encontró el almacen con el código ${storageToCode}`)
 

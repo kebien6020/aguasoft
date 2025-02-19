@@ -5,7 +5,6 @@
     "eslint-plugin-react-compiler"
   ],
   "extends": [
-    "../.eslintrc",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended"
   ],

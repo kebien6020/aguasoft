@@ -1,10 +1,8 @@
-import models from '../models'
-import * as faker from 'faker'
-import { Client } from '../models/clients'
-import { SaveOptions } from 'sequelize/types'
-const { Clients } = models
+import faker from 'faker'
+import { Clients } from '../models.js'
+import type { SaveOptions } from 'sequelize'
 
-export function make(overrides?: Record<string, unknown>): Client {
+export function make(overrides?: Record<string, unknown>): Clients {
   return Clients.build({
     name: faker.name.findName(),
     code: faker.random.alphaNumeric(3),
@@ -18,8 +16,8 @@ export function make(overrides?: Record<string, unknown>): Client {
 
 export default async function create(
   overrides?: Record<string, unknown>,
-  queryOpts?: SaveOptions
-): Promise<Client> {
+  queryOpts?: SaveOptions,
+): Promise<Clients> {
 
   const model = make(overrides)
   return model.save(queryOpts)

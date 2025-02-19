@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { Op, Includeable } from 'sequelize'
-import models from '../db/models'
-import * as moment from 'moment'
+import { Spendings, Users } from '../db/models.js'
+import moment from 'moment'
 
-const Spendings = models.Spendings 
-const Users = models.Users 
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -18,9 +16,9 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
     const user = await Users.findByPk(req.session.userId)
 
-    if (user.role !== 'admin') 
+    if (user.role !== 'admin')
       body.date = moment().toISOString()
-    
+
 
     body.userId = req.session.userId
 
@@ -73,7 +71,7 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
       ],
       include: [
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -149,7 +147,7 @@ export async function listRecent(req: Request, res: Response, next: NextFunction
       order: [['date', 'DESC'], ['updatedAt', 'DESC']],
       include: [
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -172,7 +170,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       throw e
     }
 
-    const userId = req.session.userId 
+    const userId = req.session.userId
     const user = await Users.findByPk(userId)
     if (user.role !== 'admin') {
       const e = new Error('Solo usuarios admin pueden eliminar salidas')

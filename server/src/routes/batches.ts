@@ -1,11 +1,9 @@
-import models from '../db/models'
+import { Batches, BatchCategories } from '../db/models.js'
 import * as yup from 'yup'
-import { handleErrors } from '../utils/route'
+import { handleErrors } from '../utils/route.js'
 import { Router } from 'express'
 import { addDays, format } from 'date-fns'
 import { ValidationError } from 'sequelize'
-
-const { Batches, BatchCategories } = models
 
 const router = Router()
 export default router
@@ -14,7 +12,7 @@ router.get('/', handleErrors(async (req, res) => {
   const includeOptions = ['BatchCategory']
   const schema = yup.object({
     include: yup.array(
-      yup.string().oneOf(includeOptions)
+      yup.string().oneOf(includeOptions),
     ).notRequired(),
     batchCategoryId: yup.number().integer().notRequired(),
   })

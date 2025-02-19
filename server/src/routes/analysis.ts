@@ -2,14 +2,12 @@ import { endOfDay, startOfDay } from 'date-fns'
 import { Router } from 'express'
 import { Op } from 'sequelize'
 import * as Yup from 'yup'
-import models from '../db/models'
-import { handleErrors } from '../utils/route'
-
-const {
+import {
   Payments,
   Sells,
   Spendings,
-} = models
+} from '../db/models.js'
+import { handleErrors } from '../utils/route.js'
 
 const router = Router()
 export default router
@@ -19,7 +17,7 @@ const validateAndCast = <S>(schema: Yup.BaseSchema<S>, value: unknown): S => {
   return schema.cast(value)
 }
 
-router.get('/:date/day-money', handleErrors<{date: string}>(async (req, res) => {
+router.get('/:date/day-money', handleErrors<{ date: string }>(async (req, res) => {
   const paramsSchema = Yup.object().shape({
     date: Yup.date().required(),
   })

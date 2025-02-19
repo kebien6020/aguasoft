@@ -1,12 +1,12 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "preserve",
     "target": "ESNext",
-    "skipLibCheck": true,
-    "strictNullChecks": true,
     "module": "ESNext",
     "moduleResolution": "bundler"
+
+    "skipLibCheck": true,
+    "strictNullChecks": true,
   },
   "include": [
       "src/**/*"

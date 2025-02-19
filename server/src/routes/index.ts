@@ -1,17 +1,20 @@
 import { Router } from 'express'
-import adminOnly from '../utils/adminOnly'
-import * as balanceHandlers from './balance'
-import * as clientHandlers from './clients'
-import * as inventoryHandlers from './inventory'
-import * as machineCounterHandlers from './machineCounters'
-import * as paymentHandlers from './payments'
-import * as priceHandlers from './prices'
-import * as productHandlers from './products'
-import * as sellHandlers from './sells'
-import * as spendingHandlers from './spendings'
-import * as userHandlers from './users'
+import adminOnly from '../utils/adminOnly.js'
+import * as balanceHandlers from './balance.js'
+import * as clientHandlers from './clients.js'
+import * as inventoryHandlers from './inventory.js'
+import * as machineCounterHandlers from './machineCounters.js'
+import * as paymentHandlers from './payments.js'
+import * as priceHandlers from './prices.js'
+import * as productHandlers from './products.js'
+import * as sellHandlers from './sells.js'
+import * as spendingHandlers from './spendings.js'
+import * as userHandlers from './users.js'
 
 
+export { default as analysis } from './analysis.js'
+export { default as batchCategories } from './batchCategories.js'
+export { default as batches } from './batches.js'
 
 export const users = Router()
 users.get('/', userHandlers.list)
@@ -78,7 +81,3 @@ export const balance = Router()
 balance.get('/', balanceHandlers.listBalance)
 balance.post('/verification', adminOnly, balanceHandlers.createBalanceVerification)
 balance.get('/:date', balanceHandlers.showBalance)
-
-export { default as analysis } from './analysis'
-export { default as batchCategories } from './batchCategories'
-export { default as batches } from './batches'

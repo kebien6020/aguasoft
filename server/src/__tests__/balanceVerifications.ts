@@ -1,66 +1,43 @@
-import { format, subDays } from 'date-fns'
+import { format, subDays, addDays } from 'date-fns'
 import * as request from 'supertest'
 import { SuperTest, Test } from 'supertest'
-import app from '../app'
-import createBalanceVerification from '../db/factories/balanceVerifications'
-import createClient from '../db/factories/clients'
-import createPayment from '../db/factories/payments'
-import createProduct from '../db/factories/products'
-import createSell from '../db/factories/sales'
-import createSpending from '../db/factories/spendings'
-import createUser from '../db/factories/users'
-import models from '../db/models'
-import { User } from '../db/models/users'
-
-import moment = require('moment')
-
-const {
+import app from '../app.js'
+import createBalanceVerification from '../db/factories/balanceVerifications.js'
+import createClient from '../db/factories/clients.js'
+import createPayment from '../db/factories/payments.js'
+import createProduct from '../db/factories/products.js'
+import createSell from '../db/factories/sales.js'
+import createSpending from '../db/factories/spendings.js'
+import createUser from '../db/factories/users.js'
+import createBatchCategory from '../db/factories/batchCategories.js'
+import {
   BalanceVerifications,
-  Clients,
-  Payments,
-  Products,
-  Sells,
-  Session,
-  Spendings,
   Users,
-} = models
+} from '../db/models.js'
+import { describe, it, afterEach } from 'node:test'
+import assert from 'node:assert/strict'
+import { truncateTables } from './common.js'
 
 const formatDay = (date: Date) => format(date, 'yyyy-MM-dd')
-
-afterEach(async () => {
-  const opts = { cascade: true, force: true }
-  await Promise.all([
-    Payments.truncate(opts),
-    Spendings.truncate(opts),
-    Sells.truncate(opts),
-    Session.truncate(opts),
-  ])
-  await Promise.all([
-    Products.truncate(opts),
-    Clients.truncate(opts),
-    BalanceVerifications.truncate(opts),
-  ])
-  await Users.truncate(opts)
-})
+const todayF = () => formatDay(new Date)
 
 describe('Model', () => {
-  it('migration has run', async () => {
-    const logger = jest.fn((sql) => {
-      expect(sql).toMatchInlineSnapshot(
-        '"Executing (default): SELECT `id`, `date`, `createdById`, `adjustAmount`, `amount` FROM `BalanceVerifications` AS `BalanceVerifications` LIMIT 1;"'
-      )
-    })
+
+  afterEach(truncateTables)
+
+  it('migration has run', async (t) => {
+    t.plan(1)
+
+    const logger = (sql: string) => {
+      t.assert.snapshot(sql)
+    }
 
     const promise = BalanceVerifications.findOne({
       attributes: ['id', 'date', 'createdById', 'adjustAmount', 'amount'],
       logging: logger,
     })
 
-    void expect(promise).toResolve()
-
     await promise
-
-    expect(logger).toHaveBeenCalled()
   })
 
   const setup = async () => {
@@ -74,25 +51,27 @@ describe('Model', () => {
   it('retrieves the amounts as numbers', async () => {
     const { verification } = await setup()
 
-    expect(verification.amount).toBeNumber()
-    expect(verification.adjustAmount).toBeNumber()
+    assert.equal(typeof verification.amount, 'number')
+    assert.equal(typeof verification.adjustAmount, 'number')
   })
 
   it('retrieves the date as a string', async () => {
     const { verification } = await setup()
 
-    expect(verification.date).toBeString()
+    assert.equal(typeof verification.date, 'string')
   })
 
   it('allows getting the creator', async () => {
     const { verification } = await setup()
     await verification.reload({ include: ['createdBy'] })
 
-    expect(verification.createdBy).toBeInstanceOf(Users)
+    assert.ok(verification.createdBy instanceof Users)
   })
 })
 
 describe('Routes', () => {
+
+  afterEach(truncateTables)
 
   const setup = async () => {
 
@@ -119,27 +98,28 @@ describe('Routes', () => {
         .send(mockData())
 
       const expectedResponse = {
-        error: expect.objectContaining({
+        error: {
           code: 'user_check_error',
-        }) as unknown,
+        },
         success: false,
       }
 
-      expect(res.body).toMatchObject(expectedResponse)
+      assert.partialDeepStrictEqual(res.body, expectedResponse)
     })
+
     it('creates a verification', async () => {
       const { user, agent } = await setup()
 
       const res = await agent.post(url).send(mockData())
 
-      expect(res.status).toBe(200)
-      expect(res).not.toMatchObject({ success: false })
+      assert.equal(res.status, 200)
+      assert.notEqual(res.body.sucess, false)
 
       const createdVerification = await BalanceVerifications.findOne({
         where: { createdById: user.id },
       })
 
-      expect(createdVerification).not.toBeNull()
+      assert.notEqual(createdVerification, null)
     })
 
     it('validates the date is present', async () => {
@@ -152,15 +132,15 @@ describe('Routes', () => {
         .send(mockData({ date: undefined }))
 
       const expectedResponse = {
-        error: expect.objectContaining({
+        error: {
           code: 'ValidationError',
           type: 'required',
           path: 'date',
-        }) as unknown,
+        },
         success: false,
       }
 
-      expect(res.body).toMatchObject(expectedResponse)
+      assert.partialDeepStrictEqual(res.body, expectedResponse)
     })
 
     it('validates the format of the date', async () => {
@@ -171,15 +151,15 @@ describe('Routes', () => {
         .send(mockData({ date: 'Invalid date' }))
 
       const expectedResponse = {
-        error: expect.objectContaining({
+        error: {
           code: 'ValidationError',
           type: 'typeError',
           path: 'date',
-        }) as unknown,
+        },
         success: false,
       }
 
-      expect(res.body).toMatchObject(expectedResponse)
+      assert.partialDeepStrictEqual(res.body, expectedResponse)
     })
 
     it('validates the amount is present', async () => {
@@ -189,15 +169,15 @@ describe('Routes', () => {
         .send(mockData({ amount: undefined }))
 
       const expectedResponse = {
-        error: expect.objectContaining({
+        error: {
           code: 'ValidationError',
           type: 'required',
           path: 'amount',
-        }) as unknown,
+        },
         success: false,
       }
 
-      expect(res.body).toMatchObject(expectedResponse)
+      assert.partialDeepStrictEqual(res.body, expectedResponse)
     })
 
     it('validates the amount is numeric', async () => {
@@ -208,15 +188,15 @@ describe('Routes', () => {
         .send(mockData({ amount: 'holi' }))
 
       const expectedResponse = {
-        error: expect.objectContaining({
+        error: {
           code: 'ValidationError',
           type: 'typeError',
           path: 'amount',
-        }) as unknown,
+        },
         success: false,
       }
 
-      expect(res.body).toMatchObject(expectedResponse)
+      assert.partialDeepStrictEqual(res.body, expectedResponse)
     })
 
   })
@@ -233,11 +213,11 @@ describe('Routes', () => {
     const url = '/api/balance'
 
     type BalanceElement = {
-        date: string,
-        spendings: number,
-        sales: number,
-        payments: number,
-        balance: number,
+      date: string,
+      spendings: number,
+      sales: number,
+      payments: number,
+      balance: number,
     }
     interface BalanceSuccessResponse extends request.Response {
       body: {
@@ -250,11 +230,11 @@ describe('Routes', () => {
       const { agent } = await setup()
       const res: BalanceSuccessResponse = await agent.get(url)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: false,
-        error: expect.objectContaining({
+        error: {
           code: 'no_verifications',
-        }) as unknown,
+        },
       })
     })
 
@@ -262,36 +242,43 @@ describe('Routes', () => {
       const { agent, user } = await setup()
 
       await createBalanceVerification({
-        date: moment().format('YYYY-MM-DD'),
+        date: todayF(),
         createdById: user.id,
       })
 
       const res: BalanceSuccessResponse = await agent.get(url)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: true,
-        data: [
-          expect.objectContaining({
-            date: moment().format('YYYY-MM-DD'),
-            sales: 0,
-            spendings: 0,
-            payments: 0,
-          }),
-        ],
+      })
+
+      const data = res.body.data
+      assert.ok(Array.isArray(data))
+
+      const [verification] = data
+
+      assert.partialDeepStrictEqual(verification, {
+        date: todayF(),
+        sales: 0,
+        spendings: 0,
+        payments: 0,
       })
     })
 
     it('lists the sum of the sales of the day balance in the balance', async () => {
       const { agent, user } = await setup()
 
-      const today = moment().format('YYYY-MM-DD')
+      const today = todayF()
       await createBalanceVerification({
         date: today,
         createdById: user.id,
       })
 
       const client = await createClient()
-      const product = await createProduct()
+      const batchCategory = await createBatchCategory()
+      const product = await createProduct({
+        batchCategoryId: batchCategory.id,
+      })
 
       await createSell({
         userId: user.id,
@@ -313,30 +300,37 @@ describe('Routes', () => {
 
       const res: BalanceSuccessResponse = await agent.get(url)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: true,
-        data: [
-          expect.objectContaining({
-            date: moment().format('YYYY-MM-DD'),
-            sales: 8000,
-            spendings: 0,
-            payments: 0,
-          }),
-        ],
+      })
+
+      const data = res.body.data
+      assert.ok(Array.isArray(data))
+
+      const [verification] = data
+
+      assert.partialDeepStrictEqual(verification, {
+        date: todayF(),
+        sales: 8000,
+        spendings: 0,
+        payments: 0,
       })
     })
 
     it('only counts sales with cash true', async () => {
       const { agent, user } = await setup()
 
-      const today = moment().format('YYYY-MM-DD')
+      const today = todayF()
       await createBalanceVerification({
         date: today,
         createdById: user.id,
       })
 
       const client = await createClient()
-      const product = await createProduct()
+      const batchCategory = await createBatchCategory()
+      const product = await createProduct({
+        batchCategoryId: batchCategory.id,
+      })
 
       await createSell({
         userId: user.id,
@@ -358,30 +352,37 @@ describe('Routes', () => {
 
       const res: BalanceSuccessResponse = await agent.get(url)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: true,
-        data: [
-          expect.objectContaining({
-            date: moment().format('YYYY-MM-DD'),
-            sales: 3000,
-            spendings: 0,
-            payments: 0,
-          }),
-        ],
+      })
+
+      const data = res.body.data
+      assert.ok(Array.isArray(data))
+
+      const [verification] = data
+
+      assert.partialDeepStrictEqual(verification, {
+        date: todayF(),
+        sales: 3000,
+        spendings: 0,
+        payments: 0,
       })
     })
 
     it('doesn\'t count deleted sales', async () => {
       const { agent, user } = await setup()
 
-      const today = moment().format('YYYY-MM-DD')
+      const today = todayF()
       await createBalanceVerification({
         date: today,
         createdById: user.id,
       })
 
       const client = await createClient()
-      const product = await createProduct()
+      const batchCategory = await createBatchCategory()
+      const product = await createProduct({
+        batchCategoryId: batchCategory.id,
+      })
 
       await createSell({
         userId: user.id,
@@ -404,23 +405,27 @@ describe('Routes', () => {
 
       const res: BalanceSuccessResponse = await agent.get(url)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: true,
-        data: [
-          expect.objectContaining({
-            date: moment().format('YYYY-MM-DD'),
-            sales: 5000,
-            spendings: 0,
-            payments: 0,
-          }),
-        ],
+      })
+
+      const data = res.body.data
+      assert.ok(Array.isArray(data))
+
+      const [verification] = data
+
+      assert.partialDeepStrictEqual(verification, {
+        date: todayF(),
+        sales: 5000,
+        spendings: 0,
+        payments: 0,
       })
     })
 
     it('lists the sum of the spendings of the day balance in the balance', async () => {
       const { agent, user } = await setup()
 
-      const today = formatDay(new Date)
+      const today = todayF()
       const todayTimestamp = (new Date).toISOString()
       await createBalanceVerification({
         date: today,
@@ -440,23 +445,27 @@ describe('Routes', () => {
 
       const res = await agent.get(url)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: true,
-        data: [
-          expect.objectContaining({
-            date: moment().format('YYYY-MM-DD'),
-            sales: 0,
-            spendings: 20000,
-            payments: 0,
-          }),
-        ],
+      })
+
+      const data = res.body.data
+      assert.ok(Array.isArray(data))
+
+      const [verification] = data
+
+      assert.partialDeepStrictEqual(verification, {
+        date: todayF(),
+        sales: 0,
+        spendings: 20000,
+        payments: 0,
       })
     })
 
     it('lists the sum of the payments of the day balance in the balance', async () => {
       const { agent, user } = await setup()
 
-      const today = formatDay(new Date)
+      const today = todayF()
       const now = (new Date).toISOString()
       await createBalanceVerification({
         date: today,
@@ -482,16 +491,20 @@ describe('Routes', () => {
 
       const res = await agent.get(url)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: true,
-        data: [
-          expect.objectContaining({
-            date: moment().format('YYYY-MM-DD'),
-            sales: 0,
-            spendings: 0,
-            payments: 15000,
-          }),
-        ],
+      })
+
+      const data = res.body.data
+      assert.ok(Array.isArray(data))
+
+      const [verification] = data
+
+      assert.partialDeepStrictEqual(verification, {
+        date: todayF(),
+        sales: 0,
+        spendings: 0,
+        payments: 15000,
       })
     })
 
@@ -500,7 +513,7 @@ describe('Routes', () => {
 
       const yesterday = formatDay(subDays(new Date, 1))
       const yesterdayTimestamp = subDays(new Date, 1).toISOString()
-      const today = formatDay(new Date)
+      const today = todayF()
       const todayTimestamp = (new Date).toISOString()
       await createBalanceVerification({
         date: yesterday,
@@ -510,7 +523,10 @@ describe('Routes', () => {
       })
 
       const client = await createClient()
-      const product = await createProduct()
+      const batchCategory = await createBatchCategory()
+      const product = await createProduct({
+        batchCategoryId: batchCategory.id,
+      })
 
       await createSell({
         date: yesterday,
@@ -555,7 +571,7 @@ describe('Routes', () => {
       const res: BalanceSuccessResponse = await agent.get(url)
 
       const expectedYesterdayBalance = 12000 + 5000 + 3000 - 2000
-      expect(res.body.data[0]).toMatchObject({
+      assert.partialDeepStrictEqual(res.body.data[0], {
         date: yesterday,
         spendings: 2000,
         sales: 5000,
@@ -564,7 +580,7 @@ describe('Routes', () => {
       })
 
       const expectedTodayBalance = expectedYesterdayBalance + 8000 + 10000
-      expect(res.body.data[1]).toMatchObject({
+      assert.partialDeepStrictEqual(res.body.data[1], {
         date: today,
         spendings: 0,
         sales: 8000,
@@ -604,43 +620,39 @@ describe('Routes', () => {
 
       const res: BalanceSuccessResponse = await agent.get(url)
 
-      expect(res.body).toMatchObject({
-        data: [
-          expect.objectContaining({
-            date: formatDay(tm3),
-            verification: expect.objectContaining({
-              amount: 5000,
-              adjustAmount: 0,
-            }) as unknown,
-            balance: 5000,
-          }) as unknown,
-          expect.objectContaining({
-            date: formatDay(tm2),
-            spendings: 2000,
-            balance: 3000,
-          }) as unknown,
-          expect.objectContaining({
-            date: formatDay(tm1),
-            verification: expect.objectContaining({
-              amount: 2000,
-              adjustAmount: -1000,
-            }) as unknown,
-            balance: 2000,
-          }) as unknown,
-          expect.objectContaining({
-            date: formatDay(now),
-            balance: 2000,
-          }) as unknown,
-        ],
+      assert.partialDeepStrictEqual(res.body.data[0], {
+        date: formatDay(tm3),
+        verification: {
+          amount: 5000,
+          adjustAmount: 0,
+        },
+        balance: 5000,
+      })
+      assert.partialDeepStrictEqual(res.body.data[1], {
+        date: formatDay(tm2),
+        spendings: 2000,
+        balance: 3000,
+      })
+      assert.partialDeepStrictEqual(res.body.data[2], {
+        date: formatDay(tm1),
+        verification: {
+          amount: 2000,
+          adjustAmount: -1000,
+        },
+        balance: 2000,
+      })
+      assert.partialDeepStrictEqual(res.body.data[3], {
+        date: formatDay(now),
+        balance: 2000,
       })
     })
 
     it('can be filtered by min and max date', async () => {
       const { user, agent } = await setup()
 
-      const tm3 = moment().subtract(3, 'days').format('YYYY-MM-DD')
-      const tm2 = moment().subtract(2, 'days').format('YYYY-MM-DD')
-      const tm1 = moment().subtract(1, 'days').format('YYYY-MM-DD')
+      const tm3 = formatDay(addDays(new Date, -3))
+      const tm2 = formatDay(addDays(new Date, -2))
+      const tm1 = formatDay(addDays(new Date, -1))
       await createBalanceVerification({
         date: tm3,
         adjustAmount: 0,
@@ -650,16 +662,14 @@ describe('Routes', () => {
 
       const res: BalanceSuccessResponse = await agent.get(url + `?minDate=${tm2}&maxDate=${tm1}`)
 
-      expect(res.body.data).toEqual([
-        expect.objectContaining({ date: tm2 }),
-        expect.objectContaining({ date: tm1 }),
-      ])
+      assert.partialDeepStrictEqual(res.body.data[0], { date: tm2 })
+      assert.partialDeepStrictEqual(res.body.data[1], { date: tm1 })
     })
 
     it('includes createdBy if specified in includes param', async () => {
       const { user, agent } = await setup()
 
-      const today = moment().format('YYYY-MM-DD')
+      const today = todayF()
 
       await createBalanceVerification({
         date: today,
@@ -670,18 +680,16 @@ describe('Routes', () => {
 
       const res: BalanceSuccessResponse = await agent.get(url + '?includes[]=verification.createdBy')
 
-      expect(res.body.data).toEqual([
-        expect.objectContaining({
-          date: today,
-          verification: expect.objectContaining({
-            createdBy: expect.objectContaining({
-              id: user.id,
-              name: user.name,
-              role: user.role,
-            }) as unknown,
-          }) as unknown,
-        }),
-      ])
+      assert.partialDeepStrictEqual(res.body.data[0], {
+        date: today,
+        verification: {
+          createdBy: {
+            id: user.id,
+            name: user.name,
+            role: user.role,
+          },
+        },
+      })
     })
 
     it('uses the local timezone when grouping by day', async () => {
@@ -699,7 +707,7 @@ describe('Routes', () => {
       const client = await createClient()
 
       await createPayment({
-        date: '2020-12-31T04:38:14.576Z', // "today" at 23:38 in UTC+0
+        date: '2020-12-31T04:38:14.576Z', // "today" at 23:38(local) in UTC+0
         value: 8000,
         userId: user.id,
         clientId: client.id,
@@ -707,7 +715,7 @@ describe('Routes', () => {
       })
 
       await createSpending({
-        date: '2020-12-30T06:38:14.576Z', // "today" at 1:38 in UTC+0
+        date: '2020-12-30T06:38:14.576Z', // "today" at 1:38(local) in UTC+0
         value: 4000,
         userId: user.id,
         directPayment: true,
@@ -715,13 +723,9 @@ describe('Routes', () => {
 
       const res: BalanceSuccessResponse = await agent.get(`${url}?minDate=${today}&maxDate=${today}`)
 
-      expect(res.body).toMatchObject({
-        data: [
-          expect.objectContaining({
-            date: today,
-            balance: 5000 + 8000 - 4000,
-          }) as unknown,
-        ],
+      assert.partialDeepStrictEqual(res.body.data[0], {
+        date: today,
+        balance: 5000 + 8000 - 4000,
       })
     })
 
@@ -768,7 +772,7 @@ describe('Routes', () => {
 
       const res = await agent.get(`/api/balance/${formatDay(tm1)}`)
 
-      expect(res.body).toMatchObject({
+      assert.partialDeepStrictEqual(res.body, {
         success: true,
         data: 3000 + 10000,
       })
@@ -776,9 +780,9 @@ describe('Routes', () => {
   })
 })
 
-async function login(agent: SuperTest<Test>, user: User): Promise<void> {
+async function login(agent: SuperTest<Test>, user: Users): Promise<void> {
   await agent
     .post('/api/users/check')
     .send({ id: user.id, password: 'secret' })
-    .expect(res => expect(res.body).toMatchObject({ result: true }))
+    .expect(res => assert.partialDeepStrictEqual(res.body, { result: true }))
 }

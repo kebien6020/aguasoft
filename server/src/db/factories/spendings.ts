@@ -1,14 +1,16 @@
-import models from '../models'
-import * as faker from 'faker'
-import { Spending } from '../models/spendings'
-import { SaveOptions } from 'sequelize/types'
-const { Spendings } = models
+import faker from 'faker'
+import { Spendings } from '../models.js'
+import type { SaveOptions } from 'sequelize'
 
-export function make(overrides?: Record<string, unknown>): Spending {
+type Overrides = Record<string, unknown> & {
+  userId: number
+}
+
+export function make(overrides: Overrides): Spendings {
   return Spendings.build({
     date: faker.date.recent(),
     description: faker.lorem.sentence(),
-    value: faker.datatype.number({ max: 100000, precision: 100 }),
+    value: String(faker.datatype.number({ max: 100000, precision: 100 })),
     fromCash: faker.datatype.boolean(),
     isTransfer: faker.datatype.number(100) <= 5,
 
@@ -17,9 +19,9 @@ export function make(overrides?: Record<string, unknown>): Spending {
 }
 
 export default async function create(
-  overrides?: Record<string, unknown>,
-  queryOpts?: SaveOptions
-): Promise<Spending> {
+  overrides: Overrides,
+  queryOpts?: SaveOptions,
+): Promise<Spendings> {
 
   const model = make(overrides)
   return model.save(queryOpts)

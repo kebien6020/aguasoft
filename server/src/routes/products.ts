@@ -1,15 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
-import models from '../db/models'
+import { Products } from '../db/models.js'
 import * as yup from 'yup'
-
-const { Products } = models
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const includeOptions = ['Variants']
     const schema = yup.object({
       include: yup.array(
-        yup.string().oneOf(includeOptions)
+        yup.string().oneOf(includeOptions),
       ).notRequired(),
     })
 

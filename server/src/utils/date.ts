@@ -1,19 +1,32 @@
-import * as moment from 'moment'
-import { Moment, MomentInput } from 'moment'
+import { addDays, format, isAfter, isBefore, isSameDay, parse, startOfDay } from 'date-fns'
 
 // Get an array with all dates betwen the provided dates. Inclusive
 export function enumerateDaysBetweenDates(
-  startDate: MomentInput,
-  endDate: MomentInput
-): Moment[] {
+  startDate: Date,
+  endDate: Date,
+): Date[] {
 
   const dates = []
 
-  const currDate = moment(startDate).startOf('day')
-  const lastDate = moment(endDate).startOf('day')
+  const lastDate = startOfDay(endDate)
 
-  for (;currDate.isSameOrBefore(lastDate, 'day'); currDate.add(1, 'day'))
-    dates.push(currDate.clone())
+  for (
+    let currDate = startOfDay(startDate);
+    isSameDayOrBefore(currDate, lastDate);
+    currDate = addDays(currDate, 1))
+    dates.push(currDate)
 
   return dates
 }
+
+export const isSameDayOrBefore = (a: Date, b: Date): boolean =>
+  isSameDay(a, b) || isBefore(a, b)
+
+export const isSameDayOrAfter = (a: Date, b: Date): boolean =>
+  isSameDay(a, b) || isAfter(a, b)
+
+export const parseDateonly = (s: string): Date =>
+  parse(s, 'yyyy-MM-dd', new Date)
+
+export const formatDateonly = (d: Date): string =>
+  format(d, 'yyyy-MM-dd')

@@ -1,13 +1,11 @@
-import models from '../models'
-import * as faker from 'faker'
-import { Storage } from '../models/storages'
-import { SaveOptions } from 'sequelize/types'
-const { Storages } = models
+import faker from 'faker'
+import { Storages } from '../models.js'
+import type { SaveOptions } from 'sequelize'
 
-export function make(overrides?: Record<string, unknown>): Storage {
+export function make(overrides?: Record<string, unknown>): Storages {
   return Storages.build({
-    code: faker.lorem.slug,
-    name: faker.commerce.department,
+    code: faker.lorem.slug(),
+    name: faker.commerce.department(),
 
     ...overrides,
   })
@@ -15,8 +13,8 @@ export function make(overrides?: Record<string, unknown>): Storage {
 
 export default async function create(
   overrides?: Record<string, unknown>,
-  queryOpts?: SaveOptions
-): Promise<Storage> {
+  queryOpts?: SaveOptions,
+): Promise<Storages> {
 
   const model = make(overrides)
   return model.save(queryOpts)

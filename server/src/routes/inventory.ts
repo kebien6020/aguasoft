@@ -1,18 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
-import { InventoryElement } from '../db/models/inventoryElements'
-import { InventoryMovement } from '../db/models/inventoryMovements'
-import { Storage } from '../db/models/storages'
-import models, { sequelize } from '../db/models'
+import { InventoryMovements, InventoryElements, Storages, StorageStates, MachineCounters } from '../db/models.js'
+import { sequelize } from '../db/sequelize.js'
 import { Op, Transaction, WhereOptions } from 'sequelize'
 import debug from 'debug'
 import * as yup from 'yup'
-import { Mutable } from '../utils/types'
-
-const InventoryElements = models.InventoryElements
-const InventoryMovements = models.InventoryMovements
-const StorageStates = models.StorageStates
-const Storages = models.Storages
-const MachineCounters = models.MachineCounters
+import type { Mutable } from '../utils/types.js'
 
 const logMovement = (sql: string) => debug('sql:movements')(sql)
 
@@ -23,12 +15,12 @@ export interface CreateManualMovementArgs {
   inventoryElementToId: number
   quantityFrom: number
   quantityTo?: number
-  cause: InventoryMovement['cause']
+  cause: InventoryMovements['cause']
   createdBy: number
   rollback?: boolean
 }
 
-class MovementError extends Error {}
+class MovementError extends Error { }
 class NotEnoughInSource extends MovementError {
   name = 'not_enough_in_source'
   message = 'Not enough inventory elements in source storage to perform the movement'
@@ -41,7 +33,7 @@ class NotEnoughInSource extends MovementError {
   inventoryElementCode?: string
   inventoryElementName?: string
 
-  constructor(storage?: Storage, inventoryElement?: InventoryElement) {
+  constructor(storage?: Storages | null, inventoryElement?: InventoryElements | null) {
     super()
 
     if (storage) {
@@ -95,6 +87,8 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
       throw new NotEnoughInSource(storage, inventoryElement)
     }
   }
+
+  data.quantityTo ??= data.quantityFrom
 
   if (data.storageToId) {
     const previousState = await StorageStates.findOne({
@@ -156,7 +150,7 @@ export async function manualMovement(req: Request, res: Response, next: NextFunc
       throw e
     }
 
-    const movementData : CreateManualMovementArgs = {
+    const movementData: CreateManualMovementArgs = {
       storageFromId: req.body.storageFromId,
       storageToId: req.body.storageToId,
       inventoryElementFromId: req.body.inventoryElementFromId,
@@ -203,7 +197,7 @@ export async function listStorageStates(req: Request, res: Response, next: NextF
 
     const schema = yup.object({
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>)
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>),
       ),
     })
 
@@ -246,7 +240,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       offset: yup.number(),
       inventoryElementId: yup.number(),
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>)
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>),
       ),
     })
 
@@ -427,7 +421,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
         is: (type: ProductionType) => productionInfo[type]?.damaged !== null,
         then: yup.number().integer().min(0).required(),
       }),
-      counterEnd: yup.mixed<number|undefined>().when('productionType', {
+      counterEnd: yup.mixed<number | undefined>().when('productionType', {
         is: 'bolsa-360',
         then: yup.number().integer().min(0).required(),
       }),
@@ -465,7 +459,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
       inventoryElementToId,
       quantityFrom: body.amount,
       quantityTo: body.amount,
-      cause: 'production' as InventoryMovement['cause'],
+      cause: 'production' as InventoryMovements['cause'],
       createdBy: userId,
     }
 
@@ -492,7 +486,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
           inventoryElementFromId,
           inventoryElementToId,
           quantityFrom: body.damaged,
-          cause: 'damage' as InventoryMovement['cause'],
+          cause: 'damage' as InventoryMovements['cause'],
           createdBy: userId,
         }
 
@@ -526,7 +520,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
           inventoryElementFromId,
           inventoryElementToId,
           quantityFrom: body.amount,
-          cause: 'relocation' as InventoryMovement['cause'],
+          cause: 'relocation' as InventoryMovements['cause'],
           createdBy: userId,
         }
 
@@ -702,7 +696,7 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
           [Op.in]: inventoryElementCodes,
         },
       },
-    },)
+    })
 
 
     const inventoryElementFrom = inventoryElements.find(e => e.code === 'paca-360')
@@ -769,7 +763,7 @@ export async function relocationMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
-      counter: yup.mixed<number|undefined>().when('element', {
+      counter: yup.mixed<number | undefined>().when('element', {
         is: 'rollo-360',
         then: yup.number().integer().positive().required(),
       }),

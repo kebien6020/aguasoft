@@ -1,16 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import models from '../db/models'
-import { Client } from '../db/models/clients'
-import { Price } from '../db/models/prices'
-import { sequelize, Sequelize } from '../db/models'
-import * as moment from 'moment'
+import { Clients, Prices, Payments, Sells } from '../db/models.js'
+import { sequelize } from '../db/sequelize.js'
+import moment from 'moment'
 import { Moment } from 'moment'
 import * as Yup from 'yup'
+import { Sequelize } from 'sequelize'
 
-const Clients = models.Clients
-const Prices = models.Prices
-const Payments = models.Payments
-const Sells = models.Sells
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -23,8 +18,8 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
 
     schema.validateSync(req.query)
     const query = schema.cast(req.query)
-    const includeNotes = query.includeNotes as 'true'|'false'
-    const hidden = query.hidden as 'hidden'|'not-hidden'|'any'
+    const includeNotes = query.includeNotes as 'true' | 'false'
+    const hidden = query.hidden as 'hidden' | 'not-hidden' | 'any'
 
     const attributes = ['id', 'name', 'code', 'defaultCash', 'hidden']
     if (includeNotes === 'true')
@@ -57,7 +52,10 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
     // Find first client with a three digit code
     // since the ordering is code DESC, this is the largest
     // three digit code
-    const lastCode = clients.find(cl => /\d{3}/.test(cl.code)).code
+    const lastCode = clients.find(cl => /\d{3}/.test(cl.code))?.code
+
+    if (!lastCode)
+      throw Error('No clients with a three digit code')
 
     // Utility pad function
     const pad = (num: string, digits: number, padChar = '0') =>
@@ -78,7 +76,7 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
 }
 
 // Throws an error if anything is wrong
-function checkCreateEditInput(body: any) {
+function checkCreateEditInput(body: Record<string, unknown>) {
   const paramError = (name: string, reqType: string) => {
     const e = Error(`Param ${name} should be a ${reqType}`)
     e.name = 'parameter_error'
@@ -110,13 +108,13 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     const notes = req.body.notes === '' ? null : req.body.notes
 
     type IncompletePrice =
-      Pick<Price, 'name' | 'productId' | 'value'>
+      Pick<Prices, 'name' | 'productId' | 'value'>
 
     type IncompleteClient =
-      Pick<Client, 'name' | 'code' | 'defaultCash' | 'notes'>
+      Pick<Clients, 'name' | 'code' | 'defaultCash' | 'notes'>
       & { 'Prices': IncompletePrice[] }
 
-    const client : IncompleteClient = {
+    const client: IncompleteClient = {
       name: req.body.name,
       code: req.body.code,
       defaultCash: req.body.defaultCash,
@@ -179,7 +177,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     const client = await getClient(req.params.id)
 
     const newPrices = (req.body.prices as Array<any>).map(pr =>
-      Object.assign({}, pr, { clientId: client.id })
+      Object.assign({}, pr, { clientId: client.id }),
     )
 
     await sequelize.transaction(async t => {
