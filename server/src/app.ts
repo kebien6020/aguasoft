@@ -4,9 +4,9 @@ import ConnectSessionSequelize from 'connect-session-sequelize'
 import cors from 'cors'
 import express from 'express'
 import { NextFunction, Request, Response } from 'express'
-import jwt from 'express-jwt'
+import { GetVerificationKey, expressjwt as jwt } from 'express-jwt'
 import session from 'express-session'
-import jwks from 'jwks-rsa'
+import { expressJwtSecret } from 'jwks-rsa'
 import { resolve } from 'node:path'
 import { sequelize } from './db/sequelize.js'
 import { Error404 } from './errors.js'
@@ -17,12 +17,12 @@ const SequelizeStore = ConnectSessionSequelize(session.Store)
 
 // Set up the jwt middleware
 const authCheck = jwt({
-  secret: jwks.expressJwtSecret({
+  secret: expressJwtSecret({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
     jwksUri: 'https://kevinpena.auth0.com/.well-known/jwks.json',
-  }),
+  }) as unknown as GetVerificationKey, // Force type which is like this because of backward compatibility
   // This is the identifier we set when we created the API
   audience: 'https://soft.agualaif.com',
   issuer: 'https://kevinpena.auth0.com/',

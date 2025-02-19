@@ -1,5 +1,5 @@
 import app from './app.js'
-import socketio from 'socket.io'
+import { Server } from 'socket.io'
 import debug from 'debug'
 
 const debugio = debug('app:socketio')
@@ -11,7 +11,7 @@ const server = app.listen(PORT, () => {
 
 })
 
-const io = socketio(server)
+const io = new Server(server)
 
 io.on('connection', () => {
   debugio('Client connected')

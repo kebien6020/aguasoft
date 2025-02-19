@@ -134,7 +134,7 @@ describe('Routes', () => {
       const expectedResponse = {
         error: {
           code: 'ValidationError',
-          type: 'required',
+          type: 'optionality',
           path: 'date',
         },
         success: false,
@@ -171,7 +171,7 @@ describe('Routes', () => {
       const expectedResponse = {
         error: {
           code: 'ValidationError',
-          type: 'required',
+          type: 'optionality',
           path: 'amount',
         },
         success: false,

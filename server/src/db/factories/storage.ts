@@ -1,4 +1,4 @@
-import faker from 'faker'
+import { faker } from '@faker-js/faker'
 import { Storages } from '../models.js'
 import type { SaveOptions } from 'sequelize'
 

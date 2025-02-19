@@ -1,4 +1,4 @@
-import faker from 'faker'
+import { faker } from '@faker-js/faker'
 import { Products } from '../models.js'
 import type { SaveOptions } from 'sequelize'
 
@@ -9,8 +9,8 @@ type Overrides = Record<string, unknown> & {
 export function make(overrides: Overrides): Products {
   return Products.build({
     name: faker.commerce.productName(),
-    code: faker.random.alphaNumeric(3),
-    basePrice: String(faker.datatype.number({ max: 10000, precision: 100 })),
+    code: faker.string.alphanumeric(3),
+    basePrice: String(faker.number.int({ max: 10000, multipleOf: 100 })),
 
     ...overrides,
   })

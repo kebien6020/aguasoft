@@ -417,13 +417,13 @@ export async function productionMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       productionType: yup.mixed<ProductionType>().oneOf(Object.keys(productionInfo) as ProductionType[]).required(),
       amount: yup.number().integer().min(0).required(),
-      damaged: yup.mixed<number | null>().when('productionType', {
+      damaged: yup.number().when('productionType', {
         is: (type: ProductionType) => productionInfo[type]?.damaged !== null,
-        then: yup.number().integer().min(0).required(),
+        then: schema => schema.integer().min(0).required(),
       }),
-      counterEnd: yup.mixed<number | undefined>().when('productionType', {
+      counterEnd: yup.number().when('productionType', {
         is: 'bolsa-360',
-        then: yup.number().integer().min(0).required(),
+        then: schema => schema.integer().min(0).required(),
       }),
     })
 
@@ -607,9 +607,9 @@ export async function damageMovement(req: Request, res: Response, next: NextFunc
 
     const schema = yup.object({
       damageType: yup.mixed<DamageType>().oneOf(damageTypes as Mutable<typeof damageTypes>).required(),
-      storageCode: yup.mixed().when('damageType', {
+      storageCode: yup.string().when('damageType', {
         is: 'general',
-        then: yup.string().required(),
+        then: schema => schema.required(),
       }),
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
@@ -763,9 +763,9 @@ export async function relocationMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
-      counter: yup.mixed<number | undefined>().when('element', {
+      counter: yup.number().when('element', {
         is: 'rollo-360',
-        then: yup.number().integer().positive().required(),
+        then: schema => schema.integer().positive().required(),
       }),
     })
 

@@ -1,4 +1,4 @@
-import faker from 'faker'
+import { faker } from '@faker-js/faker'
 import { Spendings } from '../models.js'
 import type { SaveOptions } from 'sequelize'
 
@@ -10,9 +10,9 @@ export function make(overrides: Overrides): Spendings {
   return Spendings.build({
     date: faker.date.recent(),
     description: faker.lorem.sentence(),
-    value: String(faker.datatype.number({ max: 100000, precision: 100 })),
+    value: String(faker.number.int({ max: 100000, multipleOf: 100 })),
     fromCash: faker.datatype.boolean(),
-    isTransfer: faker.datatype.number(100) <= 5,
+    isTransfer: faker.number.int(100) <= 5,
 
     ...overrides,
   })

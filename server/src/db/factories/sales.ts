@@ -1,4 +1,4 @@
-import faker from 'faker'
+import { faker } from '@faker-js/faker'
 import { Sells } from '../models.js'
 import type { SaveOptions } from 'sequelize'
 
@@ -13,8 +13,8 @@ export function make(overrides: Overrides): Sells {
     date: faker.date.recent(),
     cash: faker.datatype.boolean(),
     priceOverride: null,
-    quantity: faker.datatype.number(10),
-    value: faker.datatype.number({ max: 20000, precision: 100 }),
+    quantity: faker.number.int(10),
+    value: faker.number.int({ max: 20000, multipleOf: 100 }),
     deleted: false,
     batchId: null,
 
