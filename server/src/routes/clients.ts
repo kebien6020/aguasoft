@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Clients, Prices, Payments, Sells } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
-import moment from 'moment'
-import { Moment } from 'moment'
 import * as Yup from 'yup'
 import { Sequelize } from 'sequelize'
 
@@ -290,20 +288,20 @@ export async function balance(req: Request, res: Response, next: NextFunction) {
     })
 
     interface Change {
-      date: Moment
+      date: Date
       value: number
       type: 'sell' | 'payment'
     }
 
-    const changes: Array<Change> = []
+    const changes = ([] as Change[])
       .concat(sells.map(s => ({
-        date: moment(s.date),
+        date: s.date,
         value: Number(s.value),
         type: 'sell',
         id: s.id,
       })))
       .concat(payments.map(p => ({
-        date: moment(p.date),
+        date: p.date,
         value: Number(p.value),
         type: 'payment',
         id: p.id,

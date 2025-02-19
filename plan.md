@@ -1,8 +1,5 @@
 ## Plan
 
-- modify typescript to not do basically any transform outside of removing types
-- rm moment from server
-- sequelize 6
 - sqlite latest
 - build the server using babel
 - move typechecking entirely to build validation

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { Op, Includeable } from 'sequelize'
 import { Clients, Payments, Users } from '../db/models.js'
-import moment from 'moment'
-
+import { parseDateonly } from '../utils/date.js'
+import { addDays, startOfDay } from 'date-fns'
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -18,18 +18,18 @@ export async function create(req: Request, res: Response, next: NextFunction) {
 
     if (user.role !== 'admin') {
       body.directPayment = true
-      body.date = moment().toISOString()
+      body.date = (new Date).toISOString()
     }
 
     body.userId = req.session.userId
 
     // Normalize dates
     if (body.dateFrom)
-      body.dateFrom = moment(body.dateFrom).format('YYYY-MM-DD')
+      body.dateFrom = parseDateonly(body.dateFrom)
 
 
     if (body.dateTo)
-      body.dateTo = moment(body.dateTo).format('YYYY-MM-DD')
+      body.dateTo = parseDateonly(body.dateTo)
 
 
     await Payments.create(body, {
@@ -112,7 +112,10 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
 export async function listDay(req: Request, res: Response, next: NextFunction) {
   try {
     const dayInput = typeof req.query.day === 'string' ? req.query.day : undefined
-    const day = moment(dayInput).startOf('day')
+    if (!dayInput)
+      throw Error('day query parameter is required')
+
+    const day = startOfDay(parseDateonly(dayInput))
     const payments = await Payments.findAll({
       attributes: [
         'id',
@@ -130,7 +133,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
       where: {
         date: {
           [Op.gte]: day.toISOString(),
-          [Op.lt]: day.add(1, 'day').toISOString(),
+          [Op.lt]: addDays(day, 1).toISOString(),
         },
       },
       include: [
