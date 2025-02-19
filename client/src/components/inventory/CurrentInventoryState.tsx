@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import * as socketio from 'socket.io-client'
+import { io } from 'socket.io-client'
 
 import useFetch from '../../hooks/useFetch'
 import useUser from '../../hooks/useUser'
@@ -15,7 +15,7 @@ import Title from '../Title'
 import StorageCard from './StorageCard'
 import { Storage, InventoryElement } from '../../models'
 
-const socket = socketio('/', {
+const socket = io('/', {
   autoConnect: false,
 })
 

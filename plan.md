@@ -1,6 +1,5 @@
 ## Plan
 
-- npm-check
 - Add again the eslint react plugins (hooks, compiler, and main)
 - Fix broken sell view
 - Fix broken client editor

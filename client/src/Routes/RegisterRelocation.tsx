@@ -26,9 +26,9 @@ import { Theme } from '../theme'
 const validationSchema = Yup.object({
   element: Yup.string().required(),
   amount: Yup.number().integer().positive().required(),
-  counter: Yup.mixed().when('element', {
+  counter: Yup.number().when('element', {
     is: 'rollo-360',
-    then: Yup.number().integer().positive().moreThan(Yup.ref('previousCounter')).required(),
+    then: schema => schema.integer().positive().moreThan(Yup.ref('previousCounter')).required(),
   }),
 })
 

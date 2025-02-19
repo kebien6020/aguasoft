@@ -66,21 +66,21 @@ interface Values {
 
 const validationSchema = Yup.object({
   productionType: Yup.mixed<ProductionType>().oneOf(productionTypeOptions.map(opt => opt.value)).required(),
-  counterStart: Yup.mixed().when('productionType', {
+  counterStart: Yup.number().when('productionType', {
     is: 'bolsa-360',
-    then: Yup.number().integer().positive().required(),
+    then: schema => schema.integer().positive().required(),
   }),
-  counterEnd: Yup.mixed().when('productionType', {
+  counterEnd: Yup.number().when('productionType', {
     is: 'bolsa-360',
-    then: Yup.number().integer().positive().moreThan(Yup.ref('counterStart')).required(),
+    then: schema => schema.integer().positive().moreThan(Yup.ref('counterStart')).required(),
   }),
-  amount: Yup.mixed().when('productionType', {
+  amount: Yup.number().when('productionType', {
     is: (t: string) => ['paca-360', 'barra-hielo', 'hielo-5kg', 'hielo-2kg'].includes(t),
-    then: Yup.number().integer().min(0).required(),
+    then: schema => schema.integer().min(0).required(),
   }),
-  damaged: Yup.mixed().when('productionType', {
+  damaged: Yup.number().when('productionType', {
     is: (t: string) => ['paca-360', 'hielo-5kg', 'hielo-2kg'].includes(t),
-    then: Yup.number().integer().min(0).required(),
+    then: schema => schema.integer().min(0).required(),
   }),
 })
 

@@ -80,11 +80,11 @@ const BillingSummary = (): JSX.Element => {
     (async () => {
       if (title && sales && !loadingSales) {
         setPdfProps(null) // manually cause an unmount
-        await new Promise(resolve => setTimeout(resolve, 1100))
+        await new Promise(resolve => setTimeout(resolve, 300))
         setPdfProps({ title, sales })
       }
     })()
-  }, [sales, loadingSales]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [title, sales, loadingSales, setPdfProps])
 
   const [downloadName, setDownloadName] = useState('')
 

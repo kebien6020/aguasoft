@@ -58,9 +58,9 @@ const initialValues = {
 
 const validationSchema = Yup.object({
   damageType: Yup.mixed<DamageType>().oneOf(damageTypes as Writeable<typeof damageTypes>).required(),
-  storageCode: Yup.mixed().when('damageType', {
+  storageCode: Yup.string().when('damageType', {
     is: 'general',
-    then: Yup.string().required(),
+    then: schema => schema.required(),
   }),
   inventoryElementCode: Yup.string().required(),
   amount: Yup.number().integer().positive().required(),
