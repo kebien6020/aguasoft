@@ -2,6 +2,9 @@ import js from '@eslint/js'
 import ts from 'typescript-eslint'
 
 export default ts.config(
+  {
+    ignores: ['dist/**/*', 'node_modules/**/*'],
+  },
   js.configs.recommended,
   ts.configs.recommended,
   {
@@ -11,7 +14,7 @@ export default ts.config(
     plugins: {
       'typescript-eslint': ts,
     },
-    files: ['**/*.{js,ts,mjs}'],
+    files: ['dist/**/*.{js,ts,mjs}'],
     rules: {
       // Disable some typescript rules
       '@typescript-eslint/no-floating-promises': 'off', // Annoying

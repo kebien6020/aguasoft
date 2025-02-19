@@ -1,7 +1,5 @@
 ## Plan
 
-- build the server using babel
-- move typechecking entirely to build validation
 - npm-check
 - Add again the eslint react plugins (hooks, compiler, and main)
 - Fix broken sell view

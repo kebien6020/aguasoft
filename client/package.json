@@ -8,7 +8,8 @@
     "build": "webpack --config webpack.prod.js",
     "build-dev": "webpack --config webpack.dev.js",
     "dev": "npm run build-dev -- -w",
-    "lint": "eslint --ext .js,.ts ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.2.2",
