@@ -31,7 +31,7 @@
     "sequelize": "^6.37.5",
     "sequelize-cli": "^6.6.2",
     "socket.io": "^2.5.0",
-    "sqlite3": "^5.1.6",
+    "sqlite3": "^5.1.7",
     "yup": "^0.32.11"
   },
   "devDependencies": {

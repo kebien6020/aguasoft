@@ -1,6 +1,5 @@
 ## Plan
 
-- sqlite latest
 - build the server using babel
 - move typechecking entirely to build validation
 - npm-check
