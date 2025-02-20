@@ -1,5 +1,5 @@
 import makeStyles from '@mui/styles/makeStyles'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 
 import useAuth from '../hooks/useAuth'
@@ -38,7 +38,7 @@ const RegisterEntry = () => {
   const [inventoryElements] = useInventoryElements()
 
   const onlyRawAndTools = inventoryElements && inventoryElements.filter(element =>
-    element.type === 'raw' || element.type === 'tool'
+    element.type === 'raw' || element.type === 'tool',
   )
 
   const elementOptions = optionsFromElements(onlyRawAndTools)
@@ -76,7 +76,7 @@ const RegisterEntry = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <SelectElementField
               name='element'
               label='Elemento a ingresar a bodega'
@@ -86,7 +86,7 @@ const RegisterEntry = () => {
               storageCode='bodega'
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               name='amount'
               label='Cantidad'

@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import makeStyles from '@mui/styles/makeStyles'
 import Button from '@mui/material/Button'
 
@@ -90,7 +90,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
     >
       {({ setFieldValue }) => (<>
         {snackbar}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <SelectField
             name='storageFrom'
             label='Desde'
@@ -98,7 +98,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
             options={storageOptions}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <SelectField
             name='storageTo'
             label='Hacia'
@@ -106,7 +106,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
             options={storageOptions}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <SelectField
             name='inventoryElementFrom'
             label='Elemento'
@@ -118,7 +118,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
             })}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <SelectField
             name='inventoryElementTo'
             label='Elemento destino'
@@ -126,7 +126,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
             options={inventoryElementOptions}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             name='quantityFrom'
             label='Cantidad'
@@ -138,7 +138,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
             })}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             name='quantityTo'
             label='Cantidad Destino'
@@ -146,7 +146,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
             variant='standard'
           />
         </Grid>
-        <Grid item container justifyContent='center'>
+        <Grid container justifyContent='center'>
           <Button type='submit' variant='contained' color='primary'>
             Crear
           </Button>

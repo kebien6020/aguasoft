@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 import { CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import { useFormikContext } from 'formik'
 
 export type SubmitButtonProps = {
@@ -15,7 +15,7 @@ const SubmitButton = ({ children, onlyEnableWhenValid = false, disabled = false 
   const { isSubmitting, isValid } = useFormikContext()
 
   return (
-    <Grid item xs={12} container direction='row' justifyContent='center'>
+    <Grid size={{ xs: 12 }} container direction='row' justifyContent='center'>
       <Wrapper>
         <Button
           variant='contained'

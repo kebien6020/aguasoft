@@ -4,13 +4,14 @@ import makeStyles from '@mui/styles/makeStyles'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 
 import { InventoryMovement, User, Storage, InventoryElement } from '../../models'
 import * as colors from '@mui/material/colors'
 import { movementCauseSlugToText } from '../../constants'
 import { formatDatetimeCol } from '../../utils'
 import type { CSSProperties, ReactNode } from 'react'
+import { Theme } from '../../theme'
 
 interface DescriptionProps {
   title: ReactNode
@@ -75,7 +76,7 @@ const MovementCard = (props: MovementCardProps): JSX.Element => {
       />
       <CardContent>
         <Grid container>
-          <Grid item xs={12} lg={6}>
+          <Grid size={{ xs: 12, lg: 6 }}>
             <Description
               title='Elemento'
               text={elementFromName}
@@ -97,7 +98,7 @@ const MovementCard = (props: MovementCardProps): JSX.Element => {
               />
             }
           </Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid size={{ xs: 12, lg: 6 }}>
             <Description
               title='Desde'
               text={storageFromName}
@@ -121,7 +122,7 @@ const MovementCard = (props: MovementCardProps): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   card: {
     borderLeftWidth: '4px',
     borderLeftStyle: 'solid',

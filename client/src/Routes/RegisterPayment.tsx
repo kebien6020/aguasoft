@@ -293,7 +293,7 @@ class RegisterPayment extends Component<Props, State> {
                       {state.clients.map((cl, idx) =>
                         <MenuItem key={idx} value={cl.id}>
                           ({cl.code}) {cl.name}
-                        </MenuItem>
+                        </MenuItem>,
                       )}
                     </Select>
                   </FormControl>
@@ -442,11 +442,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingTop: theme.spacing(1),
     '& input': {
       '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-        '-webkit-appearance': 'none',
+        WebkitAppearance: 'none',
         margin: 0,
       },
       '&[type=number]': {
-        '-moz-appearance': 'textfield',
+        MozAppearance: 'textfield',
       },
     },
   },

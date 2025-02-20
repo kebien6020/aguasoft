@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import { io } from 'socket.io-client'
 
 import useFetch from '../../hooks/useFetch'
@@ -83,13 +83,13 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
 
       <Grid container spacing={2}>
         {storages && storageStates && inventoryElements ? storages.map(storage =>
-          <Grid item key={storage.id} xs={12} md={6}>
+          <Grid key={storage.id} size={{ xs: 12, md: 6 }}>
             <StorageCard
               storage={storage}
               storageStates={storageStates}
               inventoryElements={inventoryElements}
             />
-          </Grid>
+          </Grid>,
         ) : <LoadingIndicator />}
       </Grid>
     </>

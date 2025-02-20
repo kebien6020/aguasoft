@@ -29,10 +29,10 @@ Users.init({
   updatedAt: DATE,
   deletedAt: DATE,
 },
-{
-  sequelize,
-  paranoid: true,
-})
+  {
+    sequelize,
+    paranoid: true,
+  })
 
 export class Session extends Model<InferAttributes<Session>, InferCreationAttributes<Session>> {
   declare sid: string
@@ -63,7 +63,7 @@ export class Sells extends Model<InferAttributes<Sells>, InferCreationAttributes
   declare clientId: number
   declare productId: number
   declare batchId: number | null
-  declare deleted: boolean
+  declare deleted: CreationOptional<boolean>
 
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>

@@ -16,7 +16,7 @@ import { useFormikContext } from 'formik'
 
 import Layout from '../../components/Layout'
 import Title from '../../components/Title'
-import useUser from '../../hooks/useUser'
+import useUser, { useUserFetch } from '../../hooks/useUser'
 import Form from '../../components/form/Form'
 import { useClient, useClientOptions } from '../../hooks/api/useClients'
 import SelectField from '../../components/form/SelectField'
@@ -24,12 +24,12 @@ import { DateField } from '../../components/form/DateField'
 import { VSpace } from '../../components/utils'
 import { optionsFromProducts, optionsFromVariants, useProducts } from '../../hooks/api/useProducts'
 import SubmitButton from '../../components/form/SubmitButton'
-import { Batch, Price, Product, ProductWithBatchCategory } from '../../models'
+import { Batch, Price, Product, ProductWithBatchCategory, User } from '../../models'
 import { NumericField } from '../../components/form/NumericField'
 import { optionsFromBatches, useBatches } from '../../hooks/api/useBatches'
 import { optionsFromPrices, usePrices } from '../../hooks/api/usePrices'
 import yup from '../../components/form/Yup'
-import { fetchJsonAuth, isErrorResponse, money } from '../../utils'
+import { ErrorResponse, fetchJsonAuth, isErrorResponse, money } from '../../utils'
 import { useBatchCategory } from '../../hooks/api/useBatchCategories'
 import { formatDateonly } from '../../utils'
 import useAuth from '../../hooks/useAuth'
@@ -40,6 +40,8 @@ import { FetchError } from '../../api/common'
 import { MakeRequired } from '../../utils/types'
 import { SaleForCreate, createSales } from '../../api/sales'
 import { useNavigate } from 'react-router'
+import { startOfDay } from 'date-fns'
+import { formatDateonlyMachine } from '../../utils/dates'
 
 type SaleLine = {
   productId: string | undefined
@@ -52,12 +54,14 @@ type SaleLine = {
 const initialValues = {
   client: '',
   cash: 'true',
+  date: startOfDay(new Date),
   saleLines: [] as SaleLine[],
 }
 
 const validationSchema = yup.object().shape({
   client: yup.string().required(),
   cash: yup.string().required().oneOf(['true', 'false']),
+  date: yup.date().notRequired(),
   saleLines: yup.array().of(yup.object().shape({
     productId: yup.string().required(),
     variantId: yup.string().nullable(),
@@ -75,6 +79,8 @@ interface MapToCreateSaleDeps {
   prices: Record<string, Price>
   cash: boolean
   clientId: number
+  isAdmin: boolean
+  date: Date | undefined
 }
 
 const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine): SaleForCreate => {
@@ -83,8 +89,10 @@ const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine)
     throw new Error(`Precio para el producto ${line.productId} no encontrado para este cliente`)
 
   const priceValue = Number(price.value)
+  const date = deps.date ? formatDateonlyMachine(deps.date) : undefined
 
   return {
+    ...(deps.isAdmin && date ? { date } : {}),
     cash: deps.cash,
     clientId: deps.clientId,
     priceOverride: priceValue,
@@ -100,8 +108,12 @@ const RegisterSale = memo(() => {
   const auth = useAuth()
   const showMsg = useSnackbar()
   const navigate = useNavigate()
+  const user = useUser()
+
+  const isAdmin = user?.isAdmin ?? false
 
   const handleSubmit = useCallback(async (values: Values) => {
+    console.log({ values })
     if (isNaN(Number(values.client))) {
       showMsg('Error en la aplicación: id de cliente no es un número valido')
       return
@@ -110,7 +122,7 @@ const RegisterSale = memo(() => {
     const clientId = Number(values.client)
     const saleLines = values.saleLines as ValidatedSaleLine[]
 
-    let prices
+    let prices: Price[]
     try {
       prices = await fetchPrices(clientId, auth)
     } catch (e: unknown) {
@@ -131,10 +143,12 @@ const RegisterSale = memo(() => {
     const deps = {
       prices: priceMap,
       cash: values.cash === 'true',
+      date: values.date,
       clientId,
+      isAdmin,
     }
 
-    let sales
+    let sales: SaleForCreate[]
     try {
       sales = saleLines.map(mapToCreateSale(deps))
     } catch (e: unknown) {
@@ -189,6 +203,7 @@ const RegisterSaleImpl = memo(() => {
   const user = useUser()
   const isAdmin = user?.isAdmin ?? false
   const [clients] = useClientOptions()
+  const auth = useAuth()
 
   const { values, setFieldValue } = useFormikContext<Values>()
 
@@ -197,10 +212,20 @@ const RegisterSaleImpl = memo(() => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // eslint-disable-next-line eqeqeq
-    if (user?.loggedIn == null) return
-    if (!user.loggedIn)
-      navigate('/check?next=/sell')
+
+    if (user?.loggedIn === null || user?.loggedIn === undefined) return
+    if (!user.loggedIn) {
+      // In case of not logged in, double check with an actual request
+      // as the user might be out of date in the context
+      (async () => {
+        const url = '/api/users/getCurrent'
+        const user: ErrorResponse | User = await fetchJsonAuth(url, auth)
+
+        if (isErrorResponse(user))
+          navigate('/check?next=/sell')
+
+      })()
+    }
 
   }, [user?.loggedIn, navigate])
 
@@ -307,7 +332,7 @@ const TotalPriceImpl = memo(({ clientId }: { clientId: number }) => {
 
   const total = useMemo(
     () => calcTotal(values.saleLines, prices),
-    [values.saleLines, prices]
+    [values.saleLines, prices],
   )
 
   return (
@@ -528,7 +553,7 @@ const AddBatchDialog = memo(({ product, open, onClose, onCreated }: AddBatchDial
       batchCategoryId: product.batchCategoryId,
     }
 
-    let res
+    let res: Batch | ErrorResponse
     try {
       res = await fetchJsonAuth<Batch>('/api/batches', auth, {
         method: 'POST',

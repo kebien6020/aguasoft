@@ -15,6 +15,7 @@ import {
 } from '../db/models.js'
 import { Mutable } from '../utils/types.js'
 import { CreateManualMovementArgs, createMovement } from './inventory.js'
+import { matchesGlob } from 'path'
 
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -154,7 +155,7 @@ const movementDetails = (code: string, variantCode?: string): readonly MovementD
   if (!variantMovementDetails)
     throw new VariantCodeNotFound(code, variantCode)
 
-  return mainMovementDetails.concat(variantMovementDetails)
+  return mainMovementDetails?.concat(variantMovementDetails)
 }
 
 const getLoggedUserId = (req: Request) => {
@@ -222,23 +223,24 @@ const wrap = <T>(hnd: Handler<T>): ExpressHandler =>
     }
   }
 
-type SchemaType<T> = T extends yup.BaseSchema<infer Q> ? Q : never
+type SchemaType<T> = T extends yup.Schema<infer Q> ? Q : never
 
 const sellSchema = yup.object({
   cash: yup.boolean().required(),
-  priceOverride: yup.number().nullable(true),
+  priceOverride: yup.number().nullable(),
   quantity: yup.number().required(),
   value: yup.number().required(),
   clientId: yup.number().required(),
   productId: yup.number().required(),
   variantId: yup.number().notRequired(),
-  batchId: yup.number().nullable(true),
+  batchId: yup.number().nullable(),
+  date: yup.date().notRequired(),
 })
 type SellInput = SchemaType<typeof sellSchema>
 
 const sellsRequestSchema = yup.object({
-  sells: yup.array().of(sellSchema),
-})
+  sells: yup.array().of(sellSchema).required(),
+}).required()
 
 type Rec = Record<string, unknown>
 
@@ -251,9 +253,21 @@ export const bulkCreate = wrap(async (req: Request) => {
   const userId = getLoggedUserId(req)
   const sellsInput = getSells(req.body as Rec)
 
-  const date = new Date()
+  const user = await Users.findByPk(userId)
+  if (!user) {
+    const e = Error('User not found')
+    e.name = 'user_check_error'
+    throw e
+  }
 
-  const sells = sellsInput.map(s => ({ ...s, userId, date }))
+  const isAdmin = user.role === 'admin'
+  const today = new Date
+
+  const sells = sellsInput.map(s => ({
+    ...s,
+    userId,
+    date: isAdmin && s.date !== undefined && s.date !== null ? s.date : today,
+  }))
 
   await sequelize.transaction(async (transaction) => {
     await Sells.bulkCreate(sells, {
@@ -278,15 +292,15 @@ export const bulkCreate = wrap(async (req: Request) => {
         where: { id: sell.productId },
       })
 
-      const variant = sell.variantId && await ProductVariants.findOne({
+      const variant = sell.variantId ? await ProductVariants.findOne({
         where: { id: sell.variantId },
-      })
+      }) : undefined
 
       if (!product)
         throw new Error(`No se encontró el producto ${String(sell.productId)}`)
 
 
-      const details = movementDetails(product.code, variant?.code)
+      const details = movementDetails(product.code, variant?.code) ?? []
 
       const inventoryElements = await InventoryElements.findAll({
         where: {
@@ -296,7 +310,13 @@ export const bulkCreate = wrap(async (req: Request) => {
         },
       })
 
-      const storageCodes = [...details.map(d => d.storageCode).filter(sc => sc), 'terminado'] as const
+      const isStorageCode = (code: StorageCode | undefined): code is StorageCode =>
+        Boolean(code)
+
+      const storageCodes = [
+        ...details.map(d => d.storageCode).filter(isStorageCode),
+        'terminado',
+      ] as const
 
       const storages = await Storages.findAll({
         where: {

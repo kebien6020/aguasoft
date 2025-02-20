@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import Grid, { GridProps as MuiGridProps } from '@mui/material/Grid'
+import Grid, { Grid2Props as MuiGridProps } from '@mui/material/Grid2'
 import {
   Formik,
   FormikConfig,

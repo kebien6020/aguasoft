@@ -87,9 +87,9 @@ const NumericInput = styled(Input)(({ theme }) => ({
   },
   '& input': {
     textAlign: 'center',
-    '-moz-appearance': 'textfield',
+    MozAppearance: 'textfield',
     '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-      '-webkit-appearance': 'none',
+      WebkitAppearance: 'none',
       margin: 0,
     },
   },

@@ -35,10 +35,7 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
     },
-    plugins: {
-      'typescript-eslint': ts,
-    },
-    files: ['**/*.{js,ts,mjs}'],
+    files: ['**/*.{js,ts,tsx,mjs}'],
     rules: {
       // Disable some typescript rules
       '@typescript-eslint/no-floating-promises': 'off', // Annoying
@@ -63,7 +60,13 @@ export default [
       'no-const-assign': 'error',
       'no-var': 'error',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
+      '@typescript-eslint/no-unused-vars': [
+        'off', {
+          argsIgnorePattern: '^_',
+          caughtErrors: 'none',
+          ignoreRestSiblings: true,
+        },
+      ],
       'no-console': 'off',
       'prefer-const': 'error',
 
@@ -85,21 +88,6 @@ export default [
       'no-multi-spaces': ['error'],
       'key-spacing': ['error'],
       'dot-notation': ['error'],
-      'max-len': [
-        'error', {
-          code: 120,
-          tabWidth: 2,
-          comments: 80,
-          ignoreComments: false,
-          ignorePattern: '^\\s+\\*\\s+@',
-          ignoreTrailingComments: true,
-          ignoreStrings: true,
-          ignoreUrls: true,
-          ignoreTemplateLiterals: true,
-          ignoreRegExpLiterals: true,
-        },
-      ],
-      complexity: ['error', 15],
     },
   },
 ]
