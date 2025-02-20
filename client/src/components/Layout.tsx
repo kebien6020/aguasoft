@@ -1,12 +1,11 @@
 import type { JSX } from 'react'
-import React, { useState, useCallback, ReactNode, forwardRef, ComponentType, Component } from 'react'
-import { Link, LinkProps, useLocation } from 'react-router'
-import { LocationDescriptor } from 'history'
+import React, { useState, useCallback, type ReactNode, forwardRef, type ComponentType } from 'react'
+import { Link, type LinkProps, useLocation } from 'react-router'
+import { type LocationDescriptor } from 'history'
 
 import AppBar from '@mui/material/AppBar'
-import Button, { ButtonProps } from '@mui/material/Button'
-import Drawer, { DrawerProps } from '@mui/material/Drawer'
-import Hidden from '@mui/material/Hidden'
+import Button from '@mui/material/Button'
+import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import Toolbar from '@mui/material/Toolbar'
@@ -31,6 +30,7 @@ import Avatar from '@mui/material/Avatar'
 import { styled } from '@mui/material/styles'
 import { Theme } from '../theme'
 import { useMediaQuery } from '@mui/material'
+import { GlobalErrorBoundary } from './GlobalErrorBoundary'
 
 const drawerWidth = 96
 const drawerWidthFull = 256
@@ -79,7 +79,7 @@ DrawerItem.displayName = 'DrawerItem'
 
 // Need to forward the ref for the tooltip to work
 const DrawerIconButtonImpl = forwardRef<HTMLButtonElement>((props, ref) =>
-  <Button variant='outlined' ref={ref} {...props} />
+  <Button variant='outlined' ref={ref} {...props} />,
 )
 DrawerIconButtonImpl.displayName = 'DrawerIconButtonImpl'
 
@@ -100,10 +100,10 @@ const DrawerItemLink = styled(Link)(({ theme }: { theme: Theme }) => ({
   flexDirection: 'row',
   alignItems: 'center',
   textDecoration: 'none',
-})) as typeof Link
+}))
 
 const DrawerItemText = styled(
-  (props: TypographyProps) => <Typography variant='h6' {...props} />
+  (props: TypographyProps) => <Typography variant='h6' {...props} />,
 )({
   color: 'black',
   textOverflow: 'ellipsis',
@@ -308,58 +308,16 @@ export default function Layout(props: Props): JSX.Element {
     <ContentWrapper onClick={handleDrawerClose}>
       <ToolbarDiv />
       <Container {...containerProps}>
-        <PageLevelErrorBoundary>
+        <GlobalErrorBoundary>
           {children}
-        </PageLevelErrorBoundary>
+        </GlobalErrorBoundary>
       </Container>
     </ContentWrapper>
   </>)
 }
 
-type PageLevelErrorBoundaryProps = {
-  children: ReactNode
-}
-
-class PageLevelErrorBoundary extends Component<PageLevelErrorBoundaryProps> {
-  state: { error: Error | undefined }
-
-  constructor(props: PageLevelErrorBoundaryProps) {
-    super(props)
-    this.state = { error: undefined }
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { error }
-  }
-
-  render() {
-    const { error } = this.state
-    if (error) {
-      return (
-        <>
-          <Typography variant='h4'>
-            Se ha producido un error al mostrar la página
-          </Typography>
-          <Typography variant='body1'>
-            Enviar captura de pantalla incluyendo el siguiente mensaje:
-          </Typography>
-          <code>
-            <pre style={{ fontSize: 10, textWrap: 'wrap' }}>
-              {error.message}{'\n'}
-              {location.href}{'\n'}{'\n'}
-              {error.stack}
-            </pre>
-          </code>
-        </>
-      )
-    }
-
-    return this.props.children
-  }
-}
-
 const Title = styled(
-  (props: TypographyProps) => <Typography variant='h6' sx={{ color: 'inherit' }} {...props} />
+  (props: TypographyProps) => <Typography variant='h6' sx={{ color: 'inherit' }} {...props} />,
 )({
   flexGrow: 1,
   fontWeight: 500,
@@ -374,7 +332,7 @@ const MenuButton = styled(IconButton)(({ theme }: { theme: Theme }) => ({
 })) as typeof IconButton
 
 const ToolbarDiv = styled('div')(({ theme }) =>
-  theme.mixins.toolbar
+  theme.mixins.toolbar,
 ) as unknown as 'div'
 
 const ContentWrapper = styled('div')(({ theme }) => ({

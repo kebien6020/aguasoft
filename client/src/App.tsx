@@ -14,6 +14,7 @@ import SnackbarContext from './SnackbarContext'
 import theme from './theme'
 import { es } from 'date-fns/locale/es'
 import { RequireAuth } from './RequireAuth'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
 
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
 const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
@@ -131,13 +132,15 @@ const MyGlobalStyles = () => (
 
 const App = () => {
   return (
-    <Providers>
-      <CssBaseline />
-      <MyGlobalStyles />
-      <Suspense fallback={<LoadingScreen text='Cargando página…' />}>
-        <AppSwitch />
-      </Suspense>
-    </Providers>
+    <GlobalErrorBoundary>
+      <Providers>
+        <CssBaseline />
+        <MyGlobalStyles />
+        <Suspense fallback={<LoadingScreen text='Cargando página…' />}>
+          <AppSwitch />
+        </Suspense>
+      </Providers>
+    </GlobalErrorBoundary>
   )
 }
 

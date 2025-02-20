@@ -1,6 +1,5 @@
 ## Plan
 
-- Fix broken client editor
 - Fix broken client date format in balance view on request to server
 - Migrate class-based components to functional components
 - Get rid of makeStyles

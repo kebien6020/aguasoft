@@ -1,6 +1,4 @@
-import { Theme } from '@mui/material/styles'
-import { StyleRulesCallback } from '@mui/styles'
-import withStyles from '@mui/styles/withStyles'
+import { makeStyles } from '@mui/styles'
 
 import { ChangeEvent, Component } from 'react'
 import { Navigate } from 'react-router'
@@ -23,9 +21,8 @@ import IconButton from '@mui/material/IconButton'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 
-import { AuthRouteComponentProps } from '../AuthRoute'
 import LoadingScreen from '../components/LoadingScreen'
-import { fetchJsonAuth, money, isErrorResponse } from '../utils'
+import { fetchJsonAuth, money, isErrorResponse, SuccessResponse, ErrorResponse } from '../utils'
 import Layout from '../components/Layout'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import Title from '../components/Title'
@@ -34,6 +31,10 @@ import { IncompletePrice } from '../components/PricePicker'
 import { Product, Client, Price } from '../models'
 import Alert from '../components/Alert'
 import adminOnly from '../hoc/adminOnly'
+import Auth from '../Auth'
+import { Theme } from '../theme'
+import useAuth from '../hooks/useAuth'
+import { useParams } from 'react-router'
 
 interface ClientDefaults {
   code: string
@@ -60,8 +61,9 @@ interface Params {
   id?: string
 }
 
-interface Props extends PropClasses, AuthRouteComponentProps<Params> {
-
+type Props = PropClasses & {
+  params: Params
+  auth: Auth
 }
 
 interface PriceError {
@@ -101,7 +103,7 @@ const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => (
       <DialogTitle>Precio Duplicado</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Ya existe un precio llamado "{props.priceError.priceName}"
+          Ya existe un precio llamado &quot;{props.priceError.priceName}&quot;
           para el producto {props.priceError.productName}, por favor elimine
           el precio anterior si desea cambiarlo.
         </DialogContentText>
@@ -120,7 +122,7 @@ class ClientEditor extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
 
-    const { params } = this.props.match
+    const { params } = this.props
 
     const mode = params.id === undefined ? 'CREATE' : 'EDIT'
     const editId = params.id !== undefined ? params.id : null
@@ -184,7 +186,7 @@ class ClientEditor extends Component<Props, State> {
           defaultCash: editDefaults.defaultCash ? 'true' : 'false',
           notes: editDefaults.notes || '',
           prices: editDefaults.Prices.map(pr =>
-            Object.assign({}, pr, { value: String(pr.value) })
+            Object.assign({}, pr, { value: String(pr.value) }),
           ),
         })
       }
@@ -221,7 +223,7 @@ class ClientEditor extends Component<Props, State> {
     price.value = String(price.value)
     const prevPrices = this.state.prices
     const duplicated = prevPrices.findIndex(pr =>
-      pr.name === price.name && pr.productId === price.productId
+      pr.name === price.name && pr.productId === price.productId,
     ) !== -1
 
     if (duplicated) {
@@ -245,7 +247,7 @@ class ClientEditor extends Component<Props, State> {
 
   handleSubmit = async () => {
     const { props, state } = this
-    let res = null
+    let res: SuccessResponse | ErrorResponse | null = null
 
     if (state.name === '')
       this.setState({ errorEmptyName: true })
@@ -463,7 +465,7 @@ class ClientEditor extends Component<Props, State> {
   }
 }
 
-const styles: StyleRulesCallback<Theme, Props> = theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   title: {
     '& > *': {
       textAlign: 'center',
@@ -488,6 +490,13 @@ const styles: StyleRulesCallback<Theme, Props> = theme => ({
     transform: 'translateY(-50%)',
     marginRight: theme.spacing(4),
   },
-})
+}))
 
-export default adminOnly(withStyles(styles)(ClientEditor))
+const ClientEditorWrapper = () => {
+  const classes = useStyles()
+  const auth = useAuth()
+  const params = useParams() as Params
+  return <ClientEditor classes={classes} params={params} auth={auth} />
+}
+
+export default adminOnly(ClientEditorWrapper)
