@@ -10,7 +10,7 @@ import {
   Spendings,
   Users,
 } from '../db/models.js'
-import { enumerateDaysBetweenDates, isSameDayOrAfter, isSameDayOrBefore, parseDateonly } from '../utils/date.js'
+import { enumerateDaysBetweenDates, formatDateonly, isSameDayOrAfter, isSameDayOrBefore, parseDateonly } from '../utils/date.js'
 
 export async function createBalanceVerification(
   req: Request,
@@ -114,7 +114,7 @@ export async function listBalance(
       const closestVerification = await BalanceVerifications.findOne({
         where: {
           date: {
-            [Op.lte]: minDate,
+            [Op.lte]: formatDateonly(minDate),
           },
         },
         order: [['date', 'desc']],
@@ -129,7 +129,7 @@ export async function listBalance(
       date: string
     }
 
-    const maxDateWhere = maxDate ? { [Op.lte]: maxDate } : {}
+    const maxDateWhere = maxDate ? { [Op.lte]: formatDateonly(maxDate) } : {}
 
     const groupedSales = await Sells.findAll({
       attributes: [
@@ -208,9 +208,9 @@ export async function listBalance(
       include: verificationsIncludes,
     })
 
-    const today = startOfDay(new Date)
+    const dayRangeEnd = maxDate ?? startOfDay(new Date)
     const firstVerificationD = parseDateonly(firstVerification.date)
-    const days = enumerateDaysBetweenDates(firstVerificationD, today)
+    const days = enumerateDaysBetweenDates(firstVerificationD, dayRangeEnd)
 
     const balances = days.map(day => {
       const dayStr = format(day, 'yyyy-MM-dd')

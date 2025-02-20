@@ -21,6 +21,7 @@ import { useToggle } from '../hooks/useToggle'
 import useUser from '../hooks/useUser'
 import { BalanceItem, BalanceVerification } from '../models'
 import {
+  ErrorResponse,
   fetchJsonAuth,
   formatDateCol,
   formatDatetimeCol,
@@ -29,10 +30,12 @@ import {
   moneySign,
   Params,
   paramsToString,
+  parseDateonlyMachine,
 } from '../utils'
 import { CreateVerificationForm } from './balance/components/CreateVerificationForm'
 import { addMonths, isValid } from 'date-fns'
 import { Theme } from '../theme'
+import { formatDateonlyMachine } from '../utils/dates'
 
 type CardPricesProps = {
   titleOne: ReactNode
@@ -231,7 +234,7 @@ const useBalanceData = (params: Params) => {
     (async () => {
       const qs = paramsToString(params)
       const url = `/api/balance?${qs}`
-      let response
+      let response: ListBalanceResponse | ErrorResponse
       try {
         response = await fetchJsonAuth<ListBalanceResponse>(url, auth)
       } catch (error) {
@@ -258,7 +261,7 @@ interface BalanceItemCardProps {
 const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
   <>
     <HistoryElementCard
-      header={formatDateCol(new Date(item.date))}
+      header={formatDateCol(parseDateonlyMachine(item.date))}
       content={<>
         <div>Ventas en Efectivo: {money(item.sales)}</div>
         <div>Pagos: {money(item.payments)}</div>
@@ -277,13 +280,13 @@ const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
 
 const Balance = (): JSX.Element => {
   const [bDate, setBDate] = useState<Date | null>(
-    () => addMonths(new Date, -1)
+    () => addMonths(new Date, -1),
   )
   const [eDate, setEDate] = useState<Date | null>(null)
 
   const [balanceData, { refresh }] = useBalanceData({
-    minDate: bDate === null ? undefined : formatDateCol(bDate),
-    maxDate: eDate === null ? undefined : formatDateCol(eDate),
+    minDate: bDate === null ? undefined : formatDateonlyMachine(bDate),
+    maxDate: eDate === null ? undefined : formatDateonlyMachine(eDate),
     includes: ['verification.createdBy'],
   })
 
@@ -313,7 +316,7 @@ const Balance = (): JSX.Element => {
       </DateFilter>
 
       {balanceData?.map(item =>
-        <BalanceItemCard item={item} key={item.date} />
+        <BalanceItemCard item={item} key={item.date} />,
       ) ?? <LoadingIndicator />}
 
     </Layout>
