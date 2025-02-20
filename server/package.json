@@ -10,6 +10,7 @@
     "start": "node dist/index.js",
     "start-dev": "node --import tsx src/index.ts",
     "test": "tsx test.ts",
+    "test:junit": "tsx test.ts --test-reporter=junit --test-reporter-destination=test-report.xml",
     "test:update-snapshots": "tsx test.ts --test-update-snapshots",
     "test:only": "tsx test.ts --test-only",
     "watch-run": "node --watch dist/index.js",

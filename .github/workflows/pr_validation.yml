@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [23.x]
     env:
       TZ: America/Bogota
     steps:
@@ -88,4 +88,13 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: server/package-lock.json
-    - run: cd server && npm ci && npm run test
+
+    - run: cd server && npm ci
+    - run: cd server && npm run test:junit
+    - run: cd server && npx junit-to-ctrf ./test-report.xml
+
+    - name: Publish Test Report
+      uses: ctrf-io/github-test-reporter@v1
+      with:
+        report-path: './server/ctrf/*.json'
+      if: always()

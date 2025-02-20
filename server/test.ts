@@ -21,19 +21,17 @@ spawnSync('npm', sqArgs, {
 const flags = process.argv.slice(2)
 const testFiles = globSync('src/**/*.test.ts').concat(globSync('src/__tests__/**/*.ts'))
 
-const baseArgs = [
+const args = [
   ...['--import', 'tsx'], // Support typescript
   '--test',
+  ...['--test-isolation', 'none'], // Run tests serially to avoid DB races
   ...flags, // Pass custom flags like --test-only or --test-update-snapshots
+  ...testFiles,
 ]
 
-// Run each file individually. Slower but nicer with the DB setup
-for (const file of testFiles) {
-  const args = [...baseArgs, file]
-  console.log('+', 'node', args.join(' '))
+console.log('+', 'node', args.join(' '))
 
-  spawnSync('node', args, {
-    stdio: 'inherit',
-    env,
-  })
-}
+spawnSync('node', args, {
+  stdio: 'inherit',
+  env,
+})
