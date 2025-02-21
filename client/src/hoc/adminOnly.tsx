@@ -26,7 +26,7 @@ interface State {
 
 export default
 function adminOnly<P extends Record<string, unknown>>(
-  component: ComponentType<P>
+  component: ComponentType<P>,
 ): ComponentType<P> {
 
   type IP = P & { auth: Auth }

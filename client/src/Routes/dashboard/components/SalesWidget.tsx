@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import {
-  Grid,
-  GridProps,
+  Grid2 as Grid,
+  Grid2Props as GridProps,
   Paper,
   Table,
   TableBody,
@@ -77,13 +77,13 @@ const Totals = ({ sales }: TotalsProps) => {
 
   return (
     <Grid container spacing={3}>
-      <TotalsItem xs={12} sm={6}>
+      <TotalsItem size={{ xs: 12, sm: 6 }}>
         Venta efectivo: {money(cash)}
       </TotalsItem>
-      <TotalsItem xs={12} sm={6}>
+      <TotalsItem size={{ xs: 12, sm: 6 }}>
         Venta pago post-fechado: {money(post)}
       </TotalsItem>
-      <TotalsItem xs={12}>
+      <TotalsItem size={{ xs: 12 }}>
         Venta total: {money(cash + post)}
       </TotalsItem>
     </Grid>
@@ -91,7 +91,7 @@ const Totals = ({ sales }: TotalsProps) => {
 }
 
 const TotalsItem = ({ children, ...props }: GridProps) => (
-  <Grid item {...props}>
+  <Grid {...props}>
     <TotalsPaper>
       <TotalsText>
         {children}
@@ -144,7 +144,7 @@ const Products = ({ sales }: ProductsProps) => {
               <TableCell>{row.product.name}</TableCell>
               <TableCell>{row.saleCount}</TableCell>
               <TableCell>{money(row.saleValue)} {pct(row.saleValue)}</TableCell>
-            </TableRow>
+            </TableRow>,
           )}
           <TableRow>
             <TableCell>Total</TableCell>
@@ -204,7 +204,7 @@ const ByUser = ({ sales }: ByUserProps) => {
               <TableCell>{row.user.name}</TableCell>
               <TableCell>{money(row.saleCash)}</TableCell>
               <TableCell>{money(row.salePost)}</TableCell>
-            </TableRow>
+            </TableRow>,
           )}
           <TableRow>
             <TableCell>Total</TableCell>

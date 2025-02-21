@@ -5,7 +5,7 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   Typography,
 } from '@mui/material'
@@ -17,8 +17,9 @@ import {
 } from '@mui/icons-material'
 import Alert from '../components/Alert'
 import { Spending } from '../models'
-import { formatDateCol, formatDatetimeCol, formatTimeonlyCol, money, parseDateonlyMachine } from '../utils'
+import { formatDateCol, formatDatetimeCol, formatTimeonlyCol, money } from '../utils'
 import { intlFormatDistance, isSameDay } from 'date-fns'
+import { Theme } from '../theme'
 
 interface Props {
   spendings: Spending[]
@@ -47,14 +48,14 @@ const Spendings = (props: Props): JSX.Element => {
   return (
     (<Grid container spacing={2}>
       {props.spendings && props.spendings.length === 0
-        && <Grid item xs={12}>
+        && <Grid size={{ xs: 12 }}>
           <Typography variant='body1'>
             No se registaron salidas este día.
           </Typography>
         </Grid>
       }
       {props.spendings.map((spending, idx) =>
-        <Grid item key={idx} xs={12}>
+        <Grid key={idx} size={{ xs: 12 }}>
           <Card className={getCardClass(spending)}>
             <div className={classes.cardMain}>
               <CardHeader
@@ -117,13 +118,13 @@ const Spendings = (props: Props): JSX.Element => {
               </div>
             </div>
           </Card>
-        </Grid>
+        </Grid>,
       )}
     </Grid>)
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   card: {
     display: 'flex',
     flexDirection: 'row',

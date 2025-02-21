@@ -15,7 +15,7 @@ function normalFontTheme(prevTheme: Theme): Theme {
 }
 
 export default function normalFontadminOnly<P>(
-  component: ComponentType<P>
+  component: ComponentType<P>,
 ): ComponentType<P> {
   return class NormalFont extends Component<P> {
     render() {

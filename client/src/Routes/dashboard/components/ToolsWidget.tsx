@@ -28,5 +28,5 @@ const LinkToBillingSummary = forwardRef<HTMLAnchorElement, LinkToBillingSummaryP
     return (
       <Link to='/tools/billing-summary' ref={ref} {...props} />
     )
-  }
+  },
 )

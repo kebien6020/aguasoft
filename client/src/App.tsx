@@ -20,7 +20,7 @@ const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Rout
 const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
 const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
-const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
+const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/client-editor/index'))
 const ClientList = lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
 const ClientBalance = lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/ClientBalance'))
 const RegisterPayment = lazy(() => import(/* webpackChunkName: "register-payment" */ './Routes/RegisterPayment'))

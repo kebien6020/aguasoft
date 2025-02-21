@@ -3,7 +3,6 @@ import { Link, LinkProps } from 'react-router'
 
 import { styled } from '@mui/material/styles'
 
-import { AuthRouteComponentProps } from '../AuthRoute'
 import adminOnly from '../hoc/adminOnly'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
@@ -15,13 +14,16 @@ import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '
 import Pagination from '../components/pagination'
 import { MakeOptional } from '../utils/types'
 import useAuth from '../hooks/useAuth'
+import Auth from '../Auth'
 
 interface PaymentPageResponse {
   payments: Payment[]
   totalCount: number
 }
 
-type Props = AuthRouteComponentProps
+type Props = {
+  auth: Auth
+}
 
 interface State {
   payments: Payment[] | null
@@ -52,7 +54,7 @@ class PaymentList extends React.Component<Props, State> {
     const { props } = this
     const res: ErrorResponse | PaymentPageResponse = await fetchJsonAuth(
       `/api/payments/paginate?limit=${ITEMS_PER_PAGE}&offset=${offset}`,
-      props.auth
+      props.auth,
     )
 
     if (!isErrorResponse(res)) {
@@ -99,7 +101,7 @@ class PaymentList extends React.Component<Props, State> {
   renderLinkBack = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
     function HomeLink(props, ref) {
       return <Link to='/' ref={ref} {...props} />
-    }
+    },
   )
 
   renderPagination = () => (

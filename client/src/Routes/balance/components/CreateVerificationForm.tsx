@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { Grid } from '@mui/material'
+import { Grid2 as Grid } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { addDays, startOfDay, subDays } from 'date-fns'
 import { useFormikContext } from 'formik'
@@ -89,8 +89,8 @@ const CreateVerificationFormImpl = () => {
   const tomorrow = startOfDay(addDays(new Date, 1))
 
   return (<>
-    <Grid item>
-      <DateField
+    <Grid>
+      <StyledDateField
         name='date'
         label='Fecha de la Verificación'
         DatePickerProps={{
@@ -104,7 +104,7 @@ const CreateVerificationFormImpl = () => {
         }}
       />
     </Grid>
-    <Grid item xs>
+    <Grid flexGrow={1}>
       <PriceField
         name='value'
         label='Valor verificado'
@@ -113,8 +113,13 @@ const CreateVerificationFormImpl = () => {
         }}
       />
     </Grid>
-    <Grid item xs={12} container direction='row' justifyContent='center'>
+    <Grid size={{ xs: 12 }} container direction='row' justifyContent='center'>
       <SubmitButton>Crear</SubmitButton>
     </Grid>
   </>)
 }
+
+const StyledDateField = styled(DateField)({
+  marginTop: '16px !important',
+  marginBottom: '8px !important',
+})

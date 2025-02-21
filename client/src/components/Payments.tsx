@@ -7,7 +7,7 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   Typography,
 } from '@mui/material'
@@ -76,14 +76,14 @@ const Payments = (props: Props): JSX.Element => {
   return (
     (<Grid container spacing={2}>
       {props.payments && props.payments.length === 0
-        && <Grid item xs={12}>
+        && <Grid size={{ xs: 12 }}>
           <Typography variant='body1'>
             No se registaron pagos este día.
           </Typography>
         </Grid>
       }
       {props.payments.map((payment, idx) =>
-        <Grid item key={idx} xs={12}>
+        <Grid key={idx} size={{ xs: 12 }}>
           <Card className={getCardClass(payment)}>
             <div className={classes.cardMain}>
               <CardHeader
@@ -169,7 +169,7 @@ const Payments = (props: Props): JSX.Element => {
               </div>
             </div>
           </Card>
-        </Grid>
+        </Grid>,
       )}
     </Grid>)
   )

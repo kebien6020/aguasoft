@@ -16,7 +16,7 @@ import { useFormikContext } from 'formik'
 
 import Layout from '../../components/Layout'
 import Title from '../../components/Title'
-import useUser, { useUserFetch } from '../../hooks/useUser'
+import useUser from '../../hooks/useUser'
 import Form from '../../components/form/Form'
 import { useClient, useClientOptions } from '../../hooks/api/useClients'
 import SelectField from '../../components/form/SelectField'
@@ -173,7 +173,7 @@ const RegisterSale = memo(() => {
 
     navigate('/sells')
 
-  }, [auth, showMsg, navigate])
+  }, [isAdmin, navigate, showMsg, auth])
 
 
   return (
@@ -227,7 +227,7 @@ const RegisterSaleImpl = memo(() => {
       })()
     }
 
-  }, [user?.loggedIn, navigate])
+  }, [user?.loggedIn, navigate, auth])
 
   useEffect(() => {
     if (client?.defaultCash === undefined)

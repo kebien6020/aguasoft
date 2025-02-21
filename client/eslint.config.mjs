@@ -22,9 +22,8 @@ export default [
   {
     // TODO: On version 5.2.0 of the plugin, there's a recommended config
     // in the package
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.{js,jsx,ts,tsx,mjs}'],
     plugins: { 'react-hooks': reactHooks },
-    // ...
     rules: {
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
@@ -35,7 +34,7 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
     },
-    files: ['**/*.{js,ts,tsx,mjs}'],
+    files: ['**/*.{js,jsx,ts,tsx,mjs}'],
     rules: {
       // Disable some typescript rules
       '@typescript-eslint/no-floating-promises': 'off', // Annoying

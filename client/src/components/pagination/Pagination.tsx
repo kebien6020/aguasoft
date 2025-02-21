@@ -1,13 +1,13 @@
 import * as React from 'react'
-import { PropTypes, StandardProps } from '@mui/material'
-import { createStyles, WithStyles, withStyles } from '@mui/styles'
+import { ButtonProps, StandardProps } from '@mui/material'
+import { makeStyles } from '@mui/styles'
 import classNames from 'classnames'
 import PageButton, { PageButtonClassKey, PageVariant } from './PageButton'
 import { computePages, PagePosition, Position } from './core'
 
 export type PaginationClassKey = PageButtonClassKey;
 
-const styles = createStyles<PaginationClassKey, PaginationProps>({
+const useStyles = makeStyles({
   root: {},
   rootCurrent: {},
   rootEllipsis: {},
@@ -47,7 +47,7 @@ export interface PaginationProps
   total: number;
   centerRipple?: boolean;
   component?: string | React.ComponentType<Partial<PaginationProps>>;
-  currentPageColor?: PropTypes.Color;
+  currentPageColor?: ButtonProps['color'];
   disabled?: boolean;
   disableFocusRipple?: boolean;
   disableRipple?: boolean;
@@ -56,19 +56,18 @@ export interface PaginationProps
   nextPageLabel?: React.ReactNode;
   onClick?: (ev: React.MouseEvent<HTMLElement>, offset: number, page: number) => void;
   renderButton?: (props: RenderButtonProps) => React.ReactElement;
-  otherPageColor?: PropTypes.Color;
+  otherPageColor?: ButtonProps['color'];
   outerButtonCount?: number;
   previousPageLabel?: React.ReactNode;
   reduced?: boolean;
   size?: 'small' | 'medium' | 'large';
 }
 
-const Pagination: React.FunctionComponent<PaginationProps & WithStyles<PaginationClassKey>> = ({
+const Pagination: React.FunctionComponent<PaginationProps> = ({
   limit = 1,
   offset = 0,
   total = 0,
   centerRipple = false,
-  classes,
   className: classNameProp,
   component = 'div',
   currentPageColor = 'secondary',
@@ -87,7 +86,7 @@ const Pagination: React.FunctionComponent<PaginationProps & WithStyles<Paginatio
   size = 'medium',
   ...other
 }) => {
-  const { root, ...buttonClasses } = classes
+  const { root, ...buttonClasses } = useStyles()
 
   const className = classNames(root, classNameProp)
 
@@ -149,14 +148,10 @@ const Pagination: React.FunctionComponent<PaginationProps & WithStyles<Paginatio
               {children}
             </PageButton>
           )
-        }
+        },
       )}
     </Component>
   )
 }
 
-const PaginationWithStyles: React.ComponentType<PaginationProps> = withStyles(styles, {
-  name: 'MuiFlatPagination',
-})(Pagination)
-
-export default PaginationWithStyles
+export default Pagination

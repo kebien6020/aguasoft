@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Theme } from '@mui/material/styles'
 
 import { StyleRulesCallback } from '@mui/styles'
@@ -17,9 +15,9 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 
-import PriceField from './PriceField'
+import PriceField from '../../../components/PriceField'
 
-import { Product, Price } from '../models'
+import { Product, Price } from '../../../models'
 import { Component } from 'react'
 import type { ChangeEvent } from 'react'
 
@@ -77,7 +75,7 @@ class PricePicker extends Component<PropsAll, State> {
 
     const { products } = this.props
     const currentProduct = products.find(pr =>
-      String(pr.id) === value
+      String(pr.id) === value,
     )
 
     if (currentProduct)

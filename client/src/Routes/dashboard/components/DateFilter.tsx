@@ -1,5 +1,11 @@
 import type { JSX } from 'react'
-import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material'
+import {
+  FormControl,
+  Grid2 as Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { DatePicker } from '@mui/x-date-pickers'
 import { useState, useEffect } from 'react'
@@ -47,7 +53,7 @@ export const DateFilter = ({
 
   return (
     (<Grid container spacing={2} justifyContent='center'>
-      <Grid item>
+      <Grid>
         <FormControl variant='outlined'>
           <InputLabel>Agrupar</InputLabel>
           <StyledSelect
@@ -59,7 +65,7 @@ export const DateFilter = ({
           </StyledSelect>
         </FormControl>
       </Grid>
-      <Grid item>
+      <Grid>
         {groupBy === 'day' && <>
           <DatePicker
             label='Día'

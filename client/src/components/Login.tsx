@@ -1,4 +1,4 @@
-import { ChangeEvent, Component, KeyboardEvent } from 'react'
+import { type ChangeEvent, type KeyboardEvent, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { makeStyles } from '@mui/styles'
 
@@ -11,16 +11,9 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid2'
 
 import { fetchJsonAuth, isErrorResponse } from '../utils'
-import Auth from '../Auth'
-import useUser, { WithUserProps } from '../hooks/useUser'
+import useUser from '../hooks/useUser'
 import useAuth from '../hooks/useAuth'
-
-interface User {
-  id: number
-  name: string
-  code: string
-  role: string
-}
+import { optionsFromUsers, useUsers } from '../hooks/api/useUsers'
 
 export interface LoginProps {
   onSuccess?: () => unknown
@@ -30,65 +23,49 @@ export interface LoginProps {
   buttonColor?: string
 }
 
-type LoginPropsAll = LoginProps & PropClasses & WithUserProps & { auth: Auth }
-
-interface LoginState {
-  userId: number | null
-  checked: boolean
-  users: User[] | null
-  password: string
-  errorLogin: boolean
-}
-
 type InputEvent = ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>
 
-class Login extends Component<LoginPropsAll, LoginState> {
-  constructor(props: LoginPropsAll) {
-    super(props)
+const Login = (props: LoginProps) => {
+  const {
+    onSuccess,
+    onFailure,
+    adminOnly,
+    text,
+    buttonColor,
+  } = props
+  const classes = useStyles()
+  const auth = useAuth()
+  const user = useUser()
+  const [users] = useUsers()
+  const userOpts = useMemo(() => {
+    let tmpUsers = users
+    if (adminOnly)
+      tmpUsers = users?.filter(u => u.role === 'admin')
 
-    this.state = {
-      userId: null,
-      checked: false,
-      users: null,
-      password: '',
-      errorLogin: false,
-    }
-  }
+    return optionsFromUsers(tmpUsers)
+  }, [adminOnly, users])
 
-  async componentDidMount() {
-    let users = await fetchJsonAuth<User[]>('/api/users', this.props.auth)
+  const [errorLogin, setErrorLogin] = useState(false)
+  const [userId, setUserId] = useState<number | null>(null)
+  const [password, setPassword] = useState('')
 
-    if (isErrorResponse(users))
-      return
+  // Pre-select first user
+  useEffect(() => {
+    if (userOpts && userOpts.length > 0)
+      setUserId(Number(userOpts[0].value))
+  }, [userOpts])
 
+  const handleSubmit = useCallback(async () => {
+    setErrorLogin(false)
 
-    if (this.props.adminOnly === true)
-      users = users.filter(user => user.role === 'admin')
-
-
-    this.setState({ users, userId: users[0].id })
-  }
-
-  handleUserChange = (event: SelectChangeEvent) => {
-    const userId = event.target.value === 'none'
-      ? null
-      : Number(event.target.value)
-
-    this.setState({ userId })
-  }
-
-  handleSubmit = async () => {
-    this.setState({ errorLogin: false })
-
-    const { state, props } = this
     interface CheckResponse {
       result: boolean
     }
-    const check = await fetchJsonAuth<CheckResponse>('/api/users/check', props.auth, {
+    const check = await fetchJsonAuth<CheckResponse>('/api/users/check', auth, {
       method: 'post',
       body: JSON.stringify({
-        id: state.userId,
-        password: state.password,
+        id: userId,
+        password: password,
       }),
     })
 
@@ -97,99 +74,95 @@ class Login extends Component<LoginPropsAll, LoginState> {
       return
     }
 
-    this.setState({ errorLogin: !check.result })
+    setErrorLogin(!check.result)
 
     // Reload the user that propagates through context
-    this.props.user?.refresh()
+    user?.refresh()
 
-    if (check.result) {
-      if (props.onSuccess) props.onSuccess()
-    } else {
-      if (props.onFailure) props.onFailure()
-    }
-  }
+    if (check.result)
+      onSuccess?.()
+    else
+      onFailure?.()
 
-  handlePasswordChange = (event: InputEvent) => {
-    const password = event.target.value
-    this.setState({
-      password,
-      errorLogin: false, // Clean error message on any modifications
-    })
-  }
+  }, [auth, onFailure, onSuccess, password, user, userId])
 
-  handleEnterAnywhere = (event: KeyboardEvent) => {
+  const handleEnterAnywhere = useCallback((event: KeyboardEvent) => {
     if (event.key === 'Enter')
-      void this.handleSubmit()
+      handleSubmit()
 
-  }
+  }, [handleSubmit])
 
-  getDisplayName = (user: User) => {
-    return `(${user.code}) ${user.name}`
-  }
+  const handleUserChange = useCallback((event: SelectChangeEvent) => {
+    const userId = event.target.value === 'none'
+      ? null
+      : Number(event.target.value)
 
-  render() {
-    const { state, props } = this
-    const { classes } = this.props
-    return (
-      <Grid
-        container
-        spacing={3}
-        className={classes.container}
-        onKeyDown={this.handleEnterAnywhere}
-      >
-        <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
-          <FormControl fullWidth className={classes.formControl} margin='dense' variant='standard'>
-            <InputLabel>Usuario</InputLabel>
-            <Select
-              fullWidth
-              className={classes.field}
-              value={state.userId === null ? 'none' : String(state.userId)}
-              onChange={this.handleUserChange}
-            >
-              {state.users
-                ? state.users.map((user, key) =>
-                  <MenuItem key={key} value={user.id}>
-                    ({user.code}) {user.name}
-                  </MenuItem>
-                )
-                : <MenuItem value='none'>Cargando...</MenuItem>
-              }
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
-          <FormControl fullWidth className={classes.formControl}>
-            <TextField
-              fullWidth
-              value={state.password}
-              onChange={this.handlePasswordChange}
-              label="Contraseña"
-              className={classes.field}
-              type="password"
-              margin="dense"
-              error={state.errorLogin}
-              helperText={state.errorLogin ? 'Contraseña erronea' : null}
-              variant='standard'
-            />
-          </FormControl>
-        </Grid>
-        <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
-          <Button
-            size='large'
-            variant='contained'
-            color='primary'
+    setUserId(userId)
+  }, [setUserId])
+
+
+  const handlePasswordChange = useCallback((event: InputEvent) => {
+    const password = event.target.value
+    setErrorLogin(false) // Clean error message on any modifications
+    setPassword(password)
+  }, [])
+
+  return (
+    <Grid
+      container
+      spacing={3}
+      className={classes.container}
+      onKeyDown={handleEnterAnywhere}
+    >
+      <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
+        <FormControl fullWidth margin='dense' variant='standard'>
+          <InputLabel>Usuario</InputLabel>
+          <Select
             fullWidth
-            onClick={this.handleSubmit}
-            style={{
-              backgroundColor: props.buttonColor || undefined,
-            }}
+            value={userId === null ? 'none' : String(userId)}
+            onChange={handleUserChange}
           >
-            {props.text || 'Registrar'}
-          </Button>
-        </Grid>
+            {userOpts
+              ? userOpts.map((user) =>
+                <MenuItem key={user.value} value={user.value}>
+                  {user.label}
+                </MenuItem>)
+              : <MenuItem value='none'>Cargando...</MenuItem>
+            }
+          </Select>
+        </FormControl>
       </Grid>
-    )
-  }
+      <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
+        <FormControl fullWidth>
+          <TextField
+            fullWidth
+            value={password}
+            onChange={handlePasswordChange}
+            label="Contraseña"
+            type="password"
+            margin="dense"
+            error={errorLogin}
+            helperText={errorLogin ? 'Contraseña erronea' : null}
+            variant='standard'
+          />
+        </FormControl>
+      </Grid>
+      <Grid size={{ xs: 12, md: 6, lg: 4 }} className={classes.elemContainer}>
+        <Button
+          size='large'
+          variant='contained'
+          color='primary'
+          fullWidth
+          onClick={handleSubmit}
+          style={{
+            backgroundColor: buttonColor || undefined,
+          }}
+        >
+          {text || 'Registrar'}
+        </Button>
+      </Grid>
+    </Grid>
+  )
 }
 
 const useStyles = makeStyles({
@@ -203,12 +176,4 @@ const useStyles = makeStyles({
   },
 })
 
-const LoginWrapper = (props: LoginProps) => {
-  const user = useUser()
-  const auth = useAuth()
-  const classes = useStyles()
-
-  return <Login auth={auth} user={user} classes={classes} {...props} />
-}
-
-export default LoginWrapper
+export default Login

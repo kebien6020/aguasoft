@@ -8,6 +8,7 @@ import {
 import { TypographyProps } from '@mui/material/Typography'
 
 import makeStyles from '@mui/styles/makeStyles'
+import { Theme } from '../theme'
 
 type DivProps = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 interface TitleProps extends DivProps {
@@ -26,7 +27,7 @@ export default function Title(props: TitleProps): JSX.Element {
   )
 }
 
-const useTitleStyles = makeStyles(theme => ({
+const useTitleStyles = makeStyles((theme: Theme) => ({
   title: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),

@@ -222,7 +222,7 @@ const StyledDrawer = styled(Drawer)(({ theme, open }: { theme: Theme, open: bool
   }
 }) as typeof Drawer
 
-interface Props {
+export interface LayoutProps {
   children: ReactNode
   className?: string
   title: string
@@ -238,7 +238,7 @@ const RouterLink = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => (
 ))
 RouterLink.displayName = 'RouterLink'
 
-export default function Layout(props: Props): JSX.Element {
+export default function Layout(props: LayoutProps): JSX.Element {
   const {
     children,
     className,

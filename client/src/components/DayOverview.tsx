@@ -4,7 +4,7 @@ import { money } from '../utils'
 import { Sell } from './Sells'
 
 import {
-  Grid,
+  Grid2 as Grid,
   Paper,
   Typography,
   FormControl,
@@ -21,6 +21,7 @@ import {
 
 import * as colors from '@mui/material/colors'
 import { Filter } from '../Routes/Sells'
+import { Theme } from '../theme'
 
 interface Props {
   sells: Sell[]
@@ -99,17 +100,17 @@ const DayOverview = (props: Props): JSX.Element => {
 
   return (
     <Grid container spacing={3} className={classes.summary}>
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Paper className={classes.paper}>
           <Typography variant='body2'>Venta efectivo: {money(calcSell(props.sells, true))}</Typography>
         </Paper>
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Paper className={classes.paper}>
           <Typography variant='body2'>Venta pago post-fechado: {money(calcSell(props.sells, false))}</Typography>
         </Paper>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Paper className={classes.paper}>
           <Typography variant='subtitle2'>Productos vendidos en el día</Typography>
           <FormControl fullWidth margin='normal' variant='standard'>
@@ -141,7 +142,7 @@ const DayOverview = (props: Props): JSX.Element => {
                     </Avatar>
                   </ListItemAvatar>
                   {clientName(String(client.id))}
-                </MenuItem>
+                </MenuItem>,
               )}
             </Select>
           </FormControl>
@@ -165,14 +166,14 @@ const DayOverview = (props: Props): JSX.Element => {
                   key={String(user.code)}
                 >
                   ({user.code}) {user.name}
-                </MenuItem>
+                </MenuItem>,
               )}
             </Select>
           </FormControl>
           {aggregateProducts(props.sells, props.filter).map(([name, qty]) =>
             <Typography variant='body2' key={name}>
               {name}: {qty}
-            </Typography>
+            </Typography>,
           )}
         </Paper>
       </Grid>
@@ -180,7 +181,7 @@ const DayOverview = (props: Props): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   summary: {
     width: '90%',
     marginLeft: 'auto',

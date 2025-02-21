@@ -65,7 +65,7 @@ export interface WithUserProps {
   user: Result | null
 }
 export function withUser<P extends WithUserProps>(
-  Component: ComponentType<P>
+  Component: ComponentType<P>,
 ): FunctionComponent<Omit<P, 'user'>> {
   const WrappedComponent = (props: Omit<P, 'user'>) => (
     <UserContext.Consumer>
