@@ -1,23 +1,11 @@
-import { ComponentType, Component } from 'react'
+import { ComponentType, Component, useState, useCallback } from 'react'
 import { Navigate } from 'react-router'
 
 import { User } from '../models'
-import { fetchJsonAuth } from '../utils'
 import LoadingScreen from '../components/LoadingScreen'
 import useAuth from '../hooks/useAuth'
 import Auth from '../Auth'
-
-interface UserError {
-  success: false
-  error: {
-    message: string
-    code: string
-  }
-}
-
-function isUserError(u: User | UserError): u is UserError {
-  return (u as UserError).success === false
-}
+import { useUserFetch } from '../hooks/useUser'
 
 interface State {
   errorNoUser: boolean
@@ -29,34 +17,10 @@ function adminOnly<P extends Record<string, unknown>>(
   component: ComponentType<P>,
 ): ComponentType<P> {
 
-  type IP = P & { auth: Auth }
+  type IP = P & { auth: Auth, user: User | null, userError: boolean }
   class AdminRoute extends Component<IP, State> {
-    constructor(props: IP) {
-      super(props)
-      this.state = {
-        errorNoUser: false,
-        user: null,
-      }
-    }
-
-    async componentDidMount() {
-      const { props } = this
-      type UserResponse = User | UserError
-      const user: UserResponse =
-        await fetchJsonAuth('/api/users/getCurrent', props.auth)
-
-      if (user) {
-        if (isUserError(user)) {
-          this.setState({ errorNoUser: true })
-          return
-        }
-
-        this.setState({ user })
-      }
-    }
-
     render() {
-      const { props, state } = this
+      const { user, userError } = this.props
       const Component = component
 
       const redirectToLogin = () => {
@@ -64,25 +28,29 @@ function adminOnly<P extends Record<string, unknown>>(
         return <Navigate to={`/check?next=${here}&admin=true`} replace />
       }
 
-      if (state.errorNoUser)
+      if (userError)
         return redirectToLogin()
 
-
-      if (state.user === null)
+      if (user === null)
         return <LoadingScreen text='Verificando usuario...' />
 
-
-      if (state.user.role !== 'admin')
+      if (user.role !== 'admin')
         return redirectToLogin()
 
 
-      return <Component {...props} />
+      return <Component {...this.props} />
     }
   }
 
   const AdminRouteWrapper = (props: P) => {
     const auth = useAuth()
-    return <AdminRoute auth={auth} {...props} />
+    const [userError, setUserError] = useState(false)
+    const onError = useCallback(() => {
+      setUserError(true)
+    }, [])
+    const { user } = useUserFetch(onError)
+
+    return <AdminRoute auth={auth} user={user} userError={userError} {...props} />
   }
 
   return AdminRouteWrapper

@@ -135,7 +135,9 @@ const Movements = () => {
             emptyOption='Todos'
             options={movementCauseOptions}
             value={causeFilter}
-            onChange={(e) => setCauseFilter(e.target.value as string)}
+            onChange={(e) => {
+              setCauseFilter(e.target.value as string) 
+            }}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
@@ -146,7 +148,9 @@ const Movements = () => {
             emptyOption='Todos'
             options={inventoryElementOptions}
             value={elementFilter}
-            onChange={(e) => setElementFilter(e.target.value as string)}
+            onChange={(e) => {
+              setElementFilter(e.target.value as string) 
+            }}
           />
         </Grid>
       </Grid>

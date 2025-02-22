@@ -29,7 +29,7 @@ const TextField = (props: TextFieldProps): JSX.Element => {
   } = props
   const classes = useStyles()
 
-  const [field, meta] = useField(name)
+  const [field, meta] = useField<string>(name)
 
   return (
     <MuiTextField

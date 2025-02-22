@@ -73,7 +73,9 @@ const anchor = {
 export function useSnackbar(): [JSX.Element, React.Dispatch<React.SetStateAction<string | null>>] {
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null)
   const snackbarOpen = snackbarMessage !== null
-  const handleSnackbarClose = useCallback(() => setSnackbarMessage(null), [])
+  const handleSnackbarClose = useCallback(() => {
+    setSnackbarMessage(null) 
+  }, [])
   const snackbar =
     <Snackbar
       open={snackbarOpen}

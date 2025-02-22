@@ -80,41 +80,43 @@ const RegisterSpending = () => {
     return ok
   }, [description, moneyAmount])
 
-  const handleSubmit = async () => {
-    const valid = validateForm()
-    if (!valid) return
+  const handleSubmit = useCallback(() => {
+    (async () => {
+      const valid = validateForm()
+      if (!valid) return
 
-    interface Payload {
-      description: string
-      value: number
-      fromCash: boolean
-      isTransfer: boolean
-      date?: string
-    }
-    const payload: Payload = {
-      description,
-      value: Number(moneyAmount),
-      fromCash,
-      isTransfer,
-    }
+      interface Payload {
+        description: string
+        value: number
+        fromCash: boolean
+        isTransfer: boolean
+        date?: string
+      }
+      const payload: Payload = {
+        description,
+        value: Number(moneyAmount),
+        fromCash,
+        isTransfer,
+      }
 
-    if (userIsAdmin)
-      payload.date = date.toISOString()
+      if (userIsAdmin)
+        payload.date = date.toISOString()
 
-    const response: SuccessResponse | ErrorResponse =
-      await fetchJsonAuth('/api/spendings/new', auth, {
-        method: 'post',
-        body: JSON.stringify(payload),
-      })
+      const response: SuccessResponse | ErrorResponse =
+        await fetchJsonAuth('/api/spendings/new', auth, {
+          method: 'post',
+          body: JSON.stringify(payload),
+        })
 
-    if (isErrorResponse(response)) {
-      setSubmitionError('Error al intentar registrar la salida.')
-      console.error(response.error)
-      return
-    }
+      if (isErrorResponse(response)) {
+        setSubmitionError('Error al intentar registrar la salida.')
+        console.error(response.error)
+        return
+      }
 
-    navigate('/spendings')
-  }
+      navigate('/spendings')
+    })()
+  }, [auth, date, description, fromCash, isTransfer, moneyAmount, navigate, userIsAdmin, validateForm])
 
   return (
     <Layout title='Registrar Salida' container={ResponsiveContainer}>

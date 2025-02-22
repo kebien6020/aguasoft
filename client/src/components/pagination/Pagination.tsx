@@ -1,38 +1,7 @@
 import * as React from 'react'
-import { ButtonProps, StandardProps } from '@mui/material'
-import { makeStyles } from '@mui/styles'
-import classNames from 'classnames'
-import PageButton, { PageButtonClassKey, PageVariant } from './PageButton'
+import { ButtonProps } from '@mui/material'
+import PageButton, { PageVariant } from './PageButton'
 import { computePages, PagePosition, Position } from './core'
-
-export type PaginationClassKey = PageButtonClassKey;
-
-const useStyles = makeStyles({
-  root: {},
-  rootCurrent: {},
-  rootEllipsis: {},
-  rootEnd: {},
-  rootStandard: {},
-  label: {},
-  text: {},
-  textPrimary: {},
-  textSecondary: {},
-  colorInherit: {},
-  colorInheritCurrent: {},
-  colorInheritOther: {},
-  disabled: {},
-  sizeSmall: {},
-  sizeSmallCurrent: {},
-  sizeSmallEllipsis: {},
-  sizeSmallEnd: {},
-  sizeSmallStandard: {},
-  sizeLarge: {},
-  sizeLargeCurrent: {},
-  sizeLargeEllipsis: {},
-  sizeLargeEnd: {},
-  sizeLargeStandard: {},
-  fullWidth: {},
-})
 
 export interface RenderButtonProps {
   offset: number;
@@ -40,8 +9,7 @@ export interface RenderButtonProps {
   children: React.ReactNode;
 }
 
-export interface PaginationProps
-  extends StandardProps<React.HTMLAttributes<HTMLDivElement>, PaginationClassKey, 'onClick'> {
+export interface PaginationProps {
   limit: number;
   offset: number;
   total: number;
@@ -61,6 +29,8 @@ export interface PaginationProps
   previousPageLabel?: React.ReactNode;
   reduced?: boolean;
   size?: 'small' | 'medium' | 'large';
+  className?: string;
+  children?: React.ReactNode;
 }
 
 const Pagination: React.FunctionComponent<PaginationProps> = ({
@@ -68,7 +38,7 @@ const Pagination: React.FunctionComponent<PaginationProps> = ({
   offset = 0,
   total = 0,
   centerRipple = false,
-  className: classNameProp,
+  className,
   component = 'div',
   currentPageColor = 'secondary',
   disabled = false,
@@ -86,10 +56,6 @@ const Pagination: React.FunctionComponent<PaginationProps> = ({
   size = 'medium',
   ...other
 }) => {
-  const { root, ...buttonClasses } = useStyles()
-
-  const className = classNames(root, classNameProp)
-
   const innerButtonCount = reduced ? 1 : innerButtonCountProp
   const outerButtonCount = reduced ? 1 : outerButtonCountProp
 
@@ -132,7 +98,6 @@ const Pagination: React.FunctionComponent<PaginationProps> = ({
               page={pp.page}
               total={total}
               centerRipple={centerRipple}
-              classes={buttonClasses}
               currentPageColor={currentPageColor}
               disabled={disabled}
               disableFocusRipple={disableFocusRipple}

@@ -20,7 +20,9 @@ export const DateField = (props: DateFieldProps): JSX.Element => {
           textField: {
             error: Boolean(meta.touched && meta.error),
             helperText: meta.touched ? meta.error : undefined,
-            onBlur: () => setTouched(true),
+            onBlur: () => {
+              setTouched(true)
+            },
             fullWidth: true,
             margin: 'normal',
           },

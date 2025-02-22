@@ -14,7 +14,7 @@ import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import { ErrorResponse, fetchJsonAuth, formatTimeonlyCol, isErrorResponse, money, SuccessResponse } from '../utils'
 import Alert from './Alert'
-import { format, intlFormatDistance } from 'date-fns'
+import { intlFormatDistance } from 'date-fns'
 import { Theme } from '../theme'
 
 export interface Sell {
@@ -122,7 +122,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           subheader={`para ${sale.Client.name}`}
         />
         <CardContent>
-          {sale?.Batch?.code && (
+          {sale.Batch?.code && (
             <Typography variant='body2'>
               Lote: {sale.Batch.code}
             </Typography>
@@ -138,7 +138,9 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
         </CardContent>
         <IconButton
           className={classes.deleteButton}
-          onClick={() => handleDeleteSell(sale.id)}
+          onClick={() => {
+            handleDeleteSell(sale.id)
+          }}
           disabled={effectiveDisableDelete}
           size="large">
           <DeleteIcon />
@@ -254,21 +256,18 @@ interface SellsProps {
 
 const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Element => (
   <Grid container spacing={2}>
-    {sells?.length === 0 && <>
+    {sells.length === 0 && <>
       <Grid size={{ xs: 12 }}>
         <Typography variant='h5'>
           No se registaron ventas este día.
         </Typography>
       </Grid>
     </>}
-    {sells
-      ? sells.map(sale => (
-        <Grid size={{ xs: 12 }} key={sale.id}>
-          <SaleCard sale={sale} refresh={refresh} disableDelete={disableDelete} />
-        </Grid>
-      ))
-      : 'Cargando ventas del día...'
-    }
+    {sells.map(sale => (
+      <Grid size={{ xs: 12 }} key={sale.id}>
+        <SaleCard sale={sale} refresh={refresh} disableDelete={disableDelete} />
+      </Grid>
+    ))}
   </Grid>
 )
 

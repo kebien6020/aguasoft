@@ -21,7 +21,7 @@ export class PDFErrorBoundary extends Component<ErrorBoundaryProps, State> {
     return { hasError: true }
   }
 
-  reloadPage(event: SyntheticEvent): void {
+  reloadPage = (event: SyntheticEvent): void => {
     event.preventDefault()
     // eslint-disable-next-line no-self-assign
     location.href = location.href

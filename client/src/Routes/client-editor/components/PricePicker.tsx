@@ -38,13 +38,19 @@ const PricePicker = ({ clientName, products, onNewPrice }: Props) => {
     setCurrentProduct(products[0]?.id?.toString() ?? '')
   }, [products])
 
-  const handleOpenDialog = useCallback(() => setDialogOpen(true), [])
-  const handleCloseDialog = useCallback(() => setDialogOpen(false), [])
-  const handleChangeName = useCallback((event: ValChangeEvent) =>
-    setName(event.target.value),
+  const handleOpenDialog = useCallback(() => {
+    setDialogOpen(true) 
+  }, [])
+  const handleCloseDialog = useCallback(() => {
+    setDialogOpen(false) 
+  }, [])
+  const handleChangeName = useCallback((event: ValChangeEvent) => {
+    setName(event.target.value) 
+  },
   [])
-  const handleChangeCurrentPrice = useCallback((event: ValChangeEvent) =>
-    setCurrentPrice(event.target.value),
+  const handleChangeCurrentPrice = useCallback((event: ValChangeEvent) => {
+    setCurrentPrice(event.target.value) 
+  },
   [])
 
   const handleProductChangeImpl = useCallback((value: string) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import LoadingScreen from '../components/LoadingScreen'
 import useAuth from '../hooks/useAuth'
@@ -22,7 +22,9 @@ const AuthCallback = () => {
     })()
   }, [auth, navigate])
 
-  const goHome = () => navigate('/')
+  const goHome = useCallback(() => {
+    navigate('/')
+  }, [navigate])
 
   if (error) {
     return (

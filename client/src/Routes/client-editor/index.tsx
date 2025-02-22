@@ -50,7 +50,7 @@ interface ClientError {
 }
 
 function isClientError(u: Client | ClientDefaults | ClientError): u is ClientError {
-  return (u as ClientError).success === false
+  return !(u as ClientError).success
 }
 
 interface Params {
@@ -78,16 +78,16 @@ const ClientEditor = () => {
   useEffect(() => {
     (async () => {
       const defaults = await (
-        mode === 'CREATE'
+        mode === 'CREATE' && !editId
           ? fetchJsonAuth<ClientDefaults>('/api/clients/defaultsForNew', auth)
-          : fetchJsonAuth<ClientDefaults>(`/api/clients/${editId!}`, auth)
+          : fetchJsonAuth<ClientDefaults>(`/api/clients/${editId}`, auth)
       )
 
       if (isClientError(defaults)) {
         const error = defaults.error
         console.error(error)
         if (error.code === 'not_found') {
-          const msg = `No se encontró el cliente que se buscaba, (Nota: id = ${editId!}).`
+          const msg = `No se encontró el cliente que se buscaba, (Nota: id = ${editId}).`
           setError(msg)
         } else {
           setError(error.message)
@@ -96,7 +96,7 @@ const ClientEditor = () => {
       }
 
       if (mode === 'CREATE') {
-        const createDefaults = defaults as ClientDefaults
+        const createDefaults = defaults
         setCode(createDefaults.code)
       } else {
         const editDefaults = defaults as DetailedClient
@@ -194,57 +194,59 @@ const ClientEditor = () => {
     setPrices([...prices, price])
   }, [prices, products])
 
-  const handleSubmit = async () => {
-    let res: SuccessResponse | ErrorResponse | null = null
+  const handleSubmit = useCallback(() => {
+    (async () => {
+      let res: SuccessResponse | ErrorResponse | null = null
 
-    if (name === '')
-      setErrorEmptyName(true)
-
-
-    if (code === '')
-      setErrorEmptyCode(true)
+      if (name === '')
+        setErrorEmptyName(true)
 
 
-    if (code === '' || name === '') return
+      if (code === '')
+        setErrorEmptyCode(true)
 
-    const body = JSON.stringify({
-      name,
-      code,
-      defaultCash: defaultCash === 'true',
-      notes,
-      prices,
-    })
 
-    if (mode === 'CREATE') {
-      res = await fetchJsonAuth('/api/clients/create', auth, {
-        method: 'post',
-        body,
+      if (code === '' || name === '') return
+
+      const body = JSON.stringify({
+        name,
+        code,
+        defaultCash: defaultCash === 'true',
+        notes,
+        prices,
       })
-    } else if (editId) {
-      res = await fetchJsonAuth(`/api/clients/${editId!}`, auth, {
-        method: 'PATCH',
-        body,
-      })
-    } else {
-      setError('Incosistencia de programa: No se tiene el id del cliente en modo edición')
-      return
-    }
 
-    if (isErrorResponse(res)) {
-      if (res.error.code === 'validation_error' && res.error.errors && res.error.errors[0]) {
-        const field = res.error.errors[0].path
-        if (field === 'name' || field === 'code')
-          setErrorDuplicatedField(field)
-
+      if (mode === 'CREATE') {
+        res = await fetchJsonAuth('/api/clients/create', auth, {
+          method: 'post',
+          body,
+        })
+      } else if (editId) {
+        res = await fetchJsonAuth(`/api/clients/${editId}`, auth, {
+          method: 'PATCH',
+          body,
+        })
+      } else {
+        setError('Incosistencia de programa: No se tiene el id del cliente en modo edición')
         return
       }
-      setErrorSubmitting(true)
-      console.error(res)
-      return
-    }
 
-    navigate('/clients')
-  }
+      if (isErrorResponse(res)) {
+        if (res.error.code === 'validation_error' && res.error.errors && res.error.errors[0]) {
+          const field = res.error.errors[0].path
+          if (field === 'name' || field === 'code')
+            setErrorDuplicatedField(field)
+
+          return
+        }
+        setErrorSubmitting(true)
+        console.error(res)
+        return
+      }
+
+      navigate('/clients')
+    })()
+  }, [auth, code, defaultCash, editId, mode, name, navigate, notes, prices])
 
   if (!products) return <LoadingScreen text='Cargando productos...' />
 
@@ -345,7 +347,9 @@ const ClientEditor = () => {
                 </Typography>
                 <IconButton
                   className={classes.deleteButton}
-                  onClick={() => handlePriceDelete(idx)}
+                  onClick={() => {
+                    handlePriceDelete(idx)
+                  }}
                   size="large">
                   <DeleteIcon />
                 </IconButton>

@@ -29,12 +29,12 @@ export const optionsFromBatchCategories =
     }))
   }
 
-export const useBatchCategory = (id: number): readonly [BatchCategory | null, () => void] => {
+export const useBatchCategory = (id: number | undefined): readonly [BatchCategory | null, () => void] => {
   const showError = useSnackbar()
 
   const [nonce, update] = useNonce()
 
-  const url = `/api/batch-categories/${id}`
+  const url = id !== undefined ? `/api/batch-categories/${id}` : null
   const [batchCategory] = useFetch<BatchCategory>(url, {
     showError,
     name: 'la categoria de lote',

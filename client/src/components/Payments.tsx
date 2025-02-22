@@ -75,7 +75,7 @@ const Payments = (props: Props): JSX.Element => {
 
   return (
     (<Grid container spacing={2}>
-      {props.payments && props.payments.length === 0
+      {props.payments.length === 0
         && <Grid size={{ xs: 12 }}>
           <Typography variant='body1'>
             No se registaron pagos este día.

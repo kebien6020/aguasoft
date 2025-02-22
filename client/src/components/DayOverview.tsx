@@ -46,7 +46,7 @@ const aggregateProducts = (sells: Sell[], filter: Filter) => {
   const countProd = (sells: Sell[], pn: string) =>
     sells
       .filter(s => s.Product.name === pn)
-      .filter(s => s.deleted === false)
+      .filter(s => !s.deleted)
       .filter(s => filter.client === 'ALL' || String(s.Client.id) === filter.client)
       .filter(s => filter.user === 'ALL' || String(s.User.code) === filter.user)
       .reduce((acc, s) => acc + s.quantity, 0)

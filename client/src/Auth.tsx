@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import * as auth0 from 'auth0-js'
 const baseUrl = window.location.origin
 const domain = 'kevinpena.auth0.com'
@@ -27,10 +28,11 @@ export default class Auth {
       this.auth0.parseHash({ hash: window.location.hash }, (err, authResult) => {
         if (err) {
           console.log(err)
-          return reject(err)
+          reject(err)
+          return
         }
         // !err implies authResult !== null
-        return resolve(authResult as auth0.Auth0DecodedHash)
+        resolve(authResult as auth0.Auth0DecodedHash)
       })
     })
   }
@@ -44,9 +46,10 @@ export default class Auth {
         (err: auth0.Auth0Error | null, authResult: auth0.Auth0DecodedHash) => {
           if (err) {
             console.log(err)
-            return reject(err)
+            reject(err)
+            return
           }
-          return resolve(authResult)
+          resolve(authResult)
         },
       )
     })
@@ -96,7 +99,7 @@ export default class Auth {
 
   saveAuth(authResult: auth0.Auth0DecodedHash): void {
     console.log('Saving auth token to localStorage')
-    if (authResult && authResult.accessToken && authResult.idToken) {
+    if (authResult.accessToken && authResult.idToken) {
       this.setSession(authResult)
     } else {
       console.error('error with auth result', authResult)
@@ -105,7 +108,7 @@ export default class Auth {
 
   }
 
-  renew = async (): Promise<true | void> => {
+  renew = async (): Promise<true | undefined> => {
     try {
       this.getAccessToken()
       const authResult = await this.renewAuth()
@@ -113,7 +116,7 @@ export default class Auth {
       return true
     } catch (err) {
       // No previous access token: login
-      return this.login()
+      this.login(); return
     }
   }
 }

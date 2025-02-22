@@ -280,7 +280,9 @@ const RegisterProduction = (): JSX.Element => {
                   control={
                     <Checkbox
                       checked={detectDamaged}
-                      onChange={e => setDetectDamaged(e.target.checked)}
+                      onChange={e => {
+                        setDetectDamaged(e.target.checked) 
+                      }}
                     />
                   }
                   label='Area intermedia queda vacía'

@@ -37,7 +37,7 @@ const drawerWidthFull = 256
 
 interface DrawerItemProps {
   icon: ReactNode,
-  to: LocationDescriptor<unknown>
+  to: LocationDescriptor
   text: string
   fullWidth: boolean
   color: string

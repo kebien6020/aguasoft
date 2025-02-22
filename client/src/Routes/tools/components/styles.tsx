@@ -13,7 +13,13 @@ export const styled = <P extends StyleProps>(Component: CT<P>) => (style: StyleP
 
     const resolvedStyles = useMemo(() => {
       const resolved = typeof style === 'function' ? style(props) : style
-      return { ...propStyle, ...resolved } as Style
+      const propStyleFlattened = (() => {
+        if (!Array.isArray(propStyle))
+          return propStyle
+
+        return propStyle.reduce((acc, s) => ({ ...acc, ...s }), {})
+      })()
+      return { ...propStyleFlattened, ...resolved } as Style
     }, [props, propStyle])
 
     return (
@@ -21,7 +27,7 @@ export const styled = <P extends StyleProps>(Component: CT<P>) => (style: StyleP
     )
   }
 
-  const displayName = Component.displayName ?? Component.name ?? 'Anonymous'
+  const displayName = Component.displayName ?? Component.name
   StyledComponent.displayName = `styled(${displayName})`
 
   return StyledComponent

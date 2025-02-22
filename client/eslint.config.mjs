@@ -46,7 +46,8 @@ export default [
     rules: {
       // Disable some typescript rules
       '@typescript-eslint/no-floating-promises': 'off', // Annoying
-      '@typescript-eslint/unbound-method': 'off', // Giving false negatives with useFormikContext
+      // With number, the conversion is almost always intended
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
 
       // Base js rules
       indent: ['error', 2, { flatTernaryExpressions: true }],

@@ -47,7 +47,7 @@ export const CreateVerificationForm = ({ onCreated = noop }: CreateVerificationF
       amount: values.value,
     })
 
-    const res = await fetchJsonAuth<SuccessResponse>(url, auth, {
+    const res = await fetchJsonAuth(url, auth, {
       method,
       body,
     })

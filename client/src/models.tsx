@@ -5,7 +5,7 @@ export interface Product {
   name: string
   code: string
   basePrice: string
-  batchCategoryId?: number
+  batchCategoryId?: number | null
 
   Variants?: Variant[]
 }
@@ -156,8 +156,8 @@ export interface InventoryMovement {
   readonly deletedBy: number | null
 
   // Possible inclusions
-  readonly storageFrom?: Storage
-  readonly storageTo?: Storage
+  readonly storageFrom?: Storage | null
+  readonly storageTo?: Storage | null
   readonly inventoryElementFrom?: InventoryElement
   readonly inventoryElementTo?: InventoryElement
   readonly creator?: User

@@ -25,7 +25,9 @@ const MyDatePicker = (props: MyDatePickerProps): JSX.Element => {
         value={props.date}
         format='dd-MMM-yyyy'
         disableFuture
-        onChange={(date) => handleDateChange(date, props.onDateChange)}
+        onChange={(date) => {
+          handleDateChange(date, props.onDateChange)
+        }}
         {...props.DatePickerProps}
       />
     </div>
@@ -49,11 +51,12 @@ export const ClearableDatePicker = (props: ClearableDatePickerProps): JSX.Elemen
         value={props.date}
         format='dd-MMM-yyyy'
         disableFuture
-        onChange={(date) => handleDateChange(date, props.onDateChange)}
+        onChange={(date) => {
+          handleDateChange(date, props.onDateChange)
+        }}
         slotProps={{
           ...slotProps,
           field: {
-            ...slotProps?.field,
             clearable: true,
           },
         }}

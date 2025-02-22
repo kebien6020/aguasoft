@@ -47,7 +47,7 @@ const Spendings = (props: Props): JSX.Element => {
 
   return (
     (<Grid container spacing={2}>
-      {props.spendings && props.spendings.length === 0
+      {props.spendings.length === 0
         && <Grid size={{ xs: 12 }}>
           <Typography variant='body1'>
             No se registaron salidas este día.

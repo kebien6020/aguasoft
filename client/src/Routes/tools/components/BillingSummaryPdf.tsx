@@ -6,9 +6,11 @@ import {
   Text as RPText, View,
   ViewProps,
 } from '@react-pdf/renderer'
+import type FontStore from '@react-pdf/font'
 import { endOfDay, format, formatISO, isSameDay, parseISO, startOfDay } from 'date-fns'
 import { es } from 'date-fns/locale/es'
 import React from 'react'
+
 import RobotoBold from '../../../fonts/roboto/Roboto-Bold.ttf'
 import RobotoMedium from '../../../fonts/roboto/Roboto-Medium.ttf'
 import RobotoRegular from '../../../fonts/roboto/Roboto-Regular.ttf'
@@ -26,10 +28,12 @@ export interface BillingSummaryPdfProps {
 const formatLong = (date: Date) => format(date, 'PPP', { locale: es })
 const formatShort = (date: Date) => format(date, 'P', { locale: es })
 
-// Disable breaking words with hyphens
-Font.registerHyphenationCallback((word: string) => [word])
+const F = Font as FontStore // Force the type because the package typings are broken
 
-Font.register({
+// Disable breaking words with hyphens
+F.registerHyphenationCallback((word: string) => [word])
+
+F.register({
   family: 'Roboto',
   fonts: [
     { src: RobotoRegular },
@@ -44,8 +48,8 @@ export const BillingSummaryPdf = React.memo(
 
     const salesDates = sales.map(s => ({ ...s, date: parseISO(s.date) }))
 
-    const minDate = salesDates[0]?.date
-    const maxDate = salesDates[sales.length - 1]?.date
+    const minDate = salesDates[0]?.date as Date | undefined
+    const maxDate = salesDates[sales.length - 1]?.date as Date | undefined
     const subtitle = minDate && maxDate && `Desde el ${formatLong(minDate)} hasta el ${formatLong(maxDate)}`
 
     const products = sales

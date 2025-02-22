@@ -91,7 +91,7 @@ const compare = <T, >(a: T, b: T): number =>
   : a > b ? 1
   : 0
 
-const by = <T, U>(fn: (x: T) => U) => (a: T, b: T): number => {
+const by = <T, >(fn: (x: T) => unknown) => (a: T, b: T): number => {
   const fa = fn(a)
   const fb = fn(b)
   return compare(fa, fb)

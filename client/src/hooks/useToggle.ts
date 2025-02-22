@@ -11,9 +11,15 @@ type Result = readonly [
 
 export const useToggle = (initialValue = false): Result => {
   const [show, setShow] = useState(initialValue)
-  const open = useCallback(() => setShow(true), [])
-  const close = useCallback(() => setShow(false), [])
-  const toggle = useCallback(() => setShow(prev => !prev), [])
+  const open = useCallback(() => {
+    setShow(true) 
+  }, [])
+  const close = useCallback(() => {
+    setShow(false) 
+  }, [])
+  const toggle = useCallback(() => {
+    setShow(prev => !prev) 
+  }, [])
 
   return [show, { open, close, toggle }] as const
 }

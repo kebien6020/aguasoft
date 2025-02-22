@@ -60,29 +60,31 @@ const ClientList = () => {
     setClientDeleteDialogOpen(false)
   }, [])
 
-  const handleClientDelete = useCallback(async () => {
-    if (!clients) return
-    if (!selectedClient) return
+  const handleClientDelete = useCallback(() => {
+    (async () => {
+      if (!clients) return
+      if (!selectedClient) return
 
-    const res = await fetchJsonAuth(`/api/clients/${selectedClient.id}`, auth, {
-      method: 'DELETE',
-    })
+      const res = await fetchJsonAuth(`/api/clients/${selectedClient.id}`, auth, {
+        method: 'DELETE',
+      })
 
-    if (isErrorResponse(res)) {
-      console.error(res)
-      setErrorDeleting(true)
-      setDeletedClient(null)
+      if (isErrorResponse(res)) {
+        console.error(res)
+        setErrorDeleting(true)
+        setDeletedClient(null)
+        setClientDeleteDialogOpen(false)
+        return
+      }
+
+      // remove client from the list and show success message
+      update()
+      setErrorDeleting(false)
+      setDeletedClient(selectedClient.name)
+
       setClientDeleteDialogOpen(false)
-      return
-    }
-
-    // remove client from the list and show success message
-    update()
-    setErrorDeleting(false)
-    setDeletedClient(selectedClient.name)
-
-    setClientDeleteDialogOpen(false)
-    window.scroll(0, 0)
+      window.scroll(0, 0)
+    })()
   }, [auth, clients, selectedClient, update])
 
   const handleClientEdit = useCallback(() => {
@@ -244,7 +246,9 @@ const ClientList = () => {
           <ClientItem
             key={cl.id}
             client={cl}
-            onClick={() => handleClientClick(cl)}
+            onClick={() => {
+              handleClientClick(cl)
+            }}
           />,
         )}
       </List>

@@ -36,7 +36,7 @@ const PaymentList = () => {
     if (!payments) return
 
     const result =
-      await fetchJsonAuth<SuccessResponse>(`/api/payments/${paymentId}`, auth, {
+      await fetchJsonAuth(`/api/payments/${paymentId}`, auth, {
         method: 'delete',
       })
 

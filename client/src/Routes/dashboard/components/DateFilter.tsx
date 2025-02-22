@@ -38,13 +38,12 @@ export const DateFilter = ({
       return
     }
 
-    if (groupBy === 'month') {
-      onRangeChange({
-        minDate: startOfMonth(date),
-        maxDate: endOfMonth(date),
-      })
-      return
-    }
+    // month
+    onRangeChange({
+      minDate: startOfMonth(date),
+      maxDate: endOfMonth(date),
+    })
+    return
   }, [date, groupBy, onRangeChange])
 
   useEffect(() => {
@@ -58,7 +57,9 @@ export const DateFilter = ({
           <InputLabel>Agrupar</InputLabel>
           <StyledSelect
             value={groupBy}
-            onChange={e => setGroupBy(e.target.value as GroupByOption)}
+            onChange={e => {
+              setGroupBy(e.target.value as GroupByOption)
+            }}
           >
             <MenuItem value='day'>Día</MenuItem>
             <MenuItem value='month'>Mes</MenuItem>

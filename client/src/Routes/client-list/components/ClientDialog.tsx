@@ -59,13 +59,13 @@ export const ClientDialog = (props: ClientDialogAllProps) => {
         {client.name}
       </DialogTitle>
       <List>
-        {user?.isAdmin && <ListItemButton onClick={() => onClientEdit?.(client)}>
+        {user?.isAdmin && <ListItemButton onClick={() => onClientEdit(client)}>
           <ListItemIcon>
             <EditIcon sx={colorMain} />
           </ListItemIcon>
           <ListItemText primary='Editar' />
         </ListItemButton>}
-        <ListItemButton onClick={() => onClientShowBalance?.(client)}>
+        <ListItemButton onClick={() => onClientShowBalance(client)}>
           <ListItemIcon>
             <MoneyIcon sx={{ color: green[500] }} />
           </ListItemIcon>
@@ -80,7 +80,7 @@ export const ClientDialog = (props: ClientDialogAllProps) => {
           <ListItemText primary='Facturación' />
         </ListItemButton>
         {user?.isAdmin && client.notes
-          && <ListItemButton onClick={() => onClientShowNotes?.(client)}>
+          && <ListItemButton onClick={() => onClientShowNotes(client)}>
             <ListItemIcon>
               <NoteIcon />
             </ListItemIcon>
@@ -88,7 +88,7 @@ export const ClientDialog = (props: ClientDialogAllProps) => {
           </ListItemButton>}
         {user?.isAdmin && <ListItemButton
           onClick={() => client.hidden
-            ? onClientUnhide?.(client)
+            ? onClientUnhide(client)
             : onClientHide(client)}>
           <ListItemIcon>
             {client.hidden
@@ -97,7 +97,7 @@ export const ClientDialog = (props: ClientDialogAllProps) => {
           </ListItemIcon>
           <ListItemText primary={client.hidden ? 'Desocultar' : 'Ocultar'} />
         </ListItemButton>}
-        {user?.isAdmin && <ListItemButton onClick={() => onClientDelete?.(client)}>
+        {user?.isAdmin && <ListItemButton onClick={() => onClientDelete(client)}>
           <ListItemIcon>
             <DeleteIcon sx={{ color: red[500] }} />
           </ListItemIcon>

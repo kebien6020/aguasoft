@@ -1,36 +1,10 @@
 import * as React from 'react'
-import { StandardProps, Theme } from '@mui/material'
+import { Theme } from '@mui/material'
 import Button, { ButtonProps } from '@mui/material/Button'
 import { makeStyles } from '@mui/styles'
-import classNames from 'classnames'
+import clsx from 'clsx'
 import { getOffset } from './core'
 import { RenderButtonProps } from './Pagination'
-
-export type PageButtonClassKey =
-  | 'root'
-  | 'rootCurrent'
-  | 'rootEllipsis'
-  | 'rootEnd'
-  | 'rootStandard'
-  | 'label'
-  | 'text'
-  | 'textPrimary'
-  | 'textSecondary'
-  | 'colorInherit'
-  | 'colorInheritCurrent'
-  | 'colorInheritOther'
-  | 'disabled'
-  | 'sizeSmall'
-  | 'sizeSmallCurrent'
-  | 'sizeSmallEllipsis'
-  | 'sizeSmallEnd'
-  | 'sizeSmallStandard'
-  | 'sizeLarge'
-  | 'sizeLargeCurrent'
-  | 'sizeLargeEllipsis'
-  | 'sizeLargeEnd'
-  | 'sizeLargeStandard'
-  | 'fullWidth';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -52,14 +26,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingLeft: theme.spacing(1.5),
     paddingRight: theme.spacing(1.5),
   },
-  label: {},
-  text: {},
-  textPrimary: {},
-  textSecondary: {},
-  colorInherit: {},
-  colorInheritCurrent: {},
-  colorInheritOther: {},
-  disabled: {},
   sizeSmall: {
     minWidth: 8,
   },
@@ -98,12 +64,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
-  fullWidth: {},
 }))
 
 export type PageVariant = 'current' | 'ellipsis' | 'end' | 'standard';
 
-export interface PageButtonProps extends StandardProps<ButtonProps, PageButtonClassKey, 'onClick'> {
+export interface PageButtonProps extends Omit<ButtonProps, 'onClick'> {
   limit: number;
   page: number;
   total: number;
@@ -129,7 +94,6 @@ const PageButton: React.FunctionComponent<PageButtonProps> = ({
   page = 0,
   total = 0,
   pageVariant = 'standard',
-  classes: classesProp,
   currentPageColor,
   disabled: disabledProp = false,
   disableRipple: disableRippleProp = false,
@@ -152,8 +116,6 @@ const PageButton: React.FunctionComponent<PageButtonProps> = ({
     rootEllipsis,
     rootEnd,
     rootStandard,
-    colorInheritCurrent,
-    colorInheritOther,
     sizeSmallCurrent,
     sizeSmallEllipsis,
     sizeSmallEnd,
@@ -165,23 +127,19 @@ const PageButton: React.FunctionComponent<PageButtonProps> = ({
     ...classesBase
   } = useStyles()
   const classes = { ...classesBase }
-  classes.root = classNames(classes.root, {
+  classes.root = clsx(classes.root, {
     [rootCurrent]: isCurrent,
     [rootEllipsis]: isEllipsis,
     [rootEnd]: isEnd,
     [rootStandard]: isStandard,
   })
-  classes.colorInherit = classNames(classes.colorInherit, {
-    [colorInheritCurrent]: isCurrent,
-    [colorInheritOther]: !isCurrent,
-  })
-  classes.sizeSmall = classNames(classes.sizeSmall, {
+  classes.sizeSmall = clsx(classes.sizeSmall, {
     [sizeSmallCurrent]: isCurrent && isSmall,
     [sizeSmallEllipsis]: isEllipsis && isSmall,
     [sizeSmallEnd]: isEnd && isSmall,
     [sizeSmallStandard]: isStandard && isSmall,
   })
-  classes.sizeLarge = classNames(classes.sizeLarge, {
+  classes.sizeLarge = clsx(classes.sizeLarge, {
     [sizeLargeCurrent]: isCurrent && isLarge,
     [sizeLargeEllipsis]: isEllipsis && isLarge,
     [sizeLargeEnd]: isEnd && isLarge,
@@ -194,7 +152,6 @@ const PageButton: React.FunctionComponent<PageButtonProps> = ({
   let onClick: ((ev: React.MouseEvent<HTMLElement>) => void) | undefined
   if (isClickable && onClickProp)
     onClick = handleClick(page, limit, onClickProp)
-
 
   const button = (
     <Button

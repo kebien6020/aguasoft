@@ -107,14 +107,18 @@ const BillingSummary = (): JSX.Element => {
             label='Cliente'
             options={clientOptions}
             value={clientOptions ? clientId : ''}
-            onChange={e => setClientId(e.target.value as string)}
+            onChange={e => {
+              setClientId(e.target.value as string) 
+            }}
           />
         </Grid>
         <Grid size={{ xs: 12, lg: 6 }}>
           <DateControl
             label='Fecha de Inicio'
             date={beginDate}
-            onDateChange={date => setBeginDateIso(date.toISOString())}
+            onDateChange={date => {
+              setBeginDateIso(date.toISOString()) 
+            }}
             DatePickerProps={{
               slotProps: {
                 textField: {
@@ -128,7 +132,9 @@ const BillingSummary = (): JSX.Element => {
           <DateControl
             label='Fecha Final'
             date={endDate}
-            onDateChange={date => setEndDateIso(date.toISOString())}
+            onDateChange={date => {
+              setEndDateIso(date.toISOString()) 
+            }}
             DatePickerProps={{
               slotProps: {
                 textField: {
@@ -142,7 +148,9 @@ const BillingSummary = (): JSX.Element => {
           <TextField
             label='Nombre de la descarga (editable)'
             value={downloadName}
-            onChange={e => setDownloadName(e.target.value)}
+            onChange={e => {
+              setDownloadName(e.target.value) 
+            }}
             fullWidth
           />
         </Grid>

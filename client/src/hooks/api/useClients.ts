@@ -49,7 +49,7 @@ export const useClient = (id: number | null, { showError: showErrorParam }: UseC
 
   const [nonce, update] = useNonce()
 
-  const url = id === null ? null : `/api/clients/${id}`
+  const url = id === null ? null : `/api/clients/${String(id)}`
   const [client, loading, error] = useFetch<Client>(url, {
     showError,
     name: 'la lista de clientes',
@@ -97,7 +97,7 @@ export const useClientBalance = (id: number | null, { showError: showErrorParam 
 
   const [nonce, update] = useNonce()
 
-  const url = id === null ? null : `/api/clients/${id}/balance`
+  const url = id === null ? null : `/api/clients/${String(id)}/balance`
   const [data, loading, error] = useFetch<ChangesResponse>(url, {
     showError,
     name: 'la lista de clientes',

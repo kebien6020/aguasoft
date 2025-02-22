@@ -37,7 +37,7 @@ const ClientBalance = () => {
 
   const changeGroups = useMemo(() => changes ? groupChanges(changes) : undefined, [changes])
 
-  if (client === undefined || client === null)
+  if (client === null)
     return <LoadingScreen text='Cargando cliente...' />
 
   if (changeGroups === undefined)
@@ -130,7 +130,7 @@ const groupChanges = (changes: Change[]) => {
   const groups: Groups = []
 
   for (const change of changes) {
-    const prev = groups[groups.length - 1]
+    const prev = groups[groups.length - 1] as IncompleteChangeGroup | undefined
 
     // New group when:
     const newGroup =
@@ -151,7 +151,7 @@ const groupChanges = (changes: Change[]) => {
   }
 
   for (let i = 0; i < groups.length; ++i) {
-    const prev = groups[i - 1]
+    const prev = groups[i - 1] as IncompleteChangeGroup | undefined
 
     let balance = prev === undefined ? 0 : prev.newBalance as number
     const chngValue = groups[i].total

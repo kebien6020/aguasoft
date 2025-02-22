@@ -18,7 +18,7 @@ export const DuplicatedPriceDialog = (props: DuplicatedPriceDialogProps) => {
 
   return (
     <Dialog
-      open={props.priceError !== null}
+      open={true}
       onClose={props.onClose}
     >
       <DialogTitle>Precio Duplicado</DialogTitle>

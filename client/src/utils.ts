@@ -5,7 +5,7 @@ const apiUrl = ''
 
 export interface FetchAuthOptions extends RequestInit {
   // allow to override fetch for testing purposes
-  fetch?: (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>
+  fetch?: (input: RequestInfo, init?: RequestInit) => Promise<Response>
   retry?: boolean // when true we are retrying the request
   failOnAuthError?: boolean
 }
@@ -13,10 +13,10 @@ export interface FetchAuthOptions extends RequestInit {
 export async function fetchJsonAuth<R = SuccessResponse>(
   url: string,
   auth: Auth,
-  options: FetchAuthOptions = {},
+  opts: FetchAuthOptions = {},
 ): Promise<R | ErrorResponse> {
 
-  const fetch = options.fetch || window.fetch
+  const fetch = opts.fetch || window.fetch
 
   const baseHeaders = {
     Authorization: 'bearer ' + auth.getAccessToken(),
@@ -24,11 +24,8 @@ export async function fetchJsonAuth<R = SuccessResponse>(
     Accept: 'application/json',
   }
 
-
-  const opts = options || {}
-
   const headers = Object.assign({}, baseHeaders, opts.headers)
-  const allOpts: RequestInit = Object.assign({}, options, { headers, credentials: 'include' })
+  const allOpts: RequestInit = Object.assign({}, opts, { headers, credentials: 'include' })
 
   const response = await fetch(apiUrl + url, allOpts)
   const data = await response.json() as R | ErrorResponse
@@ -39,13 +36,13 @@ export async function fetchJsonAuth<R = SuccessResponse>(
     && data.error.errors?.[0]?.name === 'UnauthorizedError'
 
   // In case of token error try renewing it with silentAuth and retry
-  if (!options.failOnAuthError && (invalidToken || authError)) {
+  if (!opts.failOnAuthError && (invalidToken || authError)) {
 
     const success = await auth.renew()
 
     if (success && !opts.retry) {
       // retry
-      const newOpts = Object.assign({}, options, { retry: true })
+      const newOpts = Object.assign({}, opts, { retry: true })
       return fetchJsonAuth(url, auth, newOpts)
     } else {
       // silent auth failed, let's do a flashy auth
@@ -87,9 +84,9 @@ export interface SuccessResponse {
 }
 
 export function isErrorResponse(
-  data: unknown | ErrorResponse,
+  data: unknown,
 ): data is ErrorResponse {
-  return (data as ErrorResponse)?.success === false
+  return !((data as ErrorResponse).success)
 }
 
 // Adapted from https://stackoverflow.com/a/149099/4992717
@@ -149,7 +146,9 @@ export function paramsToString(params?: Params): string {
     Object.entries(params).forEach(([key, val]) => {
       if (isValueArr(val)) {
         key += '[]'
-        val.forEach(s => appendParam(searchParams, key, s))
+        val.forEach(s => {
+          appendParam(searchParams, key, s)
+        })
         return
       }
 

@@ -10,7 +10,9 @@ export const PriceField = (props: PriceFieldProps): JSX.Element => {
   return (
     <PriceInput
       value={field.value}
-      onChange={({ target: { value } }) => setValue(value)}
+      onChange={({ target: { value } }) => {
+        setValue(value)
+      }}
       {...props}
       TextFieldProps={{
         name: field.name,

@@ -305,13 +305,17 @@ const Balance = (): JSX.Element => {
         <DateControl
           label='Fecha inicial'
           date={bDate}
-          onDateChange={date => setBDate(isValid(date) ? date : null)}
+          onDateChange={date => {
+            setBDate(isValid(date) ? date : null) 
+          }}
         />
         <ArrowRight />
         <DateControl
           label='Fecha final'
           date={eDate}
-          onDateChange={date => setEDate(isValid(date) ? date : null)}
+          onDateChange={date => {
+            setEDate(isValid(date) ? date : null) 
+          }}
         />
       </DateFilter>
 

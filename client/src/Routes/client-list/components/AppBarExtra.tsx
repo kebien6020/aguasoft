@@ -16,10 +16,13 @@ type ToggleEvent = ChangeEvent<unknown>
 
 export const AppBarExtra = ({ showHidden, onToggleHidden }: AppBarExtraProps) => {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
-  const handleMenuOpen = (event: MouseEvent<HTMLButtonElement>) =>
-    setMenuAnchor(event.currentTarget)
+  const handleMenuOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    setMenuAnchor(event.currentTarget) 
+  }
 
-  const handleMenuClose = useCallback(() => setMenuAnchor(null), [])
+  const handleMenuClose = useCallback(() => {
+    setMenuAnchor(null) 
+  }, [])
   const handleToggleHidden = useCallback((event: ToggleEvent) => {
     onToggleHidden?.()
 

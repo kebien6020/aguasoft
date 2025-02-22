@@ -36,7 +36,9 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
       <Button
         variant='outlined'
         color='primary'
-        onClick={() => setShowManualMovementForm(prev => !prev)}
+        onClick={() => {
+          setShowManualMovementForm(prev => !prev) 
+        }}
       >
         Crear movimiento manual
       </Button>
@@ -54,7 +56,9 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
   useEffect(() => {
     socket.open()
 
-    const onChange = () => update()
+    const onChange = () => {
+      update() 
+    }
     socket.on('storageStatesChanged', onChange)
     socket.on('reconnect', onChange)
 

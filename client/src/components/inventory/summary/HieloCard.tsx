@@ -25,7 +25,7 @@ const HieloCard = (props: HieloCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'hielo-5kg'
-      && movement.rollback === false,
+      && !movement.rollback,
     )
     .reduce(sumQtyTo, 0)
 
@@ -34,7 +34,7 @@ const HieloCard = (props: HieloCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'hielo-5kg'
-      && movement.rollback === true,
+      && movement.rollback,
     )
 
   const hieloSoldRollback = hieloSoldRollbackMovements

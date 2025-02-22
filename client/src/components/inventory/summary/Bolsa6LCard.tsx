@@ -53,7 +53,7 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'bolsa-6l'
-      && movement.rollback === false,
+      && !movement.rollback,
     )
     .reduce(sumQtyTo, 0)
 
@@ -62,7 +62,7 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'bolsa-6l'
-      && movement.rollback === true,
+      && movement.rollback,
     )
 
   const bolsasSoldRollback = bolsasSoldRollbackMovements
@@ -77,11 +77,11 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
 
   const bolsasManualMovements = dayMovements
     ?.filter(movement => movement.cause === 'manual')
-    ?.filter(movement =>
-      movement.inventoryElementFrom?.code === 'bolsa-6l'
-      || movement.inventoryElementTo?.code === 'bolsa-6l'
-      || movement.inventoryElementFrom?.code === 'bolsa-6l-raw'
-      || movement.inventoryElementTo?.code === 'bolsa-6l-raw',
+    .filter(movement =>
+      movement.inventoryElementFrom.code === 'bolsa-6l'
+      || movement.inventoryElementTo.code === 'bolsa-6l'
+      || movement.inventoryElementFrom.code === 'bolsa-6l-raw'
+      || movement.inventoryElementTo.code === 'bolsa-6l-raw',
     )
     .length
 

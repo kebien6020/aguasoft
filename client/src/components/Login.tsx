@@ -55,35 +55,36 @@ const Login = (props: LoginProps) => {
       setUserId(Number(userOpts[0].value))
   }, [userOpts])
 
-  const handleSubmit = useCallback(async () => {
-    setErrorLogin(false)
+  const handleSubmit = useCallback(() => {
+    (async () => {
+      setErrorLogin(false)
 
-    interface CheckResponse {
-      result: boolean
-    }
-    const check = await fetchJsonAuth<CheckResponse>('/api/users/check', auth, {
-      method: 'post',
-      body: JSON.stringify({
-        id: userId,
-        password: password,
-      }),
-    })
+      interface CheckResponse {
+        result: boolean
+      }
+      const check = await fetchJsonAuth<CheckResponse>('/api/users/check', auth, {
+        method: 'post',
+        body: JSON.stringify({
+          id: userId,
+          password: password,
+        }),
+      })
 
-    if (isErrorResponse(check)) {
-      console.error(check)
-      return
-    }
+      if (isErrorResponse(check)) {
+        console.error(check)
+        return
+      }
 
-    setErrorLogin(!check.result)
+      setErrorLogin(!check.result)
 
-    // Reload the user that propagates through context
-    user?.refresh()
+      // Reload the user that propagates through context
+      user?.refresh()
 
-    if (check.result)
-      onSuccess?.()
-    else
-      onFailure?.()
-
+      if (check.result)
+        onSuccess?.()
+      else
+        onFailure?.()
+    })()
   }, [auth, onFailure, onSuccess, password, user, userId])
 
   const handleEnterAnywhere = useCallback((event: KeyboardEvent) => {

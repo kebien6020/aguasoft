@@ -51,7 +51,7 @@ const RegisterPayment = () => {
   useEffect(() => {
     if (clients === null) return
     const firstClient = clients.find(cl => !cl.hidden && !cl.defaultCash)
-    setSelectedClientId(firstClient?.id?.toString())
+    setSelectedClientId(firstClient?.id.toString())
   }, [clients])
 
   const userIsAdmin = user?.user?.role === 'admin'
@@ -135,53 +135,55 @@ const RegisterPayment = () => {
     return ok
   }, [datesEnabled, endDate, invoiceEnabled, invoiceNumber, moneyAmount, startDate])
 
-  const handleSubmit = useCallback(async () => {
-    const valid = validateForm()
-    if (!valid) return
+  const handleSubmit = useCallback(() => {
+    (async () => {
+      const valid = validateForm()
+      if (!valid) return
 
-    interface Payload {
-      value: number
-      clientId: number
-      dateFrom?: string
-      dateTo?: string
-      invoiceNo?: string
-      invoiceDate?: string
-      directPayment?: boolean
-      date?: string
-    }
-    const payload: Payload = {
-      value: Number(moneyAmount),
-      clientId: Number(selectedClientId),
-    }
+      interface Payload {
+        value: number
+        clientId: number
+        dateFrom?: string
+        dateTo?: string
+        invoiceNo?: string
+        invoiceDate?: string
+        directPayment?: boolean
+        date?: string
+      }
+      const payload: Payload = {
+        value: Number(moneyAmount),
+        clientId: Number(selectedClientId),
+      }
 
-    if (datesEnabled) {
-      payload.dateFrom = formatDateonlyMachine(startDate)
-      payload.dateTo = formatDateonlyMachine(endDate)
-    }
+      if (datesEnabled) {
+        payload.dateFrom = formatDateonlyMachine(startDate)
+        payload.dateTo = formatDateonlyMachine(endDate)
+      }
 
-    if (invoiceEnabled) {
-      payload.invoiceNo = invoiceNumber
-      payload.invoiceDate = formatDateonlyMachine(invoiceDate)
-    }
+      if (invoiceEnabled) {
+        payload.invoiceNo = invoiceNumber
+        payload.invoiceDate = formatDateonlyMachine(invoiceDate)
+      }
 
-    if (userIsAdmin) {
-      payload.directPayment = directPayment
-      payload.date = date.toISOString()
-    }
+      if (userIsAdmin) {
+        payload.directPayment = directPayment
+        payload.date = date.toISOString()
+      }
 
-    const response: SuccessResponse | ErrorResponse =
-      await fetchJsonAuth('/api/payments/new', auth, {
-        method: 'post',
-        body: JSON.stringify(payload),
-      })
+      const response: SuccessResponse | ErrorResponse =
+        await fetchJsonAuth('/api/payments/new', auth, {
+          method: 'post',
+          body: JSON.stringify(payload),
+        })
 
-    if (isErrorResponse(response)) {
-      setSubmitionError('Error al intentar registrar el pago.')
-      console.error(response.error)
-      return
-    }
+      if (isErrorResponse(response)) {
+        setSubmitionError('Error al intentar registrar el pago.')
+        console.error(response.error)
+        return
+      }
 
-    navigate('/payments')
+      navigate('/payments')
+    })()
   }, [
     auth,
     date,

@@ -59,7 +59,7 @@ export default function Payments() {
 
     const url = `/api/payments/${paymentId}`
     const result =
-      await fetchJsonAuth<SuccessResponse>(url, auth, {
+      await fetchJsonAuth(url, auth, {
         method: 'delete',
       })
 

@@ -7,7 +7,7 @@ import LoadingScreen from '../components/LoadingScreen'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import Spendings from '../components/Spendings'
 import adminOnly from '../hoc/adminOnly'
-import { fetchJsonAuth, isErrorResponse, SuccessResponse } from '../utils'
+import { fetchJsonAuth, isErrorResponse } from '../utils'
 import { useSpendingsPaginated } from '../hooks/api/useSpendings'
 import useSnackbar from '../hooks/useSnackbar'
 import useAuth from '../hooks/useAuth'
@@ -29,7 +29,7 @@ const SpendingList = () => {
   const spendings = data?.spendings
 
 
-  const handlePageChange = useCallback(async (_event: unknown, offset: number) => {
+  const handlePageChange = useCallback((_event: unknown, offset: number) => {
     setOffset(offset)
   }, [])
 
@@ -46,7 +46,7 @@ const SpendingList = () => {
   const handleDeleteSpending = async (spendingId: number) => {
     if (!spendings) return
 
-    const result = await fetchJsonAuth<SuccessResponse>(`/api/spendings/${spendingId}`, auth, {
+    const result = await fetchJsonAuth(`/api/spendings/${spendingId}`, auth, {
       method: 'delete',
     })
 

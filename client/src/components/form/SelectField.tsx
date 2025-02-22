@@ -22,7 +22,7 @@ export type SelectFieldProps = SelectControlProps & {
     event: ChangeEvent,
     bag: ChangeOverrideBag
   ) => unknown
-  onBeforeChange?: (value: string) => boolean | void
+  onBeforeChange?: (value: string) => boolean | undefined
 }
 
 const SelectField = (props: SelectFieldProps): JSX.Element => {
@@ -32,15 +32,15 @@ const SelectField = (props: SelectFieldProps): JSX.Element => {
     onBeforeChange = () => { /**/ },
     ...otherProps
   } = props
-  const [field, meta] = useField(name)
+  const [field, meta] = useField<string>(name)
   return (
     <SelectControl
       {...field}
       id={field.name}
       errorMessage={meta.error}
       touched={meta.touched}
-      onChange={(e: SelectChangeEvent<string>) => {
-        const continueChange = onBeforeChange(e.target.value as string)
+      onChange={(e: SelectChangeEvent) => {
+        const continueChange = onBeforeChange(e.target.value)
         if (continueChange === false) return
 
         if (onChangeOverride)

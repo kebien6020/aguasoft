@@ -42,6 +42,7 @@ import { SaleForCreate, createSales } from '../../api/sales'
 import { useNavigate } from 'react-router'
 import { startOfDay } from 'date-fns'
 import { formatDateonlyMachine } from '../../utils/dates'
+import { Theme } from '../../theme'
 
 type SaleLine = {
   productId: string | undefined
@@ -84,7 +85,7 @@ interface MapToCreateSaleDeps {
 }
 
 const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine): SaleForCreate => {
-  const price = deps.prices[line.priceId]
+  const price = deps.prices[line.priceId] as Price | undefined
   if (!price)
     throw new Error(`Precio para el producto ${line.productId} no encontrado para este cliente`)
 
@@ -135,10 +136,10 @@ const RegisterSale = memo(() => {
       return
     }
 
-    const priceMap = prices.reduce((o, p) => {
+    const priceMap = prices.reduce<Record<string, Price>>((o, p) => {
       o[p.id] = p
       return o
-    }, {} as Record<string, Price>)
+    }, {})
 
     const deps = {
       prices: priceMap,
@@ -348,16 +349,16 @@ const calcTotal = (saleLines: SaleLine[], prices: Price[] | null) => {
     return 0
 
 
-  const priceMap = prices.reduce((o, p) => {
+  const priceMap = prices.reduce<Record<string, Price>>((o, p) => {
     o[p.id] = p
     return o
-  }, {} as Record<string, Price>)
+  }, {})
 
   const total = saleLines.reduce((acc, line) => {
     if (!line.priceId) { // Skip lines when price hasn't been selected yet
       return acc
     }
-    const price = priceMap[line.priceId]?.value
+    const price = priceMap[line.priceId].value
     if (!price || isNaN(Number(price)))
       return acc
 
@@ -437,7 +438,9 @@ const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLine
   return (
     <Grid container spacing={1}>
       <Grid size={{ xs: 12 }} container justifyContent='flex-end'>
-        <IconButton onClick={() => onRemove(idx)} size='small' style={{ margin: -8 }}>
+        <IconButton onClick={() => {
+          onRemove(idx)
+        }} size='small' style={{ margin: -8 }}>
           <CloseOutlined />
         </IconButton>
       </Grid>
@@ -483,21 +486,25 @@ const BatchFieldGrid = styled(Grid)({
   alignItems: 'baseline',
 })
 
-const Hr = styled(VSpace)(({ theme }) => ({
+const Hr = styled(VSpace)(({ theme }: { theme: Theme }) => ({
   borderBottomWidth: 2,
   borderBottomStyle: 'solid',
   borderBottomColor: theme.palette.divider,
-  marginLeft: -theme.spacing(2),
-  marginRight: -theme.spacing(2),
+  marginLeft: theme.spacing(-2),
+  marginRight: theme.spacing(-2),
   width: `calc(100% + calc(${theme.spacing(2)} * 2))`,
 }))
 
 const BatchField = memo(({ idx, product }: { idx: number, product: ProductWithBatchCategory }) => {
-  const [batches, update] = useBatches({ batchCategoryId: product.batchCategoryId })
+  const [batches, update] = useBatches({ batchCategoryId: product.batchCategoryId ?? undefined })
   const options = optionsFromBatches(batches ?? null)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
-  const toggleAddDialog = useCallback(() => setAddDialogOpen(prev => !prev), [])
-  const closeDialog = useCallback(() => setAddDialogOpen(false), [])
+  const toggleAddDialog = useCallback(() => {
+    setAddDialogOpen(prev => !prev)
+  }, [])
+  const closeDialog = useCallback(() => {
+    setAddDialogOpen(false)
+  }, [])
 
   const fieldName = `saleLines[${idx}].batch`
 
@@ -540,7 +547,7 @@ const addBatchInitialValues = {
 }
 
 const AddBatchDialog = memo(({ product, open, onClose, onCreated }: AddBatchDialogProps) => {
-  const [category] = useBatchCategory(product.batchCategoryId)
+  const [category] = useBatchCategory(product.batchCategoryId ?? undefined)
   const loading = category === null
   const auth = useAuth()
   const showError = useSnackbar()
@@ -565,7 +572,7 @@ const AddBatchDialog = memo(({ product, open, onClose, onCreated }: AddBatchDial
     }
 
     if (isErrorResponse(res)) {
-      showError(`Error al tratar de crear un nuevo lote: ${res.error?.message ?? '???'}`)
+      showError(`Error al tratar de crear un nuevo lote: ${res.error.message}`)
       return
     }
 

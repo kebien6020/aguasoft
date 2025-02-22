@@ -30,7 +30,9 @@ const CheckUser = () => {
         <div className={classes.paper}>
           <Login
             adminOnly={adminOnly}
-            onSuccess={() => setChecked(true)}
+            onSuccess={() => {
+              setChecked(true) 
+            }}
             text='Continuar'
           />
         </div>
