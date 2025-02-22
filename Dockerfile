@@ -1,29 +1,39 @@
-FROM node:18.14 as builder
+FROM node:22 AS client-builder
 
 WORKDIR /build
-COPY package.json package-lock.json ./
-RUN npm install
-COPY client client
-COPY server server
-COPY tsconfig.base.json tsconfig.base.json
-RUN npm run build-all-parallel
+COPY client/package.json client/package-lock.json ./
+RUN npm ci
+COPY client ./
+RUN npm run build
 
-FROM node:18.14 as prod-deps
+FROM node:22 AS server-builder
 
 WORKDIR /build
-COPY package.json package-lock.json ./
-RUN npm install --omit=dev
+COPY server/package.json server/package-lock.json ./
+RUN npm ci
+COPY server ./
+RUN npm run build
 
-FROM node:18.14-slim
+FROM node:22 AS server-prod-deps
 
-RUN apt-get update -y && apt-get install -y dumb-init
+WORKDIR /build
+COPY server/package.json server/package-lock.json ./
+RUN npm ci --only=prod
+
+## Production image
+FROM node:22-slim
+
+RUN apt-get update -y && \
+    apt-get install -y dumb-init && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=prod-deps /build/node_modules node_modules
-COPY --from=builder /build/client/dist client/dist
-COPY --from=builder /build/server/dist server/dist
+COPY --from=server-prod-deps /build/node_modules node_modules
+COPY --from=client-builder /build/dist client/dist
+COPY --from=server-builder /build/dist server/dist
 COPY server/src/db/migrations/ server/src/db/migrations/
-COPY .sequelizerc .sequelizerc
+COPY server/.sequelizerc server/.sequelizerc
 
 VOLUME ["/db"]
 EXPOSE 3000
