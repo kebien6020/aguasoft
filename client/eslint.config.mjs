@@ -9,7 +9,15 @@ export default [
     ignores: ['dist/**/*', 'node_modules/**/*'],
   },
   js.configs.recommended,
-  ...ts.configs.recommended,
+  ...ts.configs.strictTypeChecked,
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
   {
     settings: {
       react: {

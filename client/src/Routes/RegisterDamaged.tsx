@@ -177,7 +177,7 @@ const DevolucionForm = (props: DevolucionFormProps) => {
   const dType = values.damageType
 
   const productElements = inventoryElements && inventoryElements.filter(element =>
-    element.type === 'product' || element.code === 'bolsa-360'
+    element.type === 'product' || element.code === 'bolsa-360',
   )
   const productElementOptions = optionsFromElements(productElements)
 

@@ -118,7 +118,7 @@ const LoginPaper = styled(Paper)(({ theme }: { theme: Theme }) => ({
 const ListLink = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
   function ListLink(props, ref) {
     return <Link to='/payments/list' ref={ref} {...props} />
-  }
+  },
 )
 
 const ButtonWrapper = styled('div')({
@@ -141,7 +141,7 @@ const DatePicker = styled(
       }}
       {...props}
     />
-  )
+  ),
 )(({ theme }: { theme: Theme }) => ({
   marginTop: theme.spacing(4),
   marginBottom: theme.spacing(0),

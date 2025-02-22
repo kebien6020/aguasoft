@@ -19,7 +19,7 @@ type Result<T> = [
 
 function useFetch<T>(
   url: string | null,
-  hookOptions: UseFetchOptions
+  hookOptions: UseFetchOptions,
 ): Result<T> {
   const {
     showError,

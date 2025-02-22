@@ -24,7 +24,7 @@ export const computePages = (
   offsetProp: number,
   totalProp: number,
   innerButtonCountProp: number,
-  outerButtonCountProp: number
+  outerButtonCountProp: number,
 ): PagePosition[] => {
   const limit = limitProp >= 1 ? limitProp : 1
   const offset = offsetProp >= 0 ? offsetProp : 0
@@ -54,7 +54,7 @@ export const computePages = (
       pages.push(
         i === lowOuterEllipsisPage && i < lowInnerEllipsisPage
           ? createPagePosition(Position.LowEllipsis)
-          : createPagePosition(Position.Standard, i)
+          : createPagePosition(Position.Standard, i),
       )
       for (let j = Math.max(i, lowInnerEllipsisPage) + 1; j < currentPage; j++)
         pages.push(createPagePosition(Position.Standard, j))
@@ -77,7 +77,7 @@ export const computePages = (
       pages.push(
         i === highInnerEllipsisPage && i < highOuterEllipsisPage
           ? createPagePosition(Position.HighEllipsis)
-          : createPagePosition(Position.Standard, i)
+          : createPagePosition(Position.Standard, i),
       )
       for (let j = Math.max(i, highOuterEllipsisPage) + 1; j <= maxPage; j++)
         pages.push(createPagePosition(Position.Standard, j))

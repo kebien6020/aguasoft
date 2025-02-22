@@ -1,11 +1,22 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardProps,
+  Grid2 as Grid,
+  Paper,
+  Theme,
+  Typography,
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import type { FormikValues, FormikHelpers } from 'formik'
+import { blue, green, indigo, orange, pink, purple, yellow } from '@mui/material/colors'
+
 import Layout from '../components/Layout'
 import Title from '../components/Title'
 import Form from '../components/form/Form'
-import { FormikValues, FormikHelpers } from 'formik'
 import { DateField } from '../components/form/DateField'
 import SelectField from '../components/form/SelectField'
-import { Card, CardContent, CardHeader, Grid, Paper, Theme, Typography } from '@mui/material'
-import { styled } from '@mui/material/styles'
 import SubmitButton from '../components/form/SubmitButton'
 import { optionsFromBatchCategories, useBatchCategories } from '../hooks/api/useBatchCategories'
 import useSnackbar from '../hooks/useSnackbar'
@@ -15,7 +26,7 @@ import useAuth from '../hooks/useAuth'
 import { useBatches } from '../hooks/api/useBatches'
 import type { Batch } from '../models'
 import LoadingIndicator from '../components/LoadingIndicator'
-import * as colors from '@mui/material/colors'
+import { FC } from 'react'
 
 const Batches = () => {
   const [batches, refresh] = useBatches({ include: ['BatchCategory'] })
@@ -83,13 +94,13 @@ const CreateBatchForm = ({ refresh }: CreateBatchFormProps) => {
         onSubmit={handleSubmit}
         gridProps={{ direction: 'row', alignItems: 'center' }}
       >
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <DateField name='date' label='Fecha del lote' />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <SelectField name='batchCategory' label='Categoría de Lote' options={options} />
         </Grid>
-        <Grid item xs={12} md={2}>
+        <Grid size={{ xs: 12, md: 2 }}>
           <SubmitButton>Crear</SubmitButton>
         </Grid>
       </Form>
@@ -113,7 +124,7 @@ const BatchList = ({ batches }: BatchListProps) => {
   return (
     <>
       {batches.map(b =>
-        <BatchCard batch={b} key={String(b.id)} />
+        <BatchCard batch={b} key={String(b.id)} />,
       )}
     </>
   )
@@ -131,18 +142,23 @@ const BatchCard = ({ batch }: { batch: Batch }) => (
 )
 
 const colorMap = {
-  'bolsa-360': colors.blue[500],
-  'bolsa-6l': colors.green[500],
-  botellon: colors.yellow[500],
-  'hielo-5kg': colors.orange[500],
-  'botellon-nuevo': colors.indigo[500],
-  'hielo-2kg': colors.purple[500],
-  'barra-hielo': colors.pink[500],
-} as Record<string, string>
+  'bolsa-360': blue[500],
+  'bolsa-6l': green[500],
+  botellon: yellow[500],
+  'hielo-5kg': orange[500],
+  'botellon-nuevo': indigo[500],
+  'hielo-2kg': purple[500],
+  'barra-hielo': pink[500],
+} as const
 
-type StyledCardProps = { colorKey: string } & { theme: Theme }
-const StyledCard = styled(Card)(({ colorKey, theme }: StyledCardProps) => ({
+interface StyledCardProps extends CardProps {
+  colorKey: string
+}
+
+type StyledCardPropsWithTheme = StyledCardProps & { theme: Theme }
+
+const StyledCard = styled(Card)(({ colorKey, theme }: StyledCardPropsWithTheme) => ({
   borderLeftWidth: 4,
   borderLeftStyle: 'solid',
   borderLeftColor: colorMap[colorKey] ?? theme.palette.grey,
-}))
+})) as FC<StyledCardProps>

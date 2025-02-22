@@ -149,6 +149,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 const SpendingListLink = forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
   function SpendingListLink(props, ref) {
     return <Link to='/spendings/list' ref={ref} {...props} />
-  }
+  },
 )
 

@@ -27,7 +27,7 @@ const Paca360Card = (props: Paca360CardProps): JSX.Element => {
       movement.cause === 'relocation'
       && movement.inventoryElementFrom.code === 'rollo-360'
       && movement.storageFrom?.code === 'bodega'
-      && movement.storageTo?.code === 'trabajo'
+      && movement.storageTo?.code === 'trabajo',
     )
     .reduce(sumQtyTo, 0)
 
@@ -36,7 +36,7 @@ const Paca360Card = (props: Paca360CardProps): JSX.Element => {
       movement.cause === 'relocation'
       && movement.inventoryElementFrom.code === 'rollo-360'
       && movement.storageFrom?.code === 'trabajo'
-      && movement.storageTo === null
+      && movement.storageTo === null,
     )
     .reduce(sumQtyTo, 0)
 
@@ -45,21 +45,21 @@ const Paca360Card = (props: Paca360CardProps): JSX.Element => {
       movement.cause === 'production'
       && movement.inventoryElementTo.code === 'bolsa-360'
       && movement.storageFrom === null
-      && movement.storageTo?.code === 'intermedia'
+      && movement.storageTo?.code === 'intermedia',
     )
     .reduce(sumQtyTo, 0)
 
   const bolsasDamaged = dayMovements
     ?.filter(movement =>
       movement.cause === 'damage'
-      && movement.inventoryElementFrom.code === 'bolsa-360'
+      && movement.inventoryElementFrom.code === 'bolsa-360',
     )
     .reduce(sumQtyTo, 0)
 
   const pacasUnpack = dayMovements
     ?.filter(movement =>
       movement.inventoryElementFrom.code === 'paca-360'
-      && movement.inventoryElementTo.code === 'bolsa-360'
+      && movement.inventoryElementTo.code === 'bolsa-360',
     )
     .reduce(sumQtyFrom, 0)
 
@@ -67,7 +67,7 @@ const Paca360Card = (props: Paca360CardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'production'
       && movement.inventoryElementTo.code === 'paca-360'
-      && movement.storageTo?.code === 'terminado'
+      && movement.storageTo?.code === 'terminado',
     )
     .reduce(sumQtyTo, 0)
 
@@ -75,7 +75,7 @@ const Paca360Card = (props: Paca360CardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'paca-360'
-      && movement.rollback === false
+      && movement.rollback === false,
     )
     .reduce(sumQtyTo, 0)
 
@@ -84,7 +84,7 @@ const Paca360Card = (props: Paca360CardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'paca-360'
-      && movement.rollback === true
+      && movement.rollback === true,
     )
 
   const pacasSoldRollback = pacasSoldRollbackMovements
@@ -103,21 +103,21 @@ const Paca360Card = (props: Paca360CardProps): JSX.Element => {
   const rollosManualMovements = manualMovements
     ?.filter(movement =>
       movement.inventoryElementFrom?.code === 'rollo-360'
-      || movement.inventoryElementTo?.code === 'rollo-360'
+      || movement.inventoryElementTo?.code === 'rollo-360',
     )
     .length
 
   const bolsasManualMovements = manualMovements
     ?.filter(movement =>
       movement.inventoryElementFrom?.code === 'bolsa-360'
-      || movement.inventoryElementTo?.code === 'bolsa-360'
+      || movement.inventoryElementTo?.code === 'bolsa-360',
     )
     .length
 
   const pacasManualMovements = manualMovements
     ?.filter(movement =>
       movement.inventoryElementFrom?.code === 'paca-360'
-      || movement.inventoryElementTo?.code === 'paca-360'
+      || movement.inventoryElementTo?.code === 'paca-360',
     )
     .length
 

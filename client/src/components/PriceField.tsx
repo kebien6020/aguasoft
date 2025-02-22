@@ -1,4 +1,4 @@
-import type { JSX } from 'react'
+import type { ComponentType, JSX } from 'react'
 import type {
   ReactNode,
   ChangeEvent,
@@ -7,7 +7,7 @@ import type {
   ForwardedRef,
 } from 'react'
 import { forwardRef } from 'react'
-import { TextField } from '@mui/material'
+import { InputBaseComponentProps, TextField } from '@mui/material'
 import { TextFieldProps } from '@mui/material/TextField'
 
 import { NumberFormatValues, NumericFormat, NumericFormatProps } from 'react-number-format'
@@ -53,7 +53,13 @@ const PriceField = (props: PriceFieldProps): JSX.Element => (
     label={props.label}
     margin='normal'
     fullWidth
-    InputProps={{ inputComponent: NumberFormatCustom }}
+    slotProps={{
+      input: {
+        // Force the type here because the difference is on the
+        // prop `defaultValue`, which we are not using here
+        inputComponent: NumberFormatCustom as unknown as ComponentType<InputBaseComponentProps>,
+      },
+    }}
     onChange={props.onChange}
     value={props.value}
     {...props.TextFieldProps}

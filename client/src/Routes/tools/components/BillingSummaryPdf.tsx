@@ -1,9 +1,10 @@
-import type { JSX } from 'react'
-import ReactPDF, {
+import type { JSX, PropsWithChildren } from 'react'
+import {
   Document,
   Font,
   Page as RPPage,
   Text as RPText, View,
+  ViewProps,
 } from '@react-pdf/renderer'
 import { endOfDay, format, formatISO, isSameDay, parseISO, startOfDay } from 'date-fns'
 import { es } from 'date-fns/locale/es'
@@ -26,7 +27,7 @@ const formatLong = (date: Date) => format(date, 'PPP', { locale: es })
 const formatShort = (date: Date) => format(date, 'P', { locale: es })
 
 // Disable breaking words with hyphens
-Font.registerHyphenationCallback(word => [word])
+Font.registerHyphenationCallback((word: string) => [word])
 
 Font.register({
   family: 'Roboto',
@@ -89,7 +90,7 @@ export const BillingSummaryPdf = React.memo(
           <Table style={{ marginTop: 16 }}>
             <HeaderRow>
               <HeaderCell>Fecha</HeaderCell>
-              {products.map(product => <HeaderCell key={product.id}>{product.name}</HeaderCell>
+              {products.map(product => <HeaderCell key={product.id}>{product.name}</HeaderCell>,
               )}
               <HeaderCell>Total Día</HeaderCell>
             </HeaderRow>
@@ -98,17 +99,17 @@ export const BillingSummaryPdf = React.memo(
               <BodyCellLeft>{formatShort(day)}</BodyCellLeft>
               {products.map(product => <BodyCell key={product.id}>
                 {showAmount(calculateDayAmount(day, product.id))}
-              </BodyCell>
+              </BodyCell>,
               )}
               <BodyCell>{money(calculateTotalDay(day))}</BodyCell>
-            </BodyRow>
+            </BodyRow>,
             )}
 
             <FooterRow>
               <FooterCell>Total</FooterCell>
               {products.map(product => <FooterCell key={product.id}>
                 {showAmount(calculateTotalProduct(product.id))}
-              </FooterCell>
+              </FooterCell>,
               )}
               <FooterCell>{money(total)}</FooterCell>
             </FooterRow>
@@ -117,7 +118,7 @@ export const BillingSummaryPdf = React.memo(
         </Page>
       </Document>
     )
-  }
+  },
 )
 
 const Text = styled(RPText)({
@@ -151,6 +152,8 @@ const Table = styled(View)({
   marginRight: 0,
 })
 
+type RowProps = PropsWithChildren<ViewProps>
+
 const Row = styled(View)({
   flexDirection: 'row',
   width: '100%',
@@ -183,11 +186,11 @@ const HeaderCell = ({ children }: { children: string }) =>
     <HeaderText>{children}</HeaderText>
   </Cell>
 
-interface BodyRowProps extends ReactPDF.ViewProps {
+interface BodyRowProps extends RowProps {
   idx: number
 }
 const BodyRow = styled<BodyRowProps>(
-  ({ idx, ...props }) => <Row {...props} />
+  ({ idx, ...props }) => <Row {...props} />,
 )(({ idx }) => ({
   borderTopWidth: 0,
   ...(idx % 2 === 0 ? { backgroundColor: theme.palette.primary.light } : {}),

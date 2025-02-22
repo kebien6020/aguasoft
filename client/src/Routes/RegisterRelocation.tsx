@@ -51,7 +51,7 @@ const RegisterRelocation = () => {
   const [inventoryElements] = useInventoryElements()
 
   const onlyRawAndTools = inventoryElements && inventoryElements.filter(element =>
-    element.type === 'raw' || element.type === 'tool'
+    element.type === 'raw' || element.type === 'tool',
   )
 
   const elementOptions = optionsFromElements(onlyRawAndTools)

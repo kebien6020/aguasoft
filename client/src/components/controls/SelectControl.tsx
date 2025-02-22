@@ -44,7 +44,7 @@ const SelectControl = (props: SelectControlProps): JSX.Element => {
           && <MenuItem value=''>{emptyOption}</MenuItem>
         }
         {options && options.map(o =>
-          <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>
+          <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>,
         )}
       </Select>
       {(errorMessage && touched || helperText)

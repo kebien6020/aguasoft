@@ -65,7 +65,7 @@ export const ClearableDatePicker = (props: ClearableDatePickerProps): JSX.Elemen
 
 function handleDateChange(
   date: Date | null,
-  onDateChange: DateChangeHandler
+  onDateChange: DateChangeHandler,
 ) {
   date = date ? date : new Date(NaN)
   onDateChange(date)

@@ -3,10 +3,10 @@
     "jsx": "preserve",
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
 
     "skipLibCheck": true,
-    "strictNullChecks": true,
+    "strictNullChecks": true
   },
   "include": [
       "src/**/*"

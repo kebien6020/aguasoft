@@ -25,7 +25,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'termoencogible'
-      && movement.rollback === false
+      && movement.rollback === false,
     )
     .reduce(sumQtyTo, 0)
 
@@ -34,7 +34,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'termoencogible'
-      && movement.rollback === true
+      && movement.rollback === true,
     )
 
   const botellonSoldRollback = botellonSoldRollbackMovements
@@ -51,7 +51,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'botellon-nuevo'
-      && movement.rollback === false
+      && movement.rollback === false,
     )
     .reduce(sumQtyTo, 0)
 
@@ -60,7 +60,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'botellon-nuevo'
-      && movement.rollback === true
+      && movement.rollback === true,
     )
 
   const botellonNuevoSoldRollback = botellonNuevoSoldRollbackMovements

@@ -8,7 +8,7 @@ import Login from '../components/Login'
 import { parseParams } from '../utils'
 import { useState } from 'react'
 import useUser from '../hooks/useUser'
-import useAuth from '../hooks/useAuth'
+import { Theme } from '../theme'
 
 const CheckUser = () => {
   const classes = useStyles()
@@ -18,7 +18,6 @@ const CheckUser = () => {
   const redirectUrl = params.next ? params.next : '/sell'
   const adminOnly = params.admin ? params.admin === 'true' : false
   const userFromContext = useUser()
-  const auth = useAuth()
 
   if (checked && userFromContext?.loggedIn)
     return <Navigate to={redirectUrl} />
@@ -30,7 +29,6 @@ const CheckUser = () => {
       >
         <div className={classes.paper}>
           <Login
-            auth={auth}
             adminOnly={adminOnly}
             onSuccess={() => setChecked(true)}
             text='Continuar'
@@ -42,7 +40,7 @@ const CheckUser = () => {
 }
 
 const useStyles = makeStyles(
-  ({ palette, spacing, shadows }) => ({
+  ({ palette, spacing, shadows }: Theme) => ({
     paper: {
       position: 'absolute',
       width: '80%',

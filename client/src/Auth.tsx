@@ -47,7 +47,7 @@ export default class Auth {
             return reject(err)
           }
           return resolve(authResult)
-        }
+        },
       )
     })
   }

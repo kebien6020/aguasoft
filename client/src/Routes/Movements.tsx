@@ -160,7 +160,7 @@ const Movements = () => {
               storages={storages}
               elements={inventoryElements}
             />
-          </Grid>
+          </Grid>,
         ) : <LoadingIndicator />}
       </Grid>
       {renderPagination()}

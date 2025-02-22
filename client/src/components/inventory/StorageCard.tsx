@@ -5,6 +5,7 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
 import { Storage, InventoryElement, StorageState } from '../../models'
+import { Theme } from '../../theme'
 
 interface StorageCardProps {
   storage: Storage
@@ -44,7 +45,7 @@ const StorageCard = (props: StorageCardProps): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   card: {
     borderLeftWidth: '4px',
     borderLeftStyle: 'solid',

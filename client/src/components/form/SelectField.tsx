@@ -1,13 +1,14 @@
 import type { JSX } from 'react'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
 import SelectControl, { SelectControlProps } from '../controls/SelectControl'
+import { SelectChangeEvent } from '@mui/material'
 
 export interface SelectOption {
   value: string
   label: React.ReactNode
 }
 
-export type ChangeEvent = React.ChangeEvent<{ name?: string | undefined; value: unknown; }>
+export type ChangeEvent = { target: { name?: string | undefined; value: unknown; } }
 
 export interface ChangeOverrideBag {
   field: FieldInputProps<string>
@@ -38,7 +39,7 @@ const SelectField = (props: SelectFieldProps): JSX.Element => {
       id={field.name}
       errorMessage={meta.error}
       touched={meta.touched}
-      onChange={(e) => {
+      onChange={(e: SelectChangeEvent<string>) => {
         const continueChange = onBeforeChange(e.target.value as string)
         if (continueChange === false) return
 

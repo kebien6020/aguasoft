@@ -22,7 +22,7 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
       movement.cause === 'relocation'
       && movement.inventoryElementFrom.code === 'bolsa-6l-raw'
       && movement.storageFrom?.code === 'bodega'
-      && movement.storageTo?.code === 'trabajo'
+      && movement.storageTo?.code === 'trabajo',
     )
     .reduce(sumQtyTo, 0)
 
@@ -31,21 +31,21 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
       movement.cause === 'production'
       && movement.inventoryElementTo.code === 'bolsa-6l'
       && movement.storageFrom?.code === 'trabajo'
-      && movement.storageTo?.code === 'terminado'
+      && movement.storageTo?.code === 'terminado',
     )
     .reduce(sumQtyTo, 0)
 
   const bolsasDamaged = dayMovements
     ?.filter(movement =>
       movement.cause === 'damage'
-      && movement.inventoryElementFrom.code === 'bolsa-6l'
+      && movement.inventoryElementFrom.code === 'bolsa-6l',
     )
     .reduce(sumQtyTo, 0)
 
   const bolsasRawDamaged = dayMovements
     ?.filter(movement =>
       movement.cause === 'damage'
-      && movement.inventoryElementFrom.code === 'bolsa-6l-raw'
+      && movement.inventoryElementFrom.code === 'bolsa-6l-raw',
     )
     .reduce(sumQtyTo, 0)
 
@@ -53,7 +53,7 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'bolsa-6l'
-      && movement.rollback === false
+      && movement.rollback === false,
     )
     .reduce(sumQtyTo, 0)
 
@@ -62,7 +62,7 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'bolsa-6l'
-      && movement.rollback === true
+      && movement.rollback === true,
     )
 
   const bolsasSoldRollback = bolsasSoldRollbackMovements
@@ -81,7 +81,7 @@ const Bolsa6LCard = ({ dayMovements, ...otherProps }: Bolsa6LCardProps): JSX.Ele
       movement.inventoryElementFrom?.code === 'bolsa-6l'
       || movement.inventoryElementTo?.code === 'bolsa-6l'
       || movement.inventoryElementFrom?.code === 'bolsa-6l-raw'
-      || movement.inventoryElementTo?.code === 'bolsa-6l-raw'
+      || movement.inventoryElementTo?.code === 'bolsa-6l-raw',
     )
     .length
 
