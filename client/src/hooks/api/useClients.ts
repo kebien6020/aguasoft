@@ -79,3 +79,30 @@ export const useClientOptions = (opts: UseClientsOpts = {}): readonly [Option[] 
 
   return [clientOptions, helpers] as const
 }
+
+export interface Change {
+  date: string
+  value: number
+  type: 'sell' | 'payment'
+  id: number
+}
+
+export interface ChangesResponse {
+  changes: Change[]
+}
+
+export const useClientBalance = (id: number | null, { showError: showErrorParam }: UseClientOpts = {}) => {
+  const showSnackbar = useSnackbar()
+  const showError = showErrorParam ?? showSnackbar
+
+  const [nonce, update] = useNonce()
+
+  const url = id === null ? null : `/api/clients/${id}/balance`
+  const [data, loading, error] = useFetch<ChangesResponse>(url, {
+    showError,
+    name: 'la lista de clientes',
+    nonce,
+  })
+
+  return [data?.changes, { update, loading, error }] as const
+}

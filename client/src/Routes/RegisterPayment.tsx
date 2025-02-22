@@ -1,5 +1,5 @@
-import { ChangeEvent, Component } from 'react'
-import { Navigate } from 'react-router'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import {
   Paper,
   FormControl,
@@ -12,190 +12,133 @@ import {
   Switch,
   Collapse,
   Button,
+  SelectChangeEvent,
 } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { isAfter, startOfDay } from 'date-fns'
 
-import { Theme } from '@mui/material/styles'
-
-import { makeStyles } from '@mui/styles'
-
-import { AuthRouteComponentProps } from '../AuthRoute'
 import Layout from '../components/Layout'
 import Title from '../components/Title'
 import Alert from '../components/Alert'
 import LoadingScreen from '../components/LoadingScreen'
 import PriceField from '../components/PriceField'
 import DatePicker from '../components/MyDatePicker'
-import { Client, User } from '../models'
 import {
   fetchJsonAuth,
   isErrorResponse,
   ErrorResponse,
   SuccessResponse,
 } from '../utils'
-import { isAfter, startOfDay } from 'date-fns'
 import { formatDateonlyMachine } from '../utils/dates'
 import useAuth from '../hooks/useAuth'
+import { useClients } from '../hooks/api/useClients'
+import useUser from '../hooks/useUser'
+import { Theme } from '../theme'
 
-interface Props extends AuthRouteComponentProps, PropClasses { }
-interface State {
-  clients: Client[] | null
-
-  selectedClientId: string | null
-  date: Date
-  moneyAmount: string
-  invoiceEnabled: boolean
-  invoiceDate: Date
-  invoiceNumber: string
-  datesEnabled: boolean
-  startDate: Date
-  endDate: Date
-  directPayment: boolean
-
-  userIsAdmin: boolean
-
-  moneyAmountError: string | null
-  invoiceNumberError: string | null
-  datesError: string | null
-  submitionError: string | null
-
-  redirectToList: boolean
-}
-
-type ValChangeEvent = ChangeEvent<{ value: string }>
 type CheckedChangeEvent = { target: { checked: boolean } }
 
-class RegisterPayment extends Component<Props, State> {
+const startOfToday = startOfDay(new Date())
 
-  constructor(props: Props) {
-    super(props)
+const RegisterPayment = () => {
+  const auth = useAuth()
+  const user = useUser()
+  const navigate = useNavigate()
 
-    const startOfToday = startOfDay(new Date())
+  const [clients] = useClients()
+  const [selectedClientId, setSelectedClientId] = useState<string | undefined>()
 
-    this.state = {
-      selectedClientId: null,
-      date: startOfToday,
-      clients: null,
-      moneyAmount: '',
-      invoiceEnabled: false,
-      invoiceDate: startOfToday,
-      invoiceNumber: '',
-      datesEnabled: false,
-      startDate: startOfToday,
-      endDate: startOfToday,
-      directPayment: true,
+  // Select the first client when the client list changes
+  useEffect(() => {
+    if (clients === null) return
+    const firstClient = clients.find(cl => !cl.hidden && !cl.defaultCash)
+    setSelectedClientId(firstClient?.id?.toString())
+  }, [clients])
 
-      userIsAdmin: false,
+  const userIsAdmin = user?.user?.role === 'admin'
 
-      moneyAmountError: null,
-      invoiceNumberError: null,
-      datesError: null,
-      submitionError: null,
+  const [date, setDate] = useState<Date>(startOfToday)
+  const [moneyAmount, setMoneyAmount] = useState<string>('')
+  const [invoiceEnabled, setInvoiceEnabled] = useState<boolean>(false)
+  const [invoiceDate, setInvoiceDate] = useState<Date>(startOfToday)
+  const [invoiceNumber, setInvoiceNumber] = useState<string>('')
+  const [datesEnabled, setDatesEnabled] = useState<boolean>(false)
+  const [startDate, setStartDate] = useState<Date>(startOfToday)
+  const [endDate, setEndDate] = useState<Date>(startOfToday)
+  const [directPayment, setDirectPayment] = useState<boolean>(true)
+  const [moneyAmountError, setMoneyAmountError] = useState<string | null>(null)
+  const [invoiceNumberError, setInvoiceNumberError] = useState<string | null>(null)
+  const [datesError, setDatesError] = useState<string | null>(null)
+  const [submitionError, setSubmitionError] = useState<string | null>(null)
 
-      redirectToList: false,
-    }
-  }
 
-  async componentDidMount() {
-    const { props } = this
-    const clients: Client[] | ErrorResponse =
-      await fetchJsonAuth('/api/clients', props.auth)
+  const handleChangeStartDate = useCallback((date: Date) => {
+    setStartDate(date)
+    setDatesError(null)
+  }, [])
 
-    if (isErrorResponse(clients)) {
-      console.error(clients.error)
-      return
-    }
+  const handleChangeEndDate = useCallback((date: Date) => {
+    setEndDate(date)
+    setDatesError(null)
+  }, [])
 
-    const activeClients = clients.filter(cl => !cl.hidden && !cl.defaultCash)
+  const handleChangeSelectedClientId = useCallback((event: SelectChangeEvent) => {
+    setSelectedClientId(event.target.value)
+  }, [])
 
-    const selectedClientId = activeClients[0] ? String(activeClients[0].id) : null
+  const handleChangeMoneyAmount = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setMoneyAmount(event.target.value)
+    setMoneyAmountError(null)
+  }, [])
 
-    this.setState({ clients: activeClients, selectedClientId })
+  const handleChangeInvoiceEnabled = useCallback((event: CheckedChangeEvent) => {
+    setInvoiceEnabled(event.target.checked)
+  }, [])
 
-    const user: User | ErrorResponse =
-      await fetchJsonAuth('/api/users/getCurrent', props.auth)
+  const handleChangeInvoiceNumber = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setInvoiceNumber(event.target.value)
+    setInvoiceNumberError(null)
+  }, [])
 
-    if (isErrorResponse(user)) {
-      console.error(user.error)
-      return
-    }
+  const handleChangeDatesEnabled = useCallback((event: CheckedChangeEvent) => {
+    setDatesEnabled(event.target.checked)
+  }, [])
 
-    this.setState({ userIsAdmin: user.role === 'admin' })
-  }
+  const handleChangeDirectPayment = useCallback((event: CheckedChangeEvent) => {
+    setDirectPayment(event.target.checked)
+  }, [])
 
-  handleChange = (name: keyof State) => (event: ValChangeEvent) => {
-    // Save value to a variable because it may change (synthetic events
-    // may be re-used by react)
-    const value = event.target.value
-    this.setState((prevState: State) => ({
-      ...prevState,
-      [name]: value,
-    }))
-
-    // Error clearing
-    const { state } = this
-    if (name === 'moneyAmount' && state.moneyAmountError !== null)
-      this.setState({ moneyAmountError: null })
-
-    if (name === 'invoiceNumber' && state.invoiceNumberError !== null)
-      this.setState({ invoiceNumberError: null })
-
-  }
-
-  handleChangeChecked = (name: keyof State) => (event: CheckedChangeEvent) => {
-    const value = event.target.checked
-    this.setState((prevState: State) => ({
-      ...prevState,
-      [name]: value,
-    }))
-  }
-
-  handleChangeDate = (name: keyof State) => (date: Date) => {
-    this.setState((prevState: State) => ({
-      ...prevState,
-      [name]: date,
-    }))
-
-    // Error clearing
-    const { state } = this
-    if ((name === 'startDate' || name === 'endDate') && state.datesError !== null)
-      this.setState({ datesError: null })
-
-  }
-
-  validateForm = () => {
-    const { state } = this
+  const validateForm = useCallback(() => {
     let ok = true
-    if (state.moneyAmount === '') {
-      this.setState({ moneyAmountError: 'Obligatorio' })
+    if (moneyAmount === '') {
+      setMoneyAmountError('Obligatorio')
       ok = false
-    } else if (Number(state.moneyAmount) === 0) {
-      this.setState({ moneyAmountError: 'El dinero recibido no puede ser $0' })
+    } else if (Number(moneyAmount) === 0) {
+      setMoneyAmountError('El dinero recibido no puede ser $0')
       ok = false
     }
 
-    if (state.invoiceEnabled) {
-      if (state.invoiceNumber === '') {
-        this.setState({ invoiceNumberError: 'Obligatorio' })
+    if (invoiceEnabled) {
+      if (invoiceNumber === '') {
+        setInvoiceNumberError('Obligatorio')
         ok = false
       }
     }
 
-    if (state.datesEnabled) {
-      if (isAfter(state.startDate, state.endDate)) {
+    if (datesEnabled) {
+      if (isAfter(startDate, endDate)) {
         const msg = 'La fecha de inicio debe ser anterior a la fecha final'
-        this.setState({ datesError: msg })
+        setDatesError(msg)
         ok = false
       }
     }
 
     return ok
-  }
+  }, [datesEnabled, endDate, invoiceEnabled, invoiceNumber, moneyAmount, startDate])
 
-  handleSubmit = async () => {
-    const valid = this.validateForm()
+  const handleSubmit = useCallback(async () => {
+    const valid = validateForm()
     if (!valid) return
 
-    const { state, props } = this
     interface Payload {
       value: number
       clientId: number
@@ -207,68 +150,130 @@ class RegisterPayment extends Component<Props, State> {
       date?: string
     }
     const payload: Payload = {
-      value: Number(state.moneyAmount),
-      clientId: Number(state.selectedClientId),
+      value: Number(moneyAmount),
+      clientId: Number(selectedClientId),
     }
 
-    if (state.datesEnabled) {
-      payload.dateFrom = formatDateonlyMachine(state.startDate)
-      payload.dateTo = formatDateonlyMachine(state.endDate)
+    if (datesEnabled) {
+      payload.dateFrom = formatDateonlyMachine(startDate)
+      payload.dateTo = formatDateonlyMachine(endDate)
     }
 
-    if (state.invoiceEnabled) {
-      payload.invoiceNo = state.invoiceNumber
-      payload.invoiceDate = formatDateonlyMachine(state.invoiceDate)
+    if (invoiceEnabled) {
+      payload.invoiceNo = invoiceNumber
+      payload.invoiceDate = formatDateonlyMachine(invoiceDate)
     }
 
-    if (state.userIsAdmin) {
-      payload.directPayment = state.directPayment
-      payload.date = state.date.toISOString()
+    if (userIsAdmin) {
+      payload.directPayment = directPayment
+      payload.date = date.toISOString()
     }
 
     const response: SuccessResponse | ErrorResponse =
-      await fetchJsonAuth('/api/payments/new', props.auth, {
+      await fetchJsonAuth('/api/payments/new', auth, {
         method: 'post',
         body: JSON.stringify(payload),
       })
 
     if (isErrorResponse(response)) {
-      this.setState({ submitionError: 'Error al intentar registrar el pago.' })
+      setSubmitionError('Error al intentar registrar el pago.')
       console.error(response.error)
       return
     }
 
-    this.setState({ redirectToList: true })
-  }
+    navigate('/payments')
+  }, [
+    auth,
+    date,
+    datesEnabled,
+    directPayment,
+    endDate,
+    invoiceDate,
+    invoiceEnabled,
+    invoiceNumber,
+    moneyAmount,
+    navigate,
+    selectedClientId,
+    startDate,
+    userIsAdmin,
+    validateForm,
+  ])
 
-  render() {
-    const { props, state } = this
-    const { classes } = props
+  if (clients === null)
+    return <LoadingScreen text='Cargando clientes' />
 
-    if (state.clients === null)
-      return <LoadingScreen text='Cargando clientes' />
-
-
-    if (state.redirectToList)
-      return <Navigate to='/payments' />
-
-
-    return (
-      <Layout title='Registrar Pago'>
-        <Paper className={classes.paper}>
-          <Title>Registrar Pago</Title>
-          {state.submitionError !== null
-            && <Alert message={state.submitionError} type='error' />
-          }
-          {state.selectedClientId
-            ? <form>
-              <Grid container spacing={0} columnSpacing={2} justifyContent='space-between'>
-                {state.userIsAdmin
-                  && <Grid size={{ xs: 12 }}>
+  return (
+    <Layout title='Registrar Pago'>
+      <Wrapper>
+        <Title>Registrar Pago</Title>
+        {submitionError !== null
+          && <Alert message={submitionError} type='error' />
+        }
+        {selectedClientId
+          ? <form>
+            <Grid container spacing={0} columnSpacing={2} justifyContent='space-between'>
+              {userIsAdmin
+                && <Grid size={{ xs: 12 }}>
+                  <DatePicker
+                    label='Fecha del pago'
+                    date={date}
+                    onDateChange={setDate}
+                    DatePickerProps={{
+                      slotProps: {
+                        textField: {
+                          fullWidth: true,
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
+              }
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <FormControl fullWidth margin='normal'>
+                  <InputLabel htmlFor='clientId'>Cliente</InputLabel>
+                  <Select
+                    inputProps={{
+                      name: 'clientId',
+                      id: 'clientId',
+                    }}
+                    onChange={handleChangeSelectedClientId}
+                    value={selectedClientId}
+                  >
+                    {clients.map((cl, idx) =>
+                      <MenuItem key={idx} value={cl.id}>
+                        ({cl.code}) {cl.name}
+                      </MenuItem>,
+                    )}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <PriceField
+                  label='Dinero recibido'
+                  onChange={handleChangeMoneyAmount}
+                  value={moneyAmount}
+                  TextFieldProps={{
+                    error: moneyAmountError !== null,
+                    helperText: moneyAmountError,
+                  }}
+                />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant='body2'>
+                  Incluir detalles de la Factura
+                  <Switch
+                    checked={invoiceEnabled}
+                    onChange={handleChangeInvoiceEnabled}
+                  />
+                </Typography>
+              </Grid>
+              <CollapseFullwidth in={invoiceEnabled}>
+                <Grid container spacing={0} justifyContent='space-between'>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <DatePicker
-                      label='Fecha del pago'
-                      date={state.date}
-                      onDateChange={this.handleChangeDate('date')}
+                      label='Fecha de la factura'
+                      date={invoiceDate}
+                      onDateChange={setInvoiceDate}
                       DatePickerProps={{
                         slotProps: {
                           textField: {
@@ -278,191 +283,124 @@ class RegisterPayment extends Component<Props, State> {
                       }}
                     />
                   </Grid>
-                }
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormControl fullWidth margin='normal'>
-                    <InputLabel htmlFor='clientId'>Cliente</InputLabel>
-                    <Select
-                      inputProps={{
-                        name: 'clientId',
-                        id: 'clientId',
-                      }}
-                      onChange={this.handleChange('selectedClientId')}
-                      value={state.selectedClientId}
-                    >
-                      {state.clients.map((cl, idx) =>
-                        <MenuItem key={idx} value={cl.id}>
-                          ({cl.code}) {cl.name}
-                        </MenuItem>,
-                      )}
-                    </Select>
-                  </FormControl>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <InvoiceNumberContainer>
+                      <TextField
+                        label='No. Factura'
+                        type='number'
+                        variant='standard'
+                        slotProps={{ htmlInput: { min: 0 } }}
+                        fullWidth
+                        onChange={handleChangeInvoiceNumber}
+                        value={invoiceNumber}
+                        error={invoiceNumberError !== null}
+                        helperText={invoiceNumberError}
+                      />
+                    </InvoiceNumberContainer>
+                  </Grid>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <PriceField
-                    label='Dinero recibido'
-                    onChange={this.handleChange('moneyAmount')}
-                    value={state.moneyAmount}
-                    TextFieldProps={{
-                      error: state.moneyAmountError !== null,
-                      helperText: state.moneyAmountError,
-                    }}
+              </CollapseFullwidth>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant='body2'>
+                  Incluir periodo de pago
+                  <Switch
+                    checked={datesEnabled}
+                    onChange={handleChangeDatesEnabled}
+                    value='datesEnabled'
                   />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Typography variant='body2'>
-                    Incluir detalles de la Factura
-                    <Switch
-                      checked={state.invoiceEnabled}
-                      onChange={this.handleChangeChecked('invoiceEnabled')}
-                    />
-                  </Typography>
-                </Grid>
-                <Collapse in={state.invoiceEnabled} className={classes.collapse}>
-                  <Grid container spacing={0} justifyContent='space-between'>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <DatePicker
-                        label='Fecha de la factura'
-                        date={state.invoiceDate}
-                        onDateChange={this.handleChangeDate('invoiceDate')}
-                        DatePickerProps={{
-                          slotProps: {
-                            textField: {
-                              fullWidth: true,
-                            },
-                          },
-                        }}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <div className={classes.invoiceNumberContainer}>
-                        <TextField
-                          label='No. Factura'
-                          type='number'
-                          variant='standard'
-                          slotProps={{ htmlInput: { min: 0 } }}
-                          fullWidth
-                          onChange={this.handleChange('invoiceNumber')}
-                          value={state.invoiceNumber}
-                          error={state.invoiceNumberError !== null}
-                          helperText={state.invoiceNumberError}
-                        />
-                      </div>
-                    </Grid>
-                  </Grid>
-                </Collapse>
-                <Grid size={{ xs: 12 }}>
-                  <Typography variant='body2'>
-                    Incluir periodo de pago
-                    <Switch
-                      checked={state.datesEnabled}
-                      onChange={this.handleChangeChecked('datesEnabled')}
-                      value='datesEnabled'
-                    />
-                  </Typography>
-                </Grid>
-                <Collapse in={state.datesEnabled} className={classes.collapse}>
-                  <Grid container spacing={0} justifyContent='space-between'>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <DatePicker
-                        label='Inicio'
-                        date={state.startDate}
-                        onDateChange={this.handleChangeDate('startDate')}
-                        DatePickerProps={{
-                          slotProps: {
-                            textField: {
-                              error: state.datesError !== null,
-                              fullWidth: true,
-                              helperText: state.datesError,
-                            },
-                          },
-                        }}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <DatePicker
-                        label='Finalizacion'
-                        date={state.endDate}
-                        onDateChange={this.handleChangeDate('endDate')}
-                        DatePickerProps={{
-                          slotProps: {
-                            textField: {
-                              fullWidth: true,
-                            },
-                          },
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                </Collapse>
-                {state.userIsAdmin
-                  && <Grid size={{ xs: 12 }}>
-                    <Typography variant='body2'>
-                      Pago en planta
-                      <Switch
-                        checked={state.directPayment}
-                        onChange={this.handleChangeChecked('directPayment')}
-                      />
-                    </Typography>
-                  </Grid>
-                }
-                <Grid size={{ xs: 12 }} className={classes.buttonContainer}>
-                  <Button
-                    variant='contained'
-                    color='primary'
-                    fullWidth
-                    onClick={this.handleSubmit}
-                  >
-                    Registrar Pago
-                  </Button>
-                </Grid>
+                </Typography>
               </Grid>
-            </form>
-            : <Alert
-              type='error'
-              message='Error interno en cliente seleccionado'
-            />
-          }
-        </Paper>
-      </Layout>
-    )
-  }
+              <CollapseFullwidth in={datesEnabled}>
+                <Grid container spacing={0} justifyContent='space-between'>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <DatePicker
+                      label='Inicio'
+                      date={startDate}
+                      onDateChange={handleChangeStartDate}
+                      DatePickerProps={{
+                        slotProps: {
+                          textField: {
+                            error: datesError !== null,
+                            fullWidth: true,
+                            helperText: datesError,
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <DatePicker
+                      label='Finalizacion'
+                      date={endDate}
+                      onDateChange={handleChangeEndDate}
+                      DatePickerProps={{
+                        slotProps: {
+                          textField: {
+                            fullWidth: true,
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </CollapseFullwidth>
+              {userIsAdmin
+                && <Grid size={{ xs: 12 }}>
+                  <Typography variant='body2'>
+                    Pago en planta
+                    <Switch
+                      checked={directPayment}
+                      onChange={handleChangeDirectPayment}
+                    />
+                  </Typography>
+                </Grid>
+              }
+              <Grid size={{ xs: 12 }} sx={{ pt: 4 }}>
+                <Button
+                  variant='contained'
+                  color='primary'
+                  fullWidth
+                  onClick={handleSubmit}
+                >
+                  Registrar Pago
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+          : <Alert
+            type='error'
+            message='Error interno en cliente seleccionado'
+          />
+        }
+      </Wrapper>
+    </Layout>
+  )
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
-  paper: {
-    paddingTop: theme.spacing(4),
-    paddingRight: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-    paddingLeft: theme.spacing(4),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  invoiceNumberContainer: {
-    paddingTop: theme.spacing(1),
-    '& input': {
-      '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-        WebkitAppearance: 'none',
-        margin: 0,
-      },
-      '&[type=number]': {
-        MozAppearance: 'textfield',
-      },
+const Wrapper = styled(Paper)(({ theme }: { theme: Theme }) => ({
+  paddingTop: theme.spacing(4),
+  paddingRight: theme.spacing(4),
+  paddingBottom: theme.spacing(4),
+  paddingLeft: theme.spacing(4),
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}))
+
+const InvoiceNumberContainer = styled('div')(({ theme }: { theme: Theme }) => ({
+  paddingTop: theme.spacing(1),
+  '& input': {
+    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+      WebkitAppearance: 'none',
+      margin: 0,
     },
-  },
-  buttonContainer: {
-    paddingTop: theme.spacing(4),
-  },
-  collapse: {
-    width: '100%',
+    '&[type=number]': {
+      MozAppearance: 'textfield',
+    },
   },
 }))
 
-const RegisterPaymentWrapper = () => {
-  const auth = useAuth()
-  const classes = useStyles()
+const CollapseFullwidth = styled(Collapse)({
+  width: '100%',
+})
 
-  return <RegisterPayment auth={auth} classes={classes} />
-}
-
-export default RegisterPaymentWrapper
+export default RegisterPayment

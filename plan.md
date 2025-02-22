@@ -1,6 +1,5 @@
 ## Plan
 
-- Migrate class-based components to functional components
 - Avoid bundling lodash so many times
 - type errors
 - lint errors
