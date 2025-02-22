@@ -1,7 +1,6 @@
 ## Plan
 
 - Migrate class-based components to functional components
-- Get rid of makeStyles
 - Avoid bundling lodash so many times
 - type errors
 - lint errors
