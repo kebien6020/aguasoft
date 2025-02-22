@@ -12,7 +12,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { useState } from 'react'
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
-import { ErrorResponse, fetchJsonAuth, isErrorResponse, money, SuccessResponse } from '../utils'
+import { ErrorResponse, fetchJsonAuth, formatTimeonlyCol, isErrorResponse, money, SuccessResponse } from '../utils'
 import Alert from './Alert'
 import { format, intlFormatDistance } from 'date-fns'
 import { Theme } from '../theme'
@@ -128,7 +128,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
             </Typography>
           )}
           <Typography variant='body2'>
-            {format(new Date(sale.updatedAt), 'HH:mm a')}
+            {formatTimeonlyCol(new Date(sale.updatedAt))}
             ({intlFormatDistance(new Date(sale.updatedAt), new Date, { locale: 'es' })})
           </Typography>
           {sale.deleted && <>

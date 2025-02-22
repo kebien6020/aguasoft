@@ -13,7 +13,7 @@ export interface FetchAuthOptions extends RequestInit {
 export async function fetchJsonAuth<R = SuccessResponse>(
   url: string,
   auth: Auth,
-  options: FetchAuthOptions = {}
+  options: FetchAuthOptions = {},
 ): Promise<R | ErrorResponse> {
 
   const fetch = options.fetch || window.fetch
@@ -87,7 +87,7 @@ export interface SuccessResponse {
 }
 
 export function isErrorResponse(
-  data: unknown | ErrorResponse
+  data: unknown | ErrorResponse,
 ): data is ErrorResponse {
   return (data as ErrorResponse)?.success === false
 }
@@ -98,7 +98,7 @@ export function money(
   decimals = 0,
   decSep = ',',
   thouSep = ',',
-  showSign = false
+  showSign = false,
 ): string {
   const sign = num < 0 ? '-' : (showSign ? '+' : '')
   const absFixed = Math.abs(Number(num) || 0).toFixed(decimals)
@@ -124,7 +124,7 @@ export function moneySign(
   num: number,
   decimals?: number,
   decSep?: string,
-  thouSep?: string
+  thouSep?: string,
 ): string {
   return money(num, decimals, decSep, thouSep, true)
 }
@@ -186,11 +186,11 @@ export function formatDateCol(date: Date) {
 }
 
 export function formatDatetimeCol(date: Date) {
-  return format(date, 'dd-MMM-yyyy HH:mm a')
+  return format(date, 'dd-MMM-yyyy hh:mm a')
 }
 
 export function formatTimeonlyCol(date: Date) {
-  return format(date, 'HH:mm a')
+  return format(date, 'hh:mm a')
 }
 
 export function formatDateonly(date: Date) {
