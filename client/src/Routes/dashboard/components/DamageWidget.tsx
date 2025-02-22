@@ -14,7 +14,7 @@ import LoadingIndicator from '../../../components/LoadingIndicator'
 import { formatISO } from 'date-fns'
 import { InventoryElement, InventoryMovement } from '../../../models'
 import { MakeRequired } from '../../../utils/types'
-import groupBy from 'lodash.groupby'
+import groupBy from 'lodash-es/groupBy'
 import { Theme } from '../../../theme'
 
 interface DamageWidgetProps {
@@ -104,7 +104,7 @@ interface DamageRowsProps {
 const DamageRows = ({ movements }: DamageRowsProps) => {
   const byInventoryElement = groupBy(
     movements,
-    m => `${m.inventoryElementFromId}:${m.inventoryElementToId}`
+    m => `${m.inventoryElementFromId}:${m.inventoryElementToId}`,
   )
 
   const rows = Object.entries(byInventoryElement)

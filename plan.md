@@ -1,6 +1,5 @@
 ## Plan
 
-- Avoid bundling lodash so many times
 - type errors
 - lint errors
 - TODOS

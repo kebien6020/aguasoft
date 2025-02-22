@@ -19,7 +19,7 @@ import { useSales } from '../../../hooks/api/useSales'
 import { Sell } from '../../../models'
 import { money } from '../../../utils'
 import type { DateRange } from '../index'
-import groupBy from 'lodash.groupby'
+import groupBy from 'lodash-es/groupBy'
 import { MakeRequired } from '../../../utils/types'
 
 type SellWithProduct = MakeRequired<Sell, 'Product'>
