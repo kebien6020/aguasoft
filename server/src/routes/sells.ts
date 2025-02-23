@@ -13,15 +13,13 @@ import {
   Clients,
   Batches,
 } from '../db/models.js'
-import { Mutable } from '../utils/types.js'
+import { MakeRequired } from '../utils/types.js'
 import { CreateManualMovementArgs, createMovement } from './inventory.js'
-import { matchesGlob } from 'path'
 
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    // Limitation of yup typing. It says that a Lazy<StringSchema|ObjectSchema>
-    // is not assignable to AnySchema
+    // Yup typing weirdness
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const includeableSchema: yup.ArraySchema<yup.SchemaOf<Includeable>> = yup.array().of(yup.lazy(value => {
@@ -170,9 +168,12 @@ const getLoggedUserId = (req: Request) => {
   return userId
 }
 
-type ExpressHandler = (req: Request, res: Response, next: NextFunction) => unknown
+type ExpressHandler = (req: Request, res: Response, next: NextFunction) => void | Promise<void>
 
-interface SuccessBody { success: true }
+type SuccessBody = {
+  success: true
+}
+
 interface ErrorBody {
   success: false
   error: {
@@ -195,7 +196,7 @@ const ok = <T extends Record<string, unknown>>(body?: T): SuccessRes<T> => ({
     ...body,
     success: true,
   },
-})
+} as SuccessRes<T>)
 
 class AppError extends Error {
   status = 500
@@ -321,7 +322,7 @@ export const bulkCreate = wrap(async (req: Request) => {
       const storages = await Storages.findAll({
         where: {
           code: {
-            [Op.in]: storageCodes as Mutable<typeof storageCodes>,
+            [Op.in]: storageCodes,
           },
         },
       })
@@ -363,6 +364,12 @@ export const bulkCreate = wrap(async (req: Request) => {
 export async function listDay(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const day = req.query.day
+    if (typeof day !== 'string')
+      throw new Error('day query parameter is required')
+
+
+    type SellWithInclusions = MakeRequired<Sells, 'Product' | 'Client' | 'User' | 'Batch'>
+
     const sells = await Sells.findAll({
       attributes: [
         'id',
@@ -397,7 +404,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction): 
         },
       ],
       order: [['updatedAt', 'DESC']],
-    })
+    }) as SellWithInclusions[]
 
     const allPrices = await Prices.findAll({
       attributes: ['name', 'value', 'productId', 'clientId'],
@@ -405,11 +412,11 @@ export async function listDay(req: Request, res: Response, next: NextFunction): 
 
     // Convert to array of plain objects so that we can
     // add extra members to it
-    interface ResponseElem extends Sells {
+    interface ResponseElem extends SellWithInclusions {
       Prices?: { name: string, value: string }[]
     }
 
-    const sellsPlain: ResponseElem[] = sells.map(s => s.toJSON() as Sells)
+    const sellsPlain: ResponseElem[] = sells.map(s => s.toJSON() as SellWithInclusions)
 
     for (const sell of sellsPlain) {
       const prices = allPrices.filter(price =>
@@ -505,11 +512,14 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
 
     const sellId = req.params.id
     const sell = await Sells.findByPk(sellId)
+    if (!sell) throw Error('No se encontró la venta a eliminar')
 
     if (sell.deleted)
       throw Error('Venta ya habia sido eliminada')
 
     const user = await Users.findByPk(userId)
+    if (!user) throw Error('User not found')
+
     if (user.role !== 'admin') {
       const e = new Error('Solo usuarios admin pueden eliminar ventas')
       e.name = 'user_permission'
@@ -532,22 +542,22 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
         throw new Error(`No se encontró el producto ${sell.productId}`)
 
 
-      const details = movementDetails(product.code)
+      const details = movementDetails(product.code) ?? []
 
       const inventoryElements = await InventoryElements.findAll({
         where: {
           code: {
-            [Op.in]: details.map(d => d.elementCode),
+            [Op.in]: details?.map(d => d.elementCode),
           },
         },
       })
 
-      const storageCodes = [...details.map(d => d.storageCode).filter(sc => sc), 'terminado'] as const
+      const storageCodes = [...details.map(d => d.storageCode).filter(Boolean) as StorageCode[], 'terminado'] as const
 
       const storages = await Storages.findAll({
         where: {
           code: {
-            [Op.in]: storageCodes as Mutable<typeof storageCodes>,
+            [Op.in]: storageCodes,
           },
         },
       })

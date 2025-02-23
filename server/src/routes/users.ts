@@ -22,26 +22,28 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
 
     const user = await Users.findByPk(userId)
     if (!user) {
-      return res.json({
+      res.json({
         result: false,
         error: {
           message: 'User not found: ' + userId,
           code: 'user_not_found',
         },
       })
+      return
     }
 
     const savedHash = user.password
     const result = await bcrypt.compare(providedPass, savedHash)
 
     if (!result) {
-      return res.json({
+      res.json({
         result: false,
         error: {
           message: 'Incorrect password',
           code: 'incorrect_password',
         },
       })
+      return
     }
 
     // If the correct pass was provided save the userId to the session
@@ -57,13 +59,14 @@ export async function getCurrent(req: Request, res: Response, next: NextFunction
   try {
     // If there is no user logged in return an error
     if (!req.session.userId) {
-      return res.json({
+      res.json({
         success: false,
         error: {
           message: 'There is not an active session',
           code: 'no_user',
         },
       })
+      return
     }
 
     // Find all of the user info from the id

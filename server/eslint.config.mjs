@@ -1,12 +1,12 @@
 import js from '@eslint/js'
 import ts from 'typescript-eslint'
 
-export default ts.config(
+export default [
   {
     ignores: ['dist/**/*', 'node_modules/**/*'],
   },
   js.configs.recommended,
-  ts.configs.recommended,
+  ...ts.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: 'latest',
@@ -14,11 +14,12 @@ export default ts.config(
     plugins: {
       'typescript-eslint': ts,
     },
-    files: ['dist/**/*.{js,ts,mjs}'],
+    files: ['**/*.{js,ts,mjs}'],
     rules: {
       // Disable some typescript rules
       '@typescript-eslint/no-floating-promises': 'off', // Annoying
       '@typescript-eslint/unbound-method': 'off', // Giving false negatives with useFormikContext
+      '@typescript-eslint/no-unused-vars': 'off',
 
       // Base js rules
       indent: ['error', 2, { flatTernaryExpressions: true }],
@@ -39,7 +40,6 @@ export default ts.config(
       'no-const-assign': 'error',
       'no-var': 'error',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', ignoreRestSiblings: true }],
       'no-console': 'off',
       'prefer-const': 'error',
 
@@ -78,4 +78,4 @@ export default ts.config(
       complexity: ['error', 15],
     },
   },
-)
+]

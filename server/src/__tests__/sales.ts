@@ -1,5 +1,5 @@
 import * as request from 'supertest'
-import { SuperTest, Test } from 'supertest'
+import type { Agent } from 'supertest'
 import createClient from '../db/factories/clients.js'
 import { make as makeSale } from '../db/factories/sales.js'
 import createProduct from '../db/factories/products.js'
@@ -33,7 +33,7 @@ const setup = async () => {
   return { user, agent } as const
 }
 
-async function login(agent: SuperTest<Test>, user: Users): Promise<void> {
+async function login(agent: Agent, user: Users): Promise<void> {
   await agent
     .post('/api/users/check')
     .send({ id: user.id, password: 'secret' })

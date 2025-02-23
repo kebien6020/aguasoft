@@ -15,6 +15,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     }
 
     const user = await Users.findByPk(req.session.userId)
+    if (!user) throw Error('User not found')
 
     if (user.role !== 'admin')
       body.date = (new Date).toISOString()
@@ -175,6 +176,7 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
     const userId = req.session.userId
     const user = await Users.findByPk(userId)
+    if (!user) throw Error('User not found')
     if (user.role !== 'admin') {
       const e = new Error('Solo usuarios admin pueden eliminar salidas')
       e.name = 'user_permission'
@@ -183,6 +185,8 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
     const spendingId = req.params.id
     const spending = await Spendings.findByPk(spendingId)
+    if (!spending) throw new Error('Salida no encontrada')
+
     await spending.destroy()
 
     res.json({ success: true })

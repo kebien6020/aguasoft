@@ -15,6 +15,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     }
 
     const user = await Users.findByPk(req.session.userId)
+    if (!user) throw Error('User not found')
 
     if (user.role !== 'admin') {
       body.directPayment = true
@@ -207,6 +208,8 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
     const userId = req.session.userId
     const user = await Users.findByPk(userId)
+    if (!user) throw Error('User not found')
+
     if (user.role !== 'admin') {
       const e = new Error('Solo usuarios admin pueden eliminar pagos')
       e.name = 'user_permission'
@@ -215,6 +218,8 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
     const paymentId = req.params.id
     const payment = await Payments.findByPk(paymentId)
+    if (!payment) throw new Error('No se encontró el pago')
+
     await payment.destroy()
 
     res.json({ success: true })

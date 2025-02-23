@@ -12,7 +12,7 @@ import { handleErrors } from '../utils/route.js'
 const router = Router()
 export default router
 
-const validateAndCast = <S>(schema: Yup.BaseSchema<S>, value: unknown): S => {
+const validateAndCast = <S>(schema: Yup.Schema<S>, value: unknown): S => {
   schema.validateSync(value)
   return schema.cast(value)
 }

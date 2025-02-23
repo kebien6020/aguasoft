@@ -1,4 +1,4 @@
-import { subDays, isAfter, startOfDay, format, parse } from 'date-fns'
+import { subDays, isAfter, startOfDay, format } from 'date-fns'
 import { NextFunction, Request, Response } from 'express'
 import { UniqueConstraintError } from 'sequelize'
 import { Op, Sequelize } from 'sequelize'
@@ -51,9 +51,15 @@ export async function createBalanceVerification(
       return body.amount - prevBalance
     })()
     const createdById = userId
+    const creationFields = {
+      ...body,
+      date: formatDateonly(body.date),
+      adjustAmount,
+      createdById,
+    }
 
     try {
-      await BalanceVerifications.create({ ...body, adjustAmount, createdById })
+      await BalanceVerifications.create(creationFields)
     } catch (err) {
       if (err instanceof UniqueConstraintError && err.errors.map(e => e.path).includes('date')) {
         // Better message for unique constraint on date field

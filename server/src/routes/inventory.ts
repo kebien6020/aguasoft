@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { InventoryMovements, InventoryElements, Storages, StorageStates, MachineCounters } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
-import { Op, Transaction, WhereOptions } from 'sequelize'
+import { CreationAttributes, Op, Transaction, WhereOptions } from 'sequelize'
 import debug from 'debug'
 import * as yup from 'yup'
 import type { Mutable } from '../utils/types.js'
@@ -89,6 +89,8 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
   }
 
   data.quantityTo ??= data.quantityFrom
+  data.storageFromId ??= null
+  const sData = data as unknown as CreationAttributes<InventoryMovements>
 
   if (data.storageToId) {
     const previousState = await StorageStates.findOne({
@@ -114,7 +116,7 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
   }
 
   // Store the movement
-  await InventoryMovements.create(data, {
+  await InventoryMovements.create(sData, {
     fields: [
       'storageFromId',
       'storageToId',
@@ -197,7 +199,7 @@ export async function listStorageStates(req: Request, res: Response, next: NextF
 
     const schema = yup.object({
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>),
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>).required(),
       ),
     })
 
@@ -240,7 +242,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       offset: yup.number(),
       inventoryElementId: yup.number(),
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>),
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>).required(),
       ),
     })
 
@@ -436,13 +438,15 @@ export async function productionMovement(req: Request, res: Response, next: Next
       Storages.findAll(),
       InventoryElements.findAll(),
     ])
-    const storageCodeToId = (code: string) => {
+    const storageCodeToId = (code: string | null) => {
       const storage = storages.find(s => s.code === code)
-      return storage ? storage.id : undefined
+      return storage ? storage.id : null
     }
-    const elementCodeToId = (code: string) => {
+    const elementCodeToId = (code: string | null) => {
       const element = elements.find(e => e.code === code)
-      return element ? element.id : undefined
+      if (!element)
+        throw new Error(`No se encontró un elemento de inventario con el código ${code}`)
+      return element.id
     }
 
     const info = productionInfo[pType]
@@ -474,7 +478,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
         await createMovement(movementData, t)
 
 
-      if (info.damaged && body.damaged > 0) {
+      if (info.damaged && (body.damaged ?? 0) > 0) {
         const storageFromId = storageCodeToId(info.damaged.storageFrom)
         const storageToId = storageCodeToId(info.damaged.storageTo)
         const inventoryElementFromId = elementCodeToId(info.damaged.inventoryElementFrom)
@@ -485,7 +489,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
           storageToId,
           inventoryElementFromId,
           inventoryElementToId,
-          quantityFrom: body.damaged,
+          quantityFrom: body.damaged ?? 0,
           cause: 'damage' as InventoryMovements['cause'],
           createdBy: userId,
         }
@@ -578,6 +582,7 @@ export async function amountLeftInIntermediate(_req: Request, res: Response, nex
         inventoryElementId: element.id,
       },
     })
+    if (!storageState) throw new Error('No se encontró el almacen en el estado')
 
     res.json({
       'bolsa-360': storageState.quantity,
@@ -766,7 +771,7 @@ export async function relocationMovement(req: Request, res: Response, next: Next
       counter: yup.number().when('element', {
         is: 'rollo-360',
         then: schema => schema.integer().positive().required(),
-      }),
+      }).required(),
     })
 
     schema.validateSync(req.body)

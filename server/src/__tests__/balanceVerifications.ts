@@ -1,6 +1,6 @@
 import { format, subDays, addDays } from 'date-fns'
 import * as request from 'supertest'
-import { SuperTest, Test } from 'supertest'
+import type { Agent } from 'supertest'
 import app from '../app.js'
 import createBalanceVerification from '../db/factories/balanceVerifications.js'
 import createClient from '../db/factories/clients.js'
@@ -780,7 +780,7 @@ describe('Routes', () => {
   })
 })
 
-async function login(agent: SuperTest<Test>, user: Users): Promise<void> {
+async function login(agent: Agent, user: Users): Promise<void> {
   await agent
     .post('/api/users/check')
     .send({ id: user.id, password: 'secret' })

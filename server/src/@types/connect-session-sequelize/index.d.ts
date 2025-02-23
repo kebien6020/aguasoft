@@ -7,14 +7,14 @@ declare module 'connect-session-sequelize' {
   namespace ConnectSessionSequelize {
     export type ExtendDefaultFieldsCallback = (
       defaults: {
-        data: any
-        expires: any
+        data: unknown
+        expires: unknown
       },
       session: session.Session
     ) => {
-      data: any
-      expires: any
-      userId: any
+      data: unknown
+      expires: unknown
+      userId: unknown
     }
 
     export interface SequelizeStoreOptions {
@@ -25,9 +25,9 @@ declare module 'connect-session-sequelize' {
 
     export class SequelizeStore extends session.Store {
       constructor(options: SequelizeStoreOptions)
-      get(sid: string, callback: (err: any, session?: session.SessionData) => void): void
-      set(sid: string, session: session.SessionData, callback?: (err?: any) => void): void
-      destroy(sid: string, callback?: (err?: any) => void): void
+      get(sid: string, callback: (err: unknown, session?: session.SessionData) => void): void
+      set(sid: string, session: session.SessionData, callback?: (err?: unknown) => void): void
+      destroy(sid: string, callback?: (err?: unknown) => void): void
     }
   }
 

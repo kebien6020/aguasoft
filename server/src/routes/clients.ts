@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { Clients, Prices, Payments, Sells } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
 import * as Yup from 'yup'
-import { Sequelize } from 'sequelize'
+import { CreationAttributes, Sequelize } from 'sequelize'
 
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -86,16 +86,21 @@ function checkCreateEditInput(body: Record<string, unknown>) {
   if (typeof body.defaultCash !== 'boolean') paramError('defaultCash', 'boolean')
   if (typeof body.notes !== 'string') paramError('notes', 'string')
   if (!Array.isArray(body.prices)) paramError('prices', 'array')
-  for (const price of body.prices) {
-    const allowedKeys = ['name', 'productId', 'value']
-    for (const key in price) {
-      if (allowedKeys.indexOf(key) === -1)
-        delete price[key]
-
+  for (const price of body.prices as Array<CreationAttributes<Prices>>) {
+    const sPrice = { // Sanitized price
+      name: price.name,
+      productId: price.productId,
+      value: price.value,
     }
-    if (typeof price.name !== 'string') paramError('prices[].name', 'string')
-    if (typeof price.productId !== 'number') paramError('prices[].productId', 'number')
-    if (typeof price.value !== 'string') paramError('prices[].value', 'string')
+    if (typeof sPrice.name !== 'string') paramError('prices[].name', 'string')
+    if (typeof sPrice.productId !== 'number') paramError('prices[].productId', 'number')
+    if (typeof sPrice.value !== 'string') paramError('prices[].value', 'string')
+
+    if (Object.keys(sPrice).length !== Object.keys(price).length) {
+      const e = Error('Extra keys in prices object')
+      e.name = 'parameter_error'
+      throw e
+    }
   }
 }
 
@@ -109,7 +114,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       Pick<Prices, 'name' | 'productId' | 'value'>
 
     type IncompleteClient =
-      Pick<Clients, 'name' | 'code' | 'defaultCash' | 'notes'>
+      Pick<Clients, 'name' | 'code' | 'defaultCash' | 'notes' | 'hidden'>
       & { 'Prices': IncompletePrice[] }
 
     const client: IncompleteClient = {
@@ -118,10 +123,11 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       defaultCash: req.body.defaultCash,
       notes: notes,
       Prices: req.body.prices,
+      hidden: false,
     }
 
     await sequelize.transaction(t => {
-      return Clients.create(client as any, {
+      return Clients.create(client, {
         include: [Prices],
         transaction: t,
       })
@@ -174,8 +180,8 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
     const client = await getClient(req.params.id)
 
-    const newPrices = (req.body.prices as Array<any>).map(pr =>
-      Object.assign({}, pr, { clientId: client.id }),
+    const newPrices = (req.body.prices as Array<CreationAttributes<Prices>>).map(pr =>
+      ({ ...pr, clientId: client.id }),
     )
 
     await sequelize.transaction(async t => {
