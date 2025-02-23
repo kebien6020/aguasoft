@@ -20,8 +20,8 @@ WORKDIR /build
 COPY server/package.json server/package-lock.json ./
 RUN npm ci --only=prod
 
-## Production image
-FROM node:22-slim
+## Server
+FROM node:22-slim AS server
 
 RUN apt-get update -y && \
     apt-get install -y dumb-init && \
@@ -42,3 +42,9 @@ ENV NODE_ENV=production \
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["node", "server/dist/index.js"]
+
+## Client
+FROM nginx:stable-alpine AS client
+
+COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=client-builder /build/dist /app/public/

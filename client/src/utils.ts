@@ -33,7 +33,7 @@ export async function fetchJsonAuth<R = SuccessResponse>(
   const invalidToken = !auth.isAuthenticated()
   const authError =
     isErrorResponse(data)
-    && data.error.errors?.[0]?.name === 'UnauthorizedError'
+    && (data.error as ErrorResponse['error'] | undefined)?.errors?.[0]?.name === 'UnauthorizedError'
 
   // In case of token error try renewing it with silentAuth and retry
   if (!opts.failOnAuthError && (invalidToken || authError)) {
@@ -86,7 +86,7 @@ export interface SuccessResponse {
 export function isErrorResponse(
   data: unknown,
 ): data is ErrorResponse {
-  return !((data as ErrorResponse).success)
+  return ((data as Record<string, unknown>).success === false)
 }
 
 // Adapted from https://stackoverflow.com/a/149099/4992717

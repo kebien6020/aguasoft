@@ -5,7 +5,7 @@ const domain = 'kevinpena.auth0.com'
 const clientID = 'HIWjFo1TbHBO1nezMkcLew22aTYvBi7L'
 const redirectUri = baseUrl + '/authCallback'
 // For now, removed silent auth
-// const silentRedirectUri = baseUrl + '/silentAuth'
+// const silentRedirectUri = baseUrl + '/silentAuth'Aute
 const audience = 'https://soft.agualaif.com'
 const scope = 'openid read:fullapi'
 
@@ -116,7 +116,8 @@ export default class Auth {
       return true
     } catch (err) {
       // No previous access token: login
-      this.login(); return
+      this.login()
+      return
     }
   }
 }

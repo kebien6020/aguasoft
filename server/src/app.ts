@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser'
-import compression from 'compression'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import cors from 'cors'
 import express from 'express'
@@ -47,7 +46,6 @@ app.set('query parser', 'extended')
 // app.use('*p', (req, res, next) => { console.log(req.query); next() })
 
 // Common middleware
-app.use(compression()) // Use gzip to compress all requests
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(cors())

@@ -15,6 +15,10 @@ import theme from './theme'
 import { es } from 'date-fns/locale/es'
 import { RequireAuth } from './RequireAuth'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
 
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
 const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))

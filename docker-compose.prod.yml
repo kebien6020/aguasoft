@@ -1,8 +1,8 @@
-version: '3.8'
-
 services:
   aguasoft:
-    build: .
+    build:
+      context: .
+      target: server
     image: kevinpena/aguasoft:20250221-02
     networks:
       - main
@@ -10,8 +10,8 @@ services:
       - db:/db
   nginx:
     build:
-      context: docker/nginx
-      dockerfile: Dockerfile
+      context: .
+      target: client
     image: kevinpena/nginx:20250221-02
     networks:
       - main

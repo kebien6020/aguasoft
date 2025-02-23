@@ -28,6 +28,10 @@ export default {
         test: /\.(png|svg|jpg|gif|ttf)$/,
         use: ['file-loader'],
       },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   plugins: [
