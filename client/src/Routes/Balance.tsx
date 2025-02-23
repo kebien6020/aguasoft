@@ -122,29 +122,29 @@ const useCardPricesStyles = makeStyles({
 })
 
 type HistoryElementCardProps = {
-  header: string
-  content: ReactNode
-  delta: number
-  balance: number
+  item: BalanceItem
 }
 
-const HistoryElementCard = (props: HistoryElementCardProps) => {
-  // TODO: Receive a history element instead
-  const { header, content, delta, balance } = props
+const HistoryElementCard = ({ item }: HistoryElementCardProps) => {
   const classes = useHistoryElementCardStyles()
+
+  const header = formatDateCol(parseDateonlyMachine(item.date))
+  const delta = item.sales + item.payments - item.spendings
 
   return (
     <BorderedCard className={classes.layout}>
       <CardHeader title={header} />
       <div className={classes.body}>
         <CardContent className={classes.content}>
-          {content}
+          <div>Ventas en Efectivo: {money(item.sales)}</div>
+          <div>Pagos: {money(item.payments)}</div>
+          <div>Salidas: {money(item.spendings)}</div>
         </CardContent>
         <CardPrices
           titleOne='Cambio'
           valueOne={delta}
           titleTwo='Balance'
-          valueTwo={balance}
+          valueTwo={item.balance}
           className={classes.prices}
         />
       </div>
@@ -260,16 +260,7 @@ interface BalanceItemCardProps {
 
 const BalanceItemCard = ({ item }: BalanceItemCardProps) => (
   <>
-    <HistoryElementCard
-      header={formatDateCol(parseDateonlyMachine(item.date))}
-      content={<>
-        <div>Ventas en Efectivo: {money(item.sales)}</div>
-        <div>Pagos: {money(item.payments)}</div>
-        <div>Salidas: {money(item.spendings)}</div>
-      </>}
-      delta={item.sales + item.payments - item.spendings}
-      balance={item.balance}
-    />
+    <HistoryElementCard item={item} />
     {item.verification && <>
       <VerificationCard
         verification={item.verification}
@@ -306,7 +297,7 @@ const Balance = (): JSX.Element => {
           label='Fecha inicial'
           date={bDate}
           onDateChange={date => {
-            setBDate(isValid(date) ? date : null) 
+            setBDate(isValid(date) ? date : null)
           }}
         />
         <ArrowRight />
@@ -314,7 +305,7 @@ const Balance = (): JSX.Element => {
           label='Fecha final'
           date={eDate}
           onDateChange={date => {
-            setEDate(isValid(date) ? date : null) 
+            setEDate(isValid(date) ? date : null)
           }}
         />
       </DateFilter>

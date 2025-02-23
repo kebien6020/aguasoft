@@ -27,8 +27,6 @@ const MovementSummary = (): JSX.Element => {
       date={date}
       onDateChange={setDate}
       DatePickerProps={{
-        // TODO: Figure out new prop
-        // inputVariant: 'outlined',
         label: 'Fecha',
       }}
     />
