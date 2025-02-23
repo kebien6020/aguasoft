@@ -27,9 +27,9 @@ export const usePrices = (clientId: number | null, {
 
   const cancelReq = clientId === null
     || (params !== undefined && Object.values(params).some(v =>
-      v === null || v === undefined || v === ''))
+      v === undefined || v === ''))
 
-  const url = cancelReq ? null : `/api/prices/${clientId}?${paramsToString(params)}`
+  const url = cancelReq ? null : `/api/prices/${clientId.toString()}?${paramsToString(params)}`
   const [prices] = useFetch<Price[]>(url, {
     showError,
     name: 'la lista de precios',

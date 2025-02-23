@@ -1,7 +1,8 @@
-import { Grid, styled } from '@material-ui/core'
+import type { JSX } from 'react'
+import { Grid2 as Grid } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { addDays, startOfDay, subDays } from 'date-fns'
 import { useFormikContext } from 'formik'
-import React from 'react'
 import { DateField } from '../../../components/form/DateField'
 import Form from '../../../components/form/Form'
 import { PriceField } from '../../../components/form/PriceField'
@@ -16,6 +17,7 @@ import {
   moneySign,
   SuccessResponse,
 } from '../../../utils'
+import { Theme } from '../../../theme'
 
 const initialValues = {
   date: new Date,
@@ -45,7 +47,7 @@ export const CreateVerificationForm = ({ onCreated = noop }: CreateVerificationF
       amount: values.value,
     })
 
-    const res = await fetchJsonAuth<SuccessResponse>(url, auth, {
+    const res = await fetchJsonAuth(url, auth, {
       method,
       body,
     })
@@ -71,10 +73,10 @@ export const CreateVerificationForm = ({ onCreated = noop }: CreateVerificationF
   )
 }
 
-const StyledForm = styled(Form)(({ theme }) => ({
+const StyledForm = styled(Form)(({ theme }: { theme: Theme }) => ({
   paddingTop: theme.spacing(3),
   paddingBottom: theme.spacing(3),
-}))
+})) as typeof Form
 
 const CreateVerificationFormImpl = () => {
   const { values } = useFormikContext<Values>()
@@ -87,18 +89,22 @@ const CreateVerificationFormImpl = () => {
   const tomorrow = startOfDay(addDays(new Date, 1))
 
   return (<>
-    <Grid item>
-      <DateField
+    <Grid>
+      <StyledDateField
         name='date'
         label='Fecha de la Verificación'
         DatePickerProps={{
-          helperText: 'Toma efecto al inicio del día',
+          slotProps: {
+            textField: {
+              helperText: 'Toma efecto al inicio del día',
+            },
+          },
           maxDate: tomorrow,
           disableFuture: false,
         }}
       />
     </Grid>
-    <Grid item xs>
+    <Grid flexGrow={1}>
       <PriceField
         name='value'
         label='Valor verificado'
@@ -107,9 +113,13 @@ const CreateVerificationFormImpl = () => {
         }}
       />
     </Grid>
-
-    <Grid item xs={12} container direction='row' justify='center'>
+    <Grid size={{ xs: 12 }} container direction='row' justifyContent='center'>
       <SubmitButton>Crear</SubmitButton>
     </Grid>
   </>)
 }
+
+const StyledDateField = styled(DateField)({
+  marginTop: '16px !important',
+  marginBottom: '8px !important',
+})

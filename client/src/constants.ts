@@ -24,7 +24,7 @@ type MovementCauseText = typeof movementCause[MovementCauseSlug]['text']
 
 export const movementCauseSlugToText =
   (slug: MovementCauseSlug): MovementCauseText =>
-    movementCause[slug]?.text
+    movementCause[slug].text
 
 export const movementCauseOptions =
   Object

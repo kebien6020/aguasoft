@@ -1,10 +1,11 @@
-import { Button, Grid, styled, TextField } from '@material-ui/core'
+import type { JSX } from 'react'
+import { Button, Grid2 as Grid, TextField } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { useDebounce } from '@react-hook/debounce'
 import { pdf, PDFViewer } from '@react-pdf/renderer'
-import { endOfMonth, format, isSameDay, isSameMonth, parseISO, setDate, startOfMonth } from 'date-fns'
-import es from 'date-fns/locale/es'
-import moment from 'moment'
-import React, { useEffect, useState } from 'react'
+import { addMonths, endOfMonth, format, isSameDay, isSameMonth, parseISO, setDate, startOfMonth } from 'date-fns'
+import { es } from 'date-fns/locale/es'
+import { useEffect, useState } from 'react'
 import DateControl from '../../components/controls/DateControl'
 import SelectControl from '../../components/controls/SelectControl'
 import Layout from '../../components/Layout'
@@ -18,14 +19,14 @@ import { MakeRequired } from '../../utils/types'
 import { BillingSummaryPdf, BillingSummaryPdfProps } from './components/BillingSummaryPdf'
 import { PDFErrorBoundary } from './components/PDFErrorBoundary'
 
-const startOfPrevMonth = moment().subtract(1, 'month').startOf('month')
-const endOfPrevMonth = startOfPrevMonth.clone().endOf('month')
+const startOfPrevMonth = startOfMonth(addMonths(new Date, -1))
+const endOfPrevMonth = endOfMonth(addMonths(new Date, -1))
 
 const detectDownloadName = (clientName: string, begin: Date, end: Date) => {
   const isFullMonth =
-      isSameMonth(begin, end)
-      && isSameDay(begin, startOfMonth(begin))
-      && isSameDay(end, endOfMonth(begin))
+    isSameMonth(begin, end)
+    && isSameDay(begin, startOfMonth(begin))
+    && isSameDay(end, endOfMonth(begin))
 
   const month = firstUpper(format(begin, 'MMMM', { locale: es }))
   if (isFullMonth)
@@ -33,18 +34,18 @@ const detectDownloadName = (clientName: string, begin: Date, end: Date) => {
 
 
   const isFirstHalf =
-      isSameMonth(begin, end)
-      && isSameDay(begin, startOfMonth(end))
-      && isSameDay(end, setDate(begin, 15))
+    isSameMonth(begin, end)
+    && isSameDay(begin, startOfMonth(end))
+    && isSameDay(end, setDate(begin, 15))
 
   if (isFirstHalf)
     return `${clientName} ${month} - Quincena 1`
 
 
   const isSecondHalf =
-      isSameMonth(begin, end)
-      && isSameDay(begin, setDate(begin, 16))
-      && isSameDay(end, endOfMonth(begin))
+    isSameMonth(begin, end)
+    && isSameDay(begin, setDate(begin, 16))
+    && isSameDay(end, endOfMonth(begin))
 
   if (isSecondHalf)
     return `${clientName} ${month} - Quincena 2`
@@ -60,10 +61,10 @@ const BillingSummary = (): JSX.Element => {
   const [clientOptions] = useClientOptions()
 
   const [beginDateIso, setBeginDateIso] = useQueryParam('beginDate', startOfPrevMonth.toISOString())
-  const beginDate = moment(beginDateIso)
+  const beginDate = new Date(beginDateIso ?? NaN)
 
   const [endDateIso, setEndDateIso] = useQueryParam('endDate', endOfPrevMonth.toISOString())
-  const endDate = moment(endDateIso)
+  const endDate = new Date(endDateIso ?? NaN)
 
   const [sales, { loading: loadingSales }] = useSales<SaleWithProduct>({
     minDate: beginDateIso,
@@ -74,16 +75,16 @@ const BillingSummary = (): JSX.Element => {
   const clientName = clientOptions?.find(c => c.value === clientId)?.label
   const title = clientName ? `Facturación ${clientName}` : undefined
 
-  const [pdfProps, setPdfProps] = useDebounce<BillingSummaryPdfProps|null>(null, 1000, true)
+  const [pdfProps, setPdfProps] = useDebounce<BillingSummaryPdfProps | null>(null, 1000, true)
   useEffect(() => {
-    (async() => {
+    (async () => {
       if (title && sales && !loadingSales) {
         setPdfProps(null) // manually cause an unmount
-        await new Promise(resolve => setTimeout(resolve, 1100))
+        await new Promise(resolve => setTimeout(resolve, 300))
         setPdfProps({ title, sales })
       }
     })()
-  }, [sales, loadingSales]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [title, sales, loadingSales, setPdfProps])
 
   const [downloadName, setDownloadName] = useState('')
 
@@ -100,36 +101,56 @@ const BillingSummary = (): JSX.Element => {
     <Layout title='Facturación'>
       <Title>Configuración</Title>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <SelectControl
             name='client'
             label='Cliente'
             options={clientOptions}
             value={clientOptions ? clientId : ''}
-            onChange={e => setClientId(e.target.value as string)}
+            onChange={e => {
+              setClientId(e.target.value as string) 
+            }}
           />
         </Grid>
-        <Grid item xs={12} lg={6}>
+        <Grid size={{ xs: 12, lg: 6 }}>
           <DateControl
             label='Fecha de Inicio'
             date={beginDate}
-            onDateChange={date => setBeginDateIso(date.toISOString())}
-            DatePickerProps={{ fullWidth: true }}
+            onDateChange={date => {
+              setBeginDateIso(date.toISOString()) 
+            }}
+            DatePickerProps={{
+              slotProps: {
+                textField: {
+                  fullWidth: true,
+                },
+              },
+            }}
           />
         </Grid>
-        <Grid item xs={12} lg={6}>
+        <Grid size={{ xs: 12, lg: 6 }}>
           <DateControl
             label='Fecha Final'
             date={endDate}
-            onDateChange={date => setEndDateIso(date.toISOString())}
-            DatePickerProps={{ fullWidth: true }}
+            onDateChange={date => {
+              setEndDateIso(date.toISOString()) 
+            }}
+            DatePickerProps={{
+              slotProps: {
+                textField: {
+                  fullWidth: true,
+                },
+              },
+            }}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <TextField
             label='Nombre de la descarga (editable)'
             value={downloadName}
-            onChange={e => setDownloadName(e.target.value)}
+            onChange={e => {
+              setDownloadName(e.target.value) 
+            }}
             fullWidth
           />
         </Grid>

@@ -1,7 +1,6 @@
-import * as React from 'react'
-
-import CircularProgress from '@material-ui/core/CircularProgress'
-import Typography from '@material-ui/core/Typography'
+import type { JSX } from 'react'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
 
 import logo from '../logo.png'
 

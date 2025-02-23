@@ -1,15 +1,12 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "jsx": "react",
-    "target": "es2018",
-    "lib": ["es5", "es6", "dom"],
-    "skipLibCheck": true,
-    "strictNullChecks": true,
+    "jsx": "preserve",
+    "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
+    "moduleResolution": "bundler",
+
+    "skipLibCheck": true,
+    "strictNullChecks": true
   },
   "include": [
       "src/**/*"

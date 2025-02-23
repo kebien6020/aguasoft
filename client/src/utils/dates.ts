@@ -13,12 +13,12 @@ export const isSameDayOrAfter = (a: Date, b: Date): boolean =>
  * Get an array with all dates betwen the provided dates. Inclusive
  */
 export const enumerateDaysBetweenDates = (startDate: Date, endDate: Date): Date[] => {
-  const dates = []
+  const dates = [] as Date[]
 
   let currDate = startOfDay(startDate)
   const lastDate = startOfDay(endDate)
 
-  for (;isSameDayOrBefore(currDate, lastDate); currDate = addDays(currDate, 1))
+  for (; isSameDayOrBefore(currDate, lastDate); currDate = addDays(currDate, 1))
     dates.push(currDate)
 
   return dates

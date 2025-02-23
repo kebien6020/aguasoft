@@ -1,21 +1,13 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Card, { CardProps } from '@material-ui/core/Card'
-import clsx from 'clsx'
+import Card from '@mui/material/Card'
+import { Theme } from '../../../theme'
+import { styled } from '@mui/material/styles'
 
-const SummaryCard = ({ className, ...otherProps }: CardProps): JSX.Element => {
-  const classes = useStyles()
-  return <Card className={clsx(classes.card, className)} {...otherProps} />
-}
-
-const useStyles = makeStyles(theme => ({
-  card: {
-    borderLeftWidth: '4px',
-    borderLeftStyle: 'solid',
-    borderLeftColor: theme.palette.primary.main,
-    height: '100%',
-    marginBottom: '1rem',
-  },
+const SummaryCard = styled(Card)(({ theme }: { theme: Theme }) => ({
+  borderLeftWidth: '4px',
+  borderLeftStyle: 'solid',
+  borderLeftColor: theme.palette.primary.main,
+  height: '100%',
+  marginBottom: '1rem',
 }))
 
 export default SummaryCard

@@ -1,6 +1,6 @@
 import Auth from '../Auth'
 import { Sell } from '../models'
-import { fetchJsonAuth, isErrorResponse } from '../utils'
+import { ErrorResponse, fetchJsonAuth, isErrorResponse } from '../utils'
 import { NetworkError, ServerError } from './common'
 
 export interface SaleForCreate {
@@ -12,6 +12,7 @@ export interface SaleForCreate {
   productId: number
   variantId?: number
   batchId?: number
+  date?: string
 }
 
 interface CreateSalesReq {
@@ -20,7 +21,7 @@ interface CreateSalesReq {
 
 export const createSales = async (sells: SaleForCreate[], auth: Auth): Promise<Sell[]> => {
   const body: CreateSalesReq = { sells }
-  let res
+  let res: Sell[] | ErrorResponse
   try {
     res = await fetchJsonAuth<Sell[]>('/api/sells/bulkNew', auth, {
       method: 'POST',

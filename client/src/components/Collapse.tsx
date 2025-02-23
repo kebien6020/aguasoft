@@ -1,10 +1,13 @@
-import * as React from 'react'
+import type { JSX } from 'react'
+import MuiCollapse, { CollapseProps } from '@mui/material/Collapse'
+import Grid, { Grid2Props as GridProps } from '@mui/material/Grid2'
+import makeStyles from '@mui/styles/makeStyles'
+import { ForwardedRef, forwardRef } from 'react'
 
-import MuiCollapse, { CollapseProps } from '@material-ui/core/Collapse'
-import Grid, { GridProps } from '@material-ui/core/Grid'
-import { makeStyles } from '@material-ui/core/styles'
-
-const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
+const GridItemXs12 = forwardRef((props: GridProps, ref: ForwardedRef<HTMLDivElement>) =>
+  <Grid size={{ xs: 12 }} {...props} ref={ref} />,
+)
+GridItemXs12.displayName = 'GridItemXs12'
 
 const Collapse = (props: CollapseProps): JSX.Element => {
   const classes = useCollapseStyles()

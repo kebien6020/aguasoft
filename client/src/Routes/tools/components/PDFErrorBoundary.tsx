@@ -1,16 +1,16 @@
-import { Link } from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
-import React from 'react'
+import type { JSX } from 'react'
+import { Link, Alert } from '@mui/material'
+import { Component, ReactNode, SyntheticEvent } from 'react'
 
 export interface ErrorBoundaryProps {
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 interface State {
   hasError: boolean
 }
 
-export class PDFErrorBoundary extends React.Component<ErrorBoundaryProps, State> {
+export class PDFErrorBoundary extends Component<ErrorBoundaryProps, State> {
   constructor(props: ErrorBoundaryProps) {
     super(props)
     this.state = { hasError: false }
@@ -21,7 +21,7 @@ export class PDFErrorBoundary extends React.Component<ErrorBoundaryProps, State>
     return { hasError: true }
   }
 
-  reloadPage(event: React.SyntheticEvent): void {
+  reloadPage = (event: SyntheticEvent): void => {
     event.preventDefault()
     // eslint-disable-next-line no-self-assign
     location.href = location.href

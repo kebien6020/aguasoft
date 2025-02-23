@@ -1,6 +1,17 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Dialog, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, Paper, Tooltip, styled } from '@material-ui/core'
-import { Add, AddOutlined, CloseOutlined } from '@material-ui/icons'
+import { memo, useCallback, useEffect, useMemo, useState, Fragment } from 'react'
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid2 as Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { Add, AddOutlined, CloseOutlined } from '@mui/icons-material'
 import { useFormikContext } from 'formik'
 
 import Layout from '../../components/Layout'
@@ -13,12 +24,12 @@ import { DateField } from '../../components/form/DateField'
 import { VSpace } from '../../components/utils'
 import { optionsFromProducts, optionsFromVariants, useProducts } from '../../hooks/api/useProducts'
 import SubmitButton from '../../components/form/SubmitButton'
-import { Batch, Price, Product, ProductWithBatchCategory } from '../../models'
+import { Batch, Price, Product, ProductWithBatchCategory, User } from '../../models'
 import { NumericField } from '../../components/form/NumericField'
 import { optionsFromBatches, useBatches } from '../../hooks/api/useBatches'
 import { optionsFromPrices, usePrices } from '../../hooks/api/usePrices'
 import yup from '../../components/form/Yup'
-import { fetchJsonAuth, isErrorResponse, money } from '../../utils'
+import { ErrorResponse, fetchJsonAuth, isErrorResponse, money } from '../../utils'
 import { useBatchCategory } from '../../hooks/api/useBatchCategories'
 import { formatDateonly } from '../../utils'
 import useAuth from '../../hooks/useAuth'
@@ -28,7 +39,10 @@ import { fetchPrices } from '../../api/prices'
 import { FetchError } from '../../api/common'
 import { MakeRequired } from '../../utils/types'
 import { SaleForCreate, createSales } from '../../api/sales'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router'
+import { startOfDay } from 'date-fns'
+import { formatDateonlyMachine } from '../../utils/dates'
+import { Theme } from '../../theme'
 
 type SaleLine = {
   productId: string | undefined
@@ -41,12 +55,14 @@ type SaleLine = {
 const initialValues = {
   client: '',
   cash: 'true',
+  date: startOfDay(new Date),
   saleLines: [] as SaleLine[],
 }
 
 const validationSchema = yup.object().shape({
   client: yup.string().required(),
   cash: yup.string().required().oneOf(['true', 'false']),
+  date: yup.date().notRequired(),
   saleLines: yup.array().of(yup.object().shape({
     productId: yup.string().required(),
     variantId: yup.string().nullable(),
@@ -64,16 +80,20 @@ interface MapToCreateSaleDeps {
   prices: Record<string, Price>
   cash: boolean
   clientId: number
+  isAdmin: boolean
+  date: Date | undefined
 }
 
 const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine): SaleForCreate => {
-  const price = deps.prices[line.priceId]
+  const price = deps.prices[line.priceId] as Price | undefined
   if (!price)
     throw new Error(`Precio para el producto ${line.productId} no encontrado para este cliente`)
 
   const priceValue = Number(price.value)
+  const date = deps.date ? formatDateonlyMachine(deps.date) : undefined
 
   return {
+    ...(deps.isAdmin && date ? { date } : {}),
     cash: deps.cash,
     clientId: deps.clientId,
     priceOverride: priceValue,
@@ -85,12 +105,16 @@ const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine)
   }
 }
 
-const RegisterSale = React.memo(() => {
+const RegisterSale = memo(() => {
   const auth = useAuth()
   const showMsg = useSnackbar()
-  const history = useHistory()
+  const navigate = useNavigate()
+  const user = useUser()
+
+  const isAdmin = user?.isAdmin ?? false
 
   const handleSubmit = useCallback(async (values: Values) => {
+    console.log({ values })
     if (isNaN(Number(values.client))) {
       showMsg('Error en la aplicación: id de cliente no es un número valido')
       return
@@ -99,7 +123,7 @@ const RegisterSale = React.memo(() => {
     const clientId = Number(values.client)
     const saleLines = values.saleLines as ValidatedSaleLine[]
 
-    let prices
+    let prices: Price[]
     try {
       prices = await fetchPrices(clientId, auth)
     } catch (e: unknown) {
@@ -112,18 +136,20 @@ const RegisterSale = React.memo(() => {
       return
     }
 
-    const priceMap = prices.reduce((o, p) => {
+    const priceMap = prices.reduce<Record<string, Price>>((o, p) => {
       o[p.id] = p
       return o
-    }, {} as Record<string, Price>)
+    }, {})
 
     const deps = {
       prices: priceMap,
       cash: values.cash === 'true',
+      date: values.date,
       clientId,
+      isAdmin,
     }
 
-    let sales
+    let sales: SaleForCreate[]
     try {
       sales = saleLines.map(mapToCreateSale(deps))
     } catch (e: unknown) {
@@ -146,9 +172,9 @@ const RegisterSale = React.memo(() => {
       return
     }
 
-    history.push('/sells')
+    navigate('/sells')
 
-  }, [auth, showMsg, history])
+  }, [isAdmin, navigate, showMsg, auth])
 
 
   return (
@@ -174,31 +200,42 @@ const cashOptions = [
   { value: 'false', label: 'Posfechado' },
 ]
 
-const RegisterSaleImpl = React.memo(() => {
+const RegisterSaleImpl = memo(() => {
   const user = useUser()
   const isAdmin = user?.isAdmin ?? false
   const [clients] = useClientOptions()
+  const auth = useAuth()
 
   const { values, setFieldValue } = useFormikContext<Values>()
 
   const clientId = isNaN(Number(values.client)) || Number(values.client) === 0 ? null : Number(values.client)
   const [client] = useClient(clientId)
-  const history = useHistory()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    // eslint-disable-next-line eqeqeq
-    if (user?.loggedIn == null) return
-    if (!user.loggedIn)
-      history.push('/check?next=/sell2')
 
-  }, [user?.loggedIn, history])
+    if (user?.loggedIn === null || user?.loggedIn === undefined) return
+    if (!user.loggedIn) {
+      // In case of not logged in, double check with an actual request
+      // as the user might be out of date in the context
+      (async () => {
+        const url = '/api/users/getCurrent'
+        const user: ErrorResponse | User = await fetchJsonAuth(url, auth)
+
+        if (isErrorResponse(user))
+          navigate('/check?next=/sell')
+
+      })()
+    }
+
+  }, [user?.loggedIn, navigate, auth])
 
   useEffect(() => {
     if (client?.defaultCash === undefined)
       return
 
     setFieldValue('cash', client.defaultCash ? 'true' : 'false')
-  }, [client?.defaultCash])
+  }, [client?.defaultCash, setFieldValue])
 
   const handleAdd = useCallback(() => {
     setFieldValue('saleLines', [
@@ -210,12 +247,12 @@ const RegisterSaleImpl = React.memo(() => {
         priceId: '',
       },
     ])
-  }, [values.saleLines])
+  }, [setFieldValue, values.saleLines])
 
   const handleRemove = useCallback((idx: number) => {
     const newLines = values.saleLines.filter((_, i) => i !== idx)
     setFieldValue('saleLines', newLines)
-  }, [values.saleLines])
+  }, [setFieldValue, values.saleLines])
 
   // Auto add a line when a client is selected
   useEffect(() => {
@@ -227,18 +264,18 @@ const RegisterSaleImpl = React.memo(() => {
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <StyledPaper>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <SelectField name='client' label='Cliente' options={clients} />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               {client && (
                 <SelectField name='cash' label='Tipo de Venta' options={cashOptions} />
               )}
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               {isAdmin && (
                 <DateField name='date' label='Fecha de la Venta' />
               )}
@@ -247,7 +284,7 @@ const RegisterSaleImpl = React.memo(() => {
         </StyledPaper>
       </Grid>
       <VSpace />
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <SaleLineForms
           onRemove={handleRemove}
           clientId={Number(values.client)}
@@ -265,7 +302,7 @@ const RegisterSaleImpl = React.memo(() => {
         </StyledPaper>
       </Grid>
       <VSpace />
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <StyledPaper>
           <TotalPrice />
           <SubmitButton onlyEnableWhenValid>
@@ -278,7 +315,7 @@ const RegisterSaleImpl = React.memo(() => {
 })
 RegisterSaleImpl.displayName = 'RegisterSaleImpl'
 
-const TotalPrice = React.memo(() => {
+const TotalPrice = memo(() => {
   const { values } = useFormikContext<Values>()
   const clientId = values.client !== '' ? Number(values.client) : undefined
 
@@ -290,13 +327,13 @@ const TotalPrice = React.memo(() => {
 })
 TotalPrice.displayName = 'TotalPrice'
 
-const TotalPriceImpl = React.memo(({ clientId }: { clientId: number }) => {
+const TotalPriceImpl = memo(({ clientId }: { clientId: number }) => {
   const { values } = useFormikContext<Values>()
   const [prices] = usePrices(clientId)
 
   const total = useMemo(
     () => calcTotal(values.saleLines, prices),
-    [values.saleLines, prices]
+    [values.saleLines, prices],
   )
 
   return (
@@ -312,16 +349,16 @@ const calcTotal = (saleLines: SaleLine[], prices: Price[] | null) => {
     return 0
 
 
-  const priceMap = prices.reduce((o, p) => {
+  const priceMap = prices.reduce<Record<string, Price>>((o, p) => {
     o[p.id] = p
     return o
-  }, {} as Record<string, Price>)
+  }, {})
 
   const total = saleLines.reduce((acc, line) => {
     if (!line.priceId) { // Skip lines when price hasn't been selected yet
       return acc
     }
-    const price = priceMap[line.priceId]?.value
+    const price = priceMap[line.priceId].value
     if (!price || isNaN(Number(price)))
       return acc
 
@@ -336,7 +373,7 @@ interface SaleLineFormsProps {
   onRemove: (idx: number) => void
 }
 
-const SaleLineForms = React.memo(({ onRemove, clientId }: SaleLineFormsProps) => {
+const SaleLineForms = memo(({ onRemove, clientId }: SaleLineFormsProps) => {
   const [products] = useProducts({ params: { include: ['Variants'] } })
   const { values } = useFormikContext<Values>()
   const saleLines = values.saleLines
@@ -344,12 +381,12 @@ const SaleLineForms = React.memo(({ onRemove, clientId }: SaleLineFormsProps) =>
   return (
     <>
       {saleLines.map((line, idx) => (
-        <React.Fragment key={idx}>
+        <Fragment key={idx}>
           <StyledPaper>
             <SaleLineForm idx={idx} onRemove={onRemove} line={line} products={products} clientId={clientId} />
           </StyledPaper>
           <VSpace />
-        </React.Fragment>
+        </Fragment>
       ))}
     </>
   )
@@ -364,7 +401,7 @@ type SaleLineFormProps = {
   onRemove: (idx: number) => void
 }
 
-const SaleLineForm = React.memo(({ idx, products, line, onRemove, clientId }: SaleLineFormProps) => {
+const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLineFormProps) => {
   const productOpts = useMemo(() => optionsFromProducts(products), [products])
   const product = useMemo(() => products?.find(p => p.id === Number(line.productId)), [products, line.productId])
   const variants = useMemo(() => product?.Variants ?? [], [product])
@@ -387,7 +424,7 @@ const SaleLineForm = React.memo(({ idx, products, line, onRemove, clientId }: Sa
 
     setFieldValue(`saleLines[${idx}].priceId`, priceOptsFinal[0].value)
 
-  }, [priceOptsFinal, idx])
+  }, [priceOptsFinal, idx, setFieldValue])
 
   // Auto-select the first variant when available
   useEffect(() => {
@@ -396,30 +433,32 @@ const SaleLineForm = React.memo(({ idx, products, line, onRemove, clientId }: Sa
 
     setFieldValue(`saleLines[${idx}].variantId`, variantOpts[0].value)
 
-  }, [variantOpts])
+  }, [idx, setFieldValue, variantOpts])
 
   return (
     <Grid container spacing={1}>
-      <Grid item xs={12} container justifyContent='flex-end'>
-        <IconButton onClick={() => onRemove(idx)} size='small' style={{ margin: -8 }}>
+      <Grid size={{ xs: 12 }} container justifyContent='flex-end'>
+        <IconButton onClick={() => {
+          onRemove(idx)
+        }} size='small' style={{ margin: -8 }}>
           <CloseOutlined />
         </IconButton>
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <SelectField name={`saleLines[${idx}].productId`} label='Producto' options={productOpts} />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         {(variantOpts?.length ?? 0) > 0 && (
           <SelectField name={`saleLines[${idx}].variantId`} label='Variante' options={variantOpts} emptyOption='Ninguna' />
         )}
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <NumericField name={`saleLines[${idx}].quantity`} label='Cantidad' />
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <SelectField name={`saleLines[${idx}].priceId`} label='Precio' options={priceOptsFinal} emptyOption={emptyOption} />
       </Grid>
-      <BatchFieldGrid item xs={12} md={6}>
+      <BatchFieldGrid size={{ xs: 12, md: 6 }}>
         {product?.batchCategoryId ? <>
           <BatchField idx={idx} product={product as ProductWithBatchCategory} />
         </> : null}
@@ -428,11 +467,11 @@ const SaleLineForm = React.memo(({ idx, products, line, onRemove, clientId }: Sa
         </> : null}
       </BatchFieldGrid>
 
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Hr />
       </Grid>
 
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         Precio Total: {money(line.quantity * selectedPrice)}
       </Grid>
 
@@ -447,21 +486,25 @@ const BatchFieldGrid = styled(Grid)({
   alignItems: 'baseline',
 })
 
-const Hr = styled(VSpace)(({ theme }) => ({
+const Hr = styled(VSpace)(({ theme }: { theme: Theme }) => ({
   borderBottomWidth: 2,
   borderBottomStyle: 'solid',
   borderBottomColor: theme.palette.divider,
-  marginLeft: -theme.spacing(2),
-  marginRight: -theme.spacing(2),
-  width: `calc(100% + ${theme.spacing(2) * 2}px)`,
+  marginLeft: theme.spacing(-2),
+  marginRight: theme.spacing(-2),
+  width: `calc(100% + calc(${theme.spacing(2)} * 2))`,
 }))
 
-const BatchField = React.memo(({ idx, product }: { idx: number, product: ProductWithBatchCategory }) => {
-  const [batches, update] = useBatches({ batchCategoryId: product.batchCategoryId })
+const BatchField = memo(({ idx, product }: { idx: number, product: ProductWithBatchCategory }) => {
+  const [batches, update] = useBatches({ batchCategoryId: product.batchCategoryId ?? undefined })
   const options = optionsFromBatches(batches ?? null)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
-  const toggleAddDialog = useCallback(() => setAddDialogOpen(prev => !prev), [])
-  const closeDialog = useCallback(() => setAddDialogOpen(false), [])
+  const toggleAddDialog = useCallback(() => {
+    setAddDialogOpen(prev => !prev)
+  }, [])
+  const closeDialog = useCallback(() => {
+    setAddDialogOpen(false)
+  }, [])
 
   const fieldName = `saleLines[${idx}].batch`
 
@@ -469,24 +512,22 @@ const BatchField = React.memo(({ idx, product }: { idx: number, product: Product
   const handleBatchCreated = useCallback((batch: Batch) => {
     setFieldValue(fieldName, String(batch.id))
     update()
-  }, [fieldName, update])
+  }, [fieldName, setFieldValue, update])
 
-  return (
-    <>
-      <SelectField name={fieldName} label='Lote' options={options} style={{ flex: 1 }} />
-      <Tooltip title='Crear nuevo lote' placement='bottom'>
-        <IconButton onClick={toggleAddDialog}>
-          <Add />
-        </IconButton>
-      </Tooltip>
-      <AddBatchDialog
-        product={product}
-        open={addDialogOpen}
-        onClose={closeDialog}
-        onCreated={handleBatchCreated}
-      />
-    </>
-  )
+  return (<>
+    <SelectField name={fieldName} label='Lote' options={options} style={{ flex: 1 }} />
+    <Tooltip title='Crear nuevo lote' placement='bottom'>
+      <IconButton onClick={toggleAddDialog} size="large">
+        <Add />
+      </IconButton>
+    </Tooltip>
+    <AddBatchDialog
+      product={product}
+      open={addDialogOpen}
+      onClose={closeDialog}
+      onCreated={handleBatchCreated}
+    />
+  </>)
 })
 BatchField.displayName = 'BatchField'
 
@@ -505,8 +546,8 @@ const addBatchInitialValues = {
   date: new Date(),
 }
 
-const AddBatchDialog = React.memo(({ product, open, onClose, onCreated }: AddBatchDialogProps) => {
-  const [category] = useBatchCategory(product.batchCategoryId)
+const AddBatchDialog = memo(({ product, open, onClose, onCreated }: AddBatchDialogProps) => {
+  const [category] = useBatchCategory(product.batchCategoryId ?? undefined)
   const loading = category === null
   const auth = useAuth()
   const showError = useSnackbar()
@@ -519,7 +560,7 @@ const AddBatchDialog = React.memo(({ product, open, onClose, onCreated }: AddBat
       batchCategoryId: product.batchCategoryId,
     }
 
-    let res
+    let res: Batch | ErrorResponse
     try {
       res = await fetchJsonAuth<Batch>('/api/batches', auth, {
         method: 'POST',
@@ -531,7 +572,7 @@ const AddBatchDialog = React.memo(({ product, open, onClose, onCreated }: AddBat
     }
 
     if (isErrorResponse(res)) {
-      showError(`Error al tratar de crear un nuevo lote: ${res.error?.message ?? '???'}`)
+      showError(`Error al tratar de crear un nuevo lote: ${res.error.message}`)
       return
     }
 
@@ -548,15 +589,15 @@ const AddBatchDialog = React.memo(({ product, open, onClose, onCreated }: AddBat
           initialValues={addBatchInitialValues}
           onSubmit={handleSubmit}
         >
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <DialogContentText>
               Creando un nuevo lote en la categoría: {category?.name ?? 'Cargando…'}
             </DialogContentText>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <DateField name='date' label='Fecha del Lote' />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <SubmitButton disabled={loading}>Crear Lote</SubmitButton>
           </Grid>
         </Form>

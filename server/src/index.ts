@@ -1,17 +1,17 @@
-import app from './app'
-import * as socketio from 'socket.io'
+import app from './app.js'
+import { Server } from 'socket.io'
 import debug from 'debug'
 
 const debugio = debug('app:socketio')
 
 const PORT = process.env.PORT || 3000
 const server = app.listen(PORT, () => {
-  if (process.env.NODE_ENV !== 'test') 
+  if (process.env.NODE_ENV !== 'test')
     console.log('  App is running at http://localhost:%d', PORT)
-  
+
 })
 
-const io = socketio(server)
+const io = new Server(server)
 
 io.on('connection', () => {
   debugio('Client connected')

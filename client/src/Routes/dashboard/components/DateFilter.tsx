@@ -1,6 +1,13 @@
-import { FormControl, Grid, InputLabel, MenuItem, Select, styled } from '@material-ui/core'
-import { DatePicker } from '@material-ui/pickers/DatePicker'
-import * as React from 'react'
+import type { JSX } from 'react'
+import {
+  FormControl,
+  Grid2 as Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { DatePicker } from '@mui/x-date-pickers'
 import { useState, useEffect } from 'react'
 import { startOfDay, endOfDay, startOfMonth, endOfMonth } from 'date-fns'
 import type { DateRange } from '../index'
@@ -31,13 +38,12 @@ export const DateFilter = ({
       return
     }
 
-    if (groupBy === 'month') {
-      onRangeChange({
-        minDate: startOfMonth(date),
-        maxDate: endOfMonth(date),
-      })
-      return
-    }
+    // month
+    onRangeChange({
+      minDate: startOfMonth(date),
+      maxDate: endOfMonth(date),
+    })
+    return
   }, [date, groupBy, onRangeChange])
 
   useEffect(() => {
@@ -45,48 +51,50 @@ export const DateFilter = ({
   }, [groupBy, onGroupByChange])
 
   return (
-    <Grid container spacing={2} justify='center'>
-      <Grid item>
-        <FormControl>
+    (<Grid container spacing={2} justifyContent='center'>
+      <Grid>
+        <FormControl variant='outlined'>
           <InputLabel>Agrupar</InputLabel>
           <StyledSelect
             value={groupBy}
-            onChange={e => setGroupBy(e.target.value as GroupByOption)}
+            onChange={e => {
+              setGroupBy(e.target.value as GroupByOption)
+            }}
           >
             <MenuItem value='day'>Día</MenuItem>
             <MenuItem value='month'>Mes</MenuItem>
           </StyledSelect>
         </FormControl>
       </Grid>
-      <Grid item>
+      <Grid>
         {groupBy === 'day' && <>
           <DatePicker
             label='Día'
-            format='DD [de] MMMM'
-
+            format="dd 'de' MMMM"
             value={date}
             onChange={date => {
               if (!date) return
-              setDate(date.toDate())
+              setDate(date)
             }}
-            disableFuture />
+            disableFuture
+          />
         </>}
         {groupBy === 'month' && <>
           <DatePicker
             label='Mes'
             views={['year', 'month']}
-            format='MMMM YYYY'
+            format='MMMM yyyy'
             openTo='month'
-
             value={date}
             onChange={date => {
               if (!date) return
-              setDate(date.startOf('month').toDate())
+              setDate(startOfMonth(date))
             }}
-            disableFuture />
+            disableFuture
+          />
         </>}
       </Grid>
-    </Grid>
+    </Grid>)
   )
 }
 

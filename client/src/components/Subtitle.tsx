@@ -1,20 +1,20 @@
-import * as React from 'react'
+import type { JSX } from 'react'
+import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react'
 import clsx from 'clsx'
 
 import {
   Typography,
-} from '@material-ui/core'
-import { TypographyProps } from '@material-ui/core/Typography'
+} from '@mui/material'
+import { TypographyProps } from '@mui/material/Typography'
 
-import {
-  makeStyles,
-} from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import { Theme } from '../theme'
 
-type DivProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+type DivProps = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 interface TitleProps extends DivProps {
   TypographyProps?: TypographyProps
   className?: string
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 export default function Subtitle(props: TitleProps): JSX.Element {
@@ -27,7 +27,7 @@ export default function Subtitle(props: TitleProps): JSX.Element {
   )
 }
 
-const useTitleStyles = makeStyles(theme => ({
+const useTitleStyles = makeStyles((theme: Theme) => ({
   title: {
     marginTop: theme.spacing(0),
     marginBottom: theme.spacing(2),

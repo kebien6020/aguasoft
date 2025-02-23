@@ -1,12 +1,10 @@
 import * as React from 'react'
 import { useCallback, useState, useRef, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
-import Pagination from 'material-ui-flat-pagination'
+import makeStyles from '@mui/styles/makeStyles'
+import Paper from '@mui/material/Paper'
+import Grid from '@mui/material/Grid2'
+import Pagination from '../components/pagination'
 
-import useAuth from '../hooks/useAuth'
 import useFetch from '../hooks/useFetch'
 import useMovements from '../hooks/api/useMovements'
 import useSnackbar from '../hooks/useSnackbar'
@@ -19,6 +17,8 @@ import Title from '../components/Title'
 import { Storage, InventoryElement, User } from '../models'
 import { Params, scrollToRef } from '../utils'
 import { movementCauseOptions } from '../constants'
+import { useNavigate } from 'react-router'
+import { Theme } from '../theme'
 
 const ITEMS_PER_PAGE = 30
 
@@ -36,8 +36,8 @@ const Movements = () => {
   })
 
   const inventoryElementOptions =
-    inventoryElements &&
-    inventoryElements.map(ie => ({value: String(ie.id), label: ie.name}))
+    inventoryElements
+    && inventoryElements.map(ie => ({ value: String(ie.id), label: ie.name }))
 
   const [offset, setOffset] = useState(0)
   const [causeFilter, setCauseFilter] = useState('')
@@ -52,12 +52,12 @@ const Movements = () => {
   if (causeFilter) params.cause = causeFilter
   if (elementFilter) params.inventoryElementId = elementFilter
 
-  const {movements, totalCount, loading} = useMovements(params)
+  const { movements, totalCount, loading } = useMovements(params)
 
   // Handle filter change while on a high page number
   useEffect(() => {
     if (totalCount && offset > totalCount) {
-      const page = Math.floor(totalCount/ITEMS_PER_PAGE)
+      const page = Math.floor(totalCount / ITEMS_PER_PAGE)
       setOffset(page * ITEMS_PER_PAGE)
     }
   }, [offset, totalCount])
@@ -65,18 +65,18 @@ const Movements = () => {
   const scrollTargetRef = useRef<HTMLDivElement>(null)
 
   const renderPagination = () => (
-    totalCount &&
-      <Pagination
-        limit={ITEMS_PER_PAGE}
-        offset={offset}
-        total={totalCount}
-        onClick={(_, offset) => {
-          setOffset(offset)
-          scrollToRef(scrollTargetRef)
-        }}
-        disabled={loading}
-        className={classes.pagination}
-      />
+    totalCount
+    && <Pagination
+      limit={ITEMS_PER_PAGE}
+      offset={offset}
+      total={totalCount}
+      onClick={(_, offset) => {
+        setOffset(offset)
+        scrollToRef(scrollTargetRef)
+      }}
+      disabled={loading}
+      className={classes.pagination}
+    />
   )
 
   const [users] = useFetch<User[]>('/api/users', {
@@ -85,55 +85,49 @@ const Movements = () => {
   })
 
   // Login to register things
-  const auth = useAuth()
-  const history = useHistory()
+  const navigate = useNavigate()
   const goToRegisterRelocation = useCallback(() => {
-    history.push('/movements/relocation')
-  }, [history])
+    navigate('/movements/relocation')
+  }, [navigate])
   const goToRegisterProduction = useCallback(() => {
-    history.push('/movements/production')
-  }, [history])
+    navigate('/movements/production')
+  }, [navigate])
   const goToRegisterDamaged = useCallback(() => {
-    history.push('/movements/damaged')
-  }, [history])
+    navigate('/movements/damaged')
+  }, [navigate])
   const goToRegisterUnpack = useCallback(() => {
-    history.push('/movements/unpack')
-  }, [history])
+    navigate('/movements/unpack')
+  }, [navigate])
   const goToRegisterEntry = useCallback(() => {
-    history.push('/movements/entry')
-  }, [history])
+    navigate('/movements/entry')
+  }, [navigate])
 
   return (
-    <Layout title='Movimientos'>
+    (<Layout title='Movimientos'>
       <Title>Registrar Salida de Bodega</Title>
-        <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterRelocation} auth={auth} buttonColor='black' />
+      <Paper className={classes.login}>
+        <Login onSuccess={goToRegisterRelocation} buttonColor='black' />
       </Paper>
-
       <Title>Registrar Producción</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterProduction} auth={auth} buttonColor='#2e7d32' />
+        <Login onSuccess={goToRegisterProduction} buttonColor='#2e7d32' />
       </Paper>
-
       <Title>Registrar Producto Dañado</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterDamaged} auth={auth} buttonColor='#c30808' />
+        <Login onSuccess={goToRegisterDamaged} buttonColor='#c30808' />
       </Paper>
-
       <Title>Registrar Desempaque</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterUnpack} auth={auth} buttonColor='blueviolet' />
+        <Login onSuccess={goToRegisterUnpack} buttonColor='blueviolet' />
       </Paper>
-
       <Title>Registrar Ingreso de Insumos</Title>
       <Paper className={classes.login}>
-        <Login onSuccess={goToRegisterEntry} auth={auth} buttonColor='rgb(255, 152, 0)' />
+        <Login onSuccess={goToRegisterEntry} buttonColor='rgb(255, 152, 0)' />
       </Paper>
-
-      <div ref={scrollTargetRef} style={{height: 0}} />
+      <div ref={scrollTargetRef} style={{ height: 0 }} />
       <Title>Movimientos recientes</Title>
-      <Grid container spacing={3} justify='center'>
-        <Grid item xs={12} md={6}>
+      <Grid container spacing={3} justifyContent='center'>
+        <Grid size={{ xs: 12, md: 6 }}>
           <SelectControl
             id='cause-filter'
             name='cause-filter'
@@ -141,10 +135,12 @@ const Movements = () => {
             emptyOption='Todos'
             options={movementCauseOptions}
             value={causeFilter}
-            onChange={(e) => setCauseFilter(e.target.value as string)}
+            onChange={(e) => {
+              setCauseFilter(e.target.value as string) 
+            }}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <SelectControl
             id='elem-filter'
             name='elem-filter'
@@ -152,30 +148,31 @@ const Movements = () => {
             emptyOption='Todos'
             options={inventoryElementOptions}
             value={elementFilter}
-            onChange={(e) => setElementFilter(e.target.value as string)}
+            onChange={(e) => {
+              setElementFilter(e.target.value as string) 
+            }}
           />
         </Grid>
       </Grid>
       {renderPagination()}
       <Grid container spacing={3} alignItems='stretch'>
         {movements && users && storages && inventoryElements ? movements.map(movement =>
-          <Grid item key={movement.id} xs={12} md={6}>
+          <Grid key={movement.id} size={{ xs: 12, md: 6 }}>
             <MovementCard
               movement={movement}
               users={users}
               storages={storages}
               elements={inventoryElements}
             />
-          </Grid>
+          </Grid>,
         ) : <LoadingIndicator />}
       </Grid>
       {renderPagination()}
-
-    </Layout>
+    </Layout>)
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   login: {
     padding: theme.spacing(2),
   },
@@ -185,8 +182,8 @@ const useStyles = makeStyles(theme => ({
   '@global': {
     html: {
       scrollBehavior: 'smooth',
-    }
-  }
+    },
+  },
 }))
 
 export default Movements

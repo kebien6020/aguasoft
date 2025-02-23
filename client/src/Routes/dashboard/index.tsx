@@ -1,6 +1,7 @@
-import { Grid, GridProps, styled, Theme } from '@material-ui/core'
+import type { FC, JSX } from 'react'
+import { Grid2 as Grid, Grid2Props as GridProps, Theme } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { endOfDay, startOfDay } from 'date-fns'
-import * as React from 'react'
 import { useState } from 'react'
 import Layout from '../../components/Layout'
 import { DateFilter, GroupByOption, initialGroupBy } from './components/DateFilter'
@@ -23,16 +24,16 @@ const Dashboard = (): JSX.Element => {
   const rangeDescr = groupBy === 'day' ? 'Día' : 'Mes'
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title='Tablero'>
       <DateFilter
         onRangeChange={setDateRange}
         onGroupByChange={setGroupBy}
       />
       <Grid container spacing={3}>
-        <OrderGrid item xs={12} lg={4} order={{ lg: 1 }}>
+        <OrderGrid size={{ xs: 12, lg: 4 }} order={{ lg: 1 }}>
           <ToolsWidget />
         </OrderGrid>
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <DayMoneyWidget
             dateRange={dateRange}
           />
@@ -49,7 +50,7 @@ const Dashboard = (): JSX.Element => {
 
 export default Dashboard
 
-const DashboardLayout = styled(props => <Layout title='Tablero' {...props} />)(({ theme }) => ({
+const DashboardLayout = styled(Layout)(({ theme }) => ({
   paddingTop: theme.spacing(4),
 }))
 
@@ -64,11 +65,12 @@ interface OrderGridProps {
 }
 
 const OrderGrid = styled(
-  ({ order, ...props }) => <Grid {...props} />
-)<Theme, GridProps & OrderGridProps>(({ theme, order }) => ({
+  (props) => <Grid {...props} />,
+  { shouldForwardProp: (prop) => prop !== 'order' },
+)(({ theme, order }: OrderGridProps & { theme: Theme }) => ({
   order: order?.xs,
   [theme.breakpoints.up('sm')]: { order: order?.sm },
   [theme.breakpoints.up('lg')]: { order: order?.lg },
   [theme.breakpoints.up('lg')]: { order: order?.lg },
   [theme.breakpoints.up('xl')]: { order: order?.xl },
-}))
+})) as FC<GridProps & OrderGridProps>

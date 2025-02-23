@@ -1,64 +1,72 @@
-'use strict'
-
+// @ts-check
 const CLIENT_FKEY = 'Sells_clientId_fk'
 const PRODUCT_FKEY = 'Sells_productId_fk'
 const USER_FKEY = 'Sells_userId_fk'
 
-module.exports = {
-  up: (queryInterface, Sequelize) => {
-    const commonOptions = {
-      type: 'foreign key',
-      // Can't delete a client, product or user unless all sells
-      // for it/them are deleted
-      onDelete: 'restrict',
-      onUpdate: 'cascade',
-    }
+/**
+ * @param {import('sequelize').QueryInterface} queryInterface
+ * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
+ * @return {Promise<void>}
+ */
+export function up(queryInterface, _Sequelize) {
+  const commonOptions = /** @type {const} */ ({
+    type: 'foreign key',
+    // Can't delete a client, product or user unless all sells
+    // for it/them are deleted
+    onDelete: 'restrict',
+    onUpdate: 'cascade',
+  })
 
-    const clientOptions = Object.assign({}, commonOptions, {
-      name: CLIENT_FKEY,
-      references: {
-        table: 'Clients',
-        field: 'id',
-      },
-    })
+  const clientOptions = {
+    ...commonOptions,
+    name: CLIENT_FKEY,
+    references: {
+      table: 'Clients',
+      field: 'id',
+    },
+    fields: ['clientId'],
+  }
 
-    const productOptions = Object.assign({}, commonOptions, {
-      name: PRODUCT_FKEY,
-      references: {
-        table: 'Products',
-        field: 'id',
-      },
-    })
+  const productOptions = {
+    ...commonOptions,
+    name: PRODUCT_FKEY,
+    references: {
+      table: 'Products',
+      field: 'id',
+    },
+    fields: ['productId'],
+  }
 
-    const userOptions = Object.assign({}, commonOptions, {
-      name: USER_FKEY,
-      references: {
-        table: 'Users',
-        field: 'id',
-      },
-    })
+  const userOptions = {
+    ...commonOptions,
+    name: USER_FKEY,
+    references: {
+      table: 'Users',
+      field: 'id',
+    },
+    fields: ['userId'],
+  }
 
-    const sequelize = queryInterface.sequelize
-    const trans = (t, obj) => Object.assign(obj, { transaction: t })
+  const sequelize = queryInterface.sequelize
 
-    return sequelize.transaction(t =>
-      queryInterface.addConstraint('Sells', ['clientId'], trans(t, clientOptions)).then(() =>
-        queryInterface.addConstraint('Sells', ['productId'], trans(t, productOptions)),
-      ).then(() =>
-        queryInterface.addConstraint('Sells', ['userId'], trans(t, userOptions)),
-      ),
-    )
-  },
+  return sequelize.transaction(async (transaction) => {
+    await queryInterface.addConstraint('Sells', { transaction, ...clientOptions })
+    await queryInterface.addConstraint('Sells', { transaction, ...productOptions })
+    await queryInterface.addConstraint('Sells', { transaction, ...userOptions })
+  })
+}
 
-  down: (queryInterface, Sequelize) => {
-    const sequelize = queryInterface.sequelize
+/**
+ * @param {import('sequelize').QueryInterface} queryInterface
+ * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
+ * @return {Promise<void>}
+ */
+export function down(queryInterface, _Sequelize) {
+  const sequelize = queryInterface.sequelize
 
-    return sequelize.transaction(t =>
-      queryInterface.removeConstraint('Sells', PRODUCT_FKEY, { transaction: t }).then(() =>
-        queryInterface.removeConstraint('Sells', CLIENT_FKEY, { transaction: t }),
-      ).then(() =>
-        queryInterface.removeConstraint('Sells', USER_FKEY, { transaction: t }),
-      ),
-    )
-  },
+  return sequelize.transaction(async t => {
+    await queryInterface.removeConstraint('Sells', PRODUCT_FKEY, { transaction: t })
+    await queryInterface.removeConstraint('Sells', CLIENT_FKEY, { transaction: t })
+    await queryInterface.removeConstraint('Sells', USER_FKEY, { transaction: t })
+  })
 }

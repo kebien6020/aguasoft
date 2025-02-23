@@ -1,8 +1,9 @@
-import { createTheme } from '@material-ui/core/styles'
+import { createTheme } from '@mui/material/styles'
+import { esES } from '@mui/x-date-pickers/locales'
 
-export default createTheme({
+const theme = createTheme({
   palette: {
-    type: 'light',
+    mode: 'light',
     primary: {
       light: '#63a3ff',
       main: '#1775d1',
@@ -22,17 +23,25 @@ export default createTheme({
   typography: {
     htmlFontSize: 10, // This makes the font really big
   },
-  overrides: {
+  components: {
     MuiTableCell: {
-      sizeSmall: {
-        padding: '20px 16px 20px 8px',
-        fontSize: '16px',
+      styleOverrides: {
+        sizeSmall: {
+          padding: '20px 16px 20px 8px',
+          fontSize: '16px',
+        },
       },
     },
     MuiSvgIcon: {
-      root: {
-        fontSize: '1.8rem',
+      styleOverrides: {
+        root: {
+          fontSize: '1.8rem',
+        },
       },
     },
   },
-})
+}, esES)
+
+export default theme
+
+export type Theme = typeof theme

@@ -1,9 +1,6 @@
-import * as React from 'react'
-import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import { FormikHelpers } from 'formik'
+import makeStyles from '@mui/styles/makeStyles'
+import Grid from '@mui/material/Grid2'
+import Paper from '@mui/material/Paper'
 
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
@@ -14,6 +11,8 @@ import TextField from '../components/form/TextField'
 import Title from '../components/Title'
 import Yup from '../components/form/Yup'
 import { fetchJsonAuth, isErrorResponse } from '../utils'
+import { Theme } from '../theme'
+import { useNavigate } from 'react-router'
 
 const initialValues = {
   amount: '',
@@ -31,27 +30,25 @@ const RegisterUnpack = () => {
   const auth = useAuth()
   const showMessage = useSnackbar()
 
-  const history = useHistory()
-  const handleSubmit = async (values: Values, {setSubmitting}: FormikHelpers<Values>) => {
+  const navigate = useNavigate()
+  const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/unpack'
-    let payload: Object = {
+    const payload = {
       amount: Number(values.amount),
     }
 
     const response = await fetchJsonAuth(url, auth, {
       method: 'post',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (isErrorResponse(response)) {
       showMessage('Error: ' + response.error.message)
-      setSubmitting(false)
       return
     }
 
     showMessage('Guardado exitoso')
-    history.push('/movements')
-    setSubmitting(false)
+    navigate('/movements')
   }
 
   return (
@@ -64,21 +61,21 @@ const RegisterUnpack = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-            <Grid item xs={12}>
-              <TextField
-                name='amount'
-                label='Pacas a desempacar'
-              />
-            </Grid>
+          <Grid size={{ xs: 12 }}>
+            <TextField
+              name='amount'
+              label='Pacas a desempacar'
+            />
+          </Grid>
 
-            <SubmitButton />
+          <SubmitButton />
         </Form>
       </Paper>
     </Layout>
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(4),

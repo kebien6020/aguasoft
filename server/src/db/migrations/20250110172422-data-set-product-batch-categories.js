@@ -1,5 +1,4 @@
 // @ts-check
-'use strict'
 
 const mapping = {
   'Paca 360': 'bolsa-360',
@@ -15,52 +14,54 @@ const mapping = {
   'Barra de Hielo': 'barra-hielo',
 }
 
-module.exports = {
-  /**
-   * @param {import('sequelize').QueryInterface} queryInterface
-   * @param {typeof import('sequelize').Sequelize & typeof import ('sequelize').DataTypes} Sequelize
-   * @return {Promise<void>}
-   */
-  up: async (queryInterface, Sequelize) => {
-    for (const [productName, batchCategoryCode] of Object.entries(mapping)) {
+/**
+ * @param {import('sequelize').QueryInterface} queryInterface
+ * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
+ * @return {Promise<void>}
+ */
+export async function up(queryInterface, _Sequelize) {
+  for (const [productName, batchCategoryCode] of Object.entries(mapping)) {
 
-      /** @type {{id: string}[]} */
-      const products = await queryInterface.sequelize.query('SELECT id FROM "Products" WHERE name = ?', {
-        raw: true,
-        replacements: [productName],
-        type: 'SELECT',
-      })
-      if (products.length !== 1)
-        throw new Error(`Product "${productName}" not found`)
+    /** @type {{id: string}[]} */
+    // @ts-expect-error Can't easily force the type here
+    const products = await queryInterface.sequelize.query('SELECT id FROM "Products" WHERE name = ?', {
+      raw: true,
+      replacements: [productName],
+      type: 'SELECT',
+    })
+    if (products.length !== 1)
+      throw new Error(`Product "${productName}" not found`)
 
-      const product = products[0]
+    const product = products[0]
 
-      /** @type {{id: string}[]} */
-      const batchCategories = await queryInterface.sequelize.query('SELECT id FROM "BatchCategories" WHERE code = ?', {
-        raw: true,
-        replacements: [batchCategoryCode],
-        type: 'SELECT',
-      })
-      if (batchCategories.length !== 1)
-        throw new Error(`Batch category "${batchCategoryCode}" not found`)
+    /** @type {{id: string}[]} */
+    // @ts-expect-error Same here
+    const batchCategories = await queryInterface.sequelize.query('SELECT id FROM "BatchCategories" WHERE code = ?', {
+      raw: true,
+      replacements: [batchCategoryCode],
+      type: 'SELECT',
+    })
+    if (batchCategories.length !== 1)
+      throw new Error(`Batch category "${batchCategoryCode}" not found`)
 
-      const batchCategory = batchCategories[0]
+    const batchCategory = batchCategories[0]
 
-      await queryInterface.sequelize.query('UPDATE "Products" SET "batchCategoryId" = ? WHERE id = ?', {
-        replacements: [batchCategory.id, product.id],
-      })
-    }
-  },
-  /**
-   * @param {import('sequelize').QueryInterface} queryInterface
-   * @return {Promise<void>}
-   */
-  down: async (queryInterface) => {
-    for (const [productName] of Object.entries(mapping)) {
-      await queryInterface.sequelize.query('UPDATE "Products" SET "batchCategoryId" = NULL WHERE name = ?', {
-        replacements: [productName],
-      })
-    }
+    await queryInterface.sequelize.query('UPDATE "Products" SET "batchCategoryId" = ? WHERE id = ?', {
+      replacements: [batchCategory.id, product.id],
+    })
+  }
+}
 
-  },
+/**
+ * @param {import('sequelize').QueryInterface} queryInterface
+ * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
+ * @return {Promise<void>}
+ */
+export async function down(queryInterface, _Sequelize) {
+  for (const [productName] of Object.entries(mapping)) {
+    await queryInterface.sequelize.query('UPDATE "Products" SET "batchCategoryId" = NULL WHERE name = ?', {
+      replacements: [productName],
+    })
+  }
+
 }

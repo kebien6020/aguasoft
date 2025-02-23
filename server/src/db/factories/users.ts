@@ -1,13 +1,11 @@
-import models from '../models'
-import * as faker from 'faker'
-import { User } from '../models/users'
-import { SaveOptions } from 'sequelize/types'
-const { Users } = models
+import { faker } from '@faker-js/faker'
+import { Users } from '../models.js'
+import type { SaveOptions } from 'sequelize'
 
-export function make(overrides?: Record<string, unknown>): User {
+export function make(overrides?: Record<string, unknown>): Users {
   return Users.build({
-    name: faker.name.findName(),
-    code: faker.random.alphaNumeric(3),
+    name: faker.person.fullName(),
+    code: faker.string.alphanumeric(3),
     password: '$2a$10$BBm24baQR5zI72VhMaBwUevuMDydglZ.0N3vpzDA8oKd183Igm9UO', // secret
     role: 'seller',
     ...overrides,
@@ -16,9 +14,10 @@ export function make(overrides?: Record<string, unknown>): User {
 
 export default async function create(
   overrides?: Record<string, unknown>,
-  queryOpts?: SaveOptions
-): Promise<User> {
+  queryOpts?: SaveOptions,
+): Promise<Users> {
 
   const model = make(overrides)
-  return model.save(queryOpts)
+  const user = await model.save(queryOpts)
+  return user
 }

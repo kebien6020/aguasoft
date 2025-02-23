@@ -1,11 +1,13 @@
-import * as React from 'react'
+import type { JSX } from 'react'
+import type { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react'
 import clsx from 'clsx'
 
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles'
+import { Theme } from '../theme'
 
-interface Props extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
+interface Props extends DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   variant?: 'normal' | 'wide'
-  children?: React.ReactNode | React.ReactNodeArray
+  children?: ReactNode | ReactNode[]
   className?: string
 }
 export type ResponsiveContainerProps = Props
@@ -22,7 +24,7 @@ function ResponsiveContainer(props: Props): JSX.Element {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   normal: {
     width: '95%',
     [theme.breakpoints.up('sm')]: { width: '90%' },

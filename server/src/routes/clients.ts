@@ -1,16 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
-import models from '../db/models'
-import { Client } from '../db/models/clients'
-import { Price } from '../db/models/prices'
-import { sequelize, Sequelize } from '../db/models'
-import * as moment from 'moment'
-import { Moment } from 'moment'
+import { Clients, Prices, Payments, Sells } from '../db/models.js'
+import { sequelize } from '../db/sequelize.js'
 import * as Yup from 'yup'
+import { CreationAttributes, Sequelize } from 'sequelize'
 
-const Clients = models.Clients
-const Prices = models.Prices
-const Payments = models.Payments
-const Sells = models.Sells
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -23,8 +16,8 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
 
     schema.validateSync(req.query)
     const query = schema.cast(req.query)
-    const includeNotes = query.includeNotes as 'true'|'false'
-    const hidden = query.hidden as 'hidden'|'not-hidden'|'any'
+    const includeNotes = query.includeNotes as 'true' | 'false'
+    const hidden = query.hidden as 'hidden' | 'not-hidden' | 'any'
 
     const attributes = ['id', 'name', 'code', 'defaultCash', 'hidden']
     if (includeNotes === 'true')
@@ -57,7 +50,10 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
     // Find first client with a three digit code
     // since the ordering is code DESC, this is the largest
     // three digit code
-    const lastCode = clients.find(cl => /\d{3}/.test(cl.code)).code
+    const lastCode = clients.find(cl => /\d{3}/.test(cl.code))?.code
+
+    if (!lastCode)
+      throw Error('No clients with a three digit code')
 
     // Utility pad function
     const pad = (num: string, digits: number, padChar = '0') =>
@@ -78,7 +74,7 @@ export async function defaultsForNew(_req: Request, res: Response, next: NextFun
 }
 
 // Throws an error if anything is wrong
-function checkCreateEditInput(body: any) {
+function checkCreateEditInput(body: Record<string, unknown>) {
   const paramError = (name: string, reqType: string) => {
     const e = Error(`Param ${name} should be a ${reqType}`)
     e.name = 'parameter_error'
@@ -90,16 +86,21 @@ function checkCreateEditInput(body: any) {
   if (typeof body.defaultCash !== 'boolean') paramError('defaultCash', 'boolean')
   if (typeof body.notes !== 'string') paramError('notes', 'string')
   if (!Array.isArray(body.prices)) paramError('prices', 'array')
-  for (const price of body.prices) {
-    const allowedKeys = ['name', 'productId', 'value']
-    for (const key in price) {
-      if (allowedKeys.indexOf(key) === -1)
-        delete price[key]
-
+  for (const price of body.prices as Array<CreationAttributes<Prices>>) {
+    const sPrice = { // Sanitized price
+      name: price.name,
+      productId: price.productId,
+      value: price.value,
     }
-    if (typeof price.name !== 'string') paramError('prices[].name', 'string')
-    if (typeof price.productId !== 'number') paramError('prices[].productId', 'number')
-    if (typeof price.value !== 'string') paramError('prices[].value', 'string')
+    if (typeof sPrice.name !== 'string') paramError('prices[].name', 'string')
+    if (typeof sPrice.productId !== 'number') paramError('prices[].productId', 'number')
+    if (typeof sPrice.value !== 'string') paramError('prices[].value', 'string')
+
+    if (Object.keys(sPrice).length !== Object.keys(price).length) {
+      const e = Error('Extra keys in prices object')
+      e.name = 'parameter_error'
+      throw e
+    }
   }
 }
 
@@ -110,22 +111,23 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     const notes = req.body.notes === '' ? null : req.body.notes
 
     type IncompletePrice =
-      Pick<Price, 'name' | 'productId' | 'value'>
+      Pick<Prices, 'name' | 'productId' | 'value'>
 
     type IncompleteClient =
-      Pick<Client, 'name' | 'code' | 'defaultCash' | 'notes'>
+      Pick<Clients, 'name' | 'code' | 'defaultCash' | 'notes' | 'hidden'>
       & { 'Prices': IncompletePrice[] }
 
-    const client : IncompleteClient = {
+    const client: IncompleteClient = {
       name: req.body.name,
       code: req.body.code,
       defaultCash: req.body.defaultCash,
       notes: notes,
       Prices: req.body.prices,
+      hidden: false,
     }
 
     await sequelize.transaction(t => {
-      return Clients.create(client as any, {
+      return Clients.create(client, {
         include: [Prices],
         transaction: t,
       })
@@ -178,8 +180,8 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
     const client = await getClient(req.params.id)
 
-    const newPrices = (req.body.prices as Array<any>).map(pr =>
-      Object.assign({}, pr, { clientId: client.id })
+    const newPrices = (req.body.prices as Array<CreationAttributes<Prices>>).map(pr =>
+      ({ ...pr, clientId: client.id }),
     )
 
     await sequelize.transaction(async t => {
@@ -292,20 +294,20 @@ export async function balance(req: Request, res: Response, next: NextFunction) {
     })
 
     interface Change {
-      date: Moment
+      date: Date
       value: number
       type: 'sell' | 'payment'
     }
 
-    const changes: Array<Change> = []
+    const changes = ([] as Change[])
       .concat(sells.map(s => ({
-        date: moment(s.date),
+        date: s.date,
         value: Number(s.value),
         type: 'sell',
         id: s.id,
       })))
       .concat(payments.map(p => ({
-        date: moment(p.date),
+        date: p.date,
         value: Number(p.value),
         type: 'payment',
         id: p.id,

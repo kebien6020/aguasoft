@@ -1,13 +1,11 @@
-import * as React from 'react'
-import { useState, useEffect, useCallback } from 'react'
-import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
-import Checkbox from '@material-ui/core/Checkbox'
-import MuiCollapse, { CollapseProps } from '@material-ui/core/Collapse'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Grid, { GridProps } from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
+import type { JSX } from 'react'
+import { useState, useEffect } from 'react'
+import makeStyles from '@mui/styles/makeStyles'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid2'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
@@ -19,39 +17,20 @@ import SelectField from '../components/form/SelectField'
 import SubmitButton from '../components/form/SubmitButton'
 import TextField from '../components/form/TextField'
 import Yup from '../components/form/Yup'
-import { isNumber, fetchJsonAuth, SuccessResponse, ErrorResponse, isErrorResponse, NotEnoughInSourceError } from '../utils'
-import { useFormikContext, FormikContextType, FormikHelpers } from 'formik'
+import {
+  isNumber,
+  fetchJsonAuth,
+  SuccessResponse,
+  ErrorResponse,
+  isErrorResponse,
+  NotEnoughInSourceError,
+} from '../utils'
+import { useFormikContext, FormikContextType } from 'formik'
 import usePrevious from '../hooks/usePrevious'
 import { MachineCounter } from '../models'
-
-const GridItemXs12 = (props: GridProps) => <Grid item xs={12} {...props} />
-
-const Collapse = (props: CollapseProps) => {
-  const classes = useCollapseStyles()
-  return (
-    <MuiCollapse
-      component={GridItemXs12}
-      classes={{
-        hidden: classes.hidden,
-        wrapper: classes.container,
-      }}
-      {...props}
-    >
-      <Grid container spacing={2}>
-        {props.children}
-      </Grid>
-    </MuiCollapse>
-  )
-}
-
-const useCollapseStyles = makeStyles({
-  hidden: {
-    padding: '0 !important',
-  },
-  container: {
-    transitionProperty: 'height, padding',
-  },
-})
+import Collapse from '../components/Collapse'
+import { Theme } from '../theme'
+import { useNavigate } from 'react-router'
 
 type ProductionType =
   | 'bolsa-360'
@@ -87,21 +66,21 @@ interface Values {
 
 const validationSchema = Yup.object({
   productionType: Yup.mixed<ProductionType>().oneOf(productionTypeOptions.map(opt => opt.value)).required(),
-  counterStart: Yup.mixed().when('productionType', {
+  counterStart: Yup.number().when('productionType', {
     is: 'bolsa-360',
-    then: Yup.number().integer().positive().required(),
+    then: schema => schema.integer().positive().required(),
   }),
-  counterEnd: Yup.mixed().when('productionType', {
+  counterEnd: Yup.number().when('productionType', {
     is: 'bolsa-360',
-    then: Yup.number().integer().positive().moreThan(Yup.ref('counterStart')).required(),
+    then: schema => schema.integer().positive().moreThan(Yup.ref('counterStart')).required(),
   }),
-  amount: Yup.mixed().when('productionType', {
+  amount: Yup.number().when('productionType', {
     is: (t: string) => ['paca-360', 'barra-hielo', 'hielo-5kg', 'hielo-2kg'].includes(t),
-    then: Yup.number().integer().min(0).required(),
+    then: schema => schema.integer().min(0).required(),
   }),
-  damaged: Yup.mixed().when('productionType', {
+  damaged: Yup.number().when('productionType', {
     is: (t: string) => ['paca-360', 'hielo-5kg', 'hielo-2kg'].includes(t),
-    then: Yup.number().integer().min(0).required(),
+    then: schema => schema.integer().min(0).required(),
   }),
 })
 
@@ -131,7 +110,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
     } else {
       setFieldValue('damaged', '0')
     }
-  }, [detectDamaged, quantityInIntermediate, values.amount, values.productionType])
+  }, [detectDamaged, quantityInIntermediate, setFieldValue, values.amount, values.productionType])
 
   const prevProductionType = usePrevious(values.productionType)
 
@@ -139,7 +118,7 @@ const DamagedAutofill = (props: DamagedAutofillProps) => {
     // When changing to productionType other than paca-360, reset damaged to 0
     if (prevProductionType === 'paca-360' && values.productionType !== 'paca-360')
       setFieldValue('damaged', '0')
-  }, [values.productionType, prevProductionType])
+  }, [values.productionType, prevProductionType, setFieldValue])
 
   return null
 }
@@ -170,14 +149,9 @@ const RegisterProduction = (): JSX.Element => {
 
   const [detectDamaged, setDetectDamaged] = useState(true)
 
-  const [nonce, setNonce] = useState(1)
-  const updateIntermediateState = useCallback(() =>
-    setNonce(prev => prev + 1)
-  , [])
   const [intermediateState] = useFetch<{ 'bolsa-360': number }>('/api/inventory/state/intermediate', {
     showError: showMessage,
     name: 'el estado actual del inventario',
-    nonce,
   })
 
   const quantityInIntermediate =
@@ -185,8 +159,8 @@ const RegisterProduction = (): JSX.Element => {
       ? intermediateState['bolsa-360']
       : null
 
-  const history = useHistory()
-  const handleSubmit = async (values: Values, { setFieldValue, setSubmitting }: FormikHelpers<Values>) => {
+  const navigate = useNavigate()
+  const handleSubmit = async (values: Values) => {
     const url = '/api/inventory/movements/production'
 
     const pType = values.productionType
@@ -239,18 +213,11 @@ const RegisterProduction = (): JSX.Element => {
       })()
 
       showMessage('Error al registrar la producción: ' + msg)
-      setSubmitting(false)
       return
     }
 
-    setFieldValue('amount', '0')
-    setFieldValue('damaged', '0')
-
-    updateIntermediateState()
-
     showMessage('Guardado exitoso')
-    history.push('/movements')
-    setSubmitting(false)
+    navigate('/movements')
   }
 
   return (
@@ -264,7 +231,7 @@ const RegisterProduction = (): JSX.Element => {
           enableReinitialize
         >
           {({ values }) => <>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <SelectField
                 name='productionType'
                 label='Tipo de Producción'
@@ -273,14 +240,14 @@ const RegisterProduction = (): JSX.Element => {
               />
             </Grid>
             <Collapse in={values.productionType === 'bolsa-360'}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='counterStart'
                   label='Contador Total Inicial'
                   disabled
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='counterEnd'
                   label='Contador Total Final'
@@ -293,7 +260,7 @@ const RegisterProduction = (): JSX.Element => {
               && isNumber(values.counterEnd)
               && Number(values.counterStart) < Number(values.counterEnd)
             }>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography>
                   Se registrará una producción de
                   {Number(values.counterEnd) - Number(values.counterStart)}
@@ -302,24 +269,26 @@ const RegisterProduction = (): JSX.Element => {
               </Grid>
             </Collapse>
             <Collapse in={values.productionType === 'paca-360'}>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField
                   name='amount'
                   label='Cantidad de Pacas producida'
                 />
               </Grid>
-              <Grid item xs={12} lg={6} style={{ display: 'flex', flexFlow: 'column', justifyContent: 'flex-end' }}>
+              <Grid size={{ xs: 12, lg: 6 }} style={{ display: 'flex', flexFlow: 'column', justifyContent: 'flex-end' }}>
                 <FormControlLabel
                   control={
                     <Checkbox
                       checked={detectDamaged}
-                      onChange={e => setDetectDamaged(e.target.checked)}
+                      onChange={e => {
+                        setDetectDamaged(e.target.checked) 
+                      }}
                     />
                   }
                   label='Area intermedia queda vacía'
                 />
               </Grid>
-              <Grid item xs={12} lg={6}>
+              <Grid size={{ xs: 12, lg: 6 }}>
                 <DamagedAutofill detectDamaged={detectDamaged} quantityInIntermediate={quantityInIntermediate} />
                 <TextField
                   name='damaged'
@@ -334,13 +303,13 @@ const RegisterProduction = (): JSX.Element => {
               || values.productionType === 'hielo-2kg'
               || values.productionType === 'bolsa-360-congelada'
             }>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='amount'
                   label='Cantidad producida'
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='damaged'
                   label='Bolsas dañadas'
@@ -348,7 +317,7 @@ const RegisterProduction = (): JSX.Element => {
               </Grid>
             </Collapse>
             <Collapse in={values.productionType === 'barra-hielo'}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <TextField
                   name='amount'
                   label='Cantidad producida'
@@ -365,7 +334,7 @@ const RegisterProduction = (): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   paper: {
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(4),

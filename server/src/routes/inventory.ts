@@ -1,18 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
-import { InventoryElement } from '../db/models/inventoryElements'
-import { InventoryMovement } from '../db/models/inventoryMovements'
-import { Storage } from '../db/models/storages'
-import models, { sequelize } from '../db/models'
-import { Op, Transaction, WhereOptions } from 'sequelize'
+import { InventoryMovements, InventoryElements, Storages, StorageStates, MachineCounters } from '../db/models.js'
+import { sequelize } from '../db/sequelize.js'
+import { CreationAttributes, Op, Transaction, WhereOptions } from 'sequelize'
 import debug from 'debug'
 import * as yup from 'yup'
-import { Mutable } from '../utils/types'
-
-const InventoryElements = models.InventoryElements
-const InventoryMovements = models.InventoryMovements
-const StorageStates = models.StorageStates
-const Storages = models.Storages
-const MachineCounters = models.MachineCounters
+import type { Mutable } from '../utils/types.js'
 
 const logMovement = (sql: string) => debug('sql:movements')(sql)
 
@@ -23,12 +15,12 @@ export interface CreateManualMovementArgs {
   inventoryElementToId: number
   quantityFrom: number
   quantityTo?: number
-  cause: InventoryMovement['cause']
+  cause: InventoryMovements['cause']
   createdBy: number
   rollback?: boolean
 }
 
-class MovementError extends Error {}
+class MovementError extends Error { }
 class NotEnoughInSource extends MovementError {
   name = 'not_enough_in_source'
   message = 'Not enough inventory elements in source storage to perform the movement'
@@ -41,7 +33,7 @@ class NotEnoughInSource extends MovementError {
   inventoryElementCode?: string
   inventoryElementName?: string
 
-  constructor(storage?: Storage, inventoryElement?: InventoryElement) {
+  constructor(storage?: Storages | null, inventoryElement?: InventoryElements | null) {
     super()
 
     if (storage) {
@@ -96,6 +88,10 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
     }
   }
 
+  data.quantityTo ??= data.quantityFrom
+  data.storageFromId ??= null
+  const sData = data as unknown as CreationAttributes<InventoryMovements>
+
   if (data.storageToId) {
     const previousState = await StorageStates.findOne({
       where: { storageId: data.storageToId, inventoryElementId: data.inventoryElementToId },
@@ -120,7 +116,7 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
   }
 
   // Store the movement
-  await InventoryMovements.create(data, {
+  await InventoryMovements.create(sData, {
     fields: [
       'storageFromId',
       'storageToId',
@@ -156,7 +152,7 @@ export async function manualMovement(req: Request, res: Response, next: NextFunc
       throw e
     }
 
-    const movementData : CreateManualMovementArgs = {
+    const movementData: CreateManualMovementArgs = {
       storageFromId: req.body.storageFromId,
       storageToId: req.body.storageToId,
       inventoryElementFromId: req.body.inventoryElementFromId,
@@ -203,7 +199,7 @@ export async function listStorageStates(req: Request, res: Response, next: NextF
 
     const schema = yup.object({
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>)
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>).required(),
       ),
     })
 
@@ -246,7 +242,7 @@ export async function listMovements(req: Request, res: Response, next: NextFunct
       offset: yup.number(),
       inventoryElementId: yup.number(),
       include: yup.array().of(
-        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>)
+        yup.mixed<PossibleInclussions>().oneOf(possibleInclussions as Mutable<typeof possibleInclussions>).required(),
       ),
     })
 
@@ -423,13 +419,13 @@ export async function productionMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       productionType: yup.mixed<ProductionType>().oneOf(Object.keys(productionInfo) as ProductionType[]).required(),
       amount: yup.number().integer().min(0).required(),
-      damaged: yup.mixed<number | null>().when('productionType', {
+      damaged: yup.number().when('productionType', {
         is: (type: ProductionType) => productionInfo[type]?.damaged !== null,
-        then: yup.number().integer().min(0).required(),
+        then: schema => schema.integer().min(0).required(),
       }),
-      counterEnd: yup.mixed<number|undefined>().when('productionType', {
+      counterEnd: yup.number().when('productionType', {
         is: 'bolsa-360',
-        then: yup.number().integer().min(0).required(),
+        then: schema => schema.integer().min(0).required(),
       }),
     })
 
@@ -442,13 +438,15 @@ export async function productionMovement(req: Request, res: Response, next: Next
       Storages.findAll(),
       InventoryElements.findAll(),
     ])
-    const storageCodeToId = (code: string) => {
+    const storageCodeToId = (code: string | null) => {
       const storage = storages.find(s => s.code === code)
-      return storage ? storage.id : undefined
+      return storage ? storage.id : null
     }
-    const elementCodeToId = (code: string) => {
+    const elementCodeToId = (code: string | null) => {
       const element = elements.find(e => e.code === code)
-      return element ? element.id : undefined
+      if (!element)
+        throw new Error(`No se encontró un elemento de inventario con el código ${code}`)
+      return element.id
     }
 
     const info = productionInfo[pType]
@@ -465,7 +463,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
       inventoryElementToId,
       quantityFrom: body.amount,
       quantityTo: body.amount,
-      cause: 'production' as InventoryMovement['cause'],
+      cause: 'production' as InventoryMovements['cause'],
       createdBy: userId,
     }
 
@@ -480,7 +478,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
         await createMovement(movementData, t)
 
 
-      if (info.damaged && body.damaged > 0) {
+      if (info.damaged && (body.damaged ?? 0) > 0) {
         const storageFromId = storageCodeToId(info.damaged.storageFrom)
         const storageToId = storageCodeToId(info.damaged.storageTo)
         const inventoryElementFromId = elementCodeToId(info.damaged.inventoryElementFrom)
@@ -491,8 +489,8 @@ export async function productionMovement(req: Request, res: Response, next: Next
           storageToId,
           inventoryElementFromId,
           inventoryElementToId,
-          quantityFrom: body.damaged,
-          cause: 'damage' as InventoryMovement['cause'],
+          quantityFrom: body.damaged ?? 0,
+          cause: 'damage' as InventoryMovements['cause'],
           createdBy: userId,
         }
 
@@ -526,7 +524,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
           inventoryElementFromId,
           inventoryElementToId,
           quantityFrom: body.amount,
-          cause: 'relocation' as InventoryMovement['cause'],
+          cause: 'relocation' as InventoryMovements['cause'],
           createdBy: userId,
         }
 
@@ -584,6 +582,7 @@ export async function amountLeftInIntermediate(_req: Request, res: Response, nex
         inventoryElementId: element.id,
       },
     })
+    if (!storageState) throw new Error('No se encontró el almacen en el estado')
 
     res.json({
       'bolsa-360': storageState.quantity,
@@ -613,9 +612,9 @@ export async function damageMovement(req: Request, res: Response, next: NextFunc
 
     const schema = yup.object({
       damageType: yup.mixed<DamageType>().oneOf(damageTypes as Mutable<typeof damageTypes>).required(),
-      storageCode: yup.mixed().when('damageType', {
+      storageCode: yup.string().when('damageType', {
         is: 'general',
-        then: yup.string().required(),
+        then: schema => schema.required(),
       }),
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
@@ -702,7 +701,7 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
           [Op.in]: inventoryElementCodes,
         },
       },
-    },)
+    })
 
 
     const inventoryElementFrom = inventoryElements.find(e => e.code === 'paca-360')
@@ -769,10 +768,10 @@ export async function relocationMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
-      counter: yup.mixed<number|undefined>().when('element', {
+      counter: yup.number().when('element', {
         is: 'rollo-360',
-        then: yup.number().integer().positive().required(),
-      }),
+        then: schema => schema.integer().positive().required(),
+      }).required(),
     })
 
     schema.validateSync(req.body)

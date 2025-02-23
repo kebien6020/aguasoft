@@ -1,4 +1,4 @@
-import React from 'react'
+import type { JSX } from 'react'
 import { useField } from 'formik'
 import PriceInput, { PriceFieldProps as PriceInputProps } from '../PriceField'
 
@@ -10,7 +10,9 @@ export const PriceField = (props: PriceFieldProps): JSX.Element => {
   return (
     <PriceInput
       value={field.value}
-      onChange={({ target: { value } }) => setValue(value)}
+      onChange={({ target: { value } }) => {
+        setValue(value)
+      }}
       {...props}
       TextFieldProps={{
         name: field.name,

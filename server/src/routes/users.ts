@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import models from '../db/models'
-import { UserStatic } from '../db/models/users'
-import * as bcrypt from 'bcryptjs'
-
-const Users = models.Users as UserStatic
+import { Users } from '../db/models.js'
+import bcrypt from 'bcryptjs'
 
 export async function list(_req: Request, res: Response, next: NextFunction) {
   try {
@@ -24,17 +21,37 @@ export async function checkUser(req: Request, res: Response, next: NextFunction)
     const providedPass = req.body.password
 
     const user = await Users.findByPk(userId)
-    if (!user) return res.json({ result: false })
+    if (!user) {
+      res.json({
+        result: false,
+        error: {
+          message: 'User not found: ' + userId,
+          code: 'user_not_found',
+        },
+      })
+      return
+    }
 
     const savedHash = user.password
     const result = await bcrypt.compare(providedPass, savedHash)
+
+    if (!result) {
+      res.json({
+        result: false,
+        error: {
+          message: 'Incorrect password',
+          code: 'incorrect_password',
+        },
+      })
+      return
+    }
 
     // If the correct pass was provided save the userId to the session
     req.session.userId = result ? userId : undefined
 
     res.json({ result })
   } catch (e) {
-    next (e)
+    next(e)
   }
 }
 
@@ -42,13 +59,14 @@ export async function getCurrent(req: Request, res: Response, next: NextFunction
   try {
     // If there is no user logged in return an error
     if (!req.session.userId) {
-      return res.json({
+      res.json({
         success: false,
         error: {
           message: 'There is not an active session',
           code: 'no_user',
         },
       })
+      return
     }
 
     // Find all of the user info from the id
@@ -58,6 +76,6 @@ export async function getCurrent(req: Request, res: Response, next: NextFunction
 
     res.json(user)
   } catch (e) {
-    next (e)
+    next(e)
   }
 }

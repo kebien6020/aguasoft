@@ -1,5 +1,5 @@
 import { Client } from '../../models'
-import { Params, paramsToString } from '../../utils'
+import { ErrorResponse, Params, paramsToString } from '../../utils'
 import { Option } from '../../utils/types'
 import useFetch from '../useFetch'
 import useSnackbar from '../useSnackbar'
@@ -12,27 +12,29 @@ export interface UseClientsOpts {
 
 type UseClientsHelpers = {
   readonly update: () => void;
+  readonly loading: boolean;
+  readonly error: ErrorResponse['error'] | null;
 }
 
-type RetVal = readonly [Client[] | null, UseClientsHelpers]
+type RetVal<T> = readonly [T | null, UseClientsHelpers]
 
-export const useClients = ({
+export const useClients = <T extends Client = Client>({
   showError: showErrorParam,
   params,
-}: UseClientsOpts = {}): RetVal => {
+}: UseClientsOpts = {}): RetVal<T[]> => {
   const showSnackbar = useSnackbar()
   const showError = showErrorParam ?? showSnackbar
 
   const [nonce, update] = useNonce()
 
   const url = `/api/clients?${paramsToString(params)}`
-  const [clients] = useFetch<Client[]>(url, {
+  const [clients, loading, error] = useFetch<T[]>(url, {
     showError,
     name: 'la lista de clientes',
     nonce,
   })
 
-  return [clients, { update }] as const
+  return [clients, { update, loading, error }] as const
 }
 
 export interface UseClientOpts {
@@ -47,14 +49,14 @@ export const useClient = (id: number | null, { showError: showErrorParam }: UseC
 
   const [nonce, update] = useNonce()
 
-  const url = id === null ? null : `/api/clients/${id}`
-  const [client] = useFetch<Client>(url, {
+  const url = id === null ? null : `/api/clients/${String(id)}`
+  const [client, loading, error] = useFetch<Client>(url, {
     showError,
     name: 'la lista de clientes',
     nonce,
   })
 
-  return [client, { update }] as const
+  return [client, { update, loading, error }] as const
 }
 
 export const optionsFromClients =
@@ -76,4 +78,31 @@ export const useClientOptions = (opts: UseClientsOpts = {}): readonly [Option[] 
   const clientOptions = optionsFromClients(clients)
 
   return [clientOptions, helpers] as const
+}
+
+export interface Change {
+  date: string
+  value: number
+  type: 'sell' | 'payment'
+  id: number
+}
+
+export interface ChangesResponse {
+  changes: Change[]
+}
+
+export const useClientBalance = (id: number | null, { showError: showErrorParam }: UseClientOpts = {}) => {
+  const showSnackbar = useSnackbar()
+  const showError = showErrorParam ?? showSnackbar
+
+  const [nonce, update] = useNonce()
+
+  const url = id === null ? null : `/api/clients/${String(id)}/balance`
+  const [data, loading, error] = useFetch<ChangesResponse>(url, {
+    showError,
+    name: 'la lista de clientes',
+    nonce,
+  })
+
+  return [data?.changes, { update, loading, error }] as const
 }

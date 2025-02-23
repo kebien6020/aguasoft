@@ -1,15 +1,14 @@
-import * as React from 'react'
-import { Redirect } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
+import { Navigate } from 'react-router'
+import makeStyles from '@mui/styles/makeStyles'
 
-import Modal from '@material-ui/core/Modal'
+import Modal from '@mui/material/Modal'
 
 import Layout from '../components/Layout'
 import Login from '../components/Login'
 import { parseParams } from '../utils'
 import { useState } from 'react'
 import useUser from '../hooks/useUser'
-import useAuth from '../hooks/useAuth'
+import { Theme } from '../theme'
 
 const CheckUser = () => {
   const classes = useStyles()
@@ -19,10 +18,9 @@ const CheckUser = () => {
   const redirectUrl = params.next ? params.next : '/sell'
   const adminOnly = params.admin ? params.admin === 'true' : false
   const userFromContext = useUser()
-  const auth = useAuth()
 
   if (checked && userFromContext?.loggedIn)
-    return <Redirect to={redirectUrl} push />
+    return <Navigate to={redirectUrl} />
 
   return (
     <Layout title='Verificación requerida'>
@@ -31,9 +29,10 @@ const CheckUser = () => {
       >
         <div className={classes.paper}>
           <Login
-            auth={auth}
             adminOnly={adminOnly}
-            onSuccess={() => setChecked(true)}
+            onSuccess={() => {
+              setChecked(true) 
+            }}
             text='Continuar'
           />
         </div>
@@ -43,7 +42,7 @@ const CheckUser = () => {
 }
 
 const useStyles = makeStyles(
-  ({ palette, spacing, shadows }) => ({
+  ({ palette, spacing, shadows }: Theme) => ({
     paper: {
       position: 'absolute',
       width: '80%',

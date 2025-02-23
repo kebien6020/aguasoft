@@ -10,7 +10,7 @@ export function handleErrors<
   ReqBody = unknown,
   ReqQuery = unknown
 >(
-  handler: RequestHandlerWithoutNext<P, ResBody, ReqBody, ReqQuery>
+  handler: RequestHandlerWithoutNext<P, ResBody, ReqBody, ReqQuery>,
 ): RequestHandler<P, ResBody, ReqBody, ReqQuery> {
   return ((req, res, next) => {
     (async () => {

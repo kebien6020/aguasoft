@@ -1,10 +1,11 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
-import CardContent from '@material-ui/core/CardContent'
+import type { JSX } from 'react'
+import makeStyles from '@mui/styles/makeStyles'
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
+import CardContent from '@mui/material/CardContent'
 
 import { Storage, InventoryElement, StorageState } from '../../models'
+import { Theme } from '../../theme'
 
 interface StorageCardProps {
   storage: Storage
@@ -44,7 +45,7 @@ const StorageCard = (props: StorageCardProps): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   card: {
     borderLeftWidth: '4px',
     borderLeftStyle: 'solid',

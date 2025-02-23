@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { Op, Includeable } from 'sequelize'
-import models from '../db/models'
-import * as moment from 'moment'
-
-const Spendings = models.Spendings 
-const Users = models.Users 
+import { Spendings, Users } from '../db/models.js'
+import { parseDateonly } from '../utils/date.js'
+import { addDays, startOfDay } from 'date-fns'
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -17,10 +15,11 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     }
 
     const user = await Users.findByPk(req.session.userId)
+    if (!user) throw Error('User not found')
 
-    if (user.role !== 'admin') 
-      body.date = moment().toISOString()
-    
+    if (user.role !== 'admin')
+      body.date = (new Date).toISOString()
+
 
     body.userId = req.session.userId
 
@@ -73,7 +72,7 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
       ],
       include: [
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -95,7 +94,10 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
 export async function listDay(req: Request, res: Response, next: NextFunction) {
   try {
     const dayInput = typeof req.query.day === 'string' ? req.query.day : undefined
-    const day = moment(dayInput).startOf('day')
+    if (!dayInput)
+      throw Error('day query parameter is required')
+
+    const day = startOfDay(parseDateonly(dayInput))
     const spendings = await Spendings.findAll({
       attributes: [
         'id',
@@ -111,7 +113,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
       where: {
         date: {
           [Op.gte]: day.toISOString(),
-          [Op.lt]: day.add(1, 'day').toISOString(),
+          [Op.lt]: addDays(day, 1).toISOString(),
         },
       },
       include: [
@@ -149,7 +151,7 @@ export async function listRecent(req: Request, res: Response, next: NextFunction
       order: [['date', 'DESC'], ['updatedAt', 'DESC']],
       include: [
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -172,8 +174,9 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       throw e
     }
 
-    const userId = req.session.userId 
+    const userId = req.session.userId
     const user = await Users.findByPk(userId)
+    if (!user) throw Error('User not found')
     if (user.role !== 'admin') {
       const e = new Error('Solo usuarios admin pueden eliminar salidas')
       e.name = 'user_permission'
@@ -182,6 +185,8 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
     const spendingId = req.params.id
     const spending = await Spendings.findByPk(spendingId)
+    if (!spending) throw new Error('Salida no encontrada')
+
     await spending.destroy()
 
     res.json({ success: true })

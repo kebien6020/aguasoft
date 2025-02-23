@@ -1,27 +1,28 @@
-import * as React from 'react'
+import type { JSX } from 'react'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
 import SelectControl, { SelectControlProps } from '../controls/SelectControl'
+import { SelectChangeEvent } from '@mui/material'
 
 export interface SelectOption {
   value: string
   label: React.ReactNode
 }
 
-export type ChangeEvent = React.ChangeEvent<{ name?: string | undefined; value: unknown; }>
+export type ChangeEvent = { target: { name?: string | undefined; value: unknown; } }
 
 export interface ChangeOverrideBag {
   field: FieldInputProps<string>
   meta: FieldMetaProps<string>
 }
 
-export interface SelectFieldProps extends SelectControlProps {
+export type SelectFieldProps = SelectControlProps & {
   name: string
   onChangeOverride?:
   (
     event: ChangeEvent,
     bag: ChangeOverrideBag
   ) => unknown
-  onBeforeChange?: (value: string) => boolean | void
+  onBeforeChange?: (value: string) => boolean | undefined
 }
 
 const SelectField = (props: SelectFieldProps): JSX.Element => {
@@ -31,15 +32,15 @@ const SelectField = (props: SelectFieldProps): JSX.Element => {
     onBeforeChange = () => { /**/ },
     ...otherProps
   } = props
-  const [field, meta] = useField(name)
+  const [field, meta] = useField<string>(name)
   return (
     <SelectControl
       {...field}
       id={field.name}
       errorMessage={meta.error}
       touched={meta.touched}
-      onChange={(e) => {
-        const continueChange = onBeforeChange(e.target.value as string)
+      onChange={(e: SelectChangeEvent) => {
+        const continueChange = onBeforeChange(e.target.value)
         if (continueChange === false) return
 
         if (onChangeOverride)

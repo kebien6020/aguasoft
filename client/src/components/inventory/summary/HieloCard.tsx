@@ -1,6 +1,6 @@
-import * as React from 'react'
-import CardContent from '@material-ui/core/CardContent'
-import { CardProps } from '@material-ui/core/Card'
+import type { JSX } from 'react'
+import CardContent from '@mui/material/CardContent'
+import { CardProps } from '@mui/material/Card'
 
 import { DayMovements } from '../MovementSummary'
 import Description from '../../Description'
@@ -25,7 +25,7 @@ const HieloCard = (props: HieloCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'hielo-5kg'
-      && movement.rollback === false
+      && !movement.rollback,
     )
     .reduce(sumQtyTo, 0)
 
@@ -34,7 +34,7 @@ const HieloCard = (props: HieloCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'hielo-5kg'
-      && movement.rollback === true
+      && movement.rollback,
     )
 
   const hieloSoldRollback = hieloSoldRollbackMovements
@@ -51,7 +51,7 @@ const HieloCard = (props: HieloCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'production'
       && movement.inventoryElementTo.code === 'hielo-5kg'
-      && movement.storageTo?.code === 'terminado'
+      && movement.storageTo?.code === 'terminado',
     )
     .reduce(sumQtyTo, 0)
 
@@ -61,7 +61,7 @@ const HieloCard = (props: HieloCardProps): JSX.Element => {
       && (
         movement.inventoryElementFrom.code === 'hielo-5kg'
         || movement.inventoryElementTo.code === 'hielo-5kg'
-      )
+      ),
     ).length
 
   return (

@@ -1,28 +1,27 @@
-import * as bodyParser from 'body-parser'
-import * as compression from 'compression'
-import * as ConnectSessionSequelize from 'connect-session-sequelize'
-import * as cors from 'cors'
-import * as express from 'express'
+import bodyParser from 'body-parser'
+import ConnectSessionSequelize from 'connect-session-sequelize'
+import cors from 'cors'
+import express from 'express'
 import { NextFunction, Request, Response } from 'express'
-import * as jwt from 'express-jwt'
-import * as session from 'express-session'
-import * as jwks from 'jwks-rsa'
-import * as path from 'path'
-import { sequelize } from './db/models'
-import { Error404 } from './errors'
-import * as routes from './routes'
-import jsonErrorHandler from './utils/jsonErrors'
+import { GetVerificationKey, expressjwt as jwt } from 'express-jwt'
+import session from 'express-session'
+import { expressJwtSecret } from 'jwks-rsa'
+import { resolve } from 'node:path'
+import { sequelize } from './db/sequelize.js'
+import { Error404 } from './errors.js'
+import * as routes from './routes/index.js'
+import jsonErrorHandler from './utils/jsonErrors.js'
 
 const SequelizeStore = ConnectSessionSequelize(session.Store)
 
 // Set up the jwt middleware
 const authCheck = jwt({
-  secret: jwks.expressJwtSecret({
+  secret: expressJwtSecret({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
     jwksUri: 'https://kevinpena.auth0.com/.well-known/jwks.json',
-  }),
+  }) as unknown as GetVerificationKey, // Force type which is like this because of backward compatibility
   // This is the identifier we set when we created the API
   audience: 'https://soft.agualaif.com',
   issuer: 'https://kevinpena.auth0.com/',
@@ -43,18 +42,18 @@ const sessionMiddleware = session({
 })
 
 const app = express()
-// app.use('*', (req:any, res: any, next: any) => {console.log(req); next()})
+app.set('query parser', 'extended')
+// app.use('*p', (req, res, next) => { console.log(req.query); next() })
 
 // Common middleware
-app.use(compression()) // Use gzip to compress all requests
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(cors())
 app.use(sessionMiddleware)
 
 // Serve static assets
-const STATIC_FOLDER = path.resolve(__dirname, '../../client/dist')
-const INDEX_FILE = path.resolve(__dirname, '../../client/dist/index.html')
+const STATIC_FOLDER = resolve(import.meta.dirname, '../../client/dist')
+const INDEX_FILE = resolve(import.meta.dirname, '../../client/dist/index.html')
 app.use(express.static(STATIC_FOLDER))
 
 // API routes
@@ -102,7 +101,7 @@ function checkUser(req: Request, res: Response, next: NextFunction) {
 app.get('/sell', checkUser)
 
 // Serve the SPA for any unhandled route (it handles 404)
-app.get('*', (_req, res) => {
+app.get('*path', (_req, res) => {
   res.sendFile(INDEX_FILE)
 })
 

@@ -1,44 +1,33 @@
-import React, { ComponentType } from 'react'
-import ReactPDF, { StyleSheet } from '@react-pdf/renderer'
+import { useMemo } from 'react'
+import type { ComponentType } from 'react'
+import type { Style, SVGPresentationAttributes } from '@react-pdf/types'
 
-type StyleResolvable = ReactPDF.Style | ReactPDF.Style[] | undefined
-
-export const compose = (a: StyleResolvable, b: StyleResolvable): ReactPDF.Style[] => {
-  let res = [] as ReactPDF.Style[]
-  if (Array.isArray(a)) res = [...res, ...a]
-  else if (a) res.push(a)
-
-  if (Array.isArray(b)) res = [...res, ...b]
-  else if (b) res.push(b)
-
-  return res
-}
-
-type StyleProp = { style?: StyleResolvable }
-type StyleParam<P> = StyleResolvable | ((props: P) => StyleResolvable)
+type StyleProps = { style?: Style | Style[] | SVGPresentationAttributes }
+type StyleParam<P> = Style | ((props: P) => Style)
 type CT<P> = ComponentType<P>
 
-export const styled = <P extends StyleProp>(Component: CT<P>) => (style: StyleParam<P>): CT<P> => {
-
-  const sheet = typeof style !== 'function' ? StyleSheet.create({
-    root: StyleSheet.flatten(style),
-  }) : null
+export const styled = <P extends StyleProps>(Component: CT<P>) => (style: StyleParam<P>): CT<P> => {
 
   const StyledComponent = (props: P) => {
-    const { style: styleProp } = props
-    const resolvedStyles = (() => {
-      if (typeof style === 'function') return style(props)
-      else if (sheet) return sheet.root
-      return {}
-    })()
+    const { style: propStyle } = props
+
+    const resolvedStyles = useMemo(() => {
+      const resolved = typeof style === 'function' ? style(props) : style
+      const propStyleFlattened = (() => {
+        if (!Array.isArray(propStyle))
+          return propStyle
+
+        return propStyle.reduce((acc, s) => ({ ...acc, ...s }), {})
+      })()
+      return { ...propStyleFlattened, ...resolved } as Style
+    }, [props, propStyle])
 
     return (
-      <Component {...props} style={compose(resolvedStyles, styleProp)} />
+      <Component {...props} style={resolvedStyles} />
     )
   }
 
-
-  const displayName = Component.displayName ?? Component.name ?? 'Anonymous'
+  const displayName = Component.displayName ?? Component.name
   StyledComponent.displayName = `styled(${displayName})`
 
   return StyledComponent

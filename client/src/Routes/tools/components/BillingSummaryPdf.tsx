@@ -1,12 +1,16 @@
-import ReactPDF, {
+import type { JSX, PropsWithChildren } from 'react'
+import {
   Document,
   Font,
   Page as RPPage,
-  Text as RPText, View
+  Text as RPText, View,
+  ViewProps,
 } from '@react-pdf/renderer'
+import type FontStore from '@react-pdf/font'
 import { endOfDay, format, formatISO, isSameDay, parseISO, startOfDay } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 import React from 'react'
+
 import RobotoBold from '../../../fonts/roboto/Roboto-Bold.ttf'
 import RobotoMedium from '../../../fonts/roboto/Roboto-Medium.ttf'
 import RobotoRegular from '../../../fonts/roboto/Roboto-Regular.ttf'
@@ -24,10 +28,12 @@ export interface BillingSummaryPdfProps {
 const formatLong = (date: Date) => format(date, 'PPP', { locale: es })
 const formatShort = (date: Date) => format(date, 'P', { locale: es })
 
-// Disable breaking words with hyphens
-Font.registerHyphenationCallback(word => [word])
+const F = Font as FontStore // Force the type because the package typings are broken
 
-Font.register({
+// Disable breaking words with hyphens
+F.registerHyphenationCallback((word: string) => [word])
+
+F.register({
   family: 'Roboto',
   fonts: [
     { src: RobotoRegular },
@@ -42,8 +48,8 @@ export const BillingSummaryPdf = React.memo(
 
     const salesDates = sales.map(s => ({ ...s, date: parseISO(s.date) }))
 
-    const minDate = salesDates[0]?.date
-    const maxDate = salesDates[sales.length - 1]?.date
+    const minDate = salesDates[0]?.date as Date | undefined
+    const maxDate = salesDates[sales.length - 1]?.date as Date | undefined
     const subtitle = minDate && maxDate && `Desde el ${formatLong(minDate)} hasta el ${formatLong(maxDate)}`
 
     const products = sales
@@ -80,8 +86,6 @@ export const BillingSummaryPdf = React.memo(
 
     const total = salesDates.reduce((acc, s) => acc + s.value, 0)
 
-    console.log('render', Date.now(), props)
-
     return (
       <Document title={title}>
         <Page size='LETTER'>
@@ -90,7 +94,7 @@ export const BillingSummaryPdf = React.memo(
           <Table style={{ marginTop: 16 }}>
             <HeaderRow>
               <HeaderCell>Fecha</HeaderCell>
-              {products.map(product => <HeaderCell key={product.id}>{product.name}</HeaderCell>
+              {products.map(product => <HeaderCell key={product.id}>{product.name}</HeaderCell>,
               )}
               <HeaderCell>Total Día</HeaderCell>
             </HeaderRow>
@@ -99,17 +103,17 @@ export const BillingSummaryPdf = React.memo(
               <BodyCellLeft>{formatShort(day)}</BodyCellLeft>
               {products.map(product => <BodyCell key={product.id}>
                 {showAmount(calculateDayAmount(day, product.id))}
-              </BodyCell>
+              </BodyCell>,
               )}
               <BodyCell>{money(calculateTotalDay(day))}</BodyCell>
-            </BodyRow>
+            </BodyRow>,
             )}
 
             <FooterRow>
               <FooterCell>Total</FooterCell>
               {products.map(product => <FooterCell key={product.id}>
                 {showAmount(calculateTotalProduct(product.id))}
-              </FooterCell>
+              </FooterCell>,
               )}
               <FooterCell>{money(total)}</FooterCell>
             </FooterRow>
@@ -118,7 +122,7 @@ export const BillingSummaryPdf = React.memo(
         </Page>
       </Document>
     )
-  }
+  },
 )
 
 const Text = styled(RPText)({
@@ -146,11 +150,13 @@ const Page = styled(RPPage)({
 })
 
 const Table = styled(View)({
-  display: 'table',
+  display: 'flex',
   width: '100%',
   marginLeft: 0,
   marginRight: 0,
 })
+
+type RowProps = PropsWithChildren<ViewProps>
 
 const Row = styled(View)({
   flexDirection: 'row',
@@ -179,34 +185,32 @@ const HeaderText = styled(Text)({
   textAlign: 'center',
 })
 
-const HeaderCell = ({ children }: {children: string}) =>
+const HeaderCell = ({ children }: { children: string }) =>
   <Cell>
     <HeaderText>{children}</HeaderText>
   </Cell>
 
-interface BodyRowProps extends ReactPDF.ViewProps {
+interface BodyRowProps extends RowProps {
   idx: number
 }
 const BodyRow = styled<BodyRowProps>(
-  ({ idx, ...props }) => <Row {...props} />
-)(({ idx }) => [
-  {
-    borderTopWidth: 0,
-  },
-  { ...(idx % 2 === 0 ? { backgroundColor: theme.palette.primary.light } : undefined) },
-])
+  ({ idx, ...props }) => <Row {...props} />,
+)(({ idx }) => ({
+  borderTopWidth: 0,
+  ...(idx % 2 === 0 ? { backgroundColor: theme.palette.primary.light } : {}),
+}))
 
 const BodyText = styled(Text)({
   fontSize: 12,
   textAlign: 'center',
 })
 
-const BodyCell = ({ children }: {children: string}) =>
+const BodyCell = ({ children }: { children: string }) =>
   <Cell>
     <BodyText>{children}</BodyText>
   </Cell>
 
-const BodyCellLeft = ({ children }: {children: string}) =>
+const BodyCellLeft = ({ children }: { children: string }) =>
   <Cell>
     <BodyText style={{ textAlign: 'left' }}>{children}</BodyText>
   </Cell>
@@ -224,7 +228,7 @@ const FooterText = styled(Text)({
   textAlign: 'center',
 })
 
-const FooterCell = ({ children }: {children: string}) =>
+const FooterCell = ({ children }: { children: string }) =>
   <Cell>
     <FooterText>{children}</FooterText>
   </Cell>

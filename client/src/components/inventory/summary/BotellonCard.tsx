@@ -1,6 +1,6 @@
-import * as React from 'react'
-import { CardProps } from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
+import type { JSX } from 'react'
+import { CardProps } from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 
 import { DayMovements } from '../MovementSummary'
 import Description from '../../Description'
@@ -9,7 +9,7 @@ import SummaryCard from './SummaryCard'
 import SummaryCardHeader from './SummaryCardHeader'
 
 type BotellonCardProps = CardProps & {
-    dayMovements: DayMovements
+  dayMovements: DayMovements
 }
 
 const BotellonCard = (props: BotellonCardProps): JSX.Element => {
@@ -25,7 +25,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'termoencogible'
-      && movement.rollback === false
+      && !movement.rollback,
     )
     .reduce(sumQtyTo, 0)
 
@@ -34,7 +34,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'termoencogible'
-      && movement.rollback === true
+      && movement.rollback,
     )
 
   const botellonSoldRollback = botellonSoldRollbackMovements
@@ -51,7 +51,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'botellon-nuevo'
-      && movement.rollback === false
+      && !movement.rollback,
     )
     .reduce(sumQtyTo, 0)
 
@@ -60,7 +60,7 @@ const BotellonCard = (props: BotellonCardProps): JSX.Element => {
     ?.filter(movement =>
       movement.cause === 'sell'
       && movement.inventoryElementFrom.code === 'botellon-nuevo'
-      && movement.rollback === true
+      && movement.rollback,
     )
 
   const botellonNuevoSoldRollback = botellonNuevoSoldRollbackMovements

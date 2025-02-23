@@ -1,0 +1,3 @@
+exports[`Model > migration has run 1`] = `
+"Executing (default): SELECT \`id\`, \`date\`, \`createdById\`, \`adjustAmount\`, \`amount\` FROM \`BalanceVerifications\` AS \`BalanceVerifications\` LIMIT 1;"
+`;

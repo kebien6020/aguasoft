@@ -1,135 +1,77 @@
-import * as React from 'react'
-import { Link, LinkProps } from 'react-router-dom'
+import { useCallback, useState } from 'react'
+import { styled } from '@mui/material/styles'
 
-import { styled } from '@material-ui/core/styles'
-
-import { AuthRouteComponentProps } from '../AuthRoute'
 import adminOnly from '../hoc/adminOnly'
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
 import Payments from '../components/Payments'
 import ResponsiveContainer from '../components/ResponsiveContainer'
-import { Payment } from '../models'
-import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
-
-import Pagination from 'material-ui-flat-pagination'
-import moment from 'moment'
-import { MakeOptional } from '../utils/types'
-
-interface PaymentPageResponse {
-  payments: Payment[]
-  totalCount: number
-}
-
-type Props = AuthRouteComponentProps & PropClasses
-
-interface State {
-  payments: Payment[] | null
-  totalCount: number
-  offset: number
-  disablePagination: boolean
-}
+import { fetchJsonAuth, SuccessResponse, isErrorResponse } from '../utils'
+import Pagination from '../components/pagination'
+import useAuth from '../hooks/useAuth'
+import { usePaymentsPaginated } from '../hooks/api/usePayments'
+import useSnackbar from '../hooks/useSnackbar'
 
 const ITEMS_PER_PAGE = 30
 
-class PaymentList extends React.Component<Props, State> {
+const PaymentList = () => {
+  const auth = useAuth()
+  const showError = useSnackbar()
 
-  constructor(props: Props) {
-    super(props)
-    this.state = {
-      payments: null,
-      totalCount: 0,
-      offset: 0,
-      disablePagination: false,
-    }
-  }
+  const [offset, setOffset] = useState(0)
 
-  componentDidMount() {
-    void this.updatePayments(this.state.offset)
-  }
+  const [data, { loading, update }] = usePaymentsPaginated({
+    limit: ITEMS_PER_PAGE,
+    offset,
+  })
 
-  updatePayments = async (offset: number) => {
-    const { props } = this
-    const res: ErrorResponse | PaymentPageResponse = await fetchJsonAuth(
-      `/api/payments/paginate?limit=${ITEMS_PER_PAGE}&offset=${offset}`,
-      props.auth
-    )
+  const payments = data?.payments
+  const totalCount = data?.totalCount
 
-    if (!isErrorResponse(res)) {
-      const { payments, totalCount } = res
-      this.setState({ payments, totalCount })
-    } else {
-      console.error(res.error)
-    }
-  }
+  const handlePageChange = useCallback((_event: unknown, offset: number) => {
+    setOffset(offset)
+  }, [])
 
-  handleDeletePayment = async (paymentId: number) => {
-    if (!this.state.payments) return
-
-    const { props } = this
+  const handleDeletePayment = async (paymentId: number) => {
+    if (!payments) return
 
     const result =
-      await fetchJsonAuth<SuccessResponse>(`/api/payments/${paymentId}`, props.auth, {
+      await fetchJsonAuth(`/api/payments/${paymentId}`, auth, {
         method: 'delete',
       })
 
-    if (!isErrorResponse(result)) {
-      const payments = [...this.state.payments]
-      const payment = payments.find(p => p.id === paymentId)
-
-      if (!payment) {
-        console.error('Trying to mutate unknown paymentId', paymentId)
-        return
-      }
-
-      payment.deletedAt = moment().toISOString()
-
-      this.setState({ payments })
-    } else {
-      console.error(result.error)
+    if (isErrorResponse(result)) {
+      showError('Error eliminando pago: ' + result.error.message)
+      return
     }
+
+    update()
   }
 
-  handlePageChange = async (_event: unknown, offset: number) => {
-    this.setState({ disablePagination: true })
-    await this.updatePayments(offset)
-    this.setState({ offset, disablePagination: false })
-  }
-
-  renderLinkBack = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
-    function HomeLink(props, ref) {
-      return <Link to='/' innerRef={ref} {...props} />
-    }
-  )
-
-  renderPagination = () => (
+  const pagination = (
     <StyledPagination
       limit={ITEMS_PER_PAGE}
-      offset={this.state.offset}
-      total={this.state.totalCount}
-      onClick={this.handlePageChange}
-      disabled={this.state.disablePagination}
+      offset={offset}
+      total={totalCount ?? 0}
+      disabled={loading}
+      onClick={handlePageChange}
     />
   )
 
-  render() {
-    const { state } = this
-
-    if (state.payments === null)
-      return <LoadingScreen text='Cargando pagos...' />
+  if (payments === undefined)
+    return <LoadingScreen text='Cargando pagos...' />
 
 
-    return (
-      <Layout title='Todos los Pagos' container={ResponsiveContainer}>
-        {this.renderPagination()}
-        <Payments
-          payments={state.payments}
-          onDeletePayment={this.handleDeletePayment}
-        />
-        {this.renderPagination()}
-      </Layout>
-    )
-  }
+  return (
+    <Layout title='Todos los Pagos' container={ResponsiveContainer}>
+      {pagination}
+      <Payments
+        payments={payments}
+        onDeletePayment={handleDeletePayment}
+      />
+      {pagination}
+    </Layout>
+  )
 }
 
 const StyledPagination = styled(Pagination)({

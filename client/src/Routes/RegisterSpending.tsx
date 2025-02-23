@@ -1,24 +1,18 @@
-import {
-  Button,
-  Grid,
-  Paper,
-  StyleRulesCallback,
-  Switch,
-  TextField,
-  Theme,
-  Typography,
-  withStyles,
-} from '@material-ui/core'
-import moment from 'moment'
-import * as React from 'react'
-import { AuthRouteComponentProps } from '../AuthRoute'
+import { useCallback, useState } from 'react'
+import { Button, Grid2 as Grid, Paper, Switch, TextField, Typography } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { startOfDay } from 'date-fns'
+
+import { Theme } from '../theme'
+import useAuth from '../hooks/useAuth'
+import { useNavigate } from 'react-router'
+import useUser from '../hooks/useUser'
 import Alert from '../components/Alert'
 import Layout from '../components/Layout'
 import DatePicker from '../components/MyDatePicker'
 import PriceField from '../components/PriceField'
 import ResponsiveContainer from '../components/ResponsiveContainer'
 import Title from '../components/Title'
-import { User } from '../models'
 import {
   ErrorResponse,
   fetchJsonAuth,
@@ -26,269 +20,193 @@ import {
   SuccessResponse,
 } from '../utils'
 
-interface Props extends AuthRouteComponentProps, PropClasses { }
-interface State {
-  date: moment.Moment
-  description: string
-  moneyAmount: string
-  fromCash: boolean
-  isTransfer: boolean
-
-  userIsAdmin: boolean
-
-  descriptionError: string | null
-  moneyAmountError: string | null
-  submitionError: string | null
-}
-
 type ValChangeEvent = { target: { value: string } }
 type CheckedChangeEvent = { target: { checked: boolean } }
 
-class RegisterSpending extends React.Component<Props, State> {
+const startOfToday = startOfDay(new Date)
 
-  constructor(props: Props) {
-    super(props)
+const RegisterSpending = () => {
+  const auth = useAuth()
+  const navigate = useNavigate()
+  const user = useUser()
+  const userIsAdmin = user?.user?.role === 'admin'
 
-    this.state = {
-      date: moment().startOf('day'),
-      description: '',
-      moneyAmount: '',
-      fromCash: true,
-      isTransfer: false,
+  const [date, setDate] = useState(startOfToday)
+  const [description, setDescription] = useState('')
+  const [moneyAmount, setMoneyAmount] = useState('')
+  const [fromCash, setFromCash] = useState(true)
+  const [isTransfer, setIsTransfer] = useState(false)
+  const [descriptionError, setDescriptionError] = useState<string | null>(null)
+  const [moneyAmountError, setMoneyAmountError] = useState<string | null>(null)
+  const [submitionError, setSubmitionError] = useState<string | null>(null)
 
-      userIsAdmin: false,
+  const handleChangeDescription = useCallback((event: ValChangeEvent) => {
+    setDescription(event.target.value)
+    setDescriptionError(null)
+  }, [])
 
-      descriptionError: null,
-      moneyAmountError: null,
-      submitionError: null,
-    }
-  }
+  const handleChangeMoneyAmount = useCallback((event: ValChangeEvent) => {
+    setMoneyAmount(event.target.value)
+    setMoneyAmountError(null)
+  }, [])
 
-  async componentDidMount() {
-    const { props } = this
+  const handleChangeFromCash = useCallback((event: CheckedChangeEvent) => {
+    setFromCash(event.target.checked)
+  }, [])
 
-    const user: User | ErrorResponse =
-      await fetchJsonAuth('/api/users/getCurrent', props.auth)
+  const handleChangeIsTransfer = useCallback((event: CheckedChangeEvent) => {
+    setIsTransfer(event.target.checked)
+  }, [])
 
-    if (isErrorResponse(user)) {
-      console.error(user.error)
-      return
-    }
-
-    this.setState({ userIsAdmin: user.role === 'admin' })
-  }
-
-  handleChange = (name: keyof State) => (event: ValChangeEvent) => {
-    // Save value to a variable because it may change (synthetic events
-    // may be re-used by react)
-    const value = event.target.value
-    this.setState((prevState: State) => ({
-      ...prevState,
-      [name]: value,
-    }))
-
-    // Error clearing
-    const { state } = this
-    if (name === 'moneyAmount' && state.moneyAmountError !== null)
-      this.setState({ moneyAmountError: null })
-
-    if (name === 'description' && state.descriptionError !== null)
-      this.setState({ descriptionError: null })
-
-  }
-
-  handleChangeChecked = (name: keyof State) => (event: CheckedChangeEvent) => {
-    const value = event.target.checked
-    this.setState((prevState: State) => ({
-      ...prevState,
-      [name]: value,
-    }))
-  }
-
-  handleChangeDate = (name: keyof State) => (date: moment.Moment) => {
-    this.setState((prevState: State) => ({
-      ...prevState,
-      [name]: date,
-    }))
-  }
-
-  validateForm = () => {
-    const { state } = this
+  const validateForm = useCallback(() => {
     let ok = true
 
-    if (state.description === '') {
-      this.setState({ descriptionError: 'Obligatorio' })
+    if (description === '') {
+      setDescriptionError('Obligatorio')
       ok = false
-    } else if (state.description.length <= 3) {
-      this.setState({ descriptionError: 'Descripción muy corta' })
+    } else if (description.length <= 3) {
+      setDescriptionError('Descripción muy corta')
       ok = false
     }
 
-    if (state.moneyAmount === '') {
-      this.setState({ moneyAmountError: 'Obligatorio' })
+    if (moneyAmount === '') {
+      setMoneyAmountError('Obligatorio')
       ok = false
-    } else if (Number(state.moneyAmount) === 0) {
-      this.setState({ moneyAmountError: 'La salida no puede ser $0' })
+    } else if (Number(moneyAmount) === 0) {
+      setMoneyAmountError('La salida no puede ser $0')
       ok = false
     }
 
     return ok
-  }
+  }, [description, moneyAmount])
 
-  handleSubmit = async () => {
-    const valid = this.validateForm()
-    if (!valid) return
+  const handleSubmit = useCallback(() => {
+    (async () => {
+      const valid = validateForm()
+      if (!valid) return
 
-    const { state, props } = this
-    interface Payload {
-      description: string
-      value: number
-      fromCash: boolean
-      isTransfer: boolean
-      date?: string
-    }
-    const payload: Payload = {
-      description: state.description,
-      value: Number(state.moneyAmount),
-      fromCash: state.fromCash,
-      isTransfer: state.isTransfer,
-    }
+      interface Payload {
+        description: string
+        value: number
+        fromCash: boolean
+        isTransfer: boolean
+        date?: string
+      }
+      const payload: Payload = {
+        description,
+        value: Number(moneyAmount),
+        fromCash,
+        isTransfer,
+      }
 
-    if (state.userIsAdmin)
-      payload.date = state.date.toISOString()
+      if (userIsAdmin)
+        payload.date = date.toISOString()
 
+      const response: SuccessResponse | ErrorResponse =
+        await fetchJsonAuth('/api/spendings/new', auth, {
+          method: 'post',
+          body: JSON.stringify(payload),
+        })
 
-    const response: SuccessResponse | ErrorResponse =
-      await fetchJsonAuth('/api/spendings/new', props.auth, {
-        method: 'post',
-        body: JSON.stringify(payload),
-      })
+      if (isErrorResponse(response)) {
+        setSubmitionError('Error al intentar registrar la salida.')
+        console.error(response.error)
+        return
+      }
 
-    if (isErrorResponse(response)) {
-      this.setState({ submitionError: 'Error al intentar registrar la salida.' })
-      console.error(response.error)
-      return
-    }
+      navigate('/spendings')
+    })()
+  }, [auth, date, description, fromCash, isTransfer, moneyAmount, navigate, userIsAdmin, validateForm])
 
-    this.props.history.push('/spendings')
-  }
-
-  render() {
-    const { props, state } = this
-    const { classes } = props
-
-    return (
-      <Layout title='Registrar Salida' container={ResponsiveContainer}>
-        <Paper className={classes.paper}>
-          <Title>Registrar Salida</Title>
-          {state.submitionError !== null
-            && <Alert message={state.submitionError} type='error' />
-          }
-          <form>
-            <Grid container spacing={0} justifyContent='space-between'>
-              {state.userIsAdmin
-                && <Grid item xs={12}>
-                  <DatePicker
-                    label='Fecha de la salida'
-                    date={state.date}
-                    onDateChange={this.handleChangeDate('date')}
-                    DatePickerProps={{
-                      fullWidth: true,
-                    }}
-                  />
-                </Grid>
-              }
-              {/*
-              // @ts-ignore grid-md-6 is missing in type system*/}
-              <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
-                <TextField
-                  label='Descripción'
-                  onChange={this.handleChange('description')}
-                  value={state.description}
-                  error={state.descriptionError !== null}
-                  helperText={state.descriptionError}
-                  margin='normal'
-                  fullWidth
-                />
-              </Grid>
-              {/*
-              // @ts-ignore grid-md-6 is missing in type system*/}
-              <Grid item xs={12} md={6} classes={{ 'grid-md-6': classes.md6 }}>
-                <PriceField
-                  label='Dinero de salida'
-                  onChange={this.handleChange('moneyAmount')}
-                  value={state.moneyAmount}
-                  TextFieldProps={{
-                    error: state.moneyAmountError !== null,
-                    helperText: state.moneyAmountError,
+  return (
+    <Layout title='Registrar Salida' container={ResponsiveContainer}>
+      <Wrapper>
+        <Title>Registrar Salida</Title>
+        {submitionError !== null
+          && <Alert message={submitionError} type='error' />
+        }
+        <form>
+          <Grid container spacing={0} justifyContent='space-between'>
+            {userIsAdmin
+              && <Grid size={{ xs: 12 }}>
+                <DatePicker
+                  label='Fecha de la salida'
+                  date={date}
+                  onDateChange={setDate}
+                  DatePickerProps={{
+                    slotProps: {
+                      textField: {
+                        fullWidth: true,
+                      },
+                    },
                   }}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Typography variant='body2'>
-                  De ganacias del día
-                  <Switch
-                    checked={state.fromCash}
-                    onChange={this.handleChangeChecked('fromCash')}
-                  />
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant='body2'>
-                  Es transferencia a Bogotá
-                  <Switch
-                    checked={state.isTransfer}
-                    onChange={this.handleChangeChecked('isTransfer')}
-                  />
-                </Typography>
-              </Grid>
-              <Grid item xs={12} className={classes.buttonContainer}>
-                <Button
-                  variant='contained'
-                  color='primary'
-                  fullWidth
-                  onClick={this.handleSubmit}
-                >
-                  Registrar Salida
-                </Button>
-              </Grid>
+            }
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                label='Descripción'
+                onChange={handleChangeDescription}
+                value={description}
+                error={descriptionError !== null}
+                helperText={descriptionError}
+                margin='normal'
+                fullWidth
+              />
             </Grid>
-          </form>
-        </Paper>
-      </Layout>
-    )
-  }
+            <Grid size={{ xs: 12, md: 6 }}>
+              <PriceField
+                label='Dinero de salida'
+                onChange={handleChangeMoneyAmount}
+                value={moneyAmount}
+                TextFieldProps={{
+                  error: moneyAmountError !== null,
+                  helperText: moneyAmountError,
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='body2'>
+                De ganacias del día
+                <Switch
+                  checked={fromCash}
+                  onChange={handleChangeFromCash}
+                />
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='body2'>
+                Es transferencia a Bogotá
+                <Switch
+                  checked={isTransfer}
+                  onChange={handleChangeIsTransfer}
+                />
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12 }} sx={{ pt: 4 }}>
+              <Button
+                variant='contained'
+                color='primary'
+                fullWidth
+                onClick={handleSubmit}
+              >
+                Registrar Salida
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </Wrapper>
+    </Layout>
+  )
 }
 
-const styles: StyleRulesCallback<Theme, Props> = theme => ({
-  paper: {
-    paddingTop: theme.spacing(4),
-    paddingRight: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-    paddingLeft: theme.spacing(4),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  invoiceNumberContainer: {
-    paddingTop: theme.spacing(1),
-    '& input': {
-      '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-        '-webkit-appearance': 'none',
-        margin: 0,
-      },
-      '&[type=number]': {
-        '-moz-appearance': 'textfield',
-      },
-    },
-  },
-  buttonContainer: {
-    paddingTop: theme.spacing(4),
-  },
-  md6: {
-    [theme.breakpoints.up('md')]: {
-      maxWidth: '48%',
-    },
-  },
-})
+const Wrapper = styled(Paper)(({ theme }: { theme: Theme }) => ({
+  paddingTop: theme.spacing(4),
+  paddingRight: theme.spacing(4),
+  paddingBottom: theme.spacing(4),
+  paddingLeft: theme.spacing(4),
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+}))
 
-export default withStyles(styles)(RegisterSpending)
+export default RegisterSpending

@@ -1,23 +1,25 @@
-import models from '../models'
-import * as faker from 'faker'
-import { Product } from '../models/products'
-import { SaveOptions } from 'sequelize/types'
-const { Products } = models
+import { faker } from '@faker-js/faker'
+import { Products } from '../models.js'
+import type { SaveOptions } from 'sequelize'
 
-export function make(overrides?: Record<string, unknown>): Product {
+type Overrides = Record<string, unknown> & {
+  batchCategoryId: number
+}
+
+export function make(overrides: Overrides): Products {
   return Products.build({
     name: faker.commerce.productName(),
-    code: faker.random.alphaNumeric(3),
-    basePrice: faker.datatype.number({ max: 10000, precision: 100 }),
+    code: faker.string.alphanumeric(3),
+    basePrice: String(faker.number.int({ max: 10000, multipleOf: 100 })),
 
     ...overrides,
   })
 }
 
 export default async function create(
-  overrides?: Record<string, unknown>,
-  queryOpts?: SaveOptions
-): Promise<Product> {
+  overrides: Overrides,
+  queryOpts?: SaveOptions,
+): Promise<Products> {
 
   const model = make(overrides)
   return model.save(queryOpts)

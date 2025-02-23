@@ -1,12 +1,10 @@
-const webpack = require('webpack')
-const { merge } = require('webpack-merge')
-const common = require('./webpack.common.js')
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
-const path = require('path')
+import webpack from 'webpack'
+import { merge } from 'webpack-merge'
+import common from './webpack.common.js'
 
-const relPath = (p) => path.join(__dirname, p)
+const { EnvironmentPlugin } = webpack
 
-module.exports = merge(common, {
+export default merge(common, {
   mode: 'development',
   output: {
     chunkFilename: '[name].js',
@@ -14,14 +12,9 @@ module.exports = merge(common, {
   // Source maps support
   devtool: 'inline-source-map',
   plugins: [
-    new ForkTsCheckerWebpackPlugin({
-      typescript: {
-        configFile: relPath('tsconfig.json')
-      },
-    }),
-    new webpack.EnvironmentPlugin({
-      'NODE_ENV': 'development',
-      'NODE_DEBUG': '',
+    new EnvironmentPlugin({
+      NODE_ENV: 'development',
+      NODE_DEBUG: '',
     }),
   ],
 })

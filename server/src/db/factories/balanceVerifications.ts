@@ -1,22 +1,25 @@
-import models from '../models'
-import * as faker from 'faker'
-import { BalanceVerification } from '../models/balanceVerifications'
-import { SaveOptions } from 'sequelize/types'
-const { BalanceVerifications } = models
+import { faker } from '@faker-js/faker'
+import { BalanceVerifications } from '../models.js'
+import type { SaveOptions } from 'sequelize'
+import { format } from 'date-fns'
 
-export function make(overrides?: Record<string, unknown>): BalanceVerification {
+type Overrides = Record<string, unknown> & {
+  createdById: number
+}
+
+export function make(overrides: Overrides): BalanceVerifications {
   return BalanceVerifications.build({
-    date: faker.date.recent(),
-    adjustAmount: faker.datatype.number({ min: -20000, max: 20000 }),
-    amount: faker.datatype.number(5000000),
+    date: format(faker.date.recent(), 'yyyy-MM-dd'),
+    adjustAmount: faker.number.int({ min: -20000, max: 20000 }),
+    amount: faker.number.int(5000000),
     ...overrides,
   })
 }
 
 export default async function create(
-  overrides?: Record<string, unknown>,
-  queryOpts?: SaveOptions
-): Promise<BalanceVerification> {
+  overrides: Overrides,
+  queryOpts?: SaveOptions,
+): Promise<BalanceVerifications> {
 
   const model = make(overrides)
   return model.save(queryOpts)

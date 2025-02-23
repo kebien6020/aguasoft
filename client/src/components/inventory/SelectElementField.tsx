@@ -1,4 +1,4 @@
-import * as React from 'react'
+import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
 import { useFormikContext, useField } from 'formik'
 
@@ -6,7 +6,7 @@ import useStorageStates from '../../hooks/api/useStorageStates'
 import SelectField, { SelectFieldProps } from '../form/SelectField'
 import useStorages from '../../hooks/api/useStorages'
 
-export interface SelectElementFieldProps extends SelectFieldProps {
+export type SelectElementFieldProps = SelectFieldProps & {
   statesNonce?: number
   storageCode: string
 }
@@ -31,7 +31,7 @@ const SelectElementField = (props: SelectElementFieldProps): JSX.Element => {
     if (field.value !== '' && storageStates) {
       const elementState = storageStates.find(state =>
         state.Storage && state.Storage.code === storageCode
-        && state.InventoryElement && state.InventoryElement.code === field.value
+        && state.InventoryElement && state.InventoryElement.code === field.value,
       )
       if (!elementState) {
         const storage = storages && storages.find(s => s.code === storageCode)

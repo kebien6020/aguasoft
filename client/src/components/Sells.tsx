@@ -1,20 +1,21 @@
-import Avatar from '@material-ui/core/Avatar'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardHeader from '@material-ui/core/CardHeader'
-import * as colors from '@material-ui/core/colors'
-import Grid from '@material-ui/core/Grid'
-import IconButton from '@material-ui/core/IconButton'
-import { makeStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import DeleteIcon from '@material-ui/icons/Delete'
-import moment from 'moment'
-import * as React from 'react'
+import type { JSX } from 'react'
+import Avatar from '@mui/material/Avatar'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
+import * as colors from '@mui/material/colors'
+import Grid from '@mui/material/Grid2'
+import IconButton from '@mui/material/IconButton'
+import makeStyles from '@mui/styles/makeStyles'
+import Typography from '@mui/material/Typography'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { useState } from 'react'
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
-import { fetchJsonAuth, isErrorResponse, money } from '../utils'
+import { ErrorResponse, fetchJsonAuth, formatTimeonlyCol, isErrorResponse, money, SuccessResponse } from '../utils'
 import Alert from './Alert'
+import { intlFormatDistance } from 'date-fns'
+import { Theme } from '../theme'
 
 export interface Sell {
   Client: { name: string, id: number, defaultCash: boolean },
@@ -49,7 +50,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
     const url = `/api/sells/${sellId}`
 
     setDisableDelete(true)
-    let result
+    let result: SuccessResponse | ErrorResponse
     try {
       result = await fetchJsonAuth(url, auth, {
         method: 'delete',
@@ -79,7 +80,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
 
     classNames.push(sale.cash
       ? classes.sellCardCash
-      : classes.sellCardPost
+      : classes.sellCardPost,
     )
 
     if (sale.deleted)
@@ -104,7 +105,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
     || externalDisableDelete
 
   return (
-    <Card className={getCardClass(sale)}>
+    (<Card className={getCardClass(sale)}>
       <div className={classes.cardMain}>
         <CardHeader
           className={classes.cardHeader}
@@ -121,14 +122,14 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           subheader={`para ${sale.Client.name}`}
         />
         <CardContent>
-          {sale?.Batch?.code && (
+          {sale.Batch?.code && (
             <Typography variant='body2'>
               Lote: {sale.Batch.code}
             </Typography>
           )}
           <Typography variant='body2'>
-            {moment(sale.updatedAt).format('hh:mm a')}
-            ({moment(sale.updatedAt).fromNow()})
+            {formatTimeonlyCol(new Date(sale.updatedAt))}
+            ({intlFormatDistance(new Date(sale.updatedAt), new Date, { locale: 'es' })})
           </Typography>
           {sale.deleted && <>
             <Alert type='error' message='Esta venta fue eliminada' />
@@ -137,9 +138,11 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
         </CardContent>
         <IconButton
           className={classes.deleteButton}
-          onClick={() => handleDeleteSell(sale.id)}
+          onClick={() => {
+            handleDeleteSell(sale.id)
+          }}
           disabled={effectiveDisableDelete}
-        >
+          size="large">
           <DeleteIcon />
         </IconButton>
       </div>
@@ -173,12 +176,12 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           </Typography>
         </div>
       </div>
-    </Card>
+    </Card>)
   )
 }
 
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   sellCard: {
     borderLeft: '5px solid ' + theme.palette.grey[500],
     display: 'flex',
@@ -253,21 +256,18 @@ interface SellsProps {
 
 const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Element => (
   <Grid container spacing={2}>
-    {sells?.length === 0 && <>
-      <Grid item xs={12}>
+    {sells.length === 0 && <>
+      <Grid size={{ xs: 12 }}>
         <Typography variant='h5'>
           No se registaron ventas este día.
         </Typography>
       </Grid>
     </>}
-    {sells
-      ? sells.map(sale => (
-        <Grid item xs={12} key={sale.id}>
-          <SaleCard sale={sale} refresh={refresh} disableDelete={disableDelete} />
-        </Grid>
-      ))
-      : 'Cargando ventas del día...'
-    }
+    {sells.map(sale => (
+      <Grid size={{ xs: 12 }} key={sale.id}>
+        <SaleCard sale={sale} refresh={refresh} disableDelete={disableDelete} />
+      </Grid>
+    ))}
   </Grid>
 )
 

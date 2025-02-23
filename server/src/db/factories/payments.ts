@@ -1,25 +1,32 @@
-import models from '../models'
-import * as faker from 'faker'
-import { Payment } from '../models/payments'
-import { SaveOptions } from 'sequelize/types'
-import * as moment from 'moment'
-const { Payments } = models
+import { faker } from '@faker-js/faker'
+import { Payments } from '../models.js'
+import type { SaveOptions } from 'sequelize'
+import { addDays, addMonths, startOfMonth } from 'date-fns'
 
-export function make(overrides?: Record<string, unknown>): Payment {
-  const useDates = faker.datatype.boolean()
-  const fromStart = moment().startOf('month').subtract(2, 'months').toDate()
-  const fromEnd = moment().startOf('month').subtract(1, 'months').toDate()
-  const dateFrom = useDates ? faker.date.between(fromStart, fromEnd) : null
-  const dateTo = dateFrom ? moment(dateFrom).add(5, 'days') : null
+type Overrides = Record<string, unknown> & {
+  clientId: number
+  userId: number
+  dateFrom?: Date
+  dateTo?: Date
+}
+
+export function make(overrides: Overrides): Payments {
+  const { dateFrom: dfOverride, dateTo: dtOverride } = overrides
+
+  const coinFlip = faker.datatype.boolean()
+  const fromStart = addMonths(startOfMonth(new Date), -2)
+  const fromEnd = addMonths(startOfMonth(new Date), -1)
+  const dateFrom = coinFlip && dfOverride
+    ? dfOverride
+    : faker.date.between({ from: fromStart, to: fromEnd })
+  const dateTo = coinFlip && dtOverride ? dtOverride : addDays(dateFrom, 5)
 
   return Payments.build({
-    clientId: null, // manual
-    userId: null, // manual
-    value: faker.datatype.number({ max: 50000, precision: 100 }),
+    value: String(faker.number.int({ max: 50000, multipleOf: 100 })),
     date: faker.date.recent(),
     dateFrom,
     dateTo,
-    invoiceNo: faker.datatype.boolean() ? String(faker.datatype.number()) : null,
+    invoiceNo: faker.datatype.boolean() ? String(faker.number.int()) : '',
     invoiceDate: faker.date.recent(),
     directPayment: faker.datatype.boolean(),
 
@@ -28,9 +35,9 @@ export function make(overrides?: Record<string, unknown>): Payment {
 }
 
 export default async function create(
-  overrides?: Record<string, unknown>,
-  queryOpts?: SaveOptions
-): Promise<Payment> {
+  overrides: Overrides,
+  queryOpts?: SaveOptions,
+): Promise<Payments> {
 
   const model = make(overrides)
   return model.save(queryOpts)

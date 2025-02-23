@@ -1,0 +1,7 @@
+module.exports = {
+  'migrations-path': 'src/db/migrations',
+  'models-path': 'dist/db/models.js',
+  'config': 'dist/db/config.js',
+}
+
+// vi:ft=javascript

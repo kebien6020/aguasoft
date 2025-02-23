@@ -1,10 +1,8 @@
-import models from '../db/models'
+import { BatchCategories } from '../db/models.js'
 import * as yup from 'yup'
-import { handleErrors } from '../utils/route'
+import { handleErrors } from '../utils/route.js'
 import { Router } from 'express'
-import { Error404 } from '../errors'
-
-const { BatchCategories } = models
+import { Error404 } from '../errors.js'
 
 const router = Router()
 export default router

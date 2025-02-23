@@ -1,10 +1,10 @@
-import * as React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import type { JSX } from 'react'
+import makeStyles from '@mui/styles/makeStyles'
 import { money } from '../utils'
 import { Sell } from './Sells'
 
 import {
-  Grid,
+  Grid2 as Grid,
   Paper,
   Typography,
   FormControl,
@@ -13,14 +13,15 @@ import {
   MenuItem,
   ListItemAvatar,
   Avatar,
-} from '@material-ui/core'
+} from '@mui/material'
 
 import {
   Person as PersonIcon,
-} from '@material-ui/icons'
+} from '@mui/icons-material'
 
-import * as colors from '@material-ui/core/colors'
+import * as colors from '@mui/material/colors'
 import { Filter } from '../Routes/Sells'
+import { Theme } from '../theme'
 
 interface Props {
   sells: Sell[]
@@ -28,7 +29,7 @@ interface Props {
   filter: Filter
 }
 
-const calcSell = (sells: Sell[], cash: boolean) : number => {
+const calcSell = (sells: Sell[], cash: boolean): number => {
   return sells.reduce((acc, sell) => {
     if (sell.cash === cash && !sell.deleted)
       return acc + sell.value
@@ -45,7 +46,7 @@ const aggregateProducts = (sells: Sell[], filter: Filter) => {
   const countProd = (sells: Sell[], pn: string) =>
     sells
       .filter(s => s.Product.name === pn)
-      .filter(s => s.deleted === false)
+      .filter(s => !s.deleted)
       .filter(s => filter.client === 'ALL' || String(s.Client.id) === filter.client)
       .filter(s => filter.user === 'ALL' || String(s.User.code) === filter.user)
       .reduce((acc, s) => acc + s.quantity, 0)
@@ -55,8 +56,8 @@ const aggregateProducts = (sells: Sell[], filter: Filter) => {
     .filter(([_name, qty]) => qty > 0)
 }
 
-type SimpleClient = {id: number, name: string, defaultCash: boolean}
-type CalculatedClient = SimpleClient & {totalSale: number}
+type SimpleClient = { id: number, name: string, defaultCash: boolean }
+type CalculatedClient = SimpleClient & { totalSale: number }
 
 const compareBy = <T extends Record<string, unknown>>(by: keyof T) => (a: T, b: T) => {
   if (a[by] < b[by]) return -1
@@ -66,7 +67,7 @@ const compareBy = <T extends Record<string, unknown>>(by: keyof T) => (a: T, b: 
 
 const DayOverview = (props: Props): JSX.Element => {
   const classes = useStyles()
-  const clients : SimpleClient[] = props.sells
+  const clients: SimpleClient[] = props.sells
     .map(s => ({ ...s.Client }))
     .filter((client, idx, arr) => {
       return arr.findIndex((cl) => cl.name === client.name) === idx
@@ -84,14 +85,14 @@ const DayOverview = (props: Props): JSX.Element => {
       }
     })
 
-  const users : Array<Sell['User']> = props.sells
+  const users: Array<Sell['User']> = props.sells
     .map(s => s.User)
     .filter((user, idx, arr) => {
       return arr.findIndex((u) => u.code === user.code) === idx
     })
     .sort(compareBy('code'))
 
-  const clientName = (val : string) => {
+  const clientName = (val: string) => {
     if (val === 'ALL') return 'Todos'
     const client = calcClients.find(cl => String(cl.id) === val)
     return client ? `${client.name} (${money(client.totalSale)})` : ''
@@ -99,20 +100,20 @@ const DayOverview = (props: Props): JSX.Element => {
 
   return (
     <Grid container spacing={3} className={classes.summary}>
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Paper className={classes.paper}>
           <Typography variant='body2'>Venta efectivo: {money(calcSell(props.sells, true))}</Typography>
         </Paper>
       </Grid>
-      <Grid item xs={12} sm={6}>
+      <Grid size={{ xs: 12, sm: 6 }}>
         <Paper className={classes.paper}>
           <Typography variant='body2'>Venta pago post-fechado: {money(calcSell(props.sells, false))}</Typography>
         </Paper>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Paper className={classes.paper}>
           <Typography variant='subtitle2'>Productos vendidos en el día</Typography>
-          <FormControl fullWidth margin='normal'>
+          <FormControl fullWidth margin='normal' variant='standard'>
             <InputLabel htmlFor='client-filter'>Cliente</InputLabel>
             <Select
               inputProps={{
@@ -120,7 +121,7 @@ const DayOverview = (props: Props): JSX.Element => {
                 name: 'clientFilter',
               }}
               onChange={(event) => {
-                const clientId = event.target.value as string
+                const clientId = event.target.value
                 props.onFilterChange(prev => ({ ...prev, client: clientId }))
               }}
               value={props.filter.client}
@@ -141,11 +142,11 @@ const DayOverview = (props: Props): JSX.Element => {
                     </Avatar>
                   </ListItemAvatar>
                   {clientName(String(client.id))}
-                </MenuItem>
+                </MenuItem>,
               )}
             </Select>
           </FormControl>
-          <FormControl fullWidth margin='normal'>
+          <FormControl fullWidth margin='normal' variant='standard'>
             <InputLabel htmlFor='client-filter'>Vendedor</InputLabel>
             <Select
               inputProps={{
@@ -153,7 +154,7 @@ const DayOverview = (props: Props): JSX.Element => {
                 name: 'userFilter',
               }}
               onChange={(event) => {
-                const userCode = event.target.value as string
+                const userCode = event.target.value
                 props.onFilterChange(prev => ({ ...prev, user: userCode }))
               }}
               value={props.filter.user}
@@ -164,15 +165,15 @@ const DayOverview = (props: Props): JSX.Element => {
                   value={String(user.code)}
                   key={String(user.code)}
                 >
-                    ({user.code}) {user.name}
-                </MenuItem>
+                  ({user.code}) {user.name}
+                </MenuItem>,
               )}
             </Select>
           </FormControl>
           {aggregateProducts(props.sells, props.filter).map(([name, qty]) =>
             <Typography variant='body2' key={name}>
               {name}: {qty}
-            </Typography>
+            </Typography>,
           )}
         </Paper>
       </Grid>
@@ -180,7 +181,7 @@ const DayOverview = (props: Props): JSX.Element => {
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   summary: {
     width: '90%',
     marginLeft: 'auto',

@@ -1,6 +1,7 @@
-import * as React from 'react'
+import { ComponentType, Component } from 'react'
 
-import { MuiThemeProvider, Theme, createTheme } from '@material-ui/core/styles'
+import { ThemeProvider, StyledEngineProvider, Theme, createTheme } from '@mui/material/styles'
+
 
 function normalFontTheme(prevTheme: Theme): Theme {
   const options = Object.assign(prevTheme, {
@@ -14,17 +15,18 @@ function normalFontTheme(prevTheme: Theme): Theme {
 }
 
 export default function normalFontadminOnly<P>(
-  component: React.ComponentType<P>
-): React.ComponentType<P> {
-  return class NormalFont extends React.Component<P> {
+  component: ComponentType<P>,
+): ComponentType<P> {
+  return class NormalFont extends Component<P> {
     render() {
       const Component = component
       const { props } = this
 
       return (
-        <MuiThemeProvider theme={normalFontTheme}>
+        (<StyledEngineProvider injectFirst>(<ThemeProvider theme={normalFontTheme}>
           <Component {...props} />
-        </MuiThemeProvider>
+        </ThemeProvider>)
+        </StyledEngineProvider>)
       )
     }
   }

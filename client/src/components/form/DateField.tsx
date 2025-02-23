@@ -1,6 +1,6 @@
-import { styled } from '@material-ui/core'
+import type { JSX } from 'react'
+import { styled } from '@mui/material/styles'
 import { useField } from 'formik'
-import React from 'react'
 import { MakeOptional } from '../../utils/types'
 import MyDatePicker, { MyDatePickerProps } from '../MyDatePicker'
 
@@ -13,14 +13,20 @@ export const DateField = (props: DateFieldProps): JSX.Element => {
   return (
     <DatePicker
       date={field.value}
-      onDateChange={momentDate => setValue(momentDate.toDate())}
+      onDateChange={date => setValue(date)}
       {...props}
       DatePickerProps={{
-        error: Boolean(meta.touched && meta.error),
-        helperText: meta.touched ? meta.error : undefined,
-        onBlur: () => setTouched(true),
-        fullWidth: true,
-        margin: 'normal',
+        slotProps: {
+          textField: {
+            error: Boolean(meta.touched && meta.error),
+            helperText: meta.touched ? meta.error : undefined,
+            onBlur: () => {
+              setTouched(true)
+            },
+            fullWidth: true,
+            margin: 'normal',
+          },
+        },
         ...props.DatePickerProps,
       }}
     />

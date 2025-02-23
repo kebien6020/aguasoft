@@ -1,24 +1,25 @@
+import type { JSX } from 'react'
 import {
   Avatar,
   Card,
   CardContent,
   CardHeader,
   Divider,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   Typography,
-} from '@material-ui/core'
-import * as colors from '@material-ui/core/colors'
-import { makeStyles } from '@material-ui/core/styles'
+} from '@mui/material'
+import * as colors from '@mui/material/colors'
+import makeStyles from '@mui/styles/makeStyles'
 import {
   Delete as DeleteIcon,
   ShoppingCart as CartIcon,
-} from '@material-ui/icons'
-import moment from 'moment'
-import * as React from 'react'
+} from '@mui/icons-material'
 import Alert from '../components/Alert'
 import { Spending } from '../models'
-import { money } from '../utils'
+import { formatDateCol, formatDatetimeCol, formatTimeonlyCol, money } from '../utils'
+import { intlFormatDistance, isSameDay } from 'date-fns'
+import { Theme } from '../theme'
 
 interface Props {
   spendings: Spending[]
@@ -29,9 +30,9 @@ const Spendings = (props: Props): JSX.Element => {
   const classes = useStyles()
 
   const deletedInfo = (deletedAt: string) => {
-    const timestamp = moment(deletedAt)
-    const date = timestamp.format('DD-MMM-YYYY')
-    const time = timestamp.format('hh:mm a')
+    const timestamp = new Date(deletedAt)
+    const date = formatDateCol(timestamp)
+    const time = formatTimeonlyCol(timestamp)
     return `Esta salida fue eliminada el ${date} a las ${time}.`
   }
 
@@ -45,16 +46,16 @@ const Spendings = (props: Props): JSX.Element => {
   }
 
   return (
-    <Grid container spacing={2}>
-      {props.spendings && props.spendings.length === 0
-          && <Grid item xs={12}>
-            <Typography variant='body1'>
-              No se registaron salidas este día.
-            </Typography>
-          </Grid>
+    (<Grid container spacing={2}>
+      {props.spendings.length === 0
+        && <Grid size={{ xs: 12 }}>
+          <Typography variant='body1'>
+            No se registaron salidas este día.
+          </Typography>
+        </Grid>
       }
       {props.spendings.map((spending, idx) =>
-        <Grid item key={idx} xs={12}>
+        <Grid key={idx} size={{ xs: 12 }}>
           <Card className={getCardClass(spending)}>
             <div className={classes.cardMain}>
               <CardHeader
@@ -70,35 +71,35 @@ const Spendings = (props: Props): JSX.Element => {
               />
               <CardContent>
                 <Typography variant='body2'>
-                    Fecha salida: {moment(spending.date).format('DD/MMM/YYYY')}
+                  Fecha salida: {formatDateCol(new Date(spending.date))}
                 </Typography>
                 <Divider />
                 <Typography variant='body2'>
-                    Registrado por {spending.User.name}
+                  Registrado por {spending.User.name}
                 </Typography>
                 <Divider />
                 <Typography variant='body2'>
-                    Registrado el: {moment(spending.updatedAt).format('DD/MM/YYYY hh:mm a') + ' '}
-                    ({moment(spending.updatedAt).fromNow()})
+                  Registrado el: {formatDatetimeCol(new Date(spending.updatedAt)) + ' '}
+                  ({intlFormatDistance(new Date(spending.updatedAt), new Date, { locale: 'es' })})
                 </Typography>
-                {moment(spending.date).isSame(moment(), 'day')
-                    && <Alert
-                      type='success'
-                      message='Salida de hoy'
-                    />
+                {isSameDay(new Date(spending.date), new Date)
+                  && <Alert
+                    type='success'
+                    message='Salida de hoy'
+                  />
                 }
                 {spending.deletedAt !== null
-                    && <Alert
-                      type='error'
-                      message={deletedInfo(spending.deletedAt)}
-                    />
+                  && <Alert
+                    type='error'
+                    message={deletedInfo(spending.deletedAt)}
+                  />
                 }
               </CardContent>
               <IconButton
                 className={classes.deleteButton}
                 onClick={() => props.onDeleteSpending(spending.id)}
                 disabled={spending.deletedAt !== null}
-              >
+                size="large">
                 <DeleteIcon />
               </IconButton>
             </div>
@@ -106,7 +107,7 @@ const Spendings = (props: Props): JSX.Element => {
               <Typography
                 variant='overline'
                 className={classes.cardPriceHeader}>
-                  Cantidad Pagada
+                Cantidad Pagada
               </Typography>
               <div className={classes.cardPrice}>
                 <Typography
@@ -117,13 +118,13 @@ const Spendings = (props: Props): JSX.Element => {
               </div>
             </div>
           </Card>
-        </Grid>
+        </Grid>,
       )}
-    </Grid>
+    </Grid>)
   )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: Theme) => ({
   card: {
     display: 'flex',
     flexDirection: 'row',
@@ -143,7 +144,7 @@ const useStyles = makeStyles(theme => ({
     flex: '3',
     position: 'relative',
   },
-  cardHeader: { },
+  cardHeader: {},
   cardPrices: {
     flex: '1',
 

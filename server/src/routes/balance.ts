@@ -1,24 +1,21 @@
-import { subDays } from 'date-fns'
+import { subDays, isAfter, startOfDay, format } from 'date-fns'
 import { NextFunction, Request, Response } from 'express'
-import * as moment from 'moment'
 import { UniqueConstraintError } from 'sequelize'
 import { Op, Sequelize } from 'sequelize'
 import * as yup from 'yup'
-import models from '../db/models'
-import { enumerateDaysBetweenDates } from '../utils/date'
-
-const {
+import {
   BalanceVerifications,
   Payments,
   Sells,
   Spendings,
   Users,
-} = models
+} from '../db/models.js'
+import { enumerateDaysBetweenDates, formatDateonly, isSameDayOrAfter, isSameDayOrBefore, parseDateonly } from '../utils/date.js'
 
 export async function createBalanceVerification(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
 
@@ -54,9 +51,15 @@ export async function createBalanceVerification(
       return body.amount - prevBalance
     })()
     const createdById = userId
+    const creationFields = {
+      ...body,
+      date: formatDateonly(body.date),
+      adjustAmount,
+      createdById,
+    }
 
     try {
-      await BalanceVerifications.create({ ...body, adjustAmount, createdById })
+      await BalanceVerifications.create(creationFields)
     } catch (err) {
       if (err instanceof UniqueConstraintError && err.errors.map(e => e.path).includes('date')) {
         // Better message for unique constraint on date field
@@ -77,7 +80,7 @@ export async function createBalanceVerification(
 class NoVerifications extends Error {
   readonly name = 'no_verifications'
   readonly message =
-      'No hay ninguna verificacion de balance registrada, al menos una es '
+    'No hay ninguna verificacion de balance registrada, al menos una es '
     + 'requerida'
 
   constructor(message?: string) {
@@ -89,7 +92,7 @@ class NoVerifications extends Error {
 export async function listBalance(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const firstVerificationEver = await BalanceVerifications.findOne({
@@ -112,12 +115,12 @@ export async function listBalance(
       : []
 
     let firstVerification = firstVerificationEver
-    if (minDate && moment(minDate).isAfter(firstVerificationEver.date, 'day')) {
+    if (minDate && isAfter(minDate, firstVerificationEver.date)) {
       // Most recent verification before minDate
       const closestVerification = await BalanceVerifications.findOne({
         where: {
           date: {
-            [Op.lte]: minDate,
+            [Op.lte]: formatDateonly(minDate),
           },
         },
         order: [['date', 'desc']],
@@ -132,7 +135,7 @@ export async function listBalance(
       date: string
     }
 
-    const maxDateWhere = maxDate ? { [Op.lte]: maxDate } : {}
+    const maxDateWhere = maxDate ? { [Op.lte]: formatDateonly(maxDate) } : {}
 
     const groupedSales = await Sells.findAll({
       attributes: [
@@ -167,7 +170,7 @@ export async function listBalance(
         {
           [Op.gte]: firstVerification.date,
           ...maxDateWhere,
-        }
+        },
       ),
       group: Sequelize.fn('date', Sequelize.col('date'), 'localtime'),
       raw: true,
@@ -191,7 +194,7 @@ export async function listBalance(
           {
             [Op.gte]: firstVerification.date,
             ...maxDateWhere,
-          }
+          },
         ),
       },
       group: Sequelize.fn('date', Sequelize.col('date'), 'localtime'),
@@ -211,11 +214,12 @@ export async function listBalance(
       include: verificationsIncludes,
     })
 
-    const today = moment().startOf('day')
-    const days = enumerateDaysBetweenDates(firstVerification.date, today)
+    const dayRangeEnd = maxDate ?? startOfDay(new Date)
+    const firstVerificationD = parseDateonly(firstVerification.date)
+    const days = enumerateDaysBetweenDates(firstVerificationD, dayRangeEnd)
 
     const balances = days.map(day => {
-      const dayStr = day.format('YYYY-MM-DD')
+      const dayStr = format(day, 'yyyy-MM-dd')
       const daySales = groupedSales.find(daySales => daySales.date === dayStr)
       const daySpendings = groupedSpendings.find(daySpendings => daySpendings.date === dayStr)
       const dayPayments = groupedPayments.find(dayPayments => dayPayments.date === dayStr)
@@ -246,12 +250,12 @@ export async function listBalance(
     // filter by date
     if (minDate) {
       calcBalances = calcBalances
-        .filter(balance => moment(balance.date).isSameOrAfter(minDate, 'day'))
+        .filter(balance => isSameDayOrAfter(parseDateonly(balance.date), minDate))
     }
 
     if (maxDate) {
       calcBalances = calcBalances
-        .filter(balance => moment(balance.date).isSameOrBefore(maxDate, 'day'))
+        .filter(balance => isSameDayOrBefore(parseDateonly(balance.date), maxDate))
     }
 
     res.json({ success: true, data: calcBalances })
@@ -273,8 +277,8 @@ async function calculateBalanceAt(date: Date) {
 
   if (!closestVerification) {
     const msg =
-          'Error lógico: Verificacion mas cercana no encontrada, esto no '
-        + 'debería suceder porque hay una verificación anterior'
+      'Error lógico: Verificacion mas cercana no encontrada, esto no '
+      + 'debería suceder porque hay una verificación anterior'
     throw new NoVerifications(msg)
   }
 
@@ -304,7 +308,7 @@ async function calculateBalanceAt(date: Date) {
   })
 
   const balance =
-      closestVerification.amount + salesSum + paymentsSum - spendingsSum
+    closestVerification.amount + salesSum + paymentsSum - spendingsSum
 
   return balance
 }
@@ -312,7 +316,7 @@ async function calculateBalanceAt(date: Date) {
 export async function showBalance(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const firstVerificationEver = await BalanceVerifications.findOne({
@@ -333,6 +337,6 @@ export async function showBalance(
 
   } catch (err) {
     console.warn(err)
-    next (err)
+    next(err)
   }
 }

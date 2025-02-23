@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from 'express'
 import { UnauthorizedError } from 'express-jwt'
 import * as Sequelize from 'sequelize'
 
-const hasStatus = (obj: unknown): obj is {status: number} => {
+const hasStatus = (obj: unknown): obj is { status: number } => {
   return (
     typeof obj === 'object'
+    && obj !== null
     && 'status' in obj
     && typeof (obj as { status: unknown }).status === 'number'
   )

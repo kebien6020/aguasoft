@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { Op, Includeable } from 'sequelize'
-import models from '../db/models'
-import * as moment from 'moment'
-
-const Payments = models.Payments 
-const Users = models.Users 
+import { Clients, Payments, Users } from '../db/models.js'
+import { parseDateonly } from '../utils/date.js'
+import { addDays, startOfDay } from 'date-fns'
 
 export async function create(req: Request, res: Response, next: NextFunction) {
   try {
@@ -17,22 +15,23 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     }
 
     const user = await Users.findByPk(req.session.userId)
+    if (!user) throw Error('User not found')
 
     if (user.role !== 'admin') {
       body.directPayment = true
-      body.date = moment().toISOString()
+      body.date = (new Date).toISOString()
     }
 
     body.userId = req.session.userId
 
     // Normalize dates
-    if (body.dateFrom) 
-      body.dateFrom = moment(body.dateFrom).format('YYYY-MM-DD')
-    
+    if (body.dateFrom)
+      body.dateFrom = parseDateonly(body.dateFrom)
 
-    if (body.dateTo) 
-      body.dateTo = moment(body.dateTo).format('YYYY-MM-DD')
-    
+
+    if (body.dateTo)
+      body.dateTo = parseDateonly(body.dateTo)
+
 
     await Payments.create(body, {
       // Only allow user input to control these attributes
@@ -88,11 +87,11 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
       ],
       include: [
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name', 'id'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -114,7 +113,10 @@ export async function paginate(req: Request, res: Response, next: NextFunction) 
 export async function listDay(req: Request, res: Response, next: NextFunction) {
   try {
     const dayInput = typeof req.query.day === 'string' ? req.query.day : undefined
-    const day = moment(dayInput).startOf('day')
+    if (!dayInput)
+      throw Error('day query parameter is required')
+
+    const day = startOfDay(parseDateonly(dayInput))
     const payments = await Payments.findAll({
       attributes: [
         'id',
@@ -132,16 +134,16 @@ export async function listDay(req: Request, res: Response, next: NextFunction) {
       where: {
         date: {
           [Op.gte]: day.toISOString(),
-          [Op.lt]: day.add(1, 'day').toISOString(),
+          [Op.lt]: addDays(day, 1).toISOString(),
         },
       },
       include: [
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name', 'id'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -176,11 +178,11 @@ export async function listRecent(req: Request, res: Response, next: NextFunction
       order: [['date', 'DESC'], ['updatedAt', 'DESC']],
       include: [
         {
-          model: models.Clients,
+          model: Clients,
           attributes: ['name', 'id'],
         },
         {
-          model: models.Users,
+          model: Users,
           attributes: ['name', 'code'],
           paranoid: false,
         } as Includeable,
@@ -204,8 +206,10 @@ export async function del(req: Request, res: Response, next: NextFunction) {
       throw e
     }
 
-    const userId = req.session.userId 
+    const userId = req.session.userId
     const user = await Users.findByPk(userId)
+    if (!user) throw Error('User not found')
+
     if (user.role !== 'admin') {
       const e = new Error('Solo usuarios admin pueden eliminar pagos')
       e.name = 'user_permission'
@@ -214,6 +218,8 @@ export async function del(req: Request, res: Response, next: NextFunction) {
 
     const paymentId = req.params.id
     const payment = await Payments.findByPk(paymentId)
+    if (!payment) throw new Error('No se encontró el pago')
+
     await payment.destroy()
 
     res.json({ success: true })

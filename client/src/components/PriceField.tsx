@@ -1,44 +1,50 @@
-import * as React from 'react'
+import type { ComponentType, JSX } from 'react'
+import type {
+  ReactNode,
+  ChangeEvent,
+  ChangeEventHandler,
+  TextareaHTMLAttributes,
+  ForwardedRef,
+} from 'react'
+import { forwardRef } from 'react'
+import { InputBaseComponentProps, TextField } from '@mui/material'
+import { TextFieldProps } from '@mui/material/TextField'
 
-import { TextField } from '@material-ui/core'
-import { TextFieldProps } from '@material-ui/core/TextField'
+import { NumberFormatValues, NumericFormat, NumericFormatProps } from 'react-number-format'
 
-import NumberFormat, { NumberFormatProps } from 'react-number-format'
-
-interface NumFormatProps extends NumberFormatProps {
-  inputRef?: React.Ref<Element>
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+interface NumFormatProps extends NumericFormatProps {
+  onChange?: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
-function NumberFormatCustom(props: NumFormatProps) {
-  const { inputRef, onChange, ...other } = props
+const NumberFormatCustom = forwardRef((props: NumFormatProps, ref: ForwardedRef<HTMLInputElement>) => {
+  const { onChange, ...other } = props
 
   return (
 
-    <NumberFormat
+    <NumericFormat
       {...other}
-      getInputRef={inputRef}
+      getInputRef={ref}
       thousandSeparator='.'
       decimalSeparator=','
-      onValueChange={(values) => {
-        if (!onChange) return
-        onChange({
-          target: {
-            value: values.value,
-          },
-        } as React.ChangeEvent<HTMLInputElement>)
-      }}
       prefix='$'
+      onValueChange={({ value }: NumberFormatValues) => {
+        onChange?.({
+          target: {
+            value: value,
+          },
+        } as ChangeEvent<HTMLInputElement>)
+      }}
       decimalScale={4}
-      isNumericString
+      valueIsNumericString
     />
   )
-}
+})
+NumberFormatCustom.displayName = 'NumberFormatCustom'
 
 export interface PriceFieldProps {
-  label?: React.ReactNode
-  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  value?: React.TextareaHTMLAttributes<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>['value']
+  label?: ReactNode
+  onChange?: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  value?: TextareaHTMLAttributes<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>['value']
   TextFieldProps?: TextFieldProps
 }
 
@@ -47,7 +53,13 @@ const PriceField = (props: PriceFieldProps): JSX.Element => (
     label={props.label}
     margin='normal'
     fullWidth
-    InputProps={{ inputComponent: NumberFormatCustom }}
+    slotProps={{
+      input: {
+        // Force the type here because the difference is on the
+        // prop `defaultValue`, which we are not using here
+        inputComponent: NumberFormatCustom as unknown as ComponentType<InputBaseComponentProps>,
+      },
+    }}
     onChange={props.onChange}
     value={props.value}
     {...props.TextFieldProps}

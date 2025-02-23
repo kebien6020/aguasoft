@@ -3,10 +3,7 @@
 // must be protected in the server
 
 import { Request, Response, NextFunction } from 'express'
-import models from '../db/models'
-import { UserStatic } from '../db/models/users'
-
-const Users = models.Users as UserStatic
+import { Users } from '../db/models.js'
 
 export default
 async function adminOnly(req: Request, _res: Response, next: NextFunction) {
@@ -17,7 +14,14 @@ async function adminOnly(req: Request, _res: Response, next: NextFunction) {
       throw e
     }
 
-    const user = await Users.findByPk(req.session.userId)
+    const id = req.session.userId
+    const user = await Users.findByPk(id)
+
+    if (!user) {
+      const e = Error('User not found')
+      e.name = 'user_check_error'
+      throw e
+    }
 
     if (user.role !== 'admin') {
       const e = Error(req.path + ' is admin only')

@@ -1,11 +1,10 @@
-import MomentUtils from '@date-io/moment'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import { MuiThemeProvider, StyleRulesCallback, Theme, withStyles } from '@material-ui/core/styles'
-import MuiPickersUtilsProvider from '@material-ui/pickers/MuiPickersUtilsProvider'
-import moment from 'moment'
-import 'moment/locale/es'
-import React, { lazy, Suspense } from 'react'
-import { BrowserRouter, Redirect, Switch } from 'react-router-dom'
+import { CssBaseline, GlobalStyles } from '@mui/material'
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
+import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
+import { lazy, Suspense } from 'react'
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router'
 import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -13,16 +12,20 @@ import { useSnackbar } from './components/MySnackbar'
 import { UserProvider } from './hooks/useUser'
 import SnackbarContext from './SnackbarContext'
 import theme from './theme'
+import { es } from 'date-fns/locale/es'
+import { RequireAuth } from './RequireAuth'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
 
-const Route = lazy(() => import(/* webpackChunkName: "auth-route" */ './AuthRoute'))
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
-const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/RegisterSale'))
 const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
 const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
-const MonitorSells = lazy(() => import(/* webpackChunkName: "monitor-sells" */ './Routes/MonitorSells'))
-const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/ClientEditor'))
-const ClientList = lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/ClientList'))
+const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/client-editor/index'))
+const ClientList = lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/client-list/index'))
 const ClientBalance = lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/ClientBalance'))
 const RegisterPayment = lazy(() => import(/* webpackChunkName: "register-payment" */ './Routes/RegisterPayment'))
 const PaymentList = lazy(() => import(/* webpackChunkName: "all-payments" */ './Routes/PaymentList'))
@@ -42,102 +45,107 @@ const Balance = lazy(() => import(/* webpackChunkName: "balance" */ './Routes/Ba
 const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Routes/dashboard/index'))
 const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
 const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Batches'))
-const RegisterSale2 = lazy(() => import(/* webpackChunkName: "register-sale2" */ './Routes/sale/Register'))
-
-const auth = new Auth()
-moment.locale('es')
+const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/Register'))
 
 const AppSwitch = () => (
-  <Switch>
-    <Route exact path='/authCallback' component={AuthCallback} />
-    <Route exact path='/silentAuth' component={SilentAuth} />
-    <Route exact path='/logout' component={Logout} />
+  <Routes>
+    <Route path='/authCallback' element={<AuthCallback />} />
+    <Route path='/silentAuth' element={<SilentAuth />} />
+    <Route path='/logout' element={<Logout />} />
 
-    <Route exact private path='/check' component={CheckUser} />
+    <Route path='/check' element={<RequireAuth><CheckUser /></RequireAuth>} />
 
-    <Route exact private path='/sell' component={RegisterSale} />
-    <Route exact private path='/sell2' component={RegisterSale2} />
-    <Route exact private path='/sells' component={Sells} />
-    <Route exact private path='/monitor/sells' component={MonitorSells} />
+    <Route path='/sells' element={<RequireAuth><Sells /></RequireAuth>} />
+    <Route path='/sell' element={<RequireAuth><RegisterSale /></RequireAuth>} />
 
-    <Route exact private path='/clients' component={ClientList} />
-    <Route exact private path='/clients/new' component={ClientEditor} />
-    <Route exact private path='/clients/:id' component={ClientEditor} />
-    <Route exact private path='/clients/:id/balance' component={ClientBalance} />
+    <Route path='/clients' element={<RequireAuth><ClientList /></RequireAuth>} />
+    <Route path='/clients/new' element={<RequireAuth><ClientEditor /></RequireAuth>} />
+    <Route path='/clients/:id' element={<RequireAuth><ClientEditor /></RequireAuth>} />
+    <Route path='/clients/:id/balance' element={<RequireAuth><ClientBalance /></RequireAuth>} />
 
-    <Route exact private path='/payment' component={RegisterPayment} />
-    <Route exact private path='/payments' component={Payments} />
-    <Route exact private path='/payments/list' component={PaymentList} />
+    <Route path='/payment' element={<RequireAuth><RegisterPayment /></RequireAuth>} />
+    <Route path='/payments' element={<RequireAuth><Payments /></RequireAuth>} />
+    <Route path='/payments/list' element={<RequireAuth><PaymentList /></RequireAuth>} />
 
-    <Route exact private path='/spending' component={RegisterSpending} />
-    <Route exact private path='/spendings' component={Spendings} />
-    <Route exact private path='/spendings/list' component={SpendingList} />
+    <Route path='/spending' element={<RequireAuth><RegisterSpending /></RequireAuth>} />
+    <Route path='/spendings' element={<RequireAuth><Spendings /></RequireAuth>} />
+    <Route path='/spendings/list' element={<RequireAuth><SpendingList /></RequireAuth>} />
 
-    <Route exact private path='/inventory' component={Inventory} />
+    <Route path='/inventory' element={<RequireAuth><Inventory /></RequireAuth>} />
 
-    <Route exact private path='/movements' component={Movements} />
-    <Route exact private path='/movements/production' component={RegisterProduction} />
-    <Route exact private path='/movements/damaged' component={RegisterDamaged} />
-    <Route exact private path='/movements/unpack' component={RegisterUnpack} />
-    <Route exact private path='/movements/relocation' component={RegisterRelocation} />
-    <Route exact private path='/movements/entry' component={RegisterEntry} />
+    <Route path='/movements' element={<RequireAuth><Movements /></RequireAuth>} />
+    <Route path='/movements/production' element={<RequireAuth><RegisterProduction /></RequireAuth>} />
+    <Route path='/movements/damaged' element={<RequireAuth><RegisterDamaged /></RequireAuth>} />
+    <Route path='/movements/unpack' element={<RequireAuth><RegisterUnpack /></RequireAuth>} />
+    <Route path='/movements/relocation' element={<RequireAuth><RegisterRelocation /></RequireAuth>} />
+    <Route path='/movements/entry' element={<RequireAuth><RegisterEntry /></RequireAuth>} />
 
-    <Route exact private path='/balance' component={Balance} />
+    <Route path='/balance' element={<RequireAuth><Balance /></RequireAuth>} />
 
-    <Route exact private path='/dashboard' component={Dashboard} />
+    <Route path='/dashboard' element={<RequireAuth><Dashboard /></RequireAuth>} />
+    <Route path='/tools/billing-summary' element={<RequireAuth><BillingSummary /></RequireAuth>} />
 
-    <Route exact private path='/batches' component={Batches} />
+    <Route path='/batches' element={<RequireAuth><Batches /></RequireAuth>} />
 
-    <Route exact private path='/tools/billing-summary' component={BillingSummary} />
-
-    <Route exact path='/' render={() => <Redirect to='/sells' />} />
-  </Switch>
+    <Route path='/' element={<Navigate to='/sells' />} />
+  </Routes>
 )
 
-const Providers = ({ children }: {children: React.ReactNode}) => {
+const auth = new Auth()
+
+const Providers = ({ children }: { children: React.ReactNode }) => {
   const [snackbar, showMessage] = useSnackbar()
 
   return (
-    <AuthContext.Provider value={auth}>
-      <MuiPickersUtilsProvider utils={MomentUtils}>
+    (<AuthContext.Provider value={auth}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
         <BrowserRouter>
-          <MuiThemeProvider theme={theme}>
-            <SnackbarContext.Provider value={showMessage}>
-              {snackbar}
-              <UserProvider>
-                {children}
-              </UserProvider>
-            </SnackbarContext.Provider>
-          </MuiThemeProvider>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+              <LegacyThemeProvider theme={theme}>
+                <SnackbarContext.Provider value={showMessage}>
+                  {snackbar}
+                  <UserProvider>
+                    {children}
+                  </UserProvider>
+                </SnackbarContext.Provider>
+              </LegacyThemeProvider>
+            </ThemeProvider>
+          </StyledEngineProvider>
         </BrowserRouter>
-      </MuiPickersUtilsProvider>
-    </AuthContext.Provider>
+      </LocalizationProvider>
+    </AuthContext.Provider>)
   )
 }
+
+const MyGlobalStyles = () => (
+  <GlobalStyles
+    styles={theme => ({
+      html: {
+        fontSize: 12,
+        [theme.breakpoints.up('sm')]: {
+          fontSize: 16,
+        },
+        [theme.breakpoints.up('md')]: {
+          fontSize: 18,
+        },
+      },
+    })}
+  />
+)
 
 const App = () => {
   return (
-    <Providers>
-      <CssBaseline />
-      <Suspense fallback={<LoadingScreen text='Cargando página…'/>}>
-        <AppSwitch />
-      </Suspense>
-    </Providers>
+    <GlobalErrorBoundary>
+      <Providers>
+        <CssBaseline />
+        <MyGlobalStyles />
+        <Suspense fallback={<LoadingScreen text='Cargando página…' />}>
+          <AppSwitch />
+        </Suspense>
+      </Providers>
+    </GlobalErrorBoundary>
   )
 }
 
-const styles : StyleRulesCallback<Theme, Record<string, unknown>> = theme => ({
-  '@global': {
-    html: {
-      fontSize: 12,
-      [theme.breakpoints.up('sm')]: {
-        fontSize: 16,
-      },
-      [theme.breakpoints.up('md')]: {
-        fontSize: 18,
-      },
-    },
-  },
-})
-
-export default withStyles(styles)(App)
+export default App

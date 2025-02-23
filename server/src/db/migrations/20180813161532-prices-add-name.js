@@ -1,23 +1,29 @@
-'use strict';
+// @ts-check
+/**
+ * @param {import('sequelize').QueryInterface} queryInterface
+ * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
+ * @return {Promise<void>}
+ */
+export async function up(queryInterface, Sequelize) {
+  await queryInterface.addColumn('Prices', 'name', {
+    type: Sequelize.STRING,
+    allowNull: false,
+    defaultValue: 'Base',
+  })
 
-module.exports = {
-  up: function (queryInterface, Sequelize) {
-    return queryInterface.addColumn('Prices', 'name', {
-      type: Sequelize.STRING,
-      allowNull: false,
-      defaultValue: 'Base',
-    }).then(() =>
-      queryInterface.addConstraint('Prices', ['name', 'clientId', 'productId'], {
-        type: 'unique',
-        name: 'name_clientId_productId_unique'
-      })
-    );
-  },
+  await queryInterface.addConstraint('Prices', {
+    type: 'unique',
+    name: 'name_clientId_productId_unique',
+    fields: ['name', 'clientId', 'productId'],
+  })
+}
 
-  down: function (queryInterface, Sequelize) {
-    return queryInterface.removeConstraint('Prices', 'name_clientId_productId_unique')
-      .then(() =>
-        queryInterface.removeColumn('Prices', 'name')
-      )
-  }
-};
+/**
+ * @param {import('sequelize').QueryInterface} queryInterface
+ * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
+ * @return {Promise<void>}
+ */
+export async function down(queryInterface, _Sequelize) {
+  await queryInterface.removeConstraint('Prices', 'name_clientId_productId_unique')
+  await queryInterface.removeColumn('Prices', 'name')
+}

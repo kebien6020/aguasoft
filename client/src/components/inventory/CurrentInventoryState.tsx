@@ -1,9 +1,9 @@
-import * as React from 'react'
+import type { JSX } from 'react'
 import { useState, useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
-import Grid from '@material-ui/core/Grid'
-import * as socketio from 'socket.io-client'
+import makeStyles from '@mui/styles/makeStyles'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid2'
+import { io } from 'socket.io-client'
 
 import useFetch from '../../hooks/useFetch'
 import useUser from '../../hooks/useUser'
@@ -15,7 +15,7 @@ import Title from '../Title'
 import StorageCard from './StorageCard'
 import { Storage, InventoryElement } from '../../models'
 
-const socket = socketio('/', {
+const socket = io('/', {
   autoConnect: false,
 })
 
@@ -36,7 +36,9 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
       <Button
         variant='outlined'
         color='primary'
-        onClick={() => setShowManualMovementForm(prev => !prev)}
+        onClick={() => {
+          setShowManualMovementForm(prev => !prev) 
+        }}
       >
         Crear movimiento manual
       </Button>
@@ -54,7 +56,9 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
   useEffect(() => {
     socket.open()
 
-    const onChange = () => update()
+    const onChange = () => {
+      update() 
+    }
     socket.on('storageStatesChanged', onChange)
     socket.on('reconnect', onChange)
 
@@ -83,13 +87,13 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
 
       <Grid container spacing={2}>
         {storages && storageStates && inventoryElements ? storages.map(storage =>
-          <Grid item key={storage.id} xs={12} md={6}>
+          <Grid key={storage.id} size={{ xs: 12, md: 6 }}>
             <StorageCard
               storage={storage}
               storageStates={storageStates}
               inventoryElements={inventoryElements}
             />
-          </Grid>
+          </Grid>,
         ) : <LoadingIndicator />}
       </Grid>
     </>

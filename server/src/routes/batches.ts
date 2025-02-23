@@ -1,11 +1,9 @@
-import models from '../db/models'
+import { Batches, BatchCategories } from '../db/models.js'
 import * as yup from 'yup'
-import { handleErrors } from '../utils/route'
+import { handleErrors } from '../utils/route.js'
 import { Router } from 'express'
 import { addDays, format } from 'date-fns'
 import { ValidationError } from 'sequelize'
-
-const { Batches, BatchCategories } = models
 
 const router = Router()
 export default router
@@ -14,7 +12,7 @@ router.get('/', handleErrors(async (req, res) => {
   const includeOptions = ['BatchCategory']
   const schema = yup.object({
     include: yup.array(
-      yup.string().oneOf(includeOptions)
+      yup.string().oneOf(includeOptions).required(),
     ).notRequired(),
     batchCategoryId: yup.number().integer().notRequired(),
   })
@@ -24,7 +22,7 @@ router.get('/', handleErrors(async (req, res) => {
 
   const batches = await Batches.findAll({
     attributes: ['id', 'code', 'date', 'expirationDate', 'batchCategoryId'],
-    include: query.include,
+    include: query.include ?? undefined,
     where: {
       ...(query.batchCategoryId ? { batchCategoryId: query.batchCategoryId } : {}),
     },
@@ -44,6 +42,7 @@ router.post('/', handleErrors(async (req, res) => {
   const body = schema.cast(req.body)
 
   const category = await BatchCategories.findByPk(body.batchCategoryId)
+  if (!category) throw Error('Categoría de lote no encontrada')
 
   const code = 'L' + format(body.date, 'ddMMyy')
   const expirationDate = addDays(body.date, category.expirationDays)
