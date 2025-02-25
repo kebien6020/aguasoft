@@ -768,10 +768,10 @@ export async function relocationMovement(req: Request, res: Response, next: Next
     const schema = yup.object({
       inventoryElementCode: yup.string().required(),
       amount: yup.number().integer().positive().required(),
-      counter: yup.number().when('element', {
+      counter: yup.number().when('inventoryElementCode', {
         is: 'rollo-360',
         then: schema => schema.integer().positive().required(),
-      }).required(),
+      }),
     })
 
     schema.validateSync(req.body)
@@ -844,7 +844,7 @@ export async function relocationMovement(req: Request, res: Response, next: Next
 
         // Register machine counter
         await MachineCounters.create({
-          value: body.counter,
+          value: body.counter!, // Defined when elementCode is 'rollo-360'
           type: 'new-reel',
         }, {
           transaction,
