@@ -21,6 +21,7 @@
     "@mui/styles": "^6.4.4",
     "@mui/x-date-pickers": "^7.26.0",
     "@react-hook/debounce": "^4.0.0",
+    "@react-oauth/google": "^0.12.1",
     "@react-pdf/renderer": "^4.2.2",
     "@types/react-router": "^5.1.20",
     "auth0-js": "^9.23.2",

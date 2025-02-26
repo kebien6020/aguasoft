@@ -5,6 +5,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+
 import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -90,6 +92,7 @@ const AppSwitch = () => (
 )
 
 const auth = new Auth()
+const googleClientId = '327533471227-niedralk7louhbv330rm2lk1r8mgcv9g.apps.googleusercontent.com'
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [snackbar, showMessage] = useSnackbar()
@@ -104,7 +107,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
                 <SnackbarContext.Provider value={showMessage}>
                   {snackbar}
                   <UserProvider>
-                    {children}
+                    <GoogleOAuthProvider clientId={googleClientId}>
+                      {children}
+                    </GoogleOAuthProvider>
                   </UserProvider>
                 </SnackbarContext.Provider>
               </LegacyThemeProvider>

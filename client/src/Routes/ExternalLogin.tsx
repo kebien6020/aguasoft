@@ -3,6 +3,7 @@ import * as React from 'react'
 import { useEffect } from 'react'
 import Layout from '../components/Layout'
 import { CenterFullscreen } from '../components/utils'
+import { GoogleLogin } from '@react-oauth/google'
 
 const ExternalLogin = () => {
   useEffect(() => {
@@ -12,6 +13,16 @@ const ExternalLogin = () => {
   return (
     <Layout title='Inicio de Sesión'>
       <CenterFullscreen>
+
+        <GoogleLogin
+          onSuccess={credentialResponse => {
+            console.log(credentialResponse)
+          }}
+          onError={() => {
+            console.log('Login Failed')
+          }}
+        />
+        {/*
         <div id="g_id_onload"
           data-client_id="327533471227-niedralk7louhbv330rm2lk1r8mgcv9g.apps.googleusercontent.com"
           data-context="signin"
@@ -30,6 +41,7 @@ const ExternalLogin = () => {
           data-logo_alignment="left"
           data-width="100">
         </div>
+        */}
       </CenterFullscreen>
     </Layout>
   )

@@ -31,6 +31,12 @@ const authCheck = jwt({
   algorithms: ['RS256'],
 })
 
+// Validate email in the jwt
+function validateJwtEmail(req: Request, res: Response, next: NextFunction) {
+  console.log(req.auth)
+  next()
+}
+
 // Set up the session store and middleware
 const sessionStore = new SequelizeStore({
   db: sequelize,
@@ -65,8 +71,8 @@ app.use(express.static(STATIC_FOLDER, {
 }))
 
 // API routes
-if (process.env.NODE_ENV === 'production')
-  app.use('/api', authCheck)
+// if (process.env.NODE_ENV === 'production')
+app.use('/api', authCheck, validateJwtEmail)
 
 app.use('/api/users', routes.users)
 app.use('/api/clients', routes.clients)
@@ -109,6 +115,7 @@ function checkUser(req: Request, res: Response, next: NextFunction) {
 app.get('/sell', checkUser)
 
 // Serve the SPA for any unhandled route (it handles 404)
+// TODO: Set a Content Security Policy to allow google things on the login page
 app.get('*path', (_req, res) => {
   if (process.env.NODE_ENV !== 'production')
     res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade')
