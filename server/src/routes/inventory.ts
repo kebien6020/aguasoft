@@ -116,7 +116,7 @@ async function _createMovementImpl(data: CreateManualMovementArgs, t: Transactio
   }
 
   // Store the movement
-  await InventoryMovements.create(sData, {
+  return await InventoryMovements.create(sData, {
     fields: [
       'storageFromId',
       'storageToId',
@@ -138,7 +138,7 @@ export async function createMovement(data: CreateManualMovementArgs, transaction
     return _createMovementImpl(data, transaction)
 
 
-  await sequelize.transaction(async (t) => {
+  return await sequelize.transaction(async (t) => {
     return _createMovementImpl(data, t)
   })
 }

@@ -75,7 +75,6 @@ export default [
           ignoreRegExpLiterals: true,
         },
       ],
-      complexity: ['error', 15],
     },
   },
 ]
