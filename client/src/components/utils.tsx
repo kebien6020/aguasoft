@@ -9,11 +9,14 @@ export const VSpace = styled('div')(({ size = 16 }: VSpaceProps) => ({
   width: '100%',
 }))
 
-
 export const Center = styled('div')({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   height: '100%',
   width: '100%',
+})
+
+export const CenterFullscreen = styled(Center)({
+  minHeight: 'calc(100vh - 64px)',
 })

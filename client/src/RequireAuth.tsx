@@ -41,10 +41,7 @@ const useAuthWithRenew = () => {
       return
     }
 
-    (async () => {
-      const success = await auth.renew()
-      setAuthStatus(success ? AuthStatus.GRANTED : AuthStatus.DENIED)
-    })()
+    auth.login()
   }, [auth])
 
   return authStatus

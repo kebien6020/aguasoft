@@ -33,7 +33,7 @@ export function useUserFetch(onError?: OnError): Result {
   useEffect(() => {
     (async () => {
       const url = '/api/users/getCurrent'
-      const user: ErrorResponse | User = await fetchJsonAuth(url, auth)
+      const user: ErrorResponse | User = await fetchJsonAuth(url, auth, { redirectOnAuthError: false })
 
       if (!isErrorResponse(user)) {
         setUser(user)

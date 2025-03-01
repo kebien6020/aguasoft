@@ -5,6 +5,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+
 import Auth from './Auth'
 import AuthContext from './AuthContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -21,8 +23,6 @@ import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 
 const CheckUser = lazy(() => import(/* webpackChunkName: "check-user" */ './Routes/CheckUser'))
-const AuthCallback = lazy(() => import(/* webpackChunkName: "auth-callback" */ './Routes/AuthCallback'))
-const SilentAuth = lazy(() => import(/* webpackChunkName: "silent-auth" */ './Routes/SilentAuth'))
 const Logout = lazy(() => import(/* webpackChunkName: "logout" */ './Routes/Logout'))
 const ClientEditor = lazy(() => import(/* webpackChunkName: "client-editor" */ './Routes/client-editor/index'))
 const ClientList = lazy(() => import(/* webpackChunkName: "client-list" */ './Routes/client-list/index'))
@@ -46,12 +46,12 @@ const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard" */ './Route
 const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-summary" */ './Routes/tools/BillingSummary'))
 const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Batches'))
 const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/Register'))
+const ExternalLogin = lazy(() => import(/* webpackChunkName: "external-login" */ './Routes/ExternalLogin'))
 
 const AppSwitch = () => (
   <Routes>
-    <Route path='/authCallback' element={<AuthCallback />} />
-    <Route path='/silentAuth' element={<SilentAuth />} />
     <Route path='/logout' element={<Logout />} />
+    <Route path='/login' element={<ExternalLogin />} />
 
     <Route path='/check' element={<RequireAuth><CheckUser /></RequireAuth>} />
 
@@ -92,6 +92,7 @@ const AppSwitch = () => (
 )
 
 const auth = new Auth()
+const googleClientId = '327533471227-niedralk7louhbv330rm2lk1r8mgcv9g.apps.googleusercontent.com'
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [snackbar, showMessage] = useSnackbar()
@@ -106,7 +107,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
                 <SnackbarContext.Provider value={showMessage}>
                   {snackbar}
                   <UserProvider>
-                    {children}
+                    <GoogleOAuthProvider clientId={googleClientId}>
+                      {children}
+                    </GoogleOAuthProvider>
                   </UserProvider>
                 </SnackbarContext.Provider>
               </LegacyThemeProvider>
