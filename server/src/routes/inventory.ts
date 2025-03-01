@@ -718,7 +718,7 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
       throw new Error('No se encontró el elemento de inventario con el código bolsa-reempaque')
 
 
-    const storageCodes = ['terminado', 'intermedia']
+    const storageCodes = ['terminado', 'intermedia', 'trabajo']
 
     const storages = await Storages.findAll({
       where: {
@@ -731,12 +731,16 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
 
     const storageFrom = storages.find(e => e.code === 'terminado')
     const storageTo = storages.find(e => e.code === 'intermedia')
+    const storageWorking = storages.find(e => e.code === 'trabajo')
 
     if (!storageFrom)
       throw new Error('No se encontró el almacen con el código terminado')
 
     if (!storageTo)
       throw new Error('No se encontró el almacen con el código intermedia')
+
+    if (!storageWorking)
+      throw new Error('No se encontró el almacen con el código trabajo')
 
 
     const movementData: CreateManualMovementArgs = {
@@ -754,7 +758,7 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
       inventoryElementFromId: bolsaReempaqueElement.id,
       inventoryElementToId: bolsaReempaqueElement.id,
       storageFromId: null,
-      storageToId: storageTo.id,
+      storageToId: storageWorking.id,
       quantityFrom: body.amount,
       quantityTo: body.amount,
       cause: 'relocation',

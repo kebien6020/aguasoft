@@ -70,8 +70,8 @@ describe('inventory routes', () => {
       const body = res.body as ResBody
       const bolsa360InIntermediate = body.find(ss => ss.InventoryElement.code === 'bolsa-360' && ss.Storage.code === 'intermedia')
       assert.ok(bolsa360InIntermediate, 'bolsa-360 not found in intermediate storage')
-      const bolsaReempaqueInIntermediate = body.find(ss => ss.InventoryElement.code === 'bolsa-reempaque' && ss.Storage.code === 'intermedia')
-      assert.ok(bolsaReempaqueInIntermediate, 'bolsa-reempaque not found in intermediate storage')
+      const bolsaReempaqueInIntermediate = body.find(ss => ss.InventoryElement.code === 'bolsa-reempaque' && ss.Storage.code === 'trabajo')
+      assert.ok(bolsaReempaqueInIntermediate, 'bolsa-reempaque not found in working storage')
 
       assert.equal(bolsa360InIntermediate.quantity, 20)
       assert.equal(bolsaReempaqueInIntermediate.quantity, 1)
