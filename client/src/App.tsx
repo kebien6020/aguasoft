@@ -47,6 +47,7 @@ const BillingSummary = lazy(() => import(/* webpackChunkName: "tools-billing-sum
 const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Batches'))
 const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/Register'))
 const ExternalLogin = lazy(() => import(/* webpackChunkName: "external-login" */ './Routes/ExternalLogin'))
+const Error404 = lazy(() => import(/* webpackChunkName: "error-404" */ './Routes/Error404'))
 
 const AppSwitch = () => (
   <Routes>
@@ -88,6 +89,7 @@ const AppSwitch = () => (
     <Route path='/batches' element={<RequireAuth><Batches /></RequireAuth>} />
 
     <Route path='/' element={<Navigate to='/sells' />} />
+    <Route path='/*' element={<Error404 />} />
   </Routes>
 )
 
