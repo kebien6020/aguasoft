@@ -6,7 +6,6 @@ export default class Auth {
   logout(): void {
     // Clear access token and ID token from local storage
     localStorage.removeItem('access_token')
-    localStorage.removeItem('id_token')
     localStorage.removeItem('expires_at')
   }
 
@@ -24,7 +23,7 @@ export default class Auth {
 
   getAccessToken(): string {
     const accessToken = localStorage.getItem('access_token')
-    if (!accessToken)
+    if (accessToken === null)
       throw new Error('No access token found')
 
     return accessToken

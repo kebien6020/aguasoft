@@ -3,7 +3,7 @@ import ConnectSessionSequelize from 'connect-session-sequelize'
 import cors from 'cors'
 import express from 'express'
 import { NextFunction, Request, Response } from 'express'
-import { GetVerificationKey, expressjwt as jwt } from 'express-jwt'
+import { GetVerificationKey, expressjwt as jwt, UnauthorizedError } from 'express-jwt'
 import session from 'express-session'
 import { expressJwtSecret } from 'jwks-rsa'
 import { resolve } from 'node:path'
@@ -31,9 +31,44 @@ const authCheck = jwt({
   algorithms: ['RS256'],
 })
 
+declare module 'express' {
+  interface Request {
+    auth?: AuthData
+  }
+}
+
 // Validate email in the jwt
-function validateJwtEmail(req: Request, res: Response, next: NextFunction) {
-  console.log(req.auth)
+type AuthData = {
+  iss: string // should match googleIssuer
+  aud: string // client id
+  sub: string
+  email: string
+  email_verified: boolean
+  name: string
+  picture: string // url
+  given_name: string
+  family_name: string
+  iat: number // unix timestamp
+  nbf: number // unix timestamp
+  exp: number // unix timestamp
+  jti: string // jwt id
+}
+const acceptedEmails = [
+  'kevin.pena.prog@gmail.com',
+  'agualaif@gmail.com',
+  'jairopsanchez@gmail.com',
+]
+function validateJwtEmail(req: Request, _res: Response, next: NextFunction) {
+  if (req.auth) {
+    if (acceptedEmails.includes(req.auth.email) && req.auth.email_verified) {
+      next()
+      return
+    } else {
+      next(new UnauthorizedError('credentials_required', { message: 'Email not allowed' }))
+      return
+    }
+  }
+
   next()
 }
 
@@ -71,8 +106,8 @@ app.use(express.static(STATIC_FOLDER, {
 }))
 
 // API routes
-// if (process.env.NODE_ENV === 'production')
-app.use('/api', authCheck, validateJwtEmail)
+if (process.env.NODE_ENV === 'production')
+  app.use('/api', authCheck, validateJwtEmail)
 
 app.use('/api/users', routes.users)
 app.use('/api/clients', routes.clients)
@@ -102,17 +137,6 @@ declare module 'express-session' {
     userId?: number
   }
 }
-
-// Check the routes that require logged user
-function checkUser(req: Request, res: Response, next: NextFunction) {
-  if (typeof req.session.userId === 'number')
-    next()
-  else
-    res.redirect('/check')
-
-}
-
-app.get('/sell', checkUser)
 
 // Serve the SPA for any unhandled route (it handles 404)
 // TODO: Set a Content Security Policy to allow google things on the login page

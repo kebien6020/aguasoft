@@ -50,7 +50,7 @@ interface ClientError {
 }
 
 function isClientError(u: Client | ClientDefaults | ClientError): u is ClientError {
-  return !(u as ClientError).success
+  return (u as { success?: boolean }).success === false
 }
 
 interface Params {
