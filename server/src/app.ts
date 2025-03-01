@@ -23,7 +23,7 @@ const authCheck = jwt({
   secret: expressJwtSecret({
     cache: true,
     rateLimit: true,
-    jwksRequestsPerMinute: 5,
+    jwksRequestsPerMinute: 60,
     jwksUri: googleJwks,
   }) as unknown as GetVerificationKey, // Force type which is like this because of backward compatibility
   audience: googleClientID,

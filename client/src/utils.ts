@@ -41,7 +41,7 @@ export async function fetchJsonAuth<R = SuccessResponse>(
 
   // In case of token error, go to login
   if (!opts.failOnAuthError && (invalidToken || authError)) {
-    // if (redirectOnAuthError) auth.login()
+    if (redirectOnAuthError) auth.login()
     return { success: false, error: { code: 'not_authenticated', message: 'No autenticado' } }
   }
 
