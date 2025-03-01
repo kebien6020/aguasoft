@@ -3,6 +3,7 @@ import { Clients, Prices, Payments, Sells } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
 import * as Yup from 'yup'
 import { CreationAttributes, Sequelize } from 'sequelize'
+import { formatDateonly } from '../utils/date.js'
 
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -294,7 +295,7 @@ export async function balance(req: Request, res: Response, next: NextFunction) {
     })
 
     interface Change {
-      date: Date
+      date: string
       value: number
       type: 'sell' | 'payment'
     }
@@ -307,12 +308,12 @@ export async function balance(req: Request, res: Response, next: NextFunction) {
         id: s.id,
       })))
       .concat(payments.map(p => ({
-        date: p.date,
+        date: formatDateonly(p.date),
         value: Number(p.value),
         type: 'payment',
         id: p.id,
       })))
-      .sort((a: Change, b: Change) => a.date.valueOf() - b.date.valueOf())
+      .sort((a: Change, b: Change) => a.date < b.date ? -1 : 1)
 
     res.json({ changes })
   } catch (e) {

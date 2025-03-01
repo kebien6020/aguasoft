@@ -54,7 +54,7 @@ Session.init({
 
 export class Sells extends Model<InferAttributes<Sells>, InferCreationAttributes<Sells>> {
   declare id: CreationOptional<number>
-  declare date: Date
+  declare date: string
   declare cash: boolean
   declare priceOverride: number | null
   declare quantity: number

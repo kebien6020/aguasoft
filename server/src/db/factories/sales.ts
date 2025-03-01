@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { Sells } from '../models.js'
 import type { SaveOptions } from 'sequelize'
+import { formatDateonly } from '../../utils/date.js'
 
 type Overrides = Record<string, unknown> & {
   userId: number
@@ -10,7 +11,7 @@ type Overrides = Record<string, unknown> & {
 
 export function make(overrides: Overrides): Sells {
   return Sells.build({
-    date: faker.date.recent(),
+    date: formatDateonly(faker.date.recent()),
     cash: faker.datatype.boolean(),
     priceOverride: null,
     quantity: faker.number.int(10),

@@ -15,6 +15,7 @@ import {
 } from '../db/models.js'
 import { MakeRequired } from '../utils/types.js'
 import { CreateManualMovementArgs, createMovement } from './inventory.js'
+import { formatDateonly } from '../utils/date.js'
 
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -267,7 +268,7 @@ export const bulkCreate = wrap(async (req: Request) => {
   const sells = sellsInput.map(s => ({
     ...s,
     userId,
-    date: isAdmin && s.date !== undefined && s.date !== null ? s.date : today,
+    date: formatDateonly(isAdmin && s.date !== undefined && s.date !== null ? s.date : today),
   }))
 
   await sequelize.transaction(async (transaction) => {
