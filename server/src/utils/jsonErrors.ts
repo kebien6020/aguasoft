@@ -44,7 +44,7 @@ export default function jsonErrorHandler(
       response = {
         message: (error).message,
         code: 'unauthorized_error',
-        errors: error,
+        errors: [error],
       }
     } else if (error instanceof Error) {
       response = { ...error, code: error.name, message: error.message }
