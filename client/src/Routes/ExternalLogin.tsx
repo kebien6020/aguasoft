@@ -23,7 +23,7 @@ const ExternalLogin = () => {
           }}
           theme='filled_blue'
           size='large'
-          ux_mode='redirect'
+          ux_mode='popup'
         />
       </CenterFullscreen>
     </Layout>
