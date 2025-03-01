@@ -693,7 +693,7 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
     schema.validateSync(req.body)
     const body = schema.cast(req.body)
 
-    const inventoryElementCodes = ['paca-360', 'bolsa-360']
+    const inventoryElementCodes = ['paca-360', 'bolsa-360', 'bolsa-reempaque']
 
     const inventoryElements = await InventoryElements.findAll({
       where: {
@@ -706,12 +706,16 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
 
     const inventoryElementFrom = inventoryElements.find(e => e.code === 'paca-360')
     const inventoryElementTo = inventoryElements.find(e => e.code === 'bolsa-360')
+    const bolsaReempaqueElement = inventoryElements.find(e => e.code === 'bolsa-reempaque')
 
     if (!inventoryElementFrom)
       throw new Error('No se encontró el elemento de inventario con el código paca-360')
 
     if (!inventoryElementTo)
       throw new Error('No se encontró el elemento de inventario con el código bolsa-360')
+
+    if (!bolsaReempaqueElement)
+      throw new Error('No se encontró el elemento de inventario con el código bolsa-reempaque')
 
 
     const storageCodes = ['terminado', 'intermedia']
@@ -746,7 +750,21 @@ export async function unpackMovement(req: Request, res: Response, next: NextFunc
       createdBy: userId,
     }
 
-    await createMovement(movementData)
+    const auxMovementData: CreateManualMovementArgs = {
+      inventoryElementFromId: bolsaReempaqueElement.id,
+      inventoryElementToId: bolsaReempaqueElement.id,
+      storageFromId: null,
+      storageToId: storageTo.id,
+      quantityFrom: body.amount,
+      quantityTo: body.amount,
+      cause: 'relocation',
+      createdBy: userId,
+    }
+
+    await sequelize.transaction(async (t) => {
+      await createMovement(movementData, t)
+      await createMovement(auxMovementData, t)
+    })
 
     res.json({ success: true })
 
