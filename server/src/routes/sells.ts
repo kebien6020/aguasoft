@@ -12,6 +12,7 @@ import {
   Users,
   Clients,
   Batches,
+  InventoryMovements,
 } from '../db/models.js'
 import { MakeRequired } from '../utils/types.js'
 import { CreateManualMovementArgs, createMovement } from './inventory.js'
@@ -269,10 +270,11 @@ export const bulkCreate = wrap(async (req: Request) => {
     ...s,
     userId,
     date: formatDateonly(isAdmin && s.date !== undefined && s.date !== null ? s.date : today),
+    productVariantId: s.variantId ?? null,
   }))
 
   await sequelize.transaction(async (transaction) => {
-    await Sells.bulkCreate(sells, {
+    const sellModels = await Sells.bulkCreate(sells, {
       // Only allow user input to control these attributes
       fields: [
         'date',
@@ -284,18 +286,19 @@ export const bulkCreate = wrap(async (req: Request) => {
         'userId',
         'priceOverride',
         'batchId',
+        'productVariantId',
       ],
       transaction,
     })
 
-    for (const sell of sells) {
+    for (const sell of sellModels) {
 
       const product = await Products.findOne({
         where: { id: sell.productId },
       })
 
-      const variant = sell.variantId ? await ProductVariants.findOne({
-        where: { id: sell.variantId },
+      const variant = sell.productVariantId ? await ProductVariants.findOne({
+        where: { id: sell.productVariantId },
       }) : undefined
 
       if (!product)
@@ -328,6 +331,8 @@ export const bulkCreate = wrap(async (req: Request) => {
         },
       })
 
+      const movements = [] as InventoryMovements[]
+
       for (const detail of details) {
         const storageFromCode = detail.storageCode || 'terminado'
         const elementCode = detail.elementCode
@@ -353,8 +358,12 @@ export const bulkCreate = wrap(async (req: Request) => {
           createdBy: userId,
         }
 
-        await createMovement(movementData, transaction)
+        const movement = await createMovement(movementData, transaction)
+        movements.push(movement)
       }
+
+      sell.movementIds = movements.map(m => m.id)
+      await sell.save({ transaction })
     }
 
   })
@@ -512,7 +521,9 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
     const userId = req.session.userId
 
     const sellId = req.params.id
-    const sell = await Sells.findByPk(sellId)
+    const sell = await Sells.findByPk(sellId, {
+      include: ['Variant'],
+    })
     if (!sell) throw Error('No se encontró la venta a eliminar')
 
     if (sell.deleted)
@@ -543,7 +554,8 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
         throw new Error(`No se encontró el producto ${sell.productId}`)
 
 
-      const details = movementDetails(product.code) ?? []
+      const variantCode = sell.Variant?.code
+      const details = movementDetails(product.code, variantCode) ?? []
 
       const inventoryElements = await InventoryElements.findAll({
         where: {

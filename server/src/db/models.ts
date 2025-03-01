@@ -63,6 +63,8 @@ export class Sells extends Model<InferAttributes<Sells>, InferCreationAttributes
   declare clientId: number
   declare productId: number
   declare batchId: number | null
+  declare productVariantId: number | null
+  declare movementIds: number[] | null
   declare deleted: CreationOptional<boolean>
 
   declare createdAt: CreationOptional<Date>
@@ -70,6 +72,7 @@ export class Sells extends Model<InferAttributes<Sells>, InferCreationAttributes
 
   // Possible inclussions
   declare Product?: NonAttribute<Products>
+  declare Variant?: NonAttribute<ProductVariants>
   declare Client?: NonAttribute<Clients>
   declare Batch?: NonAttribute<Batches>
   declare User?: NonAttribute<Users>
@@ -86,6 +89,26 @@ Sells.init({
   clientId: { type: INTEGER, allowNull: false },
   productId: { type: INTEGER, allowNull: false },
   batchId: { type: INTEGER, allowNull: true, defaultValue: null },
+  productVariantId: { type: INTEGER, allowNull: true, defaultValue: null },
+  movementIds: {
+    type: STRING,
+    allowNull: true,
+    defaultValue: null,
+    get() {
+      const val = this.getDataValue('movementIds') as string | null
+      return JSON.parse(val ?? 'null')
+    },
+    set(value: number[] | null) {
+      if (value === null) {
+        this.setDataValue('movementIds', null)
+        return
+      }
+      // @ts-expect-error Typing is wrong, it assumes that the underlying value
+      // is the same type as the observed value
+      this.setDataValue('movementIds', JSON.stringify(value))
+    },
+
+  },
   deleted: { type: BOOLEAN, allowNull: false, defaultValue: false },
   createdAt: DATE,
   updatedAt: DATE,
@@ -662,6 +685,10 @@ Sells.belongsTo(Users)
 Sells.belongsTo(Clients)
 Sells.belongsTo(Products)
 Sells.belongsTo(Batches)
+Sells.belongsTo(ProductVariants, {
+  as: 'Variant',
+  foreignKey: 'productVariantId',
+})
 
 Products.hasMany(Sells)
 Products.hasMany(ProductVariants, { as: 'Variants' })
