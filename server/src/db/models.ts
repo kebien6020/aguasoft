@@ -680,6 +680,29 @@ MachineCounters.init({
   updatedAt: DATE,
 }, { sequelize })
 
+// View based on aggregations over the sales and payments tables
+export class ClientBalances extends Model<InferAttributes<ClientBalances>, InferCreationAttributes<ClientBalances>> {
+  declare clientId: number
+  declare totalSales: number
+  declare totalPayments: number
+  declare balance: number
+  declare lastSaleDate: Date | null
+}
+
+ClientBalances.init({
+  // Not an actual primary key, but this is required because otherwise
+  // sequelize assumes there's a column named 'id'
+  clientId: { type: INTEGER, primaryKey: true },
+  totalSales: INTEGER,
+  totalPayments: INTEGER,
+  balance: INTEGER,
+  lastSaleDate: DATE,
+}, {
+  sequelize,
+  timestamps: false,
+
+})
+
 // Associations
 Sells.belongsTo(Users)
 Sells.belongsTo(Clients)
@@ -720,3 +743,5 @@ InventoryMovements.belongsTo(InventoryElements, { as: 'inventoryElementFrom' })
 InventoryMovements.belongsTo(InventoryElements, { as: 'inventoryElementTo' })
 InventoryMovements.belongsTo(Users, { as: 'creator', foreignKey: 'createdBy' })
 InventoryMovements.belongsTo(Users, { as: 'deletor', foreignKey: 'deletedBy' })
+
+ClientBalances.belongsTo(Clients, { as: 'Client', foreignKey: 'clientId' })

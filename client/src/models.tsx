@@ -231,3 +231,13 @@ export interface Batch {
 
   readonly BatchCategory?: BatchCategory
 }
+
+export interface CreditBalanceItem {
+  readonly clientId: number
+  readonly totalSales: number
+  readonly totalPayments: number
+  readonly balance: number
+  readonly lastSaleDate: Date | null
+
+  readonly Client?: Client
+}

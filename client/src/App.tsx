@@ -48,6 +48,7 @@ const Batches = lazy(() => import(/* webpackChunkName: "batches" */ './Routes/Ba
 const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ './Routes/sale/Register'))
 const ExternalLogin = lazy(() => import(/* webpackChunkName: "external-login" */ './Routes/ExternalLogin'))
 const Error404 = lazy(() => import(/* webpackChunkName: "error-404" */ './Routes/Error404'))
+const CreditBalance = lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/CreditBalance'))
 
 const AppSwitch = () => (
   <Routes>
@@ -61,6 +62,7 @@ const AppSwitch = () => (
 
     <Route path='/clients' element={<RequireAuth><ClientList /></RequireAuth>} />
     <Route path='/clients/new' element={<RequireAuth><ClientEditor /></RequireAuth>} />
+    <Route path='/clients/balance' element={<RequireAuth><CreditBalance /></RequireAuth>} />
     <Route path='/clients/:id' element={<RequireAuth><ClientEditor /></RequireAuth>} />
     <Route path='/clients/:id/balance' element={<RequireAuth><ClientBalance /></RequireAuth>} />
 

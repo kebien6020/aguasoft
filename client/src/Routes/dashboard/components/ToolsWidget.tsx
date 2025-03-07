@@ -1,12 +1,18 @@
 import type { JSX } from 'react'
-import { forwardRef } from 'react'
+import { forwardRef, useCallback } from 'react'
 import { List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material'
-import { TableChart as TableIcon } from '@mui/icons-material'
-import { Link, LinkProps } from 'react-router'
+import { TableChart as TableIcon, TrendingUp } from '@mui/icons-material'
+import { Link, LinkProps, useNavigate } from 'react-router'
 import Title from '../../../components/Title'
 import { MakeOptional } from '../../../utils/types'
 
 export const ToolsWidget = (): JSX.Element => {
+  const navigate = useNavigate()
+
+  const goToCreditBalance = useCallback(() => {
+    navigate('/clients/balance')
+  }, [navigate])
+
   return (<>
     <Title>Herramientas</Title>
     <Paper>
@@ -16,6 +22,12 @@ export const ToolsWidget = (): JSX.Element => {
             <TableIcon />
           </ListItemIcon>
           <ListItemText primary='Facturación' />
+        </ListItemButton>
+        <ListItemButton onClick={goToCreditBalance}>
+          <ListItemIcon>
+            <TrendingUp />
+          </ListItemIcon>
+          <ListItemText primary='Balance de Crédito' />
         </ListItemButton>
       </List>
     </Paper>

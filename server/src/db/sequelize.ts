@@ -21,7 +21,8 @@ log(`Using ${config.dialect} database, in storage ${config.storage}`)
 const logSql = debug('sql:general')
 const augmentedConfig = {
   ...config,
-  logging: (sql: string) => logSql(sql),
+  benchmark: true,
+  logging: (sql: string, timing?: number) => logSql('%s - (%dms)', sql, timing),
 }
 // Connect
 export const sequelize = new Sequelize(augmentedConfig)
