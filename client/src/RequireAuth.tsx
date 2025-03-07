@@ -13,16 +13,18 @@ interface RequireAuthProps {
   children: ReactNode
 }
 
+const dev = process.env.NODE_ENV === 'development'
+
 export const RequireAuth = ({ children }: RequireAuthProps): JSX.Element | null => {
   const authStatus = useAuthWithRenew()
 
   const auth = useAuth()
   useEffect(() => {
-    if (authStatus === AuthStatus.DENIED)
+    if (authStatus === AuthStatus.DENIED && !dev)
       auth.login()
   }, [auth, authStatus])
 
-  if (authStatus === AuthStatus.GRANTED)
+  if (authStatus === AuthStatus.GRANTED || dev)
     return <>{children}</>
 
   if (authStatus === AuthStatus.PENDING)

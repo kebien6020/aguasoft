@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
-import { Clients, Prices, Payments, Sells } from '../db/models.js'
+import { Clients, Prices, Payments, Sells, ClientBalances } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
 import * as Yup from 'yup'
-import { CreationAttributes, Sequelize } from 'sequelize'
+import { type CreationAttributes, type Order, Sequelize } from 'sequelize'
 import { formatDateonly } from '../utils/date.js'
+import { ok, wrap } from './utils.js'
 
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -320,3 +321,27 @@ export async function balance(req: Request, res: Response, next: NextFunction) {
     next(e)
   }
 }
+
+const clientBalancesSchema = Yup.object({
+  sortBy: Yup.string().oneOf(['clientName', 'balance', 'lastSaleDate']).default('balance'),
+  sortDir: Yup.string().oneOf(['asc', 'desc']).default('desc'),
+  include: Yup.array().of(
+    Yup.string().oneOf(['Client']).required(),
+  ).default([]),
+})
+
+export const listBalances = wrap(async (req: Request) => {
+  clientBalancesSchema.validateSync(req.query)
+  const { sortBy, sortDir, include } = clientBalancesSchema.cast(req.query)
+
+  if (sortBy === 'clientName' && !include.includes('Client'))
+    include.push('Client')
+
+  const order: Order = sortBy === 'clientName'
+    ? [[Sequelize.col('Client.name'), sortDir]] as const
+    : [[sortBy, sortDir]] as const
+
+  const balances = await ClientBalances.findAll({ order, include })
+
+  return ok({ items: balances })
+})
