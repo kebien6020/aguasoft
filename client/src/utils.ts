@@ -102,8 +102,9 @@ export function money(
     .toFixed(decimals)
     .slice(2)
   return (
-    '$\u00A0'
-    + sign
+    sign
+    + (sign !== '' ? '\u00A0' : '')
+    + '$\u00A0'
     + numHeadWithSep
     + numRestWithSep
     + (decimals ? decSep + decimalsStr : '')
@@ -121,7 +122,7 @@ export function moneySign(
 
 export type ParamValue = string | number | undefined
 export type Param = ParamValue | readonly ParamValue[]
-export type Params = { [idx: string]: Param }
+export type Params = { readonly [idx: string]: Param }
 
 function isValueArr(param: Param): param is readonly ParamValue[] {
   return Array.isArray(param)

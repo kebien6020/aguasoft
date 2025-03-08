@@ -87,6 +87,7 @@ const sessionMiddleware = session({
 
 const app = express()
 app.set('query parser', 'extended')
+app.set('etag', false)
 // app.use('*p', (req, res, next) => { console.log(req.query); next() })
 
 // Common middleware

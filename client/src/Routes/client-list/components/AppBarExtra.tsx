@@ -17,11 +17,11 @@ type ToggleEvent = ChangeEvent<unknown>
 export const AppBarExtra = ({ showHidden, onToggleHidden }: AppBarExtraProps) => {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null)
   const handleMenuOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    setMenuAnchor(event.currentTarget) 
+    setMenuAnchor(event.currentTarget)
   }
 
   const handleMenuClose = useCallback(() => {
-    setMenuAnchor(null) 
+    setMenuAnchor(null)
   }, [])
   const handleToggleHidden = useCallback((event: ToggleEvent) => {
     onToggleHidden?.()
@@ -60,6 +60,9 @@ export const AppBarExtra = ({ showHidden, onToggleHidden }: AppBarExtraProps) =>
           checked={showHidden}
           onChange={handleToggleHidden}
         />
+      </MenuItem>
+      <MenuItem component={Link} to='/clients/balance'>
+        Balance de Crédito
       </MenuItem>
     </Menu>
   </>)

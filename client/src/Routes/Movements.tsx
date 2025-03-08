@@ -43,12 +43,13 @@ const Movements = () => {
   const [causeFilter, setCauseFilter] = useState('')
   const [elementFilter, setElementFilter] = useState('')
 
-  const params: Params = {
+  const params = {
     offset,
     limit: ITEMS_PER_PAGE,
     sortDir: 'desc',
     sortField: 'createdAt',
-  }
+  } as { [key: string]: string | number }
+
   if (causeFilter) params.cause = causeFilter
   if (elementFilter) params.inventoryElementId = elementFilter
 
@@ -136,7 +137,7 @@ const Movements = () => {
             options={movementCauseOptions}
             value={causeFilter}
             onChange={(e) => {
-              setCauseFilter(e.target.value as string) 
+              setCauseFilter(e.target.value as string)
             }}
           />
         </Grid>
@@ -149,7 +150,7 @@ const Movements = () => {
             options={inventoryElementOptions}
             value={elementFilter}
             onChange={(e) => {
-              setElementFilter(e.target.value as string) 
+              setElementFilter(e.target.value as string)
             }}
           />
         </Grid>
