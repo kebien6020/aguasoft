@@ -21,7 +21,7 @@ export interface Sell {
   Client: { name: string, id: number, defaultCash: boolean },
   Product: { name: string },
   User: { name: string; code: string },
-  Prices: { name: string; value: string }[],
+  BasePrice?: { name: string; value: string },
   Batch: null | { code: string, id: number },
   cash: boolean,
   date: string,
@@ -272,7 +272,7 @@ const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Eleme
 )
 
 const getBasePrice = (sale: Sell) => {
-  const basePriceObj = sale.Prices.find(p => p.name === 'Base')
+  const basePriceObj = sale.BasePrice
   if (basePriceObj === undefined)
     return undefined
 

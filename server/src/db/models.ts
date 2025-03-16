@@ -712,6 +712,7 @@ Sells.belongsTo(ProductVariants, {
   as: 'Variant',
   foreignKey: 'productVariantId',
 })
+Sells.hasOne(Prices, { as: 'BasePrice' }) // Intended to be used with custom `on` in the query
 
 Products.hasMany(Sells)
 Products.hasMany(ProductVariants, { as: 'Variants' })
