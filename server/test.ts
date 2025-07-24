@@ -31,7 +31,12 @@ const args = [
 
 console.log('+', 'node', args.join(' '))
 
-spawnSync('node', args, {
+const res = spawnSync('node', args, {
   stdio: 'inherit',
   env,
 })
+
+if (res.status !== 0) {
+  console.error('Tests failed')
+  process.exit(res.status)
+}
