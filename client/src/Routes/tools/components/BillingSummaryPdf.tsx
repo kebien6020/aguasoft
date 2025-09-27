@@ -28,7 +28,7 @@ export interface BillingSummaryPdfProps {
 const formatLong = (date: Date) => format(date, 'PPP', { locale: es })
 const formatShort = (date: Date) => format(date, 'P', { locale: es })
 
-const F = Font as FontStore // Force the type because the package typings are broken
+const F = Font
 
 // Disable breaking words with hyphens
 F.registerHyphenationCallback((word: string) => [word])

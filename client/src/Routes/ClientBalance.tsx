@@ -8,7 +8,7 @@ import { useParams } from 'react-router'
 
 import Layout from '../components/Layout'
 import LoadingScreen from '../components/LoadingScreen'
-import { money, formatDateCol } from '../utils'
+import { money, formatDateCol, parseDateonlyMachine } from '../utils'
 import { Theme } from '../theme'
 import { Change, useClient, useClientBalance } from '../hooks/api/useClients'
 
@@ -115,7 +115,7 @@ const groupChanges = (changes: Change[]) => {
 
   const pushNewGroup = (change: Change, groups: Groups) => {
     groups.push({
-      date: startOfDay(change.date),
+      date: parseDateonlyMachine(change.date),
       total: change.value,
       changes: [change],
       type: change.type,
@@ -141,7 +141,7 @@ const groupChanges = (changes: Change[]) => {
       // do not combine payments
       || prev.type === 'payment'
       // only combine from same day
-      || !isSameDay(prev.date, change.date)
+      || !isSameDay(prev.date, parseDateonlyMachine(change.date))
 
     if (newGroup)
       pushNewGroup(change, groups)
