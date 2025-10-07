@@ -76,21 +76,16 @@ jobs:
       with:
         report-path: './server/ctrf/*.json'
       if: always()
+
+  check-version-bump:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Check version bump
+      run: .github/check_version_bump.sh
   
   publish-images:
     runs-on: ubuntu-latest
-    # strategy:
-    #   matrix:
-    #     include:
-    #     - image: aguasoft
-    #       context: .
-    #       target: server
-    #     - image: nginx
-    #       context: .
-    #       target: client
-    #     - image: certbot-dns-digitalocean
-    #       context: docker/certbot
-    #       target: ''
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -130,14 +125,3 @@ jobs:
         }
         EOF
         docker buildx bake -f docker-compose.prod.yml --file tags.json --push
-
-
-    # - name: Build and push Docker images
-    #   uses: docker/build-push-action@v4
-    #   with:
-    #     context: ${{ matrix.context }}
-    #     target: ${{ matrix.target }}
-    #     push: true
-    #     tags: ${{ steps.meta.outputs.tags }}
-    #     cache-from: type=gha
-    #     cache-to: type=gha,mode=max
