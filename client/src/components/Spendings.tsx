@@ -82,6 +82,14 @@ const Spendings = (props: Props): JSX.Element => {
                   Registrado el: {formatDatetimeCol(new Date(spending.updatedAt)) + ' '}
                   ({intlFormatDistance(new Date(spending.updatedAt), new Date, { locale: 'es' })})
                 </Typography>
+                <Divider />
+                <Typography variant='body2'>
+                  De ganancias del día: {spending.fromCash ? 'Sí' : 'No'}
+                </Typography>
+                <Divider />
+                <Typography variant='body2'>
+                  Es transferencia a Bogotá: {spending.isTransfer ? 'Sí' : 'No'}
+                </Typography>
                 {isSameDay(new Date(spending.date), new Date)
                   && <Alert
                     type='success'
