@@ -82,7 +82,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Check version bump
-      run: .github/check_version_bump.sh
+      run: |
+        git fetch origin master
+        .github/check_version_bump.sh
   
   publish-images:
     runs-on: ubuntu-latest
