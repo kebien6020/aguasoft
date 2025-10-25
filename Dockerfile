@@ -14,14 +14,14 @@ RUN npm ci
 COPY server ./
 RUN npm run build
 
-FROM node:24 AS server-prod-deps
+FROM node:24-trixie-slim AS server-prod-deps
 
 WORKDIR /build
 COPY server/package.json server/package-lock.json ./
 RUN npm ci --only=prod
 
 ## Server
-FROM node:24-slim AS server
+FROM node:24-trixie-slim AS server
 
 RUN apt-get update -y && \
     apt-get install -y dumb-init && \
