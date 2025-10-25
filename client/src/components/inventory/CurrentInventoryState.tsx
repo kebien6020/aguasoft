@@ -1,9 +1,8 @@
 import type { JSX } from 'react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid2'
-import { io } from 'socket.io-client'
 
 import useFetch from '../../hooks/useFetch'
 import useUser from '../../hooks/useUser'
@@ -14,10 +13,6 @@ import ManualMovementForm from './ManualMovementForm'
 import Title from '../Title'
 import StorageCard from './StorageCard'
 import { Storage, InventoryElement } from '../../models'
-
-const socket = io('/', {
-  autoConnect: false,
-})
 
 interface CurrentInventoryStateProps {
   inventoryElements: InventoryElement[] | null
@@ -37,7 +32,7 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
         variant='outlined'
         color='primary'
         onClick={() => {
-          setShowManualMovementForm(prev => !prev) 
+          setShowManualMovementForm(prev => !prev)
         }}
       >
         Crear movimiento manual
@@ -52,23 +47,6 @@ const CurrentInventoryState = (props: CurrentInventoryStateProps): JSX.Element =
   })
 
   const [storageStates, update] = useStorageStates()
-
-  useEffect(() => {
-    socket.open()
-
-    const onChange = () => {
-      update() 
-    }
-    socket.on('storageStatesChanged', onChange)
-    socket.on('reconnect', onChange)
-
-    return () => {
-      socket.off('reconnect', onChange)
-      socket.off('storageStatesChanged', onChange)
-
-      socket.close()
-    }
-  }, [update])
 
   return (
     <>
