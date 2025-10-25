@@ -2,20 +2,20 @@ import cluster from 'node:cluster'
 import os from 'node:os'
 import process from 'node:process'
 
-const numCPUs = os.availableParallelism()
+const desiredWorkers = Math.max(os.availableParallelism(), 4)
 
 if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} is running`)
 
   // Fork workers.
-  for (let i = 0; i < numCPUs; i++)
+  for (let i = 0; i < desiredWorkers; i++)
     cluster.fork()
 
 
   cluster.on('exit', (worker, _code, _signal) => {
     console.log(`worker ${worker.process.pid} died`)
     const workerCount = Object.keys(cluster?.workers ?? {}).length
-    if (workerCount < (numCPUs / 2)) {
+    if (workerCount < (desiredWorkers / 2)) {
       console.log('Too many workers died, exiting primary process')
       process.exit(1)
     }
