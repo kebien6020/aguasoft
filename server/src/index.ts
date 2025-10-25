@@ -11,7 +11,9 @@ const server = app.listen(PORT, () => {
 
 })
 
-const io = new Server(server)
+const io = new Server()
+
+io.attachApp(app.uwsApp)
 
 io.on('connection', () => {
   debugio('Client connected')

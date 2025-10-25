@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'ultimate-express'
 import { Clients, Prices, Payments, Sells, ClientBalances } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
 import * as Yup from 'yup'

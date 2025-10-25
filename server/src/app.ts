@@ -1,8 +1,7 @@
-import bodyParser from 'body-parser'
 import ConnectSessionSequelize from 'connect-session-sequelize'
 import cors from 'cors'
-import express from 'express'
-import type { NextFunction, Request, Response } from 'express'
+import express from 'ultimate-express'
+import type { NextFunction, Request, Response } from 'ultimate-express'
 import { GetVerificationKey, expressjwt as jwt, UnauthorizedError } from 'express-jwt'
 import session from 'express-session'
 import { expressJwtSecret } from 'jwks-rsa'
@@ -31,7 +30,7 @@ const authCheck = jwt({
   algorithms: ['RS256'],
 })
 
-declare module 'express' {
+declare module 'ultimate-express' {
   interface Request {
     auth?: AuthData
   }
@@ -91,8 +90,8 @@ app.set('etag', false)
 // app.use('*p', (req, res, next) => { console.log(req.query); next() })
 
 // Common middleware
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
 app.use(cors())
 app.use(sessionMiddleware)
 

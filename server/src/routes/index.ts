@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router } from 'ultimate-express'
 import adminOnly from '../utils/adminOnly.js'
 import * as balanceHandlers from './balance.js'
 import * as clientHandlers from './clients.js'
