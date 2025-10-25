@@ -41,7 +41,7 @@ ENV NODE_ENV=production \
     TZ=America/Bogota
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["node", "server/dist/index.js"]
+CMD ["node", "server/dist/clustered.js"]
 
 ## Client
 FROM nginx:stable-alpine AS client
