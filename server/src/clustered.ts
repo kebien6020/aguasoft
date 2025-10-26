@@ -2,7 +2,7 @@ import cluster from 'node:cluster'
 import os from 'node:os'
 import process from 'node:process'
 
-const desiredWorkers = Math.max(os.availableParallelism(), 4)
+const desiredWorkers = Math.max(os.availableParallelism(), 2)
 
 if (cluster.isPrimary) {
   console.log(`Primary ${process.pid} is running`)
