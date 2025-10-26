@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'ultimate-express'
 import { Prices } from '../db/models.js'
 
 export async function list(req: Request, res: Response, next: NextFunction) {

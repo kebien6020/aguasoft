@@ -1,7 +1,5 @@
 import { Model, STRING, ENUM, INTEGER, DATE, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, DATEONLY, BOOLEAN, DECIMAL, TEXT, BelongsToGetAssociationMixin, BelongsToSetAssociationMixin, BIGINT } from 'sequelize'
-import { Server as SocketIOServer } from 'socket.io'
 import { sequelize } from './sequelize.js'
-import debug from 'debug'
 
 export class Users extends Model<InferAttributes<Users>, InferCreationAttributes<Users>> {
   declare id: CreationOptional<number>
@@ -476,25 +474,6 @@ StorageStates.init({
   createdAt: DATE,
   updatedAt: DATE,
 }, { sequelize })
-
-let io = null as SocketIOServer | null
-
-StorageStates.addHook('afterSave', async (storageState: StorageStates) => {
-  const log = debug('app:socketio')
-
-  if (!io) io = (await import('../index.js')).io
-
-  if (!io) {
-    log('Could not emit storageStatesChanged, io is null')
-    return
-  }
-
-
-  log('Emitting storageStatesChanged')
-  io.emit('storageStatesChanged', {
-    data: storageState.toJSON(),
-  })
-})
 
 export class InventoryElements
   extends Model<InferAttributes<InventoryElements>, InferCreationAttributes<InventoryElements>> {

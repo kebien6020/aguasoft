@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'ultimate-express'
 import { UnauthorizedError } from 'express-jwt'
 import * as Sequelize from 'sequelize'
 

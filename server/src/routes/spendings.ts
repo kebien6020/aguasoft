@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'ultimate-express'
 import { Op, Includeable } from 'sequelize'
 import { Spendings, Users } from '../db/models.js'
 import { parseDateonly } from '../utils/date.js'

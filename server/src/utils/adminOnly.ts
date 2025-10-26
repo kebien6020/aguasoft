@@ -2,7 +2,7 @@
 // Client-side routes are checked in the client but the endpoints they call
 // must be protected in the server
 
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'ultimate-express'
 import { Users } from '../db/models.js'
 
 export default

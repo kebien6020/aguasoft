@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'ultimate-express'
 import { Includeable, Op } from 'sequelize'
 import * as yup from 'yup'
 import { sequelize } from '../db/sequelize.js'

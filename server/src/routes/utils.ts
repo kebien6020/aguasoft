@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction } from 'ultimate-express'
 
 export type ExpressHandler =
   (req: Request, res: Response, next: NextFunction) => void | Promise<void>
