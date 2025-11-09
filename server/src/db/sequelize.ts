@@ -1,17 +1,9 @@
 import debug from 'debug'
 import { Sequelize } from 'sequelize'
 import configs from './config.js'
+import { env } from '../utils/env.js'
 
 const log = debug('app:db:setup')
-
-// Find out the environment
-type Environment = 'development' | 'test' | 'production'
-const isEnvironment = (env: string): env is Environment => ['development', 'test', 'production'].includes(env)
-
-const env = process.env.NODE_ENV || 'development'
-if (!isEnvironment(env))
-  throw new Error('Invalid environment')
-
 
 const config = configs[env]
 

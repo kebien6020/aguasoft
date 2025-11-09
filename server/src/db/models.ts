@@ -262,6 +262,7 @@ export class Prices extends Model<InferAttributes<Prices>, InferCreationAttribut
   declare value: string
   declare clientId: number
   declare productId: number
+  declare priceSetId: number | null
   declare name: string
 
   declare createdAt: CreationOptional<Date>
@@ -272,8 +273,9 @@ Prices.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
   value: { type: DECIMAL(20, 8), allowNull: false },
   name: { type: STRING, allowNull: false, defaultValue: 'Base' },
-  clientId: { type: INTEGER, allowNull: false },
+  clientId: { type: INTEGER, allowNull: true },
   productId: { type: INTEGER, allowNull: false },
+  priceSetId: { type: INTEGER, allowNull: true },
   createdAt: DATE,
   updatedAt: DATE,
 }, { sequelize })
@@ -512,12 +514,12 @@ export class InventoryMovements
   declare quantityFrom: string | number // decimal
   declare quantityTo: string | number // decimal
   declare cause:
-    'manual'
-    | 'in'
-    | 'relocation'
-    | 'production'
-    | 'sell'
-    | 'damage'
+		'manual'
+		| 'in'
+		| 'relocation'
+		| 'production'
+		| 'sell'
+		| 'damage'
   declare createdBy: number
   declare rollback: boolean
 

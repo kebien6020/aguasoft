@@ -241,3 +241,11 @@ export interface CreditBalanceItem {
 
   readonly Client?: Client
 }
+
+export interface PriceSet {
+  readonly id: number
+  readonly name: string
+
+  readonly createdAt: string
+  readonly updatedAt: string
+}

@@ -15,6 +15,7 @@ import * as userHandlers from './users.js'
 export { default as analysis } from './analysis.js'
 export { default as batchCategories } from './batchCategories.js'
 export { default as batches } from './batches.js'
+export { default as priceSets } from './priceSets.js'
 
 export const users = Router()
 users.get('/', userHandlers.list)
