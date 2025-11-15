@@ -183,6 +183,7 @@ export class Clients extends Model<InferAttributes<Clients>, InferCreationAttrib
   declare defaultCash: boolean
   declare hidden: boolean
   declare notes: string | null
+  declare priceSetId: number | null
 
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
@@ -195,6 +196,7 @@ Clients.init({
   defaultCash: { type: BOOLEAN, allowNull: false, defaultValue: true },
   hidden: { type: BOOLEAN, allowNull: false, defaultValue: false },
   notes: { type: TEXT, defaultValue: null },
+  priceSetId: { type: INTEGER, allowNull: true, defaultValue: null },
   createdAt: DATE,
   updatedAt: DATE,
 }, { sequelize })

@@ -39,6 +39,26 @@ export const usePrices = (clientId: number | null, {
   return [prices, { update }] as const
 }
 
+export const usePriceSetPrices = (
+  priceSetId: number | undefined,
+  opts: UsePriceOpts = {},
+): RetVal => {
+
+  const showSnackbar = useSnackbar()
+  const showError = opts.showError ?? showSnackbar
+  const [nonce, update] = useNonce()
+  const cancelReq = priceSetId === undefined
+  const url = cancelReq ? null : `/api/prices/priceSet/${priceSetId}`
+  const [prices] = useFetch<Price[]>(url, {
+    showError,
+    name: 'la lista de precios',
+    nonce,
+  })
+
+  return [prices, { update }] as const
+}
+
+
 export const optionsFromPrices =
   (prices: readonly Price[] | null): Option[] | null => {
     return prices && prices.map(price => ({

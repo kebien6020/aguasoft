@@ -46,6 +46,7 @@ export interface Client {
   code: string
   defaultCash: boolean
   hidden: boolean
+  priceSetId?: number
 }
 
 export interface Payment {

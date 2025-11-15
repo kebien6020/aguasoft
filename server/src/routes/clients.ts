@@ -21,7 +21,7 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
     const includeNotes = query.includeNotes as 'true' | 'false'
     const hidden = query.hidden as 'hidden' | 'not-hidden' | 'any'
 
-    const attributes = ['id', 'name', 'code', 'defaultCash', 'hidden']
+    const attributes = ['id', 'name', 'code', 'defaultCash', 'hidden', 'priceSetId']
     if (includeNotes === 'true')
       attributes.push('notes')
 
@@ -88,6 +88,16 @@ function checkCreateEditInput(body: Record<string, unknown>) {
   if (typeof body.defaultCash !== 'boolean') paramError('defaultCash', 'boolean')
   if (typeof body.notes !== 'string') paramError('notes', 'string')
   if (!Array.isArray(body.prices)) paramError('prices', 'array')
+
+  if (body.priceSetId !== undefined && body.priceSetId !== null) {
+    if (typeof body.priceSetId !== 'number') paramError('priceSetId', 'number')
+    if ((body.prices as unknown[]).length !== 0) {
+      const e = Error('If priceSetId is provided, prices array must be empty')
+      e.name = 'parameter_error'
+      throw e
+    }
+  }
+
   for (const price of body.prices as Array<CreationAttributes<Prices>>) {
     const sPrice = { // Sanitized price
       name: price.name,
@@ -116,7 +126,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       Pick<Prices, 'name' | 'productId' | 'value'>
 
     type IncompleteClient =
-      Pick<Clients, 'name' | 'code' | 'defaultCash' | 'notes' | 'hidden'>
+      Pick<Clients, 'name' | 'code' | 'defaultCash' | 'notes' | 'hidden' | 'priceSetId'>
       & { 'Prices': IncompletePrice[] }
 
     const client: IncompleteClient = {
@@ -124,6 +134,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       code: req.body.code,
       defaultCash: req.body.defaultCash,
       notes: notes,
+      priceSetId: req.body.priceSetId ?? null,
       Prices: req.body.prices,
       hidden: false,
     }
@@ -200,6 +211,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
         name: req.body.name,
         code: req.body.code,
         defaultCash: req.body.defaultCash,
+        priceSetId: req.body.priceSetId ?? null,
         notes: notes,
       }, { transaction: t })
 
