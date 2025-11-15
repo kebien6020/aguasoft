@@ -52,11 +52,11 @@ export class SessionStore extends BaseSessionStore {
       delete from ${this.#tableName}
     `)
 
-    this.#touchStmt = this.#db.prepare(`
-      update ${this.#tableName}
-      set expires = @expires
-      where sid = @sid
-    `)
+    // this.#touchStmt = this.#db.prepare(`
+    //   update ${this.#tableName}
+    //   set expires = @expires
+    //   where sid = @sid
+    // `)
   }
 
   get(sid: string, callback: (err: unknown, session?: SessionData | null) => void): void {
