@@ -35,7 +35,7 @@ export const listByClientIdProductId = db.prepare<{ clientId: number, productId:
   AND productId = :productId
 `)
 
-export const deletePricesForPriceSet = db.prepare<{ priceSetId: string }>(`
+export const deletePricesForPriceSet = db.prepare<{ priceSetId: number }>(`
   DELETE FROM Prices
   WHERE priceSetId = :priceSetId
 `)

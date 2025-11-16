@@ -24,20 +24,20 @@ export const list = db.prepare<[], PriceSetCompact>(`
   ORDER BY id ASC
 `)
 
-export const detail = db.prepare<{ id: string }, PriceSetCompact>(`
+export const detail = db.prepare<{ id: number }, PriceSetCompact>(`
   SELECT id, name
   FROM priceSets
   WHERE deletedAt is NULL
     AND id = :id
 `)
 
-export const updateName = db.prepare<{ id: string; name: string; updatedAt: string }>(`
+export const updateName = db.prepare<{ id: number; name: string; updatedAt: string }>(`
   UPDATE PriceSets
   SET name = :name, updatedAt = :updatedAt
   WHERE id = :id
 `)
 
-export const softDelete = db.prepare<{ id: string; deletedAt: string }>(`
+export const softDelete = db.prepare<{ id: number; deletedAt: string }>(`
   UPDATE PriceSets
   SET deletedAt = :deletedAt
   WHERE id = :id

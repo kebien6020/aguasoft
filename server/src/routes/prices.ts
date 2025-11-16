@@ -47,7 +47,7 @@ router.get('/:clientId', wrap(async (req) => {
 }))
 
 const priceSetParamsSchema = yup.object({
-  priceSetId: yup.string().required(),
+  priceSetId: yup.number().required(),
 })
 router.get('/priceSet/:priceSetId', wrapSync(req => {
   const t1 = time('ValidateParams')

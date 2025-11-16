@@ -70,7 +70,7 @@ router.get('/', wrapSync((_req) => {
 }))
 
 const detailParamsSchema = yup.object({
-  id: yup.string().required(),
+  id: yup.number().required(),
 })
 
 const detailsQuerySchema = yup.object({
