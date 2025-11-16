@@ -1,24 +1,47 @@
 import { Router } from 'ultimate-express'
-import { Prices } from '../db/models.js'
-import { ok, wrap, wrapSync } from './utils.js'
+import { NotFoundError, ok, wrap, wrapSync } from './utils.js'
 import * as yup from 'yup'
-import { listByPriceSetId } from '../db2/prices.js'
+import {
+  listByClientId,
+  listByClientIdProductId,
+  listByPriceSetId,
+  listByPriceSetIdProductId,
+} from '../db2/prices.js'
 import { time } from '../db2/db.js'
+import { getForPriceModeStmt } from '../db2/clients.js'
 
 const router = Router()
 export default router
 
 router.get('/:clientId', wrap(async (req) => {
-  const clientId = req.params.clientId
-  const productId = req.query.productId as string | undefined
+  const clientIdStr = req.params.clientId
+  const clientId = Number(clientIdStr)
+  const productIdStr = req.query.productId as string | undefined
+  const productId = productIdStr ? Number(productIdStr) : undefined
 
-  const prices = await Prices.findAll({
-    attributes: ['id', 'value', 'productId', 'name'],
-    where: {
-      clientId: clientId,
-      ...(productId ? { productId: productId } : {}),
-    },
-  })
+  const t1 = time('GetClient')
+  const client = getForPriceModeStmt.get({ id: clientId })
+  t1()
+
+  if (!client)
+    throw new NotFoundError('Client not found')
+
+  if (client.priceSetId) {
+    const priceSetId = client.priceSetId
+    const t2 = time('ListPricesByPriceSetId')
+    const prices = productId
+      ? listByPriceSetIdProductId.all({ priceSetId, productId })
+      : listByPriceSetId.all(priceSetId)
+    t2()
+
+    return ok(prices)
+  }
+
+  const t3 = time('ListPricesByClientId')
+  const prices = productId
+    ? listByClientIdProductId.all({ clientId, productId })
+    : listByClientId.all(clientId)
+  t3()
 
   return ok(prices)
 }))
