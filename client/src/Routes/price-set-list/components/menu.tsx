@@ -12,7 +12,6 @@ import {
 } from '@mui/material'
 import { Delete, Edit, Person } from '@mui/icons-material'
 import { Link } from 'react-router'
-import Auth from '../../../Auth'
 import useAuth from '../../../hooks/useAuth'
 import { fetchJsonAuth, isErrorResponse } from '../../../utils'
 import useSnackbar from '../../../hooks/useSnackbar'
@@ -71,12 +70,12 @@ export const ItemDialog = ({ open, onClose, priceSet, refresh }: ItemDialogProps
           </ListItemIcon>
           <ListItemText primary='Editar' />
         </ListItemButton>}
-        <ListItemButton>
+        {/* <ListItemButton>
           <ListItemIcon>
             <Person />
           </ListItemIcon>
           <ListItemText primary='Clientes con este conjunto de precios' />
-        </ListItemButton>
+        </ListItemButton> */}
         <ListItemButton onClick={handleDelete}>
           <ListItemIcon>
             <Delete sx={colorDelete} />

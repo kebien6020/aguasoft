@@ -32,10 +32,6 @@ const HelpDialog = ({ open, onClose }: HelpDialogProps) => (
         Aqui se pueden definir los conjuntos de precios disponibles para
         asignar a los clientes.
       </DialogContentText>
-      <DialogContentText>
-        La opcion de conjuntos de precios esta en progreso y aun no hace
-        nada.
-      </DialogContentText>
     </DialogContent>
     <DialogActions>
       <Button onClick={onClose} autoFocus color='primary'>
