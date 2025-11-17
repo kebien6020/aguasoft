@@ -4,43 +4,46 @@ import { sequelize } from '../db/sequelize.js'
 import * as Yup from 'yup'
 import { type CreationAttributes, type Order, Sequelize } from 'sequelize'
 import { formatDateonly } from '../utils/date.js'
-import { ok, wrap } from './utils.js'
+import { ok, time, wrap, wrapSync } from './utils.js'
+import { listClientsStmt } from '../db2/clients.js'
 
 
-export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const schema = Yup.object({
-      includeNotes: Yup.string().oneOf(['true', 'false']).default('false').notRequired(),
+const listSchema = Yup.object({
+  includeNotes: Yup.string().oneOf(['true', 'false']).default('false').notRequired(),
+  hidden: Yup.string().oneOf(['hidden', 'not-hidden', 'any']).default('any').notRequired().nonNullable(),
+  priceSetId: Yup.number().notRequired().nonNullable(),
+  search: Yup.string().notRequired().nonNullable(),
+})
 
-      // true -> only hidden, false -> only not hidden, not specified -> all
-      hidden: Yup.string().oneOf(['hidden', 'not-hidden', 'any']).default('any').notRequired(),
-    })
+export const list = wrapSync(req => {
+  const t1 = time('ValidateInput')
+  const query = listSchema.validateSync(req.query)
+  const { includeNotes: includeNotesStr, hidden, priceSetId, search } = query
+  const includeNotes = includeNotesStr === 'true'
+  t1()
 
-    schema.validateSync(req.query)
-    const query = schema.cast(req.query)
-    const includeNotes = query.includeNotes as 'true' | 'false'
-    const hidden = query.hidden as 'hidden' | 'not-hidden' | 'any'
+  const t2 = time('ListClients')
+  const dbClients = listClientsStmt.all({
+    hidden: hidden === 'any' ? undefined : hidden === 'hidden',
+    priceSetId,
+    search,
+  })
+  t2()
 
-    const attributes = ['id', 'name', 'code', 'defaultCash', 'hidden', 'priceSetId']
-    if (includeNotes === 'true')
-      attributes.push('notes')
+  const t3 = time('FormatClients')
+  const clients = dbClients.map(cl => ({
+    id: cl.id,
+    name: cl.name,
+    code: cl.code,
+    defaultCash: Boolean(cl.defaultCash),
+    hidden: Boolean(cl.hidden),
+    ...(includeNotes ? { notes: cl.notes } : {}),
+    priceSetId: cl.priceSetId,
+  }))
+  t3()
 
-    const clients = await Clients.findAll({
-      attributes,
-      order: [
-        Sequelize.literal('CASE WHEN `code` = \'001\' THEN 0 ELSE 1 END'),
-        Sequelize.literal('`name` COLLATE NOCASE'),
-      ],
-      where: {
-        ...(hidden !== 'any' && { hidden: hidden === 'hidden' }),
-      },
-    })
-
-    res.json(clients)
-  } catch (e) {
-    next(e)
-  }
-}
+  return ok(clients)
+})
 
 export async function defaultsForNew(_req: Request, res: Response, next: NextFunction) {
   try {

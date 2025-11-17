@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { ChangeEvent, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -21,6 +21,9 @@ import { AppBarExtra } from './components/AppBarExtra'
 import { useClients } from '../../hooks/api/useClients'
 import useSnackbar from '../../hooks/useSnackbar'
 import { ClientDialog } from './components/ClientDialog'
+import { Grid2 as Grid, MenuItem, TextField } from '@mui/material'
+import { usePriceSets } from '../../hooks/api/usePriceSets'
+import { useQueryParam } from '../../hooks/useQueryParam'
 
 const ClientList = () => {
   const auth = useAuth()
@@ -34,9 +37,17 @@ const ClientList = () => {
   const [deletedClient, setDeletedClient] = useState<string | null>(null)
   const [showHidden, setShowHidden] = useState(false)
   const [notesDialogOpen, setNotesDialogOpen] = useState(false)
+  const [filterSearch, setFilterSearch] = useQueryParam('search')
+  const [filterPriceSetId, setFilterPriceSetId] = useQueryParam('priceSetId')
+
+  console.log({ filterSearch, filterPriceSetId })
 
   const [clients, { update, error: clientsError }] = useClients<ClientWithNotes>({
-    params: { includeNotes: 'true' },
+    params: {
+      includeNotes: 'true',
+      search: filterSearch || undefined,
+      priceSetId: filterPriceSetId || undefined,
+    },
   })
 
   const handleClientClick = useCallback((client: ClientWithNotes) => {
@@ -241,6 +252,12 @@ const ClientList = () => {
           message={`Cliente ${deletedClient} eliminado exitosamente.`}
         />
       }
+      <ListFilters
+        search={filterSearch}
+        priceSetId={filterPriceSetId}
+        setSearch={setFilterSearch}
+        setPriceSetId={setFilterPriceSetId}
+      />
       <List>
         {clientsFiltered.map(cl =>
           <ClientItem
@@ -251,9 +268,59 @@ const ClientList = () => {
             }}
           />,
         )}
+        {clientsFiltered.length === 0
+          && <Alert type='warning' message='No se encontraron clientes.' />
+        }
       </List>
     </Layout>
   )
 }
 
 export default ClientList
+
+type ListFiltersProps = {
+  search?: string
+  priceSetId?: string
+  setSearch: (value?: string) => void
+  setPriceSetId: (value?: string) => void
+}
+const ListFilters = (props: ListFiltersProps) => {
+  const { search, setSearch, priceSetId, setPriceSetId } = props
+  const [priceSets] = usePriceSets()
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value || undefined)
+  }
+
+  const handlePriceSetChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPriceSetId(e.target.value || undefined)
+  }
+
+  return (
+    <Grid container spacing={2} component='form' sx={{ m: 1 }}>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <TextField
+          label='Buscar Cliente'
+          value={search || ''}
+          onChange={handleSearchChange}
+          variant='standard'
+          fullWidth
+        />
+      </Grid>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <TextField select
+          label='Conjunto de Precios'
+          value={priceSetId || ''}
+          onChange={handlePriceSetChange}
+          variant='standard'
+          fullWidth
+        >
+          <MenuItem value=''>Cualquiera</MenuItem>
+          {priceSets && priceSets.map(ps => (
+            <MenuItem key={ps.id} value={ps.id}>{ps.name}</MenuItem>
+          ))}
+        </TextField>
+      </Grid>
+    </Grid >
+  )
+}

@@ -34,12 +34,16 @@ function useFetch<T>(
   const [error, setError] = useState<null | ErrorResponse['error']>(null)
   const [loading, setLoading] = useState<boolean>(false)
   useDeepCompareEffect(() => {
-    (async () => {
+    const controller = new AbortController
+    const signal = controller.signal
+
+      ; (async () => {
       if (!url) return
 
       setLoading(true)
       try {
-        const response: T | ErrorResponse = await fetchJsonAuth(url, auth, options)
+        const opts = { ...options, signal }
+        const response: T | ErrorResponse = await fetchJsonAuth(url, auth, opts)
 
         if (!isErrorResponse(response)) {
           setData(response)
@@ -50,11 +54,16 @@ function useFetch<T>(
         }
       } catch (error) {
         console.error(error)
+        if (signal.aborted) return
         showError('Error de conexión tratando de obtener ' + name)
       } finally {
         setLoading(false)
       }
     })()
+
+    return () => {
+      controller.abort()
+    }
   }, [url, nonce, auth, name, options, showError])
 
   return [data, loading, error] as [T | null, boolean, typeof error]

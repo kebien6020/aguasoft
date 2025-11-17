@@ -70,12 +70,12 @@ export const ItemDialog = ({ open, onClose, priceSet, refresh }: ItemDialogProps
           </ListItemIcon>
           <ListItemText primary='Editar' />
         </ListItemButton>}
-        {/* <ListItemButton>
+        <ListItemButton component={Link} to={`/clients?priceSetId=${priceSet.id}`}>
           <ListItemIcon>
             <Person />
           </ListItemIcon>
           <ListItemText primary='Clientes con este conjunto de precios' />
-        </ListItemButton> */}
+        </ListItemButton>
         <ListItemButton onClick={handleDelete}>
           <ListItemIcon>
             <Delete sx={colorDelete} />

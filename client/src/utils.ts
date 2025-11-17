@@ -9,6 +9,7 @@ export interface FetchAuthOptions extends RequestInit {
   retry?: boolean // when true we are retrying the request
   failOnAuthError?: boolean
   redirectOnAuthError?: boolean
+  signal?: AbortSignal
 }
 
 export async function fetchJsonAuth<R = SuccessResponse>(

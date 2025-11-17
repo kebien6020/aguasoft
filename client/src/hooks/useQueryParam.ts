@@ -1,31 +1,29 @@
 import { useCallback, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router'
-
-const useQuery = () => new URLSearchParams(useLocation().search)
+import { useSearchParams } from 'react-router'
 
 type QueryParamValue = string | undefined
-type SetQueryParam = (newVal: string) => void
+type SetQueryParam = (newVal?: string) => void
 type RetVal = readonly [QueryParamValue, SetQueryParam]
 
 export const useQueryParam = (name: string, initialValue?: string): RetVal => {
-  const query = useQuery()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const value = query.get(name)
+  const value = searchParams.get(name) ?? undefined
 
-  const setValue = useCallback((newVal: string) => {
-    query.set(name, newVal)
-    const url = `${location.pathname}?${query.toString()}`
-    void navigate(url, { replace: true })
-  }, [navigate, location, name, query])
+  const setValue = useCallback((newVal?: string) => {
+    const params = new URLSearchParams(searchParams)
+
+    if (newVal === undefined || newVal === '') params.delete(name)
+    else params.set(name, newVal)
+
+    setSearchParams(params, { replace: true })
+  }, [name, searchParams, setSearchParams])
 
   // Set initial value if any
   useEffect(() => {
-    if (!value && initialValue)
+    if (value === undefined && initialValue !== undefined)
       setValue(initialValue)
-
   }, [initialValue, setValue, value])
 
-  return [value ?? initialValue, setValue] as const
+  return [value ?? undefined, setValue] as const
 }

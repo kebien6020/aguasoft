@@ -4,7 +4,7 @@ import { time as utilsTime } from '../utils/benckmark.js'
 import { userRoleStmt } from '../db2/users.js'
 
 const timingLog = debug('app:timing')
-const time = utilsTime(timingLog)
+export const time = utilsTime(timingLog)
 
 export type ExpressHandler =
   (req: Request, res: Response, next: NextFunction) => void | Promise<void>
