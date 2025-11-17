@@ -1,18 +1,14 @@
-import bodyParser from 'body-parser'
-import ConnectSessionSequelize from 'connect-session-sequelize'
-import cors from 'cors'
-import express from 'express'
-import type { NextFunction, Request, Response } from 'express'
+import express from 'ultimate-express'
+import type { NextFunction, Request, Response } from 'ultimate-express'
 import { GetVerificationKey, expressjwt as jwt, UnauthorizedError } from 'express-jwt'
 import session from 'express-session'
 import { expressJwtSecret } from 'jwks-rsa'
 import { resolve } from 'node:path'
-import { sequelize } from './db/sequelize.js'
 import { Error404 } from './errors.js'
 import * as routes from './routes/index.js'
 import jsonErrorHandler from './utils/jsonErrors.js'
-
-const SequelizeStore = ConnectSessionSequelize(session.Store)
+import { SessionStore } from './utils/sessionStore.js'
+import { db } from './db2/db.js'
 
 const googleClientID = '327533471227-niedralk7louhbv330rm2lk1r8mgcv9g.apps.googleusercontent.com'
 const googleIssuer = 'https://accounts.google.com'
@@ -31,27 +27,27 @@ const authCheck = jwt({
   algorithms: ['RS256'],
 })
 
-declare module 'express' {
-  interface Request {
-    auth?: AuthData
-  }
+declare module 'ultimate-express' {
+	interface Request {
+		auth?: AuthData
+	}
 }
 
 // Validate email in the jwt
 type AuthData = {
-  iss: string // should match googleIssuer
-  aud: string // client id
-  sub: string
-  email: string
-  email_verified: boolean
-  name: string
-  picture: string // url
-  given_name: string
-  family_name: string
-  iat: number // unix timestamp
-  nbf: number // unix timestamp
-  exp: number // unix timestamp
-  jti: string // jwt id
+	iss: string // should match googleIssuer
+	aud: string // client id
+	sub: string
+	email: string
+	email_verified: boolean
+	name: string
+	picture: string // url
+	given_name: string
+	family_name: string
+	iat: number // unix timestamp
+	nbf: number // unix timestamp
+	exp: number // unix timestamp
+	jti: string // jwt id
 }
 const acceptedEmails = [
   'kevin.pena.prog@gmail.com',
@@ -73,16 +69,19 @@ function validateJwtEmail(req: Request, _res: Response, next: NextFunction) {
 }
 
 // Set up the session store and middleware
-const sessionStore = new SequelizeStore({
-  db: sequelize,
-  table: 'Session',
-})
+const sessionStore = new SessionStore(db, 'Sessions')
+
+let idseq = 0
+const genid = () => {
+  return `${Date.now()}-${++idseq}`
+}
 
 const sessionMiddleware = session({
   secret: ';b2x{EZ[#hQC@-Ny',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   store: sessionStore,
+  genid,
 })
 
 const app = express()
@@ -91,9 +90,8 @@ app.set('etag', false)
 // app.use('*p', (req, res, next) => { console.log(req.query); next() })
 
 // Common middleware
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
-app.use(cors())
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
 app.use(sessionMiddleware)
 
 // Serve static assets
@@ -123,6 +121,7 @@ app.use('/api/balance', routes.balance)
 app.use('/api/analysis', routes.analysis)
 app.use('/api/batch-categories', routes.batchCategories)
 app.use('/api/batches', routes.batches)
+app.use('/api/price-sets', routes.priceSets)
 
 app.use('/api', (req, _res, next) => {
   next(new Error404(`Route does not exist: ${req.method} ${req.path}`))
@@ -134,14 +133,14 @@ app.use(jsonErrorHandler)
 
 // https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation
 declare module 'express-session' {
-  interface Session {
-    userId?: number
-  }
+	interface Session {
+		userId?: number
+	}
 }
 
 // Serve the SPA for any unhandled route (it handles 404)
 // TODO: Set a Content Security Policy to allow google things on the login page
-app.get('*path', (_req, res) => {
+app.get('*', (_req, res) => {
   if (process.env.NODE_ENV !== 'production')
     res.setHeader('Referrer-Policy', 'no-referrer-when-downgrade')
   res.sendFile(INDEX_FILE)

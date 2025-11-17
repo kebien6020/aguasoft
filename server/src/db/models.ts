@@ -1,7 +1,5 @@
 import { Model, STRING, ENUM, INTEGER, DATE, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, DATEONLY, BOOLEAN, DECIMAL, TEXT, BelongsToGetAssociationMixin, BelongsToSetAssociationMixin, BIGINT } from 'sequelize'
-import { Server as SocketIOServer } from 'socket.io'
 import { sequelize } from './sequelize.js'
-import debug from 'debug'
 
 export class Users extends Model<InferAttributes<Users>, InferCreationAttributes<Users>> {
   declare id: CreationOptional<number>
@@ -185,6 +183,7 @@ export class Clients extends Model<InferAttributes<Clients>, InferCreationAttrib
   declare defaultCash: boolean
   declare hidden: boolean
   declare notes: string | null
+  declare priceSetId: number | null
 
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
@@ -197,6 +196,7 @@ Clients.init({
   defaultCash: { type: BOOLEAN, allowNull: false, defaultValue: true },
   hidden: { type: BOOLEAN, allowNull: false, defaultValue: false },
   notes: { type: TEXT, defaultValue: null },
+  priceSetId: { type: INTEGER, allowNull: true, defaultValue: null },
   createdAt: DATE,
   updatedAt: DATE,
 }, { sequelize })
@@ -264,6 +264,7 @@ export class Prices extends Model<InferAttributes<Prices>, InferCreationAttribut
   declare value: string
   declare clientId: number
   declare productId: number
+  declare priceSetId: number | null
   declare name: string
 
   declare createdAt: CreationOptional<Date>
@@ -274,8 +275,9 @@ Prices.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
   value: { type: DECIMAL(20, 8), allowNull: false },
   name: { type: STRING, allowNull: false, defaultValue: 'Base' },
-  clientId: { type: INTEGER, allowNull: false },
+  clientId: { type: INTEGER, allowNull: true },
   productId: { type: INTEGER, allowNull: false },
+  priceSetId: { type: INTEGER, allowNull: true },
   createdAt: DATE,
   updatedAt: DATE,
 }, { sequelize })
@@ -477,25 +479,6 @@ StorageStates.init({
   updatedAt: DATE,
 }, { sequelize })
 
-let io = null as SocketIOServer | null
-
-StorageStates.addHook('afterSave', async (storageState: StorageStates) => {
-  const log = debug('app:socketio')
-
-  if (!io) io = (await import('../index.js')).io
-
-  if (!io) {
-    log('Could not emit storageStatesChanged, io is null')
-    return
-  }
-
-
-  log('Emitting storageStatesChanged')
-  io.emit('storageStatesChanged', {
-    data: storageState.toJSON(),
-  })
-})
-
 export class InventoryElements
   extends Model<InferAttributes<InventoryElements>, InferCreationAttributes<InventoryElements>> {
 
@@ -533,12 +516,12 @@ export class InventoryMovements
   declare quantityFrom: string | number // decimal
   declare quantityTo: string | number // decimal
   declare cause:
-    'manual'
-    | 'in'
-    | 'relocation'
-    | 'production'
-    | 'sell'
-    | 'damage'
+		'manual'
+		| 'in'
+		| 'relocation'
+		| 'production'
+		| 'sell'
+		| 'damage'
   declare createdBy: number
   declare rollback: boolean
 

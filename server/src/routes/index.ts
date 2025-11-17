@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router } from 'ultimate-express'
 import adminOnly from '../utils/adminOnly.js'
 import * as balanceHandlers from './balance.js'
 import * as clientHandlers from './clients.js'
@@ -15,6 +15,8 @@ import * as userHandlers from './users.js'
 export { default as analysis } from './analysis.js'
 export { default as batchCategories } from './batchCategories.js'
 export { default as batches } from './batches.js'
+export { default as priceSets } from './priceSets.js'
+export { default as prices } from './prices.js'
 
 export const users = Router()
 users.get('/', userHandlers.list)
@@ -35,9 +37,6 @@ clients.get('/:id/balance', clientHandlers.balance)
 
 export const products = Router()
 products.get('/', productHandlers.list)
-
-export const prices = Router()
-prices.get('/:clientId', priceHandlers.list)
 
 export const sells = Router()
 sells.get('/', sellHandlers.list)

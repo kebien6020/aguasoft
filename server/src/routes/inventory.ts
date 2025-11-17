@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'ultimate-express'
 import { InventoryMovements, InventoryElements, Storages, StorageStates, MachineCounters } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
 import { CreationAttributes, Op, Transaction, WhereOptions } from 'sequelize'

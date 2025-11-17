@@ -14,6 +14,10 @@ import {
   StorageStates,
   Users,
 } from '../db/models.js'
+import { Server } from 'node:http'
+import app from '../app.js'
+import supertest from 'supertest'
+import { Agent } from 'supertest'
 
 export const truncateTables = async () => {
   const opts = { cascade: true, force: true }
@@ -39,3 +43,20 @@ export const truncateTables = async () => {
   ])
 }
 
+const close = (server: Server) =>
+  new Promise<void>((resolve, reject) => {
+    server.close(err => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve()
+    })
+  })
+
+export const withAgent = async (fn: (agent: Agent) => Promise<void>) => {
+  const port = 3001
+  const server = app.listen(port)
+  const agent = supertest.agent(`http://localhost:${port}`)
+  fn(agent).finally(() => close(server))
+}

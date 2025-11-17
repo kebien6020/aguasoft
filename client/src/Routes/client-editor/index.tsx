@@ -1,5 +1,3 @@
-import { makeStyles } from '@mui/styles'
-
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -13,6 +11,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
+import { styled } from '@mui/material/styles'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 
@@ -22,15 +21,17 @@ import Layout from '../../components/Layout'
 import ResponsiveContainer from '../../components/ResponsiveContainer'
 import Title from '../../components/Title'
 import PricePicker, { IncompletePrice } from './components/PricePicker'
-import { Client, Price } from '../../models'
+import { Client, Price, Product } from '../../models'
 import Alert from '../../components/Alert'
 import adminOnly from '../../hoc/adminOnly'
-import { Theme } from '../../theme'
 import useAuth from '../../hooks/useAuth'
 import { useParams } from 'react-router'
 import { PriceError } from './types'
 import { DuplicatedPriceDialog } from './components/DuplicatedPriceDialog'
 import { useProducts } from '../../hooks/api/useProducts'
+import { Collapse } from '@mui/material'
+import { usePriceSets } from '../../hooks/api/usePriceSets'
+import { usePriceSetPrices } from '../../hooks/api/usePrices'
 
 interface ClientDefaults {
   code: string
@@ -60,7 +61,6 @@ interface Params {
 type ValChangeEvent = ChangeEvent<{ value: string }>
 
 const ClientEditor = () => {
-  const classes = useStyles()
   const auth = useAuth()
   const params = useParams() as Params
   const navigate = useNavigate()
@@ -73,6 +73,8 @@ const ClientEditor = () => {
   const [code, setCode] = useState('')
   const [notes, setNotes] = useState('')
   const [defaultCash, setDefaultCash] = useState<'true' | 'false'>('false')
+  const [priceMode, setPriceMode] = useState<'priceSet' | 'custom'>('priceSet')
+  const [selectedPriceSetId, setSelectedPriceSetId] = useState('')
 
   // Restore state
   useEffect(() => {
@@ -106,6 +108,10 @@ const ClientEditor = () => {
         setNotes(editDefaults.notes || '')
         const prices = editDefaults.Prices.map(pr => ({ ...pr, value: String(pr.value) }))
         setPrices(prices)
+        setPriceMode(editDefaults.priceSetId ? 'priceSet' : 'custom')
+        setSelectedPriceSetId(
+          editDefaults.priceSetId ? String(editDefaults.priceSetId) : '',
+        )
       }
     })()
   }, [auth, editId, mode])
@@ -153,18 +159,24 @@ const ClientEditor = () => {
     setDefaultCash(event.target.value)
   }, [])
 
+  const handlePriceModeChange = useCallback((event: SelectChangeEvent) => {
+    if (event.target.value !== 'priceSet' && event.target.value !== 'custom') {
+      console.error('Invalid value for priceMode')
+      return
+    }
+    setPriceMode(event.target.value)
+  }, [])
+
   const [prices, setPrices] = useState<IncompletePrice[]>([])
 
   const [products] = useProducts()
+  const [priceSets] = usePriceSets()
+  const selectedPriceSetIdNum = selectedPriceSetId === '' ? undefined : Number(selectedPriceSetId)
+  const [priceSetPrices] = usePriceSetPrices(selectedPriceSetIdNum)
 
-  const getProductName = (id: number) => {
-    const product = products?.find(p => p.id === id)
-    if (product)
-      return product.name
-
-    return `Producto con id ${id}`
-  }
-
+  const handlePriceSetChange = useCallback((event: SelectChangeEvent) => {
+    setSelectedPriceSetId(event.target.value)
+  }, [])
 
   const handlePriceDelete = (priceIndex: number) => {
     setPrices(prevPrices => [
@@ -208,12 +220,16 @@ const ClientEditor = () => {
 
       if (code === '' || name === '') return
 
+      let priceSetIdPayload = selectedPriceSetIdNum ?? null
+      if (priceMode !== 'priceSet') priceSetIdPayload = null
+
       const body = JSON.stringify({
         name,
         code,
         defaultCash: defaultCash === 'true',
         notes,
-        prices,
+        priceSetId: priceSetIdPayload,
+        prices: priceSetIdPayload === null ? prices : [],
       })
 
       if (mode === 'CREATE') {
@@ -246,9 +262,10 @@ const ClientEditor = () => {
 
       navigate('/clients')
     })()
-  }, [auth, code, defaultCash, editId, mode, name, navigate, notes, prices])
+  }, [auth, code, defaultCash, editId, mode, name, navigate, notes, priceMode, prices, selectedPriceSetIdNum])
 
   if (!products) return <LoadingScreen text='Cargando productos...' />
+  if (!priceSets) return <LoadingScreen text='Cargando conjuntos de precios...' />
 
   return (
     (<Layout title='Editando cliente' container={ResponsiveContainer}>
@@ -262,7 +279,7 @@ const ClientEditor = () => {
           message={error}
         />
         : <>
-          <Paper className={classes.paper}>
+          <MyPaper>
             <Title>
               {mode === 'CREATE'
                 ? 'Crear Nuevo Cliente'
@@ -287,7 +304,7 @@ const ClientEditor = () => {
                 }
               />
             }
-            <form className={classes.form} autoComplete='off'>
+            <form autoComplete='off'>
               <TextField
                 id='code'
                 label='Código'
@@ -333,35 +350,53 @@ const ClientEditor = () => {
                   <MenuItem value='true'>Pago en Efectivo</MenuItem>
                 </Select>
               </FormControl>
-            </form>
-          </Paper>
-          <>
-            {prices.map((pr, idx) => (
-              <Paper className={classes.paper} key={idx}>
-                {pr.name !== 'Base' && <>
-                  <Typography variant='subtitle2'>{pr.name}</Typography>
-                  <Divider />
-                </>}
-                <Typography variant='body1'>
-                  {getProductName(pr.productId)} a {money(Number(pr.value))}
-                </Typography>
-                <IconButton
-                  className={classes.deleteButton}
-                  onClick={() => {
-                    handlePriceDelete(idx)
+              <FormControl fullWidth margin='normal'>
+                <InputLabel htmlFor='priceMode'>Precios</InputLabel>
+                <Select
+                  inputProps={{
+                    name: 'priceMode',
+                    id: 'priceMode',
                   }}
-                  size="large">
-                  <DeleteIcon />
-                </IconButton>
-              </Paper>
-            ))}
-          </>
-          <PricePicker
-            clientName={name}
-            products={products}
-            onNewPrice={handleNewPrice}
-          />
-          <Paper className={classes.paper}>
+                  value={priceMode}
+                  onChange={handlePriceModeChange}
+                >
+                  <MenuItem value='priceSet'>Conjunto de Precios</MenuItem>
+                  <MenuItem value='custom'>Precios personalizados</MenuItem>
+                </Select>
+              </FormControl>
+              <Collapse in={priceMode === 'priceSet'}>
+                <FormControl fullWidth margin='normal'>
+                  <InputLabel htmlFor='priceSet'>Conjunto de Precios</InputLabel>
+                  <Select
+                    inputProps={{
+                      name: 'priceSet',
+                      id: 'priceSet',
+                    }}
+                    value={selectedPriceSetId}
+                    onChange={handlePriceSetChange}
+                  >
+                    <MenuItem value=''>Seleccionar...</MenuItem>
+                    {priceSets.map(ps => (
+                      <MenuItem key={ps.id} value={ps.id}>
+                        {ps.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Collapse>
+            </form>
+          </MyPaper>
+          {priceMode === 'priceSet'
+            ? <PriceShow prices={priceSetPrices ?? []} products={products} />
+            : <EditablePrices
+              clientName={name}
+              prices={prices}
+              products={products}
+              onNewPrice={handleNewPrice}
+              onPriceDelete={handlePriceDelete}
+            />
+          }
+          <MyPaper>
             <Button
               variant='contained'
               color='primary'
@@ -373,38 +408,107 @@ const ClientEditor = () => {
                 : 'Actualizar Cliente'
               }
             </Button>
-          </Paper>
+          </MyPaper>
         </>
       }
     </Layout>)
   )
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
-  title: {
-    '& > *': {
-      textAlign: 'center',
-    },
-  },
-  form: {
-  },
-  paper: {
-    paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4),
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    position: 'relative',
-  },
-  deleteButton: {
-    color: 'red',
-    position: 'absolute',
-    right: '0',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    marginRight: theme.spacing(4),
-  },
+interface PricesSectionProps {
+  prices: IncompletePrice[]
+  products: Product[]
+  clientName: string
+  onNewPrice: (price: IncompletePrice) => void
+  onPriceDelete: (priceIndex: number) => void
+}
+
+const EditablePrices = (props: PricesSectionProps) => {
+  const { prices, products, clientName, onNewPrice, onPriceDelete } = props
+  const getProductName = (id: number) => {
+    const product = products.find(p => p.id === id)
+    if (product)
+      return product.name
+
+    return `Producto con id ${id}`
+  }
+
+  return (
+    <>
+      {prices.map((pr, idx) => (
+        <MyPaper key={idx}>
+          {pr.name !== 'Base' && <>
+            <Typography variant='subtitle2'>{pr.name}</Typography>
+            <Divider />
+          </>}
+          <Typography variant='body1'>
+            {getProductName(pr.productId)} a {money(Number(pr.value))}
+          </Typography>
+          <DeleteButton
+            onClick={() => {
+              onPriceDelete(idx)
+            }}
+            size="large">
+            <DeleteIcon />
+          </DeleteButton>
+        </MyPaper>
+      ))}
+      <PricePicker
+        clientName={clientName}
+        products={products}
+        onNewPrice={onNewPrice}
+      />
+    </>
+  )
+}
+
+interface PriceShowProps {
+  prices: IncompletePrice[]
+  products: Product[]
+}
+
+const PriceShow = ({ prices, products }: PriceShowProps) => {
+  const getProductName = (id: number) => {
+    const product = products.find(p => p.id === id)
+    if (product)
+      return product.name
+
+    return `Producto con id ${id}`
+  }
+  return (
+    <>
+      {prices.map((pr, idx) => (
+        <MyPaper key={idx}>
+          {pr.name !== 'Base' && <>
+            <Typography variant='subtitle2'>{pr.name}</Typography>
+            <Divider />
+          </>}
+          <Typography variant='body1'>
+            {getProductName(pr.productId)} a {money(Number(pr.value))}
+          </Typography>
+        </MyPaper>
+      ))}
+    </>
+  )
+}
+
+const DeleteButton = styled(IconButton)(({ theme }) => ({
+  color: 'red',
+  position: 'absolute',
+  right: '0',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  marginRight: theme.spacing(4),
+}))
+
+const MyPaper = styled(Paper)(({ theme }) => ({
+  paddingLeft: theme.spacing(4),
+  paddingRight: theme.spacing(4),
+  paddingTop: theme.spacing(4),
+  paddingBottom: theme.spacing(4),
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(2),
+  position: 'relative',
 }))
 
 export default adminOnly(ClientEditor)

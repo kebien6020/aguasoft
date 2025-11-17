@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'ultimate-express'
 import { MachineCounters } from '../db/models.js'
 
 export async function mostRecentProduction(_req: Request, res: Response, next: NextFunction) {

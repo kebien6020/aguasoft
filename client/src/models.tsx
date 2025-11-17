@@ -46,6 +46,7 @@ export interface Client {
   code: string
   defaultCash: boolean
   hidden: boolean
+  priceSetId?: number
 }
 
 export interface Payment {
@@ -240,4 +241,12 @@ export interface CreditBalanceItem {
   readonly lastSaleDate: Date | null
 
   readonly Client?: Client
+}
+
+export interface PriceSet {
+  readonly id: number
+  readonly name: string
+
+  readonly createdAt: string
+  readonly updatedAt: string
 }

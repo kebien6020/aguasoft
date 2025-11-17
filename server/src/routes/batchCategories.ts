@@ -1,7 +1,7 @@
 import { BatchCategories } from '../db/models.js'
 import * as yup from 'yup'
 import { handleErrors } from '../utils/route.js'
-import { Router } from 'express'
+import { Router } from 'ultimate-express'
 import { Error404 } from '../errors.js'
 
 const router = Router()

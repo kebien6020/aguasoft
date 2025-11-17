@@ -22,6 +22,7 @@ import {
   SwapHoriz as MovementsIcon,
   TrendingUp,
   Dashboard as DashboardIcon,
+  LocalAtm,
 } from '@mui/icons-material'
 
 import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
@@ -176,6 +177,13 @@ const MainDrawer = (props: MainDrawerProps) => {
         text='Clientes'
         to='/clients'
         icon={<PersonIcon />}
+        color={colors.blue.A700}
+        fullWidth={open}
+      />
+      <DrawerItem
+        text='Precios'
+        to='/prices'
+        icon={<LocalAtm />}
         color={colors.blue.A700}
         fullWidth={open}
       />

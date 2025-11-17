@@ -1,4 +1,4 @@
-import type { Request, RequestHandler, Response } from 'express'
+import type { Request, RequestHandler, Response } from 'ultimate-express'
 import type { Params } from 'express-serve-static-core'
 
 type RequestHandlerWithoutNext<P extends Params, ResBody, ReqBody, ReqQuery> =

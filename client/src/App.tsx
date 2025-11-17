@@ -49,6 +49,8 @@ const RegisterSale = lazy(() => import(/* webpackChunkName: "register-sale" */ '
 const ExternalLogin = lazy(() => import(/* webpackChunkName: "external-login" */ './Routes/ExternalLogin'))
 const Error404 = lazy(() => import(/* webpackChunkName: "error-404" */ './Routes/Error404'))
 const CreditBalance = lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/CreditBalance'))
+const PriceSetList = lazy(() => import(/* webpackChunkName: "price-set-list" */ './Routes/price-set-list/index'))
+const PriceSetEditor = lazy(() => import(/* webpackChunkName: "price-set-editor" */ './Routes/price-set-editor/index'))
 
 const AppSwitch = () => (
   <Routes>
@@ -89,6 +91,10 @@ const AppSwitch = () => (
     <Route path='/tools/billing-summary' element={<RequireAuth><BillingSummary /></RequireAuth>} />
 
     <Route path='/batches' element={<RequireAuth><Batches /></RequireAuth>} />
+
+    <Route path='/prices' element={<RequireAuth><PriceSetList /></RequireAuth>} />
+    <Route path='/prices/new' element={<RequireAuth><PriceSetEditor /></RequireAuth>} />
+    <Route path='/prices/:id' element={<RequireAuth><PriceSetEditor /></RequireAuth>} />
 
     <Route path='/' element={<Navigate to='/sells' />} />
     <Route path='/*' element={<Error404 />} />

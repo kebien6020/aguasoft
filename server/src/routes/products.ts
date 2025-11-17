@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'ultimate-express'
 import { Products } from '../db/models.js'
 import * as yup from 'yup'
 
