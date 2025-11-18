@@ -15,16 +15,28 @@ const listSchema = Yup.object({
   search: Yup.string().notRequired().nonNullable(),
 })
 
+const hiddenLookup = {
+  hidden: 1,
+  'not-hidden': 0,
+  any: undefined,
+} as const
+
 export const list = wrapSync(req => {
   const t1 = time('ValidateInput')
   const query = listSchema.validateSync(req.query)
-  const { includeNotes: includeNotesStr, hidden, priceSetId, search } = query
+  const {
+    includeNotes: includeNotesStr,
+    hidden: hiddenStr,
+    priceSetId,
+    search,
+  } = query
   const includeNotes = includeNotesStr === 'true'
+  const hidden = hiddenLookup[hiddenStr]
   t1()
 
   const t2 = time('ListClients')
   const dbClients = listClientsStmt.all({
-    hidden: hidden === 'any' ? undefined : hidden === 'hidden',
+    hidden,
     priceSetId,
     search,
   })
