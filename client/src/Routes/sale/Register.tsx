@@ -43,6 +43,7 @@ import { useNavigate } from 'react-router'
 import { startOfDay } from 'date-fns'
 import { formatDateonlyMachine } from '../../utils/dates'
 import { Theme } from '../../theme'
+import { ComboboxField } from '../../components/form/ComboboxField'
 
 type SaleLine = {
   productId: string | undefined
@@ -268,7 +269,7 @@ const RegisterSaleImpl = memo(() => {
         <StyledPaper>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
-              <SelectField name='client' label='Cliente' options={clients} />
+              <ComboboxField name='client' label='Cliente' options={clients} />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               {client && (
@@ -445,7 +446,7 @@ const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLine
         </IconButton>
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <SelectField name={`saleLines[${idx}].productId`} label='Producto' options={productOpts} />
+        <ComboboxField name={`saleLines[${idx}].productId`} label='Producto' options={productOpts} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         {(variantOpts?.length ?? 0) > 0 && (
