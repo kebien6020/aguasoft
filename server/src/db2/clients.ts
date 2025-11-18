@@ -22,7 +22,7 @@ export const getForPriceModeStmt = db.prepare<{ id: number }, ClientPriceSetId>(
 `)
 
 type ListClientsParams = {
-  hidden?: boolean
+  hidden?: 0 | 1
   priceSetId?: number
   search?: string
 }
