@@ -4,7 +4,7 @@ import { money } from '../utils'
 import { Sell } from './Sells'
 
 import {
-  Grid2 as Grid,
+  Grid,
   Paper,
   Typography,
   FormControl,

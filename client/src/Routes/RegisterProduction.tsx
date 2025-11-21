@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
@@ -281,7 +281,7 @@ const RegisterProduction = (): JSX.Element => {
                     <Checkbox
                       checked={detectDamaged}
                       onChange={e => {
-                        setDetectDamaged(e.target.checked) 
+                        setDetectDamaged(e.target.checked)
                       }}
                     />
                   }

@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { Grid2 as Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { addDays, startOfDay, subDays } from 'date-fns'
 import { useFormikContext } from 'formik'

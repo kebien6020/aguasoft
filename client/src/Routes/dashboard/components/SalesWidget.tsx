@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import {
-  Grid2 as Grid,
-  Grid2Props as GridProps,
+  Grid,
+  GridProps,
   Paper,
   Table,
   TableBody,

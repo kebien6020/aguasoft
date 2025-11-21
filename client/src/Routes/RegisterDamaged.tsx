@@ -1,5 +1,5 @@
 import makeStyles from '@mui/styles/makeStyles'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { useFormikContext, FormikHelpers } from 'formik'
 

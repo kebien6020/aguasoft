@@ -1,5 +1,5 @@
 import type { FC, JSX } from 'react'
-import { Grid2 as Grid, Grid2Props as GridProps, Theme } from '@mui/material'
+import { Grid, GridProps, Theme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { endOfDay, startOfDay } from 'date-fns'
 import { useState } from 'react'

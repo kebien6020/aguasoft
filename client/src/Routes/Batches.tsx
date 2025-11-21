@@ -3,7 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardProps,
-  Grid2 as Grid,
+  Grid,
   Paper,
   Theme,
   Typography,

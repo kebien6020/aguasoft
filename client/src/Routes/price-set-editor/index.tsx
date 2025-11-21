@@ -6,7 +6,16 @@ import { Price, Product } from '../../models'
 import TextField from '../../components/form/TextField'
 import PricePicker from '../client-editor/components/PricePicker'
 import { useProducts } from '../../hooks/api/useProducts'
-import { CircularProgress, Divider, Grid2 as Grid, IconButton, IconButtonProps, Paper, PaperProps, Typography } from '@mui/material'
+import {
+  CircularProgress,
+  Divider,
+  Grid,
+  IconButton,
+  IconButtonProps,
+  Paper,
+  PaperProps,
+  Typography,
+} from '@mui/material'
 import { useFormikContext } from 'formik'
 import { fetchJsonAuth, isErrorResponse, money } from '../../utils'
 import { Delete } from '@mui/icons-material'

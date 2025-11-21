@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Button, Grid2 as Grid, Paper, Switch, TextField, Typography } from '@mui/material'
+import { Button, Grid, Paper, Switch, TextField, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { startOfDay } from 'date-fns'
 

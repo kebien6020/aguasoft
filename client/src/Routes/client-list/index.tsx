@@ -21,7 +21,7 @@ import { AppBarExtra } from './components/AppBarExtra'
 import { useClients } from '../../hooks/api/useClients'
 import useSnackbar from '../../hooks/useSnackbar'
 import { ClientDialog } from './components/ClientDialog'
-import { Grid2 as Grid, MenuItem, TextField } from '@mui/material'
+import { Grid, MenuItem, TextField } from '@mui/material'
 import { usePriceSets } from '../../hooks/api/usePriceSets'
 import { useQueryParam } from '../../hooks/useQueryParam'
 

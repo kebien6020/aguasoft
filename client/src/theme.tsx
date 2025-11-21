@@ -2,6 +2,9 @@ import { createTheme } from '@mui/material/styles'
 import { esES } from '@mui/x-date-pickers/locales'
 
 const theme = createTheme({
+  cssVariables: {
+    nativeColor: true,
+  },
   palette: {
     mode: 'light',
     primary: {
