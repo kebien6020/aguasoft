@@ -7,17 +7,23 @@ import clsx from 'clsx'
 import { DatePickerFieldProps } from '@mui/x-date-pickers/DatePicker'
 import { CalendarIcon, useParsedFormat, usePickerContext, useSplitFieldProps, useValidation, validateDate } from '@mui/x-date-pickers'
 import TextField from '@mui/material/TextField'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 
 type DateChangeHandler = (date: Date) => unknown
+
+const formatResilient = (date: Date | null, fieldFormat: string): string => {
+  if (date && isValid(date))
+    return format(date, fieldFormat)
+
+  return ''
+}
 
 function ReadOnlyDateField(props: DatePickerFieldProps) {
   const { internalProps, forwardedProps } = useSplitFieldProps(props, 'date')
 
   const pickerContext = usePickerContext()
   const { value, fieldFormat } = pickerContext
-  const formatted = value ? format(value, fieldFormat) : ''
-
+  const formatted = formatResilient(value, fieldFormat)
 
   const parsedFormat = useParsedFormat()
   const { hasValidationError } = useValidation({
