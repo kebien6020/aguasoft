@@ -423,7 +423,7 @@ export async function listDay(req: Request, res: Response, next: NextFunction): 
     // Convert to array of plain objects so that we can
     // add extra members to it
     interface ResponseElem extends SellWithInclusions {
-      Prices?: { name: string, value: string }[]
+      Prices?: { name: string, value: number }[]
     }
 
     const sellsPlain: ResponseElem[] = sells.map(s => s.toJSON() as SellWithInclusions)

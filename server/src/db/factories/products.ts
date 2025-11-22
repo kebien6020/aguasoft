@@ -10,7 +10,7 @@ export function make(overrides: Overrides): Products {
   return Products.build({
     name: faker.commerce.productName(),
     code: faker.string.alphanumeric(3),
-    basePrice: String(faker.number.int({ max: 10000, multipleOf: 100 })),
+    basePrice: faker.number.int({ max: 10000, multipleOf: 100 }),
 
     ...overrides,
   })

@@ -117,7 +117,7 @@ export class Products extends Model<InferAttributes<Products>, InferCreationAttr
   declare id: CreationOptional<number>
   declare name: string
   declare code: string
-  declare basePrice: string
+  declare basePrice: number
   declare batchCategoryId: number
 
   declare createdAt: CreationOptional<Date>
