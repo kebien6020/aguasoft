@@ -88,7 +88,7 @@ export default function Sells(): JSX.Element {
     }
 
     if (filter.user !== 'ALL') {
-      if (String(sell.User.code) !== filter.user)
+      if (sell.User.code !== filter.user)
         return false
 
     }

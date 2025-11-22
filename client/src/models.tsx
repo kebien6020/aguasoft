@@ -4,7 +4,7 @@ export interface Product {
   id: number
   name: string
   code: string
-  basePrice: string
+  basePrice: number
   batchCategoryId?: number | null
 
   Variants?: Variant[]
@@ -27,7 +27,7 @@ export interface Variant {
 
 export interface Price {
   id: number
-  value: string
+  value: number
   clientId: number
   productId: number
   name: string

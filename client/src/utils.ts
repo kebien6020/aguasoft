@@ -92,7 +92,7 @@ export function money(
   showSign = false,
 ): string {
   const sign = num < 0 ? '-' : (showSign ? '+' : '')
-  const absFixed = Math.abs(Number(num) || 0).toFixed(decimals)
+  const absFixed = Math.abs(num || 0).toFixed(decimals)
   const integerPart = String(parseInt(absFixed))
   const headLen = integerPart.length > 3 ? integerPart.length % 3 : 0
   const numHeadWithSep = headLen ? integerPart.substring(0, headLen) + thouSep : ''

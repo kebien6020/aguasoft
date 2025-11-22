@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { Button, Grid2 as Grid, TextField } from '@mui/material'
+import { Button, Grid, TextField } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { useDebounce } from '@react-hook/debounce'
 import { pdf, PDFViewer } from '@react-pdf/renderer'
@@ -108,7 +108,7 @@ const BillingSummary = (): JSX.Element => {
             options={clientOptions}
             value={clientOptions ? clientId : ''}
             onChange={e => {
-              setClientId(e.target.value as string) 
+              setClientId(e.target.value as string)
             }}
           />
         </Grid>
@@ -117,7 +117,7 @@ const BillingSummary = (): JSX.Element => {
             label='Fecha de Inicio'
             date={beginDate}
             onDateChange={date => {
-              setBeginDateIso(date.toISOString()) 
+              setBeginDateIso(date.toISOString())
             }}
             DatePickerProps={{
               slotProps: {
@@ -133,7 +133,7 @@ const BillingSummary = (): JSX.Element => {
             label='Fecha Final'
             date={endDate}
             onDateChange={date => {
-              setEndDateIso(date.toISOString()) 
+              setEndDateIso(date.toISOString())
             }}
             DatePickerProps={{
               slotProps: {
@@ -149,7 +149,7 @@ const BillingSummary = (): JSX.Element => {
             label='Nombre de la descarga (editable)'
             value={downloadName}
             onChange={e => {
-              setDownloadName(e.target.value) 
+              setDownloadName(e.target.value)
             }}
             fullWidth
           />

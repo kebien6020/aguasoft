@@ -121,7 +121,7 @@ function checkCreateEditInput(body: Record<string, unknown>) {
     }
     if (typeof sPrice.name !== 'string') paramError('prices[].name', 'string')
     if (typeof sPrice.productId !== 'number') paramError('prices[].productId', 'number')
-    if (typeof sPrice.value !== 'string') paramError('prices[].value', 'string')
+    if (typeof sPrice.value !== 'number') paramError('prices[].value', 'number')
 
     if (Object.keys(sPrice).length !== Object.keys(price).length) {
       const e = Error('Extra keys in prices object')

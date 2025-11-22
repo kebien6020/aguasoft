@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import MuiCollapse, { CollapseProps } from '@mui/material/Collapse'
-import Grid, { Grid2Props as GridProps } from '@mui/material/Grid2'
+import Grid, { GridProps } from '@mui/material/Grid'
 import makeStyles from '@mui/styles/makeStyles'
 import { ForwardedRef, forwardRef } from 'react'
 

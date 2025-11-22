@@ -7,7 +7,7 @@ import {
   Select,
   MenuItem,
   Typography,
-  Grid2 as Grid,
+  Grid,
   TextField,
   Switch,
   Collapse,

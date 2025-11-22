@@ -106,7 +106,7 @@ const ClientEditor = () => {
         setName(editDefaults.name)
         setDefaultCash(editDefaults.defaultCash ? 'true' : 'false')
         setNotes(editDefaults.notes || '')
-        const prices = editDefaults.Prices.map(pr => ({ ...pr, value: String(pr.value) }))
+        const prices = editDefaults.Prices.map(pr => ({ ...pr, value: pr.value }))
         setPrices(prices)
         setPriceMode(editDefaults.priceSetId ? 'priceSet' : 'custom')
         setSelectedPriceSetId(
@@ -186,8 +186,6 @@ const ClientEditor = () => {
   }
 
   const handleNewPrice = useCallback((price: IncompletePrice) => {
-    price.productId = Number(price.productId)
-    price.value = String(price.value)
     const duplicated = prices.findIndex(pr =>
       pr.name === price.name && pr.productId === price.productId,
     ) !== -1
@@ -442,7 +440,7 @@ const EditablePrices = (props: PricesSectionProps) => {
             <Divider />
           </>}
           <Typography variant='body1'>
-            {getProductName(pr.productId)} a {money(Number(pr.value))}
+            {getProductName(pr.productId)} a {money(pr.value)}
           </Typography>
           <DeleteButton
             onClick={() => {
@@ -484,7 +482,7 @@ const PriceShow = ({ prices, products }: PriceShowProps) => {
             <Divider />
           </>}
           <Typography variant='body1'>
-            {getProductName(pr.productId)} a {money(Number(pr.value))}
+            {getProductName(pr.productId)} a {money(pr.value)}
           </Typography>
         </MyPaper>
       ))}

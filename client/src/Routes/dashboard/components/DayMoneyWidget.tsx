@@ -36,8 +36,8 @@ const DayMoneyImpl = ({ date }: DayMoneyImplProps) => {
 
   const [stats, { loading, error }] = useDayMoneyStats(date)
 
-  if (loading) return <LoadingIndicator />
-  if (error || stats === null) return <FetchError />
+  if (loading || stats === null) return <LoadingIndicator />
+  if (error) return <FetchError />
 
   const total =
     stats.cashSaleAmount

@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   Paper,
   Tooltip,
@@ -90,19 +90,18 @@ const mapToCreateSale = (deps: MapToCreateSaleDeps) => (line: ValidatedSaleLine)
   if (!price)
     throw new Error(`Precio para el producto ${line.productId} no encontrado para este cliente`)
 
-  const priceValue = Number(price.value)
   const date = deps.date ? formatDateonlyMachine(deps.date) : undefined
 
   return {
     ...(deps.isAdmin && date ? { date } : {}),
     cash: deps.cash,
     clientId: deps.clientId,
-    priceOverride: priceValue,
+    priceOverride: price.value,
     quantity: line.quantity,
     productId: Number(line.productId),
     variantId: line.variantId === '' ? undefined : Number(line.variantId),
     batchId: line.batch === '' || line.batch === 'NOT_APPLICABLE' ? undefined : Number(line.batch),
-    value: priceValue * line.quantity,
+    value: price.value * line.quantity,
   }
 }
 
@@ -360,10 +359,10 @@ const calcTotal = (saleLines: SaleLine[], prices: Price[] | null) => {
       return acc
     }
     const price = priceMap[line.priceId].value
-    if (!price || isNaN(Number(price)))
+    if (!price || isNaN(price))
       return acc
 
-    return acc + Number(price) * line.quantity
+    return acc + price * line.quantity
   }, 0)
 
   return total
@@ -413,8 +412,8 @@ const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLine
     () => clientId && line.productId ? priceOpts : [],
     [clientId, line.productId, priceOpts])
   const emptyOption = clientId && line.productId ? undefined : 'Debe seleccionar el cliente y producto'
-  const selectedPriceMaybe = line.priceId && prices && prices.find(p => p.id === Number(line.priceId))?.value
-  const selectedPrice = selectedPriceMaybe ? Number(selectedPriceMaybe) : 0
+  const selectedPriceMaybe = line.priceId && prices ? prices.find(p => p.id === Number(line.priceId))?.value : undefined
+  const selectedPrice = selectedPriceMaybe ?? 0
 
   const { setFieldValue } = useFormikContext<Values>()
 

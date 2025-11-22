@@ -4,7 +4,7 @@ services:
     build:
       context: .
       target: server
-    image: ghcr.io/kebien6020/aguasoft:20251117-03
+    image: ghcr.io/kebien6020/aguasoft:20251121-01
     networks:
       - main
     volumes:
@@ -13,7 +13,7 @@ services:
     build:
       context: .
       target: client
-    image: ghcr.io/kebien6020/nginx:20251117-03
+    image: ghcr.io/kebien6020/nginx:20251121-01
     networks:
       - main
     ports:
@@ -22,7 +22,7 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
   certbot:
-    image: ghcr.io/kebien6020/certbot-dns-digitalocean:20251117-03
+    image: ghcr.io/kebien6020/certbot-dns-digitalocean:20251121-01
     build:
       context: docker/certbot
       dockerfile: Dockerfile

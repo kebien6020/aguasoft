@@ -4,7 +4,7 @@ import makeStyles from '@mui/styles/makeStyles'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import { InventoryMovement, User, Storage, InventoryElement } from '../../models'
 import * as colors from '@mui/material/colors'

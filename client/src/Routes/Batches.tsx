@@ -3,7 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardProps,
-  Grid2 as Grid,
+  Grid,
   Paper,
   Theme,
   Typography,
@@ -141,7 +141,7 @@ const BatchCard = ({ batch }: { batch: Batch }) => (
   </StyledCard>
 )
 
-const colorMap = {
+const colorMap: Record<string, string> = {
   'bolsa-360': blue[500],
   'bolsa-6l': green[500],
   botellon: yellow[500],
@@ -149,7 +149,7 @@ const colorMap = {
   'botellon-nuevo': indigo[500],
   'hielo-2kg': purple[500],
   'barra-hielo': pink[500],
-} as const
+}
 
 interface StyledCardProps extends CardProps {
   colorKey: string

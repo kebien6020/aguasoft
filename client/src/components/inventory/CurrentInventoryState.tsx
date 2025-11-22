@@ -2,7 +2,7 @@ import type { JSX } from 'react'
 import { useState } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import useFetch from '../../hooks/useFetch'
 import useUser from '../../hooks/useUser'
