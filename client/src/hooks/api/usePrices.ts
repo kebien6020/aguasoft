@@ -63,7 +63,7 @@ export const optionsFromPrices =
   (prices: readonly Price[] | null): Option[] | null => {
     return prices && prices.map(price => ({
       value: String(price.id),
-      label: `${price.name} | ${money(Number(price.value))}`,
+      label: `${price.name} | ${money(price.value)}`,
     }))
   }
 

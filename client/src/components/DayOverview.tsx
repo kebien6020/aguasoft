@@ -48,7 +48,7 @@ const aggregateProducts = (sells: Sell[], filter: Filter) => {
       .filter(s => s.Product.name === pn)
       .filter(s => !s.deleted)
       .filter(s => filter.client === 'ALL' || String(s.Client.id) === filter.client)
-      .filter(s => filter.user === 'ALL' || String(s.User.code) === filter.user)
+      .filter(s => filter.user === 'ALL' || s.User.code === filter.user)
       .reduce((acc, s) => acc + s.quantity, 0)
 
   return productNames
@@ -162,8 +162,8 @@ const DayOverview = (props: Props): JSX.Element => {
               <MenuItem value='ALL'>Todos</MenuItem>
               {users.map(user =>
                 <MenuItem
-                  value={String(user.code)}
-                  key={String(user.code)}
+                  value={user.code}
+                  key={user.code}
                 >
                   ({user.code}) {user.name}
                 </MenuItem>,

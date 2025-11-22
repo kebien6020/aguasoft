@@ -215,7 +215,7 @@ const PriceList = ({ prices, products, onDeletePrice: onPriceDelete }: PriceList
             <Divider />
           </>}
           <Typography variant='body1'>
-            {getProductName(pr.productId, products)} a {money(Number(pr.value))}
+            {getProductName(pr.productId, products)} a {money(pr.value)}
           </Typography>
           <DeleteIconButton
             onClick={() => {

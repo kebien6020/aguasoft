@@ -31,7 +31,7 @@ const PricePicker = ({ clientName, products, onNewPrice }: Props) => {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [name, setName] = useState('Base')
   const [currentProduct, setCurrentProduct] = useState(products[0]?.id?.toString() ?? '')
-  const [currentPrice, setCurrentPrice] = useState(products[0]?.basePrice ?? '0')
+  const [currentPrice, setCurrentPrice] = useState(products[0]?.basePrice ?? 0)
 
   // If the products prop changes, update the currentProduct state
   useEffect(() => {
@@ -39,19 +39,17 @@ const PricePicker = ({ clientName, products, onNewPrice }: Props) => {
   }, [products])
 
   const handleOpenDialog = useCallback(() => {
-    setDialogOpen(true) 
+    setDialogOpen(true)
   }, [])
   const handleCloseDialog = useCallback(() => {
-    setDialogOpen(false) 
+    setDialogOpen(false)
   }, [])
   const handleChangeName = useCallback((event: ValChangeEvent) => {
-    setName(event.target.value) 
-  },
-  [])
+    setName(event.target.value)
+  }, [])
   const handleChangeCurrentPrice = useCallback((event: ValChangeEvent) => {
-    setCurrentPrice(event.target.value) 
-  },
-  [])
+    setCurrentPrice(Number(event.target.value))
+  }, [])
 
   const handleProductChangeImpl = useCallback((value: string) => {
     setCurrentProduct(value)

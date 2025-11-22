@@ -261,7 +261,7 @@ BatchCategories.init({
 
 export class Prices extends Model<InferAttributes<Prices>, InferCreationAttributes<Prices>> {
   declare id: CreationOptional<number>
-  declare value: string
+  declare value: number
   declare clientId: number
   declare productId: number
   declare priceSetId: number | null
@@ -516,12 +516,12 @@ export class InventoryMovements
   declare quantityFrom: string | number // decimal
   declare quantityTo: string | number // decimal
   declare cause:
-		'manual'
-		| 'in'
-		| 'relocation'
-		| 'production'
-		| 'sell'
-		| 'damage'
+    'manual'
+    | 'in'
+    | 'relocation'
+    | 'production'
+    | 'sell'
+    | 'damage'
   declare createdBy: number
   declare rollback: boolean
 

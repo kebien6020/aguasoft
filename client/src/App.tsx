@@ -2,7 +2,7 @@ import { CssBaseline, GlobalStyles } from '@mui/material'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { ThemeProvider as LegacyThemeProvider } from '@mui/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3' // v3 and v4
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router'
 import { GoogleOAuthProvider } from '@react-oauth/google'
@@ -108,7 +108,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   const [snackbar, showMessage] = useSnackbar()
 
   return (
-    (<AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={auth}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
         <BrowserRouter>
           <StyledEngineProvider injectFirst>
@@ -127,7 +127,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
           </StyledEngineProvider>
         </BrowserRouter>
       </LocalizationProvider>
-    </AuthContext.Provider>)
+    </AuthContext.Provider>
   )
 }
 
