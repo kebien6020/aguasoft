@@ -10,9 +10,9 @@ export interface RenderButtonProps {
 }
 
 export interface PaginationProps {
-  limit: number;
-  offset: number;
-  total: number;
+  limit?: number;
+  offset?: number;
+  total?: number;
   centerRipple?: boolean;
   component?: string | React.ComponentType<Partial<PaginationProps>>;
   currentPageColor?: ButtonProps['color'];
