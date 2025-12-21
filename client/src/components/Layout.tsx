@@ -50,7 +50,7 @@ const DrawerItem = (props: DrawerItemProps) => {
     to,
     text,
     fullWidth,
-    color = colors.grey[500],
+    color,
   } = props
 
   const colorStyle = { color: color, borderColor: color }

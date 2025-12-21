@@ -69,10 +69,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 export type PageVariant = 'current' | 'ellipsis' | 'end' | 'standard';
 
 export interface PageButtonProps extends Omit<ButtonProps, 'onClick'> {
-  limit: number;
-  page: number;
-  total: number;
-  pageVariant: PageVariant;
+  limit?: number;
+  page?: number;
+  total?: number;
+  pageVariant?: PageVariant;
   currentPageColor?: ButtonProps['color'];
   onClick?: (ev: React.MouseEvent<HTMLElement>, offset: number, page: number) => void;
   renderButton?: (props: RenderButtonProps) => React.ReactElement;
