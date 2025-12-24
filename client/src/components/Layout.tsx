@@ -1,5 +1,5 @@
-import type { JSX } from 'react'
-import React, { useState, useCallback, type ReactNode, forwardRef, type ComponentType } from 'react'
+import type { JSX, RefObject } from 'react'
+import React, { useState, useCallback, type ReactNode, forwardRef, type ComponentType, useRef, useEffect } from 'react'
 import { Link, type LinkProps, useLocation } from 'react-router'
 import { type LocationDescriptor } from 'history'
 
@@ -30,8 +30,9 @@ import useUser from '../hooks/useUser'
 import Avatar from '@mui/material/Avatar'
 import { styled } from '@mui/material/styles'
 import { Theme } from '../theme'
-import { Box, useMediaQuery } from '@mui/material'
+import { useMediaQuery } from '@mui/material'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary'
+import { useElementSize } from '@reactuses/core'
 
 const drawerWidth = 96
 const drawerWidthFull = 256
@@ -116,10 +117,11 @@ const DrawerItemText = styled(
 interface MainDrawerProps {
   open: boolean
   onRequestClose: () => unknown
+  appBarRef: RefObject<HTMLElement|null>
 }
 
 const MainDrawer = (props: MainDrawerProps) => {
-  const { open, onRequestClose } = props
+  const { open, onRequestClose, appBarRef } = props
 
   const content =
     <>
@@ -205,6 +207,7 @@ const MainDrawer = (props: MainDrawerProps) => {
 
   return (
     <StyledDrawer variant='permanent' open={open}>
+      <ToolbarDiv appBarRef={appBarRef} />
       {content}
     </StyledDrawer>
   )
@@ -216,7 +219,6 @@ const StyledDrawer = styled(Drawer)(({ theme, open }: { theme: Theme, open: bool
       zIndex: theme.zIndex.drawer + 2,
     },
     '& .MuiDrawer-paper': {
-      position: 'static',
       overflowY: 'auto',
       overflowX: 'hidden',
       padding: theme.spacing(1),
@@ -268,6 +270,8 @@ export default function Layout(props: LayoutProps): JSX.Element {
 
   const { pathname: currentPath } = useLocation()
 
+  const appBarRef = useRef<HTMLElement|null>(null)
+
   const userColorLookup: { [index: string]: string } = {
     '001': colors.blue[500],
     '002': colors.pink[500],
@@ -281,7 +285,7 @@ export default function Layout(props: LayoutProps): JSX.Element {
   const Container = container
   const containerProps = className ? { className } : undefined
   return (<>
-    <StyledAppBar position='sticky'>
+    <StyledAppBar position='fixed' ref={appBarRef}>
       <Toolbar>
         <MenuButton
           color='inherit'
@@ -309,17 +313,19 @@ export default function Layout(props: LayoutProps): JSX.Element {
         }
       </Toolbar>
     </StyledAppBar>
-    <Box onClick={handleDrawerClose} sx={{ display: 'flex' }}>
-      <MainDrawer
-        open={drawerOpen}
-        onRequestClose={handleDrawerClose}
-      />
+    <MainDrawer
+      open={drawerOpen}
+      onRequestClose={handleDrawerClose}
+      appBarRef={appBarRef}
+    />
+    <ContentWrapper onClick={handleDrawerClose}>
+      <ToolbarDiv appBarRef={appBarRef} />
       <Container {...containerProps}>
         <GlobalErrorBoundary>
           {children}
         </GlobalErrorBoundary>
       </Container>
-    </Box>
+    </ContentWrapper>
   </>)
 }
 
@@ -337,6 +343,21 @@ const StyledAppBar = styled(AppBar)(({ theme }: { theme: Theme }) => ({
 const MenuButton = styled(IconButton)(({ theme }: { theme: Theme }) => ({
   marginRight: theme.spacing(2),
 })) as typeof IconButton
+
+
+const ToolbarDiv = ({ appBarRef }:{appBarRef: RefObject<HTMLElement|null>}) => {
+  const [_, height] = useElementSize(appBarRef, { box: 'border-box' })
+
+  return (
+    <div style={{ height }} />
+  )
+}
+
+const ContentWrapper = styled('div')(({ theme }) => ({
+  [theme.breakpoints.up('sm')]: {
+    paddingLeft: drawerWidth,
+  },
+})) as unknown as 'div'
 
 const StyledAvatar = styled(Avatar)(({ theme }: { theme: Theme }) => ({
   backgroundColor: theme.palette.primary.main,
