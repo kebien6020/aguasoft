@@ -30,7 +30,7 @@ import useUser from '../hooks/useUser'
 import Avatar from '@mui/material/Avatar'
 import { styled } from '@mui/material/styles'
 import { Theme } from '../theme'
-import { useMediaQuery } from '@mui/material'
+import { Box, useMediaQuery } from '@mui/material'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary'
 
 const drawerWidth = 96
@@ -205,7 +205,6 @@ const MainDrawer = (props: MainDrawerProps) => {
 
   return (
     <StyledDrawer variant='permanent' open={open}>
-      <ToolbarDiv />
       {content}
     </StyledDrawer>
   )
@@ -217,6 +216,7 @@ const StyledDrawer = styled(Drawer)(({ theme, open }: { theme: Theme, open: bool
       zIndex: theme.zIndex.drawer + 2,
     },
     '& .MuiDrawer-paper': {
+      position: 'static',
       overflowY: 'auto',
       overflowX: 'hidden',
       padding: theme.spacing(1),
@@ -281,7 +281,7 @@ export default function Layout(props: LayoutProps): JSX.Element {
   const Container = container
   const containerProps = className ? { className } : undefined
   return (<>
-    <StyledAppBar position='fixed'>
+    <StyledAppBar position='sticky'>
       <Toolbar>
         <MenuButton
           color='inherit'
@@ -309,18 +309,17 @@ export default function Layout(props: LayoutProps): JSX.Element {
         }
       </Toolbar>
     </StyledAppBar>
-    <MainDrawer
-      open={drawerOpen}
-      onRequestClose={handleDrawerClose}
-    />
-    <ContentWrapper onClick={handleDrawerClose}>
-      <ToolbarDiv />
+    <Box onClick={handleDrawerClose} sx={{ display: 'flex' }}>
+      <MainDrawer
+        open={drawerOpen}
+        onRequestClose={handleDrawerClose}
+      />
       <Container {...containerProps}>
         <GlobalErrorBoundary>
           {children}
         </GlobalErrorBoundary>
       </Container>
-    </ContentWrapper>
+    </Box>
   </>)
 }
 
@@ -338,16 +337,6 @@ const StyledAppBar = styled(AppBar)(({ theme }: { theme: Theme }) => ({
 const MenuButton = styled(IconButton)(({ theme }: { theme: Theme }) => ({
   marginRight: theme.spacing(2),
 })) as typeof IconButton
-
-const ToolbarDiv = styled('div')(({ theme }) =>
-  theme.mixins.toolbar,
-) as unknown as 'div'
-
-const ContentWrapper = styled('div')(({ theme }) => ({
-  [theme.breakpoints.up('sm')]: {
-    paddingLeft: drawerWidth,
-  },
-})) as unknown as 'div'
 
 const StyledAvatar = styled(Avatar)(({ theme }: { theme: Theme }) => ({
   backgroundColor: theme.palette.primary.main,
