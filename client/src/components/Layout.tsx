@@ -1,45 +1,43 @@
-import type { JSX, RefObject } from 'react'
-import React, { useState, useCallback, type ReactNode, forwardRef, type ComponentType, useRef, useEffect } from 'react'
-import { Link, type LinkProps, useLocation } from 'react-router'
-import { type LocationDescriptor } from 'history'
+import type { JSX, RefObject, ReactNode, ComponentType } from 'react'
+import { useState, useCallback, forwardRef, useRef } from 'react'
+import type { LinkProps, To } from 'react-router'
+import { Link, useLocation } from 'react-router'
+import { useElementSize } from '@reactuses/core'
 
+import Avatar from '@mui/material/Avatar'
 import AppBar from '@mui/material/AppBar'
 import Button from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
-import Typography, { TypographyProps } from '@mui/material/Typography'
+import Typography, { type TypographyProps } from '@mui/material/Typography'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
-import * as colors from '@mui/material/colors'
-
-import {
-  AttachMoney as MoneyIcon,
-  ShoppingCart as CartIcon,
-  AddShoppingCart as CartPlusIcon,
-  Menu as MenuIcon,
-  Person as PersonIcon,
-  Dns as BoxesIcon,
-  SwapHoriz as MovementsIcon,
-  TrendingUp,
-  Dashboard as DashboardIcon,
-  LocalAtm,
-} from '@mui/icons-material'
-
-import ResponsiveContainer, { ResponsiveContainerProps } from './ResponsiveContainer'
-import useUser from '../hooks/useUser'
-import Avatar from '@mui/material/Avatar'
 import { styled } from '@mui/material/styles'
+import { blue, green, pink, grey } from '@mui/material/colors'
+import useMediaQuery from '@mui/material/useMediaQuery'
+
+import MoneyIcon from '@mui/icons-material/AttachMoney'
+import CartIcon from '@mui/icons-material/ShoppingCart'
+import CartPlusIcon from '@mui/icons-material/AddShoppingCart'
+import MenuIcon from '@mui/icons-material/Menu'
+import PersonIcon from '@mui/icons-material/Person'
+import BoxesIcon from '@mui/icons-material/Dns'
+import MovementsIcon from '@mui/icons-material/SwapHoriz'
+import TrendingUpIcon from '@mui/icons-material/TrendingUp'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import AtmIcon from '@mui/icons-material/LocalAtm'
+
+import ResponsiveContainer, { type ResponsiveContainerProps } from './ResponsiveContainer'
+import useUser from '../hooks/useUser'
 import { Theme } from '../theme'
-import { useMediaQuery } from '@mui/material'
 import { GlobalErrorBoundary } from './GlobalErrorBoundary'
-import { useElementSize } from '@reactuses/core'
 
 const drawerWidth = 96
 const drawerWidthFull = 256
 
 interface DrawerItemProps {
-  icon: ReactNode,
-  to: LocationDescriptor
+  icon: ReactNode
+  to: To
   text: string
   fullWidth: boolean
   color: string
@@ -117,7 +115,7 @@ const DrawerItemText = styled(
 interface MainDrawerProps {
   open: boolean
   onRequestClose: () => unknown
-  appBarRef: RefObject<HTMLElement|null>
+  appBarRef: RefObject<HTMLElement | null>
 }
 
 const MainDrawer = (props: MainDrawerProps) => {
@@ -129,21 +127,21 @@ const MainDrawer = (props: MainDrawerProps) => {
         text='Tablero'
         to='/dashboard'
         icon={<DashboardIcon />}
-        color={colors.blue.A700}
+        color={blue.A700}
         fullWidth={open}
       />
       <DrawerItem
         text='Ventas'
         to='/sells'
         icon={<CartPlusIcon />}
-        color={colors.blue.A700}
+        color={blue.A700}
         fullWidth={open}
       />
       <DrawerItem
         text='Pagos'
         to='/payments'
         icon={<MoneyIcon />}
-        color={colors.blue.A700}
+        color={blue.A700}
         fullWidth={open}
       />
 
@@ -151,42 +149,42 @@ const MainDrawer = (props: MainDrawerProps) => {
         text='Salidas'
         to='/spendings'
         icon={<CartIcon />}
-        color={colors.blue.A700}
+        color={blue.A700}
         fullWidth={open}
       />
       <DrawerItem
         text='Inventario'
         to='/inventory'
         icon={<BoxesIcon />}
-        color={colors.blue.A700}
+        color={blue.A700}
         fullWidth={open}
       />
       <DrawerItem
         text='Movimientos'
         to='/movements'
         icon={<MovementsIcon />}
-        color={colors.blue.A700}
+        color={blue.A700}
         fullWidth={open}
       />
       <DrawerItem
         text='Balance'
         to='/balance'
-        icon={<TrendingUp />}
-        color={colors.blue.A700}
+        icon={<TrendingUpIcon />}
+        color={blue.A700}
         fullWidth={open}
       />
       <DrawerItem
         text='Clientes'
         to='/clients'
         icon={<PersonIcon />}
-        color={colors.blue.A700}
+        color={blue.A700}
         fullWidth={open}
       />
       <DrawerItem
         text='Precios'
         to='/prices'
-        icon={<LocalAtm />}
-        color={colors.blue.A700}
+        icon={<AtmIcon />}
+        color={blue.A700}
         fullWidth={open}
       />
     </>
@@ -270,16 +268,16 @@ export default function Layout(props: LayoutProps): JSX.Element {
 
   const { pathname: currentPath } = useLocation()
 
-  const appBarRef = useRef<HTMLElement|null>(null)
+  const appBarRef = useRef<HTMLElement | null>(null)
 
   const userColorLookup: { [index: string]: string } = {
-    '001': colors.blue[500],
-    '002': colors.pink[500],
-    '003': colors.green[500],
+    '001': blue[500],
+    '002': pink[500],
+    '003': green[500],
   }
 
   const getUserColor = (userCode: string) => (
-    userColorLookup[userCode] || colors.grey[500]
+    userColorLookup[userCode] || grey[500]
   )
 
   const Container = container
@@ -345,11 +343,11 @@ const MenuButton = styled(IconButton)(({ theme }: { theme: Theme }) => ({
 })) as typeof IconButton
 
 
-const ToolbarDiv = ({ appBarRef }:{appBarRef: RefObject<HTMLElement|null>}) => {
+const ToolbarDiv = ({ appBarRef }: { appBarRef: RefObject<HTMLElement | null> }) => {
   const [_, height] = useElementSize(appBarRef, { box: 'border-box' })
 
   return (
-    <div style={{ height }} />
+    <div style={{ height, minHeight: height }} />
   )
 }
 
