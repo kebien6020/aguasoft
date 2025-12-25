@@ -345,11 +345,11 @@ const MenuButton = styled(IconButton)(({ theme }: { theme: Theme }) => ({
 })) as typeof IconButton
 
 
-const ToolbarDiv = ({ appBarRef }:{appBarRef: RefObject<HTMLElement|null>}) => {
+const ToolbarDiv = ({ appBarRef }: { appBarRef: RefObject<HTMLElement | null> }) => {
   const [_, height] = useElementSize(appBarRef, { box: 'border-box' })
 
   return (
-    <div style={{ height }} />
+    <div style={{ height, minHeight: height }} />
   )
 }
 
