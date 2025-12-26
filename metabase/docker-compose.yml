@@ -1,0 +1,54 @@
+services:
+  db-puller:
+    image: alpine:latest
+    command:
+    - sh
+    - -c
+    - |
+      set -x
+      apk add --no-cache openssh-client
+      while true; do
+        ssh -i /run/secrets/ssh_private_key \
+          -o StrictHostKeyChecking=no \
+          root@agua.kevinpena.com \
+            /opt/aguasoft/dump.sh > /db/aguasoft.sqlite.tmp
+        mv /db/aguasoft.sqlite.tmp /db/aguasoft.sqlite
+        chmod -R 777 /db/
+        chown -R 2000:2000 /db/
+        sleep 3600
+      done
+    volumes:
+    - db:/db:rw
+    secrets:
+    - ssh_private_key
+  metabase:
+    image: metabase/metabase:latest
+    user: root:root
+    ports:
+    - 3040:3000
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase_db
+      MB_DB_PORT: '5432'
+      MB_DB_USER: metabase
+      MB_DB_PASS: metabase_password
+      MB_DB_HOST: metabase_db
+    volumes:
+    - metabase-data:/metabase-data
+    - db:/db
+  metabase_db:
+    image: postgres:18-trixie
+    environment:
+      POSTGRES_USER: metabase
+      POSTGRES_PASSWORD: metabase_password
+      POSTGRES_DB: metabase_db
+    volumes:
+    - metabase-data:/var/lib/postgresql
+
+volumes:
+  db: {}
+  metabase-data: {}
+
+secrets:
+  ssh_private_key:
+    file: aguasoft_ssh_key.secret
