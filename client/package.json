@@ -29,7 +29,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "formik": "^2.4.9",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.17.23",
     "react": "^19.2.0",
     "react-compiler-runtime": "^19.0.0-beta-30d8a17-20250209",
     "react-dom": "^19.2.0",
