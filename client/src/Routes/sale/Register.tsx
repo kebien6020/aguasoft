@@ -262,6 +262,15 @@ const RegisterSaleImpl = memo(() => {
     handleAdd()
   }, [clientId, handleAdd, values.saleLines.length])
 
+  // Auto remove price selections when client changes
+  useEffect(() => {
+    for (let i = 0; i < values.saleLines.length; ++i) {
+      const line = values.saleLines[i]
+      if (line.priceId)
+        setFieldValue(`saleLines[${i}].priceId`, '')
+    }
+  }, [clientId, setFieldValue, values.saleLines])
+
   return (
     <>
       <Grid size={{ xs: 12 }}>
@@ -349,23 +358,28 @@ const calcTotal = (saleLines: SaleLine[], prices: Price[] | null) => {
     return 0
 
 
-  const priceMap = prices.reduce<Record<string, Price>>((o, p) => {
+  const priceMap = prices.reduce<Record<string, Price | undefined>>((o, p) => {
     o[p.id] = p
     return o
   }, {})
 
-  const total = saleLines.reduce((acc, line) => {
+  const { total, errored } = saleLines.reduce((acc, line) => {
     if (!line.priceId) { // Skip lines when price hasn't been selected yet
       return acc
     }
-    const price = priceMap[line.priceId].value
+    const priceObj = priceMap[line.priceId]
+    if (!priceObj)
+      return { ...acc, errored: true }
+
+
+    const price = priceObj.value
     if (!price || isNaN(price))
       return acc
 
-    return acc + price * line.quantity
-  }, 0)
+    return { ...acc, total: acc.total + price * line.quantity }
+  }, { total: 0, errored: false })
 
-  return total
+  return errored ? 0 : total
 }
 
 interface SaleLineFormsProps {
