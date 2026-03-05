@@ -263,13 +263,9 @@ const RegisterSaleImpl = memo(() => {
   }, [clientId, handleAdd, values.saleLines.length])
 
   // Auto remove price selections when client changes
-  useEffect(() => {
-    for (let i = 0; i < values.saleLines.length; ++i) {
-      const line = values.saleLines[i]
-      if (line.priceId)
-        setFieldValue(`saleLines[${i}].priceId`, '')
-    }
-  }, [clientId, setFieldValue, values.saleLines])
+  const clientChangeHook = useCallback(() => {
+    setFieldValue('saleLines', values.saleLines.map(line => ({ ...line, priceId: '' })))
+  }, [setFieldValue, values.saleLines])
 
   return (
     <>
@@ -277,7 +273,7 @@ const RegisterSaleImpl = memo(() => {
         <StyledPaper>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
-              <ComboboxField name='client' label='Cliente' options={clients} />
+              <ComboboxField name='client' label='Cliente' options={clients} onOptionChange={clientChangeHook} />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
               {client && (

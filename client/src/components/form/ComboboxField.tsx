@@ -1,9 +1,6 @@
 import {
   Autocomplete,
   AutocompleteProps,
-  FormControl,
-  FormHelperText,
-  InputLabel,
   TextField,
 } from '@mui/material'
 import { useField, useFormikContext } from 'formik'
@@ -19,6 +16,7 @@ export type ComboboxFieldProps =
     label: string
     options?: readonly ComboboxOption[] | null
     emptyOption?: string
+    onOptionChange?: (option: ComboboxOption | null) => void
   }
 
 export const ComboboxField = (props: ComboboxFieldProps) => {
@@ -27,6 +25,7 @@ export const ComboboxField = (props: ComboboxFieldProps) => {
     label,
     options,
     emptyOption = props.options === null ? 'Cargando…' : 'Seleccionar',
+    onOptionChange,
     ...otherProps
   } = props
 
@@ -38,6 +37,7 @@ export const ComboboxField = (props: ComboboxFieldProps) => {
 
   const handleChange = (_event: unknown, newValue: ComboboxOption | null) => {
     setFieldValue(name, newValue?.value ?? '')
+    onOptionChange?.(newValue)
   }
 
   return (
