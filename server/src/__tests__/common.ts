@@ -58,5 +58,9 @@ export const withAgent = async (fn: (agent: Agent) => Promise<void>) => {
   const port = 3001
   const server = app.listen(port)
   const agent = supertest.agent(`http://localhost:${port}`)
-  fn(agent).finally(() => close(server))
+  try {
+    await fn(agent)
+  } finally {
+    await close(server)
+  }
 }
