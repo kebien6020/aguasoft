@@ -27,8 +27,7 @@ export const movementCauseSlugToText =
     movementCause[slug].text
 
 export const movementCauseOptions =
-  Object
-    .keys(movementCause)
+  (Object.keys(movementCause) as MovementCauseSlug[])
     .map((key: MovementCauseSlug) => ({
       value: key,
       label: movementCauseSlugToText(key),

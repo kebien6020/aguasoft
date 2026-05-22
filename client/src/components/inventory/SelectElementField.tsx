@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useFormikContext, useField } from 'formik'
 
 import useStorageStates from '../../hooks/api/useStorageStates'
-import SelectField, { SelectFieldProps } from '../form/SelectField'
+import SelectField, { ChangeEvent, SelectFieldProps } from '../form/SelectField'
 import useStorages from '../../hooks/api/useStorages'
 
 export type SelectElementFieldProps = SelectFieldProps & {
@@ -45,7 +45,7 @@ const SelectElementField = (props: SelectElementFieldProps): JSX.Element => {
     }
   }, [field.value, storageCode, storageStates, storages])
 
-  const onChangeOverride = (event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>) => {
+  const onChangeOverride = (event: ChangeEvent) => {
     const value = event.target.value
     setFieldValue(props.name, value)
   }

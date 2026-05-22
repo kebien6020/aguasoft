@@ -19,7 +19,7 @@ export const styled = <P extends StyleProps>(Component: CT<P>) => (style: StyleP
 
         return propStyle.reduce((acc, s) => ({ ...acc, ...s }), {})
       })()
-      return { ...propStyleFlattened, ...resolved } as Style
+      return { ...propStyleFlattened, ...resolved }
     }, [props, propStyle])
 
     return (

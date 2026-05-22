@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import type { FormikValues, FormikHelpers } from 'formik'
+import type { FormikHelpers } from 'formik'
 import { blue, green, indigo, orange, pink, purple, yellow } from '@mui/material/colors'
 
 import Layout from '../components/Layout'
@@ -63,7 +63,7 @@ const CreateBatchForm = ({ refresh }: CreateBatchFormProps) => {
   const showError = useSnackbar()
   const auth = useAuth()
 
-  const handleSubmit = async (values: FormValues, _formikHelpers: FormikHelpers<FormikValues>) => {
+  const handleSubmit = async (values: FormValues, _formikHelpers: FormikHelpers<FormValues>) => {
     const payload = {
       date: values.date,
       batchCategoryId: Number(values.batchCategory),

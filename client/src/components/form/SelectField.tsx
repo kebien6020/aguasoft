@@ -1,7 +1,6 @@
 import type { JSX } from 'react'
 import { useField, FieldInputProps, FieldMetaProps } from 'formik'
 import SelectControl, { SelectControlProps } from '../controls/SelectControl'
-import { SelectChangeEvent } from '@mui/material'
 
 export interface SelectOption {
   value: string
@@ -29,7 +28,7 @@ const SelectField = (props: SelectFieldProps): JSX.Element => {
   const {
     name,
     onChangeOverride,
-    onBeforeChange = () => { /**/ },
+    onBeforeChange = () => { /* */ },
     ...otherProps
   } = props
   const [field, meta] = useField<string>(name)
@@ -39,7 +38,12 @@ const SelectField = (props: SelectFieldProps): JSX.Element => {
       id={field.name}
       errorMessage={meta.error}
       touched={meta.touched}
-      onChange={(e: SelectChangeEvent) => {
+      onChange={(e: ChangeEvent) => {
+        if (typeof e.target.value !== 'string') {
+          console.warn('SelectField onChange received non-string value', e.target.value)
+          return
+        }
+
         const continueChange = onBeforeChange(e.target.value)
         if (continueChange === false) return
 
