@@ -146,7 +146,7 @@ export default function ManualMovementForm(props: ManualMovementFormProps): JSX.
             variant='standard'
           />
         </Grid>
-        <Grid container justifyContent='center'>
+        <Grid container sx={{ justifyContent: 'center' }}>
           <Button type='submit' variant='contained' color='primary'>
             Crear
           </Button>

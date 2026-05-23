@@ -127,7 +127,7 @@ const Movements = () => {
       </Paper>
       <div ref={scrollTargetRef} style={{ height: 0 }} />
       <Title>Movimientos recientes</Title>
-      <Grid container spacing={3} justifyContent='center'>
+      <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <SelectControl
             id='cause-filter'

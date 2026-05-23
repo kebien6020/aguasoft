@@ -15,7 +15,7 @@ const SubmitButton = ({ children, onlyEnableWhenValid = false, disabled = false 
   const { isSubmitting, isValid } = useFormikContext()
 
   return (
-    <Grid size={{ xs: 12 }} container direction='row' justifyContent='center'>
+    <Grid size={{ xs: 12 }} container direction='row' sx={{ justifyContent: 'center' }}>
       <Wrapper>
         <Button
           variant='contained'

@@ -2,7 +2,6 @@ import js from '@eslint/js'
 import ts from 'typescript-eslint'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
-import reactCompiler from 'eslint-plugin-react-compiler'
 
 export default [
   {
@@ -27,17 +26,7 @@ export default [
   },
   react.configs.flat.recommended,
   react.configs.flat['jsx-runtime'],
-  {
-    // TODO: On version 5.2.0 of the plugin, there's a recommended config
-    // in the package
-    files: ['**/*.{js,jsx,ts,tsx,mjs}'],
-    plugins: { 'react-hooks': reactHooks },
-    rules: {
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-    },
-  },
-  reactCompiler.configs.recommended,
+  reactHooks.configs.flat.recommended,
   {
     languageOptions: {
       ecmaVersion: 'latest',

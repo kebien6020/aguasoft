@@ -126,7 +126,7 @@ const RegisterSpending = () => {
           && <Alert message={submitionError} type='error' />
         }
         <form>
-          <Grid container spacing={0} justifyContent='space-between'>
+          <Grid container spacing={0} sx={{ justifyContent: 'space-between' }}>
             {userIsAdmin
               && <Grid size={{ xs: 12 }}>
                 <DatePicker
