@@ -58,5 +58,9 @@
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4"
+  },
+  "$comment.override-uWebSockets": "Remove when ultimate-express >2.1.0 is released",
+  "overrides": {
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.66.0"
   }
 }
