@@ -56,12 +56,10 @@ const Movements = () => {
   const { movements, totalCount, loading } = useMovements(params)
 
   // Handle filter change while on a high page number
-  useEffect(() => {
-    if (totalCount && offset > totalCount) {
-      const page = Math.floor(totalCount / ITEMS_PER_PAGE)
-      setOffset(page * ITEMS_PER_PAGE)
-    }
-  }, [offset, totalCount])
+  if (totalCount && offset > totalCount) {
+    const page = Math.floor(totalCount / ITEMS_PER_PAGE)
+    setOffset(page * ITEMS_PER_PAGE)
+  }
 
   const scrollTargetRef = useRef<HTMLDivElement>(null)
 
@@ -127,7 +125,7 @@ const Movements = () => {
       </Paper>
       <div ref={scrollTargetRef} style={{ height: 0 }} />
       <Title>Movimientos recientes</Title>
-      <Grid container spacing={3} justifyContent='center'>
+      <Grid container spacing={3} sx={{ justifyContent: 'center' }}>
         <Grid size={{ xs: 12, md: 6 }}>
           <SelectControl
             id='cause-filter'
@@ -156,7 +154,7 @@ const Movements = () => {
         </Grid>
       </Grid>
       {renderPagination()}
-      <Grid container spacing={3} alignItems='stretch'>
+      <Grid container spacing={3} sx={{ alignItems: 'stretch' }}>
         {movements && users && storages && inventoryElements ? movements.map(movement =>
           <Grid key={movement.id} size={{ xs: 12, md: 6 }}>
             <MovementCard

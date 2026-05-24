@@ -447,7 +447,7 @@ const SaleLineForm = memo(({ idx, products, line, onRemove, clientId }: SaleLine
 
   return (
     <Grid container spacing={1}>
-      <Grid size={{ xs: 12 }} container justifyContent='flex-end'>
+      <Grid size={{ xs: 12 }} container sx={{ justifyContent: 'flex-end' }}>
         <IconButton onClick={() => {
           onRemove(idx)
         }} size='small' style={{ margin: -8 }}>

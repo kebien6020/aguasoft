@@ -48,11 +48,12 @@ const RegisterPayment = () => {
   const [selectedClientId, setSelectedClientId] = useState<string | undefined>()
 
   // Select the first client when the client list changes
-  useEffect(() => {
-    if (clients === null) return
-    const firstClient = clients.find(cl => !cl.hidden && !cl.defaultCash)
+  const [prevClients, setPrevClients] = useState(clients)
+  if (clients !== prevClients) {
+    setPrevClients(clients)
+    const firstClient = clients?.find(cl => !cl.hidden && !cl.defaultCash)
     setSelectedClientId(firstClient?.id.toString())
-  }, [clients])
+  }
 
   const userIsAdmin = user?.user?.role === 'admin'
 
@@ -213,7 +214,7 @@ const RegisterPayment = () => {
         }
         {selectedClientId
           ? <form>
-            <Grid container spacing={0} columnSpacing={2} justifyContent='space-between'>
+            <Grid container spacing={0} columnSpacing={2} sx={{ justifyContent: 'space-between' }}>
               {userIsAdmin
                 && <Grid size={{ xs: 12 }}>
                   <DatePicker
@@ -270,7 +271,7 @@ const RegisterPayment = () => {
                 </Typography>
               </Grid>
               <CollapseFullwidth in={invoiceEnabled}>
-                <Grid container spacing={0} justifyContent='space-between'>
+                <Grid container spacing={0} sx={{ justifyContent: 'space-between' }}>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <DatePicker
                       label='Fecha de la factura'
@@ -313,7 +314,7 @@ const RegisterPayment = () => {
                 </Typography>
               </Grid>
               <CollapseFullwidth in={datesEnabled}>
-                <Grid container spacing={0} justifyContent='space-between'>
+                <Grid container spacing={0} sx={{ justifyContent: 'space-between' }}>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <DatePicker
                       label='Inicio'

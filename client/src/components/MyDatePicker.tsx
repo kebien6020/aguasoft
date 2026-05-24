@@ -18,6 +18,9 @@ const formatResilient = (date: Date | null, fieldFormat: string): string => {
   return ''
 }
 
+// Disable the refs rule because we're literally using copy-pasted code from the
+// docs: https://mui.com/x/react-date-pickers/custom-field/#using-a-read-only-text-field-on-mobile
+/* eslint-disable react-hooks/refs */
 function ReadOnlyDateField(props: DatePickerFieldProps) {
   const { internalProps, forwardedProps } = useSplitFieldProps(props, 'date')
 
@@ -59,6 +62,7 @@ function ReadOnlyDateField(props: DatePickerFieldProps) {
     />
   )
 }
+/* eslint-enable react-hooks/refs */
 
 export interface MyDatePickerProps {
   label?: React.ReactNode

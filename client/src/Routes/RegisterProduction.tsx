@@ -141,11 +141,8 @@ const RegisterProduction = (): JSX.Element => {
     name: 'el ultimo contador de la maquina de bolsas de 360ml',
   })
 
-  useEffect(() => {
-    if (lastMachineCounter !== null)
-      setInitialValues(prev => ({ ...prev, counterStart: String(lastMachineCounter.value) }))
-
-  }, [lastMachineCounter])
+  if (lastMachineCounter && initialValues.counterStart === '') 
+    setInitialValues(prev => ({ ...prev, counterStart: String(lastMachineCounter.value) }))
 
   const [detectDamaged, setDetectDamaged] = useState(true)
 

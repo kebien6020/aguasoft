@@ -51,7 +51,7 @@ export const DateFilter = ({
   }, [groupBy, onGroupByChange])
 
   return (
-    (<Grid container spacing={2} justifyContent='center'>
+    (<Grid container spacing={2} sx={{ justifyContent: 'center' }}>
       <Grid>
         <FormControl variant='outlined'>
           <InputLabel>Agrupar</InputLabel>

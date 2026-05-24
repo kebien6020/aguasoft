@@ -56,8 +56,11 @@ router.post('/', handleErrors(async (req, res) => {
     })
     res.json(created)
   } catch (e: unknown) {
-    if (e instanceof ValidationError)
-      throw Error('Ya existe un lote en esta fecha para esta categoría')
+    if (e instanceof ValidationError) {
+      throw Error('Ya existe un lote en esta fecha para esta categoría', {
+        cause: e,
+      })
+    }
 
     throw e
   }

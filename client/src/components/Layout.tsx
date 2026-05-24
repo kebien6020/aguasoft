@@ -228,7 +228,7 @@ const StyledDrawer = styled(Drawer)(({ theme, open }: { theme: Theme, open: bool
       ...(open ? { width: drawerWidthFull } : {}),
     },
   }
-}) as typeof Drawer
+}) as unknown as typeof Drawer // This last bit is to drop theme as a prop
 
 export interface LayoutProps {
   children: ReactNode

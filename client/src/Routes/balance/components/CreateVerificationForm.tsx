@@ -104,7 +104,7 @@ const CreateVerificationFormImpl = () => {
         }}
       />
     </Grid>
-    <Grid flexGrow={1}>
+    <Grid sx={{ flexGrow: 1 }}>
       <PriceField
         name='value'
         label='Valor verificado'
@@ -113,7 +113,7 @@ const CreateVerificationFormImpl = () => {
         }}
       />
     </Grid>
-    <Grid size={{ xs: 12 }} container direction='row' justifyContent='center'>
+    <Grid size={{ xs: 12 }} container direction='row' sx={{ justifyContent: 'center' }}>
       <SubmitButton>Crear</SubmitButton>
     </Grid>
   </>)

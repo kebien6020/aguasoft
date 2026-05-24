@@ -89,6 +89,9 @@ const BillingSummary = (): JSX.Element => {
   const [downloadName, setDownloadName] = useState('')
 
   // Detect download name
+  // Disabling the rule because it's really complicated to achieve the same
+  // result without this pattern
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!clientName || !beginDateIso || !endDateIso) return
     const begin = parseISO(beginDateIso)
@@ -96,6 +99,7 @@ const BillingSummary = (): JSX.Element => {
 
     setDownloadName(detectDownloadName(clientName, begin, end))
   }, [beginDateIso, clientName, endDateIso])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <Layout title='Facturación'>
