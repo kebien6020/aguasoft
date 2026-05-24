@@ -48,11 +48,12 @@ const RegisterPayment = () => {
   const [selectedClientId, setSelectedClientId] = useState<string | undefined>()
 
   // Select the first client when the client list changes
-  useEffect(() => {
-    if (clients === null) return
-    const firstClient = clients.find(cl => !cl.hidden && !cl.defaultCash)
+  const [prevClients, setPrevClients] = useState(clients)
+  if (clients !== prevClients) {
+    setPrevClients(clients)
+    const firstClient = clients?.find(cl => !cl.hidden && !cl.defaultCash)
     setSelectedClientId(firstClient?.id.toString())
-  }, [clients])
+  }
 
   const userIsAdmin = user?.user?.role === 'admin'
 

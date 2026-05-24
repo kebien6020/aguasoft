@@ -92,7 +92,7 @@ const CreateBatchForm = ({ refresh }: CreateBatchFormProps) => {
         initialValues={batchFormInitialValues}
         validationSchema={batchFormSchema}
         onSubmit={handleSubmit}
-        gridProps={{ direction: 'row', alignItems: 'center' }}
+        gridProps={{ direction: 'row', sx: { alignItems: 'center' } }}
       >
         <Grid size={{ xs: 12, md: 4 }}>
           <DateField name='date' label='Fecha del lote' />

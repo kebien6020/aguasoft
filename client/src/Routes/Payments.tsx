@@ -13,7 +13,7 @@ import MyDatePicker, { MyDatePickerProps } from '../components/MyDatePicker'
 import PaymentList from '../components/Payments'
 import Title from '../components/Title'
 import { Payment } from '../models'
-import { fetchJsonAuth, ErrorResponse, SuccessResponse, isErrorResponse } from '../utils'
+import { fetchJsonAuth, ErrorResponse, isErrorResponse } from '../utils'
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import { MakeOptional } from '../utils/types'
@@ -103,6 +103,7 @@ export default function Payments() {
           variant='outlined'
           color='primary'
           component={ListLink}
+          nativeButton={false}
         >
           Ver todos
         </Button>

@@ -50,10 +50,8 @@ const Login = (props: LoginProps) => {
   const [password, setPassword] = useState('')
 
   // Pre-select first user
-  useEffect(() => {
-    if (userOpts && userOpts.length > 0)
-      setUserId(Number(userOpts[0].value))
-  }, [userOpts])
+  if (userOpts && userOpts.length > 0 && !userId)
+    setUserId(Number(userOpts[0].value))
 
   const handleSubmit = useCallback(() => {
     (async () => {

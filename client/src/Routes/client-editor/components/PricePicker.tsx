@@ -34,9 +34,13 @@ const PricePicker = ({ clientName, products, onNewPrice }: Props) => {
   const [currentPrice, setCurrentPrice] = useState(products[0]?.basePrice ?? 0)
 
   // If the products prop changes, update the currentProduct state
-  useEffect(() => {
+  // https://react.dev/reference/react/useState#storing-information-from-previous-renders
+  const [prevProducts, setPrevProducts] = useState(products)
+  if (prevProducts !== products) {
+    setPrevProducts(products)
     setCurrentProduct(products[0]?.id?.toString() ?? '')
-  }, [products])
+    setCurrentPrice(products[0]?.basePrice ?? 0)
+  }
 
   const handleOpenDialog = useCallback(() => {
     setDialogOpen(true)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import makeStyles from '@mui/styles/makeStyles'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -61,14 +61,8 @@ const RegisterRelocation = () => {
     name: 'el contador anterior de cambio de rollo',
   })
 
-  useEffect(() => {
-    if (lastMachineCounter !== null) {
-      setInitialValues(prev => ({
-        ...prev,
-        previousCounter: lastMachineCounter.value,
-      }))
-    }
-  }, [lastMachineCounter])
+  if (lastMachineCounter && initialValues.previousCounter === null) 
+    setInitialValues(prev => ({ ...prev, previousCounter: lastMachineCounter.value }))
 
   const [statesNonce, updateStates] = useNonce()
 
@@ -165,7 +159,7 @@ const RegisterRelocation = () => {
             }>
               <Grid size={{ xs: 12 }}>
                 <Typography>
-                  Cantidad desde el rollo anterior:
+                  Cantidad desde el rollo anterior:{' '}
                   {lastMachineCounter ? Number(values.counter) - lastMachineCounter.value : ''}.
                 </Typography>
               </Grid>

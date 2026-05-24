@@ -75,6 +75,7 @@ const ClientEditor = () => {
   const [defaultCash, setDefaultCash] = useState<'true' | 'false'>('false')
   const [priceMode, setPriceMode] = useState<'priceSet' | 'custom'>('priceSet')
   const [selectedPriceSetId, setSelectedPriceSetId] = useState('')
+  const [prices, setPrices] = useState<IncompletePrice[]>([])
 
   // Restore state
   useEffect(() => {
@@ -167,8 +168,6 @@ const ClientEditor = () => {
     setPriceMode(event.target.value)
   }, [])
 
-  const [prices, setPrices] = useState<IncompletePrice[]>([])
-
   const [products] = useProducts()
   const [priceSets] = usePriceSets()
   const selectedPriceSetIdNum = selectedPriceSetId === '' ? undefined : Number(selectedPriceSetId)
@@ -202,7 +201,7 @@ const ClientEditor = () => {
     }
 
     setPrices([...prices, price])
-  }, [prices, products])
+  }, [setPrices, prices, products])
 
   const handleSubmit = useCallback(() => {
     (async () => {
