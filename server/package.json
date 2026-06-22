@@ -35,9 +35,9 @@
     "yup": "^1.7.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.28.6",
-    "@babel/core": "^7.29.0",
-    "@babel/preset-typescript": "^7.28.5",
+    "@babel/cli": "^8.0.1",
+    "@babel/core": "^8.0.1",
+    "@babel/preset-typescript": "^8.0.1",
     "@eslint/js": "^10.0.1",
     "@faker-js/faker": "^10.4.0",
     "@tsconfig/node22": "^22.0.5",
