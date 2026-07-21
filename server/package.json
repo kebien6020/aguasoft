@@ -19,7 +19,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.10.0",
-    "body-parser": "^2.2.2",
+    "body-parser": "^2.3.0",
     "buffer": "^6.0.3",
     "date-fns": "^4.2.1",
     "debug": "^4.4.3",
