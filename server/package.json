@@ -27,7 +27,7 @@
     "express-jwt": "^8.5.1",
     "express-session": "^1.19.0",
     "jwks-rsa": "^4.0.1",
-    "qs": "^6.15.2",
+    "qs": "^6.16.0",
     "sequelize": "^6.37.8",
     "sequelize-cli": "^6.6.5",
     "sqlite3": "^6.0.1",
