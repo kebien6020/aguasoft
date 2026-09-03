@@ -39,7 +39,7 @@
     "@babel/core": "^7.29.0",
     "@babel/preset-typescript": "^7.28.5",
     "@eslint/js": "^10.0.1",
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "^10.5.0",
     "@tsconfig/node22": "^22.0.5",
     "@types/bcryptjs": "^3.0.0",
     "@types/better-sqlite3": "^7.6.13",
