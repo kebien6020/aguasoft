@@ -1,5 +1,5 @@
 export default {
-  presets: [['@babel/preset-typescript', { allowDeclareFields: true }]],
+  presets: [['@babel/preset-typescript']],
   ignore: [
     'src/@types/**/*',
     'src/**/*.test.ts',
