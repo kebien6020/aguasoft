@@ -1,7 +1,11 @@
 export default {
-  presets: [['@babel/preset-typescript', {
-    onlyRemoveTypeImports: false, // Remove type imports even if they don't explicitly use the import type syntax
-  }]],
+  presets: [
+    [
+      '@babel/preset-typescript', {
+        onlyRemoveTypeImports: false, // Remove type imports even if they don't explicitly use the import type syntax
+      },
+    ],
+  ],
   ignore: [
     'src/@types/**/*',
     'src/**/*.test.ts',
