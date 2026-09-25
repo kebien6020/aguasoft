@@ -19,7 +19,7 @@ export async function fetchJsonAuth<R = SuccessResponse>(
 ): Promise<R | ErrorResponse> {
 
   const {
-    fetch = window.fetch,
+    fetch = (...args) => window.fetch(...args),
     redirectOnAuthError = true,
   } = opts
 

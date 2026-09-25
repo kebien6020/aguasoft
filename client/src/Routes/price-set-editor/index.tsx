@@ -209,6 +209,8 @@ const PriceList = ({ prices, products, onDeletePrice: onPriceDelete }: PriceList
   return (
     <Grid size={12}>
       {prices.map((pr, idx) => (
+        // The identity of the price that hasn't been created is its idx
+        // eslint-disable-next-line @eslint-react/no-array-index-key
         <PricePaper key={idx}>
           {pr.name !== 'Base' && <>
             <Typography variant='subtitle2'>{pr.name}</Typography>

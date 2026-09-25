@@ -14,11 +14,15 @@ RUN npm ci
 COPY server ./
 RUN npm run build
 
-FROM node:24-trixie-slim AS server-prod-deps
+# TODO: Switch back to slim once bug is fixed in npm
+#       Currently Python is needed on the base image basically just to notice
+#       that a prebuilt is available
+#       https://github.com/npm/cli/issues/9837
+FROM node:24-trixie AS server-prod-deps
 
 WORKDIR /build
 COPY server/package.json server/package-lock.json ./
-RUN npm ci --only=prod
+RUN npm ci --omit=dev
 
 ## Server
 FROM node:24-trixie-slim AS server

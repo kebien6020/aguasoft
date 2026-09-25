@@ -18,6 +18,7 @@ import { firstUpper } from '../../utils/helper'
 import { MakeRequired } from '../../utils/types'
 import { BillingSummaryPdf, BillingSummaryPdfProps } from './components/BillingSummaryPdf'
 import { PDFErrorBoundary } from './components/PDFErrorBoundary'
+import { sleep } from '../../utils/sleep'
 
 const startOfPrevMonth = startOfMonth(addMonths(new Date, -1))
 const endOfPrevMonth = endOfMonth(addMonths(new Date, -1))
@@ -80,7 +81,7 @@ const BillingSummary = (): JSX.Element => {
     (async () => {
       if (title && sales && !loadingSales) {
         setPdfProps(null) // manually cause an unmount
-        await new Promise(resolve => setTimeout(resolve, 300))
+        await sleep(300)
         setPdfProps({ title, sales })
       }
     })()
@@ -91,7 +92,7 @@ const BillingSummary = (): JSX.Element => {
   // Detect download name
   // Disabling the rule because it's really complicated to achieve the same
   // result without this pattern
-  /* eslint-disable react-hooks/set-state-in-effect */
+  /* eslint-disable @eslint-react/set-state-in-effect */
   useEffect(() => {
     if (!clientName || !beginDateIso || !endDateIso) return
     const begin = parseISO(beginDateIso)
@@ -99,7 +100,7 @@ const BillingSummary = (): JSX.Element => {
 
     setDownloadName(detectDownloadName(clientName, begin, end))
   }, [beginDateIso, clientName, endDateIso])
-  /* eslint-enable react-hooks/set-state-in-effect */
+  /* eslint-enable @eslint-react/set-state-in-effect */
 
   return (
     <Layout title='Facturación'>

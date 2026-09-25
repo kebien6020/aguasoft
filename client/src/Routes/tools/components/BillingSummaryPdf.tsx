@@ -6,7 +6,6 @@ import {
   Text as RPText, View,
   ViewProps,
 } from '@react-pdf/renderer'
-import type FontStore from '@react-pdf/font'
 import { endOfDay, format, formatISO, isSameDay, parseISO, startOfDay } from 'date-fns'
 import { es } from 'date-fns/locale/es'
 import React from 'react'

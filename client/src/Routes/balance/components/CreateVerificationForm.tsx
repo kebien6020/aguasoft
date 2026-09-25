@@ -1,4 +1,4 @@
-import type { JSX } from 'react'
+import { useMemo, type JSX } from 'react'
 import { Grid } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { addDays, startOfDay, subDays } from 'date-fns'
@@ -15,7 +15,6 @@ import {
   fetchJsonAuth,
   isErrorResponse,
   moneySign,
-  SuccessResponse,
 } from '../../../utils'
 import { Theme } from '../../../theme'
 
@@ -86,7 +85,7 @@ const CreateVerificationFormImpl = () => {
   const adjust = prevBalance !== null && !isNaN(numVal) && value !== ''
     ? numVal - prevBalance
     : undefined
-  const tomorrow = startOfDay(addDays(new Date, 1))
+  const tomorrow = useMemo(() => startOfDay(addDays(new Date, 1)), [])
 
   return (<>
     <Grid>

@@ -10,8 +10,8 @@ export default {
     ],
     [
       '@babel/preset-typescript', {
-        allowDeclareFields: true,
-      },
+        onlyRemoveTypeImports: false, // Remove type imports even if they don't explicitly use the import type syntax
+      }
     ],
   ],
   plugins: [

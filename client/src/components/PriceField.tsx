@@ -6,7 +6,6 @@ import type {
   TextareaHTMLAttributes,
   ForwardedRef,
 } from 'react'
-import { forwardRef } from 'react'
 import { InputBaseComponentProps, TextField } from '@mui/material'
 import { TextFieldProps } from '@mui/material/TextField'
 
@@ -14,10 +13,11 @@ import { NumberFormatValues, NumericFormat, NumericFormatProps } from 'react-num
 
 interface NumFormatProps extends NumericFormatProps {
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void
+  ref?: ForwardedRef<HTMLInputElement>
 }
 
-const NumberFormatCustom = forwardRef((props: NumFormatProps, ref: ForwardedRef<HTMLInputElement>) => {
-  const { onChange, ...other } = props
+const NumberFormatCustom = (props: NumFormatProps) => {
+  const { onChange, ref, ...other } = props
 
   return (
 
@@ -38,8 +38,7 @@ const NumberFormatCustom = forwardRef((props: NumFormatProps, ref: ForwardedRef<
       valueIsNumericString
     />
   )
-})
-NumberFormatCustom.displayName = 'NumberFormatCustom'
+}
 
 export interface PriceFieldProps {
   label?: ReactNode
