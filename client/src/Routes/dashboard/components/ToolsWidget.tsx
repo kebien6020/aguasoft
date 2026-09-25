@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { forwardRef, useCallback } from 'react'
+import { useCallback } from 'react'
 import { List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material'
 import { TableChart as TableIcon, TrendingUp } from '@mui/icons-material'
 import { Link, LinkProps, useNavigate } from 'react-router'
@@ -34,11 +34,9 @@ export const ToolsWidget = (): JSX.Element => {
   </>)
 }
 
-type LinkToBillingSummaryProps = MakeOptional<LinkProps, 'to'>
-const LinkToBillingSummary = forwardRef<HTMLAnchorElement, LinkToBillingSummaryProps>(
-  function LinkToBillingSummary(props, ref) {
-    return (
-      <Link to='/tools/billing-summary' ref={ref} {...props} />
-    )
-  },
+type LinkToBillingSummaryProps = MakeOptional<LinkProps, 'to'> & {
+  ref?: React.Ref<HTMLAnchorElement>
+}
+const LinkToBillingSummary = (props: LinkToBillingSummaryProps) => (
+  <Link to='/tools/billing-summary' {...props} />
 )

@@ -108,26 +108,26 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   const [snackbar, showMessage] = useSnackbar()
 
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext value={auth}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
         <BrowserRouter>
           <StyledEngineProvider injectFirst>
             <ThemeProvider theme={theme}>
               <LegacyThemeProvider theme={theme}>
-                <SnackbarContext.Provider value={showMessage}>
+                <SnackbarContext value={showMessage}>
                   {snackbar}
                   <UserProvider>
                     <GoogleOAuthProvider clientId={googleClientId}>
                       {children}
                     </GoogleOAuthProvider>
                   </UserProvider>
-                </SnackbarContext.Provider>
+                </SnackbarContext>
               </LegacyThemeProvider>
             </ThemeProvider>
           </StyledEngineProvider>
         </BrowserRouter>
       </LocalizationProvider>
-    </AuthContext.Provider>
+    </AuthContext>
   )
 }
 

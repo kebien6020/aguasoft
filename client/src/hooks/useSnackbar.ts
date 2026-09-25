@@ -1,8 +1,8 @@
-import { useContext, Dispatch, SetStateAction } from 'react'
+import { use, Dispatch, SetStateAction } from 'react'
 import SnackbarContext from '../SnackbarContext'
 
 const useSnackbar = (): Dispatch<SetStateAction<string | null>> => {
-  return useContext(SnackbarContext)
+  return use(SnackbarContext)
 }
 
 export default useSnackbar

@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router'
 import {
   Paper,
@@ -242,8 +242,8 @@ const RegisterPayment = () => {
                     onChange={handleChangeSelectedClientId}
                     value={selectedClientId}
                   >
-                    {clients.map((cl, idx) =>
-                      <MenuItem key={idx} value={cl.id}>
+                    {clients.map(cl =>
+                      <MenuItem key={cl.id} value={cl.id}>
                         ({cl.code}) {cl.name}
                       </MenuItem>,
                     )}

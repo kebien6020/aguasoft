@@ -227,6 +227,7 @@ const ClientList = () => {
           <DialogContent>
             {selectedClient.notes
               && selectedClient.notes.split('\n').map((note, idx) =>
+                // eslint-disable-next-line @eslint-react/no-array-index-key
                 <DialogContentText key={idx}>
                   {note}
                 </DialogContentText>,

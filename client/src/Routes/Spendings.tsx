@@ -2,7 +2,7 @@ import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Paper from '@mui/material/Paper'
 import makeStyles from '@mui/styles/makeStyles'
-import { forwardRef, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, LinkProps, useNavigate } from 'react-router'
 import Layout from '../components/Layout'
 import Login from '../components/Login'
@@ -146,9 +146,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }))
 
-const SpendingListLink = forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
-  function SpendingListLink(props, ref) {
-    return <Link to='/spendings/list' ref={ref} {...props} />
-  },
+const SpendingListLink = (props: MakeOptional<LinkProps, 'to'>) => (
+  <Link to='/spendings/list' {...props} />
 )
-

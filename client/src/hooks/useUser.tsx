@@ -6,7 +6,7 @@ import type {
 } from 'react'
 import {
   createContext,
-  useContext,
+  use,
   useEffect,
   useReducer,
   useState,
@@ -54,11 +54,11 @@ export type UserProviderProps = { children: ReactNode }
 export const UserProvider = ({ children }: UserProviderProps): JSX.Element => {
   const userInfo = useUserFetch()
 
-  return <UserContext.Provider value={userInfo}>{children}</UserContext.Provider>
+  return <UserContext value={userInfo}>{children}</UserContext>
 }
 
 export default function useUser(): Result | null {
-  return useContext(UserContext)
+  return use(UserContext)
 }
 
 export interface WithUserProps {

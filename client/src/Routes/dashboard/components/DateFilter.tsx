@@ -27,7 +27,7 @@ export const DateFilter = ({
   onGroupByChange,
 }: DateFilterProps): JSX.Element => {
   const [groupBy, setGroupBy] = useState<GroupByOption>('day')
-  const [date, setDate] = useState(new Date())
+  const [date, setDate] = useState(() => new Date)
 
   useEffect(() => {
     if (groupBy === 'day') {

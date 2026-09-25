@@ -116,10 +116,11 @@ const LoginPaper = styled(Paper)(({ theme }: { theme: Theme }) => ({
   padding: theme.spacing(2),
 })) as typeof Paper
 
-const ListLink = React.forwardRef<HTMLAnchorElement, MakeOptional<LinkProps, 'to'>>(
-  function ListLink(props, ref) {
-    return <Link to='/payments/list' ref={ref} {...props} />
-  },
+type ListLinkProps = MakeOptional<LinkProps, 'to'> & {
+  ref?: React.Ref<HTMLAnchorElement>
+}
+const ListLink = (props: ListLinkProps) => (
+  <Link to='/payments/list' {...props} />
 )
 
 const ButtonWrapper = styled('div')({

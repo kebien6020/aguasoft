@@ -54,8 +54,8 @@ const Spendings = (props: Props): JSX.Element => {
           </Typography>
         </Grid>
       }
-      {props.spendings.map((spending, idx) =>
-        <Grid key={idx} size={{ xs: 12 }}>
+      {props.spendings.map(spending =>
+        <Grid key={spending.id} size={{ xs: 12 }}>
           <Card className={getCardClass(spending)}>
             <div className={classes.cardMain}>
               <CardHeader

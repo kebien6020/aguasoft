@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton'
 import makeStyles from '@mui/styles/makeStyles'
 import Typography from '@mui/material/Typography'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import useAuth from '../hooks/useAuth'
 import useSnackbar from '../hooks/useSnackbar'
 import { ErrorResponse, fetchJsonAuth, formatTimeonlyCol, isErrorResponse, money, SuccessResponse } from '../utils'
@@ -99,6 +99,8 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
     userColorLookup[userCode] || colors.grey[500]
   )
 
+  const now = useMemo(() => new Date, [])
+
   const effectiveDisableDelete =
     sale.deleted
     || disableDelete
@@ -129,7 +131,7 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           )}
           <Typography variant='body2'>
             {formatTimeonlyCol(new Date(sale.updatedAt))}
-            ({intlFormatDistance(new Date(sale.updatedAt), new Date, { locale: 'es' })})
+            ({intlFormatDistance(new Date(sale.updatedAt), now, { locale: 'es' })})
           </Typography>
           {sale.deleted && <>
             <Alert type='error' message='Esta venta fue eliminada' />

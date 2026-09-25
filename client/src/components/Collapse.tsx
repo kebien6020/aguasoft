@@ -2,12 +2,10 @@ import type { JSX } from 'react'
 import MuiCollapse, { CollapseProps } from '@mui/material/Collapse'
 import Grid, { GridProps } from '@mui/material/Grid'
 import makeStyles from '@mui/styles/makeStyles'
-import { ForwardedRef, forwardRef } from 'react'
 
-const GridItemXs12 = forwardRef((props: GridProps, ref: ForwardedRef<HTMLDivElement>) =>
-  <Grid size={{ xs: 12 }} {...props} ref={ref} />,
+const GridItemXs12 = (props: GridProps) => (
+  <Grid size={{ xs: 12 }} {...props} />
 )
-GridItemXs12.displayName = 'GridItemXs12'
 
 const Collapse = (props: CollapseProps): JSX.Element => {
   const classes = useCollapseStyles()

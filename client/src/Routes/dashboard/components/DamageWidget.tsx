@@ -112,13 +112,14 @@ const DamageRows = ({ movements }: DamageRowsProps) => {
       inventoryElementFrom: ms[0].inventoryElementFrom,
       inventoryElementTo: ms[0].inventoryElementTo,
       quantity: ms.reduce((acc, m) => acc + Number(m.quantityFrom), 0),
+      firstId: ms[0].id,
     }))
     .sort(by(r => r.inventoryElementFrom.name))
 
   return (
     <>
-      {rows.map((r, idx) => (
-        <TableRow key={idx}>
+      {rows.map(r => (
+        <TableRow key={r.firstId}>
           <TableCell>{rowFormatInventoryElement(r)}</TableCell>
           <TableCell>{r.quantity}</TableCell>
         </TableRow>

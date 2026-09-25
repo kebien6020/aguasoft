@@ -205,7 +205,7 @@ const ClientEditor = () => {
 
   const handleSubmit = useCallback(() => {
     (async () => {
-      let res: SuccessResponse | ErrorResponse | null = null
+      let res: SuccessResponse | ErrorResponse | undefined
 
       if (name === '')
         setErrorEmptyName(true)
@@ -433,6 +433,8 @@ const EditablePrices = (props: PricesSectionProps) => {
   return (
     <>
       {prices.map((pr, idx) => (
+        // These are prices with no id
+        // eslint-disable-next-line @eslint-react/no-array-index-key
         <MyPaper key={idx}>
           {pr.name !== 'Base' && <>
             <Typography variant='subtitle2'>{pr.name}</Typography>
@@ -475,6 +477,8 @@ const PriceShow = ({ prices, products }: PriceShowProps) => {
   return (
     <>
       {prices.map((pr, idx) => (
+        // Prices with no id yet
+        // eslint-disable-next-line @eslint-react/no-array-index-key
         <MyPaper key={idx}>
           {pr.name !== 'Base' && <>
             <Typography variant='subtitle2'>{pr.name}</Typography>

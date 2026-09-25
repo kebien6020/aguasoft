@@ -82,8 +82,8 @@ const Payments = (props: Props): JSX.Element => {
           </Typography>
         </Grid>
       }
-      {props.payments.map((payment, idx) =>
-        <Grid key={idx} size={{ xs: 12 }}>
+      {props.payments.map(payment =>
+        <Grid key={payment.id} size={{ xs: 12 }}>
           <Card className={getCardClass(payment)}>
             <div className={classes.cardMain}>
               <CardHeader

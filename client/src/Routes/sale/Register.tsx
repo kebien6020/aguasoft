@@ -391,6 +391,8 @@ const SaleLineForms = memo(({ onRemove, clientId }: SaleLineFormsProps) => {
   return (
     <>
       {saleLines.map((line, idx) => (
+        // The identity of a sale line really is its index
+        // eslint-disable-next-line @eslint-react/no-array-index-key
         <Fragment key={idx}>
           <StyledPaper>
             <SaleLineForm idx={idx} onRemove={onRemove} line={line} products={products} clientId={clientId} />

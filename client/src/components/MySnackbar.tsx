@@ -1,4 +1,4 @@
-import { useState, useCallback, forwardRef } from 'react'
+import { useState, useCallback } from 'react'
 import type { JSX } from 'react'
 import clsx from 'clsx'
 import makeStyles from '@mui/styles/makeStyles'
@@ -15,11 +15,12 @@ export interface ErrorSnackbarProps {
   className?: string
   message?: string
   onClose?: () => void
+  ref?: React.ForwardedRef<HTMLDivElement>
 }
 
-export const ErrorSnackbar = forwardRef((props: ErrorSnackbarProps, ref: React.ForwardedRef<HTMLDivElement>) => {
+export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
   const classes = useErrorSnackbarStyles()
-  const { className, message, onClose, ...other } = props
+  const { className, message, onClose, ref, ...other } = props
 
   return (
     (<SnackbarContent
@@ -45,8 +46,7 @@ export const ErrorSnackbar = forwardRef((props: ErrorSnackbarProps, ref: React.F
       {...other}
     />)
   )
-})
-ErrorSnackbar.displayName = 'ErrorSnackbar'
+}
 
 const useErrorSnackbarStyles = makeStyles((theme: Theme) => ({
   cont: {

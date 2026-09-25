@@ -1,12 +1,12 @@
 import type { JSX, RefObject, ReactNode, ComponentType } from 'react'
-import { useState, useCallback, forwardRef, useRef } from 'react'
-import type { LinkProps, To } from 'react-router'
+import { useState, useCallback, useRef } from 'react'
+import type { To } from 'react-router'
 import { Link, useLocation } from 'react-router'
 import { useElementSize } from '@reactuses/core'
 
 import Avatar from '@mui/material/Avatar'
 import AppBar from '@mui/material/AppBar'
-import Button from '@mui/material/Button'
+import Button, { ButtonProps } from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import Typography, { type TypographyProps } from '@mui/material/Typography'
@@ -77,11 +77,9 @@ const DrawerItem = (props: DrawerItemProps) => {
 }
 DrawerItem.displayName = 'DrawerItem'
 
-// Need to forward the ref for the tooltip to work
-const DrawerIconButtonImpl = forwardRef<HTMLButtonElement>((props, ref) =>
-  <Button variant='outlined' ref={ref} {...props} />,
+const DrawerIconButtonImpl = (props: ButtonProps) => (
+  <Button variant='outlined' {...props} />
 )
-DrawerIconButtonImpl.displayName = 'DrawerIconButtonImpl'
 
 const DrawerIconButton = styled(DrawerIconButtonImpl)(({ theme }: { theme: Theme }) => ({
   width: theme.spacing(10),
@@ -241,10 +239,7 @@ export interface LayoutProps {
 const WideResponsiveContainer = (props: ResponsiveContainerProps) =>
   <ResponsiveContainer variant='wide' {...props} />
 
-const RouterLink = forwardRef<HTMLAnchorElement, LinkProps>((props, ref) => (
-  <Link ref={ref} {...props} />
-))
-RouterLink.displayName = 'RouterLink'
+const RouterLink = Link
 
 export default function Layout(props: LayoutProps): JSX.Element {
   const {
