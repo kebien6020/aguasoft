@@ -189,7 +189,7 @@ export interface BalanceVerification {
   readonly updatedAt: string
 }
 
-export interface Sell {
+export interface SellWire {
   readonly id: number
   readonly date: string
   readonly cash: boolean
@@ -200,12 +200,23 @@ export interface Sell {
   readonly clientId: number
   readonly productId: number
   readonly deleted: boolean
+  readonly updatedAt: string
 
   // Possible inclussions
   readonly Product?: Product
   readonly Client?: Client
   readonly User?: User
+  readonly Batch?: Batch
 }
+
+
+export type Sell = SellWire & {
+  readonly updatedAt: Date
+}
+
+type SellDetails = 'Batch'|'Client'|'Product'|'User'
+export type SellWithDetailsWire = MakeRequired<SellWire, SellDetails>
+export type SellWithDetails = MakeRequired<Sell, SellDetails>
 
 export type BalanceItem = {
   readonly balance: number
@@ -232,6 +243,8 @@ export interface Batch {
 
   readonly BatchCategory?: BatchCategory
 }
+
+export type BatchWithCategory = MakeRequired<Batch, 'BatchCategory'>
 
 export interface CreditBalanceItem {
   readonly clientId: number

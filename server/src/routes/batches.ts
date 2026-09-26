@@ -4,6 +4,8 @@ import { handleErrors } from '../utils/route.js'
 import { Router } from 'ultimate-express'
 import { addDays, format } from 'date-fns'
 import { ValidationError } from 'sequelize'
+import { NotFoundError, wrapSync, ok } from './utils.js'
+import { getBatchDetail } from '../db2/batches.js'
 
 const router = Router()
 export default router
@@ -65,4 +67,19 @@ router.post('/', handleErrors(async (req, res) => {
     throw e
   }
 
+}))
+
+
+const detailParamSchema = yup.object({
+  id: yup.number().required(),
+})
+
+router.get('/:id', wrapSync(req => {
+  const { id } = detailParamSchema.validateSync(req.params)
+
+  const batch = getBatchDetail(id)
+  if (!batch)
+    throw new NotFoundError('Lote no encontrado')
+
+  return ok(batch)
 }))

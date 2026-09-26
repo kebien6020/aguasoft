@@ -51,6 +51,7 @@ const Error404 = lazy(() => import(/* webpackChunkName: "error-404" */ './Routes
 const CreditBalance = lazy(() => import(/* webpackChunkName: "client-balance" */ './Routes/CreditBalance'))
 const PriceSetList = lazy(() => import(/* webpackChunkName: "price-set-list" */ './Routes/price-set-list/index'))
 const PriceSetEditor = lazy(() => import(/* webpackChunkName: "price-set-editor" */ './Routes/price-set-editor/index'))
+const BatchDetail = lazy(() => import(/* webpackChunkName: "batch-detail" */ './Routes/batch-detail'))
 
 const AppSwitch = () => (
   <Routes>
@@ -91,6 +92,7 @@ const AppSwitch = () => (
     <Route path='/tools/billing-summary' element={<RequireAuth><BillingSummary /></RequireAuth>} />
 
     <Route path='/batches' element={<RequireAuth><Batches /></RequireAuth>} />
+    <Route path='/batches/:id' element={<RequireAuth><BatchDetail /></RequireAuth>} />
 
     <Route path='/prices' element={<RequireAuth><PriceSetList /></RequireAuth>} />
     <Route path='/prices/new' element={<RequireAuth><PriceSetEditor /></RequireAuth>} />
