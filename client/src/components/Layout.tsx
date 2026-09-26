@@ -26,6 +26,7 @@ import MovementsIcon from '@mui/icons-material/SwapHoriz'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import AtmIcon from '@mui/icons-material/LocalAtm'
+import LayersIcon from '@mui/icons-material/Layers'
 
 import ResponsiveContainer, { type ResponsiveContainerProps } from './ResponsiveContainer'
 import useUser from '../hooks/useUser'
@@ -182,6 +183,13 @@ const MainDrawer = (props: MainDrawerProps) => {
         text='Precios'
         to='/prices'
         icon={<AtmIcon />}
+        color={blue.A700}
+        fullWidth={open}
+      />
+      <DrawerItem
+        text='Lotes'
+        to='/batches'
+        icon={<LayersIcon />}
         color={blue.A700}
         fullWidth={open}
       />

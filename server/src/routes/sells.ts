@@ -18,20 +18,19 @@ import { MakeRequired } from '../utils/types.js'
 import { CreateManualMovementArgs, createMovement } from './inventory.js'
 import { formatDateonly } from '../utils/date.js'
 
+type OptionalSchema<T> = yup.Schema<T | undefined>
 
 export async function list(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    // Yup typing weirdness
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const includeableSchema: yup.ArraySchema<yup.SchemaOf<Includeable>> = yup.array().of(yup.lazy(value => {
+    // Explicit type required because of the self-reference
+    const includeableSchema: OptionalSchema<Includeable[]> = yup.array().of(yup.lazy(value => {
 
-      if (typeof value === 'string') return yup.string()
+      if (typeof value === 'string') return yup.string().defined()
 
       return yup.object({
         association: yup.string().required(),
         as: yup.string(),
-        attributes: yup.array().of(yup.string()),
+        attributes: yup.array().of(yup.string().defined()),
         paranoid: yup.boolean(),
         include: yup.lazy(() => includeableSchema.default(undefined)),
       })
@@ -43,22 +42,23 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
       include: includeableSchema.notRequired(),
       paranoid: yup.bool().notRequired(),
       clientId: yup.number().notRequired(),
+      batchId: yup.number().notRequired(),
     })
 
-    schema.validateSync(req.query)
     const {
       minDate,
       maxDate,
       include,
       paranoid = false,
       clientId,
-    } = schema.cast(req.query)
+      batchId,
+    } = schema.validateSync(req.query)
 
-    const dateFilter = Object.assign(
+    const dateFilter = minDate || maxDate ? Object.assign(
       {},
       minDate ? { [Op.gte]: minDate } : null,
       maxDate ? { [Op.lte]: maxDate } : null,
-    )
+    ) : undefined
 
     const sells = await Sells.findAll({
       attributes: [
@@ -70,11 +70,13 @@ export async function list(req: Request, res: Response, next: NextFunction): Pro
         'value',
         'cash',
         'userId',
+        'updatedAt',
       ],
       where: {
-        date: dateFilter,
-        deleted: paranoid,
+        ...(dateFilter && { date: dateFilter }),
+        ...(!paranoid && { deleted: false }),
         ...(clientId && { clientId }),
+        ...(batchId && { batchId }),
       },
       include,
     })

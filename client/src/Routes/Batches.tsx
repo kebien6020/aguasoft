@@ -1,4 +1,5 @@
 import {
+  Box,
   Card,
   CardContent,
   CardHeader,
@@ -27,6 +28,7 @@ import { useBatches } from '../hooks/api/useBatches'
 import type { Batch } from '../models'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { FC } from 'react'
+import { Link, LinkProps } from 'react-router'
 
 const Batches = () => {
   const [batches, refresh] = useBatches({ include: ['BatchCategory'] })
@@ -119,19 +121,17 @@ interface BatchListProps {
 const BatchList = ({ batches }: BatchListProps) => {
   if (!batches) return <LoadingIndicator />
 
-  console.log(batches)
-
   return (
-    <>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {batches.map(b =>
         <BatchCard batch={b} key={String(b.id)} />,
       )}
-    </>
+    </Box>
   )
 }
 
 const BatchCard = ({ batch }: { batch: Batch }) => (
-  <StyledCard colorKey={batch.BatchCategory?.code ?? ''}>
+  <StyledCard colorKey={batch.BatchCategory?.code ?? ''} component={Link} to={`./${batch.id}`}>
     <CardHeader title={batch.code} />
     <CardContent>
       <Typography variant='body2'>
@@ -151,13 +151,14 @@ const colorMap: Record<string, string> = {
   'barra-hielo': pink[500],
 }
 
-interface StyledCardProps extends CardProps {
+type StyledCardProps = CardProps & LinkProps & {
   colorKey: string
 }
 
 type StyledCardPropsWithTheme = StyledCardProps & { theme: Theme }
 
 const StyledCard = styled(Card)(({ colorKey, theme }: StyledCardPropsWithTheme) => ({
+  textDecoration: 'inherit',
   borderLeftWidth: 4,
   borderLeftStyle: 'solid',
   borderLeftColor: colorMap[colorKey] ?? theme.palette.grey,

@@ -37,9 +37,10 @@ interface SaleCardProps {
   sale: Sell
   refresh: () => unknown
   disableDelete?: boolean
+  disableWarnings?: boolean
 }
 
-const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false }: SaleCardProps) => {
+const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false, disableWarnings = false }: SaleCardProps) => {
   const classes = useStyles()
 
   const showSnackbar = useSnackbar()
@@ -136,7 +137,9 @@ const SaleCard = ({ sale, refresh, disableDelete: externalDisableDelete = false 
           {sale.deleted && <>
             <Alert type='error' message='Esta venta fue eliminada' />
           </>}
-          <BasePriceAlert sale={sale} />
+          {!disableWarnings && (
+            <BasePriceAlert sale={sale} />
+          )}
         </CardContent>
         <IconButton
           className={classes.deleteButton}
@@ -254,9 +257,10 @@ interface SellsProps {
   sells: Sell[]
   refresh: () => unknown
   disableDelete?: boolean
+  disableWarnings?: boolean
 }
 
-const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Element => (
+const Sells = ({ sells, refresh, disableDelete = false, disableWarnings = false }: SellsProps): JSX.Element => (
   <Grid container spacing={2}>
     {sells.length === 0 && <>
       <Grid size={{ xs: 12 }}>
@@ -267,7 +271,7 @@ const Sells = ({ sells, refresh, disableDelete = false }: SellsProps): JSX.Eleme
     </>}
     {sells.map(sale => (
       <Grid size={{ xs: 12 }} key={sale.id}>
-        <SaleCard sale={sale} refresh={refresh} disableDelete={disableDelete} />
+        <SaleCard sale={sale} refresh={refresh} disableDelete={disableDelete} disableWarnings={disableWarnings} />
       </Grid>
     ))}
   </Grid>
