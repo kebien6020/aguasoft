@@ -1,12 +1,6 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   await queryInterface.addColumn('Prices', 'name', {
-    type: Sequelize.STRING,
+    type: DataTypes.STRING,
     allowNull: false,
     defaultValue: 'Base',
   })
@@ -18,12 +12,7 @@ export async function up(queryInterface, Sequelize) {
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   await queryInterface.removeConstraint('Prices', 'name_clientId_productId_unique')
   await queryInterface.removeColumn('Prices', 'name')
 }

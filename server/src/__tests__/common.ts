@@ -18,29 +18,41 @@ import { Server } from 'node:http'
 import app from '../app.js'
 import supertest from 'supertest'
 import { Agent } from 'supertest'
+import { sequelize } from '../db/sequelize.js'
 
 export const truncateTables = async () => {
-  const opts = { cascade: true, force: true }
-  await Promise.all([
-    Payments.truncate(opts),
-    Spendings.truncate(opts),
-    Sells.truncate(opts),
-    Session.truncate(opts),
-    Prices.truncate(opts),
-    Batches.truncate(opts),
-    ProductVariants.truncate(opts),
-    InventoryMovements.truncate(opts),
-    StorageStates.truncate(opts),
-  ])
-  await Promise.all([
-    Products.truncate(opts),
-    Clients.truncate(opts),
-    BalanceVerifications.truncate(opts),
-  ])
-  await Promise.all([
-    Users.truncate(opts),
-    BatchCategories.truncate(opts),
-  ])
+  const transaction = await sequelize.startUnmanagedTransaction()
+  const opts = { transaction }
+
+  try {
+    await sequelize.queryRaw('PRAGMA foreign_keys = OFF', opts)
+    await Promise.all([
+      Payments.truncate(opts),
+      Spendings.truncate(opts),
+      Sells.truncate(opts),
+      Session.truncate(opts),
+      Prices.truncate(opts),
+      Batches.truncate(opts),
+      ProductVariants.truncate(opts),
+      InventoryMovements.truncate(opts),
+      StorageStates.truncate(opts),
+    ])
+    await Promise.all([
+      Products.truncate(opts),
+      Clients.truncate(opts),
+      BalanceVerifications.truncate(opts),
+    ])
+    await Promise.all([
+      Users.truncate(opts),
+      BatchCategories.truncate(opts),
+    ])
+
+    await sequelize.queryRaw('PRAGMA foreign_keys = ON', opts)
+    await transaction.commit()
+  } catch (e) {
+    await transaction.rollback()
+    throw e
+  }
 }
 
 const close = (server: Server) =>

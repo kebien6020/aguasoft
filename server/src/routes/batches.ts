@@ -3,7 +3,7 @@ import * as yup from 'yup'
 import { handleErrors } from '../utils/route.js'
 import { Router } from 'ultimate-express'
 import { addDays, format } from 'date-fns'
-import { ValidationError } from 'sequelize'
+import { ValidationError } from '@sequelize/core'
 import { NotFoundError, wrapSync, ok } from './utils.js'
 import { getBatchDetail } from '../db2/batches.js'
 

@@ -1,13 +1,7 @@
-// @ts-check
 const CLIENT_FKEY = 'fkey_clientId'
 const PRODUCT_FKEY = 'fkey_productId'
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function up(queryInterface, _Sequelize) {
+export async function up({ context: { queryInterface } }) {
   const sequelize = queryInterface.sequelize
 
   return sequelize.transaction(async t => {
@@ -46,12 +40,7 @@ export function up(queryInterface, _Sequelize) {
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} _queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function down(_queryInterface, _Sequelize) {
+export async function down() {
   // Not reversing this query should not cause any problems since
   // the constraints still exist and are called the same
 }

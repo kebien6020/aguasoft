@@ -1,15 +1,9 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   await queryInterface.addColumn('Products', 'batchCategoryId', {
-    type: Sequelize.INTEGER,
+    type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'BatchCategories',
+      table: 'BatchCategories',
       key: 'id',
     },
     onDelete: 'restrict',
@@ -17,11 +11,6 @@ export async function up(queryInterface, Sequelize) {
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   return queryInterface.removeColumn('Products', 'batchCategoryId')
 }

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'ultimate-express'
-import { Op, Includeable } from 'sequelize'
+import { Op, type Includeable } from '@sequelize/core'
 import { Clients, Payments, Users } from '../db/models.js'
 import { parseDateonly } from '../utils/date.js'
 import { addDays, startOfDay } from 'date-fns'

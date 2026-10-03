@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'ultimate-express'
 import { InventoryMovements, InventoryElements, Storages, StorageStates, MachineCounters } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
-import { CreationAttributes, Op, Transaction, WhereOptions } from 'sequelize'
+import { CreationAttributes, Op, Transaction, WhereOptions } from '@sequelize/core'
 import debug from 'debug'
 import * as yup from 'yup'
 import type { Mutable } from '../utils/types.js'
@@ -471,7 +471,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
       movementData.quantityFrom = body.amount * 20
 
 
-    const t = await sequelize.transaction()
+    const t = await sequelize.startUnmanagedTransaction()
 
     try {
       if (movementData.quantityFrom !== 0 && movementData.quantityTo !== 0)
@@ -503,7 +503,7 @@ export async function productionMovement(req: Request, res: Response, next: Next
 
 
         await MachineCounters.create({
-          value: body.counterEnd,
+          value: String(body.counterEnd),
           type: 'production',
         }, {
           transaction: t,
@@ -844,7 +844,7 @@ export async function relocationMovement(req: Request, res: Response, next: Next
       createdBy: userId,
     }
 
-    const transaction = await sequelize.transaction()
+    const transaction = await sequelize.startUnmanagedTransaction()
 
     try {
       await createMovement(movementData, transaction)
@@ -864,9 +864,12 @@ export async function relocationMovement(req: Request, res: Response, next: Next
 
         await createMovement(movementData, transaction)
 
+        if (!body.counter)
+          throw new Error('BUG: body.counter is supposed to be defined when elementCode is rollo-360')
+
         // Register machine counter
         await MachineCounters.create({
-          value: body.counter!, // Defined when elementCode is 'rollo-360'
+          value: String(body.counter),
           type: 'new-reel',
         }, {
           transaction,

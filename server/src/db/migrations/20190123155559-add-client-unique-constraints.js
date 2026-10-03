@@ -7,7 +7,7 @@ const addCommon = (obj = {}) => Object.assign(obj, {
 
 const raw = addCommon({ raw: true })
 
-export function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface } }) {
   const sequelize = queryInterface.sequelize
 
   const nameOptions = addCommon({
@@ -37,8 +37,8 @@ export function up(queryInterface, Sequelize) {
   ).catch(() => sequelize.query('ROLLBACK;', raw),
   )
 }
-export function down(queryInterface, Sequelize) {
-  const sequelize = queryInterface.sequelize
+
+export async function down({ context: { queryInterface, sequelize } }) {
   return sequelize.query('PRAGMA foreign_keys = OFF;', raw).then(() => sequelize.query('BEGIN TRANSACTION;', raw),
   ).then(() => sequelize.query('PRAGMA defer_foreign_keys = ON;', raw),
   ).then(() => queryInterface.removeConstraint('Clients', NAME_UNIQUE, addCommon()),

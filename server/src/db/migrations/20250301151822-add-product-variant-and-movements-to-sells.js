@@ -1,15 +1,9 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   await queryInterface.addColumn('Sells', 'productVariantId', {
-    type: Sequelize.INTEGER,
+    type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'ProductVariants',
+      table: 'ProductVariants',
       key: 'id',
     },
     onDelete: 'restrict',
@@ -17,17 +11,12 @@ export async function up(queryInterface, Sequelize) {
   })
 
   await queryInterface.addColumn('Sells', 'movementIds', {
-    type: Sequelize.TEXT,
+    type: DataTypes.TEXT,
     allowNull: true,
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   await queryInterface.removeColumn('Sells', 'productVariantId')
   await queryInterface.removeColumn('Sells', 'movementIds')
 }

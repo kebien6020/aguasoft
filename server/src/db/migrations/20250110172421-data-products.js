@@ -1,5 +1,3 @@
-// @ts-check
-
 const products = [
   { name: 'Paca 360', code: '001', basePrice: 2900 },
   { name: 'Bolsa 6L', code: '002', basePrice: 1900 },
@@ -14,17 +12,10 @@ const products = [
   { name: 'Barra de Hielo', code: '011', basePrice: 1000 },
 ]
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, _Sequelize) {
+export async function up({ context: { sequelize } }) {
   for (const product of products) {
 
-    /** @type {{id: string}[]} */
-    // @ts-expect-error Can't easily force the type here
-    const existing = await queryInterface.sequelize.query('SELECT id FROM "Products" WHERE name = ?', {
+    const existing = await sequelize.query('SELECT id FROM "Products" WHERE name = ?', {
       raw: true,
       replacements: [product.name],
       type: 'SELECT',
@@ -35,17 +26,12 @@ export async function up(queryInterface, _Sequelize) {
 
     const sql = 'INSERT INTO "Products" (name, code, basePrice, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)'
     const now = new Date()
-    await queryInterface.sequelize.query(sql, {
+    await sequelize.query(sql, {
       replacements: [product.name, product.code, product.basePrice, now, now],
     })
   }
 }
 
-/**
- * @param {import('sequelize').QueryInterface} _queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function down(_queryInterface, _Sequelize) {
+export async function down() {
   // Intentionally left blank
 }

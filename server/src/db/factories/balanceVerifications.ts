@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { BalanceVerifications } from '../models.js'
-import type { SaveOptions } from 'sequelize'
+import type { SaveOptions } from '@sequelize/core'
 import { format } from 'date-fns'
 
 type Overrides = Record<string, unknown> & {

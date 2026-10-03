@@ -1,14 +1,8 @@
-// @ts-check
 const CLIENT_FKEY = 'Sells_clientId_fk'
 const PRODUCT_FKEY = 'Sells_productId_fk'
 const USER_FKEY = 'Sells_userId_fk'
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function up(queryInterface, _Sequelize) {
+export async function up({ context: { queryInterface } }) {
   const commonOptions = /** @type {const} */ ({
     type: 'foreign key',
     // Can't delete a client, product or user unless all sells
@@ -56,14 +50,7 @@ export function up(queryInterface, _Sequelize) {
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface, _Sequelize) {
-  const sequelize = queryInterface.sequelize
-
+export async function down({ context: { queryInterface, sequelize } }) {
   return sequelize.transaction(async t => {
     await queryInterface.removeConstraint('Sells', PRODUCT_FKEY, { transaction: t })
     await queryInterface.removeConstraint('Sells', CLIENT_FKEY, { transaction: t })

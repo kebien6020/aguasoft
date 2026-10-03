@@ -1,32 +1,32 @@
-export function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   return queryInterface.createTable('Spendings', {
     date: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     description: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     value: {
-      type: Sequelize.DECIMAL,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     fromCash: {
-      type: Sequelize.BOOLEAN,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
     },
     isTransfer: {
-      type: Sequelize.BOOLEAN,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
     },
     userId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users',
+        table: 'Users',
         key: 'id',
       },
       onDelete: 'restrict',
@@ -34,17 +34,18 @@ export function up(queryInterface, Sequelize) {
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     deletedAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
   })
 }
-export function down(queryInterface, Sequelize) {
+
+export async function down({ context: { queryInterface } }) {
   return queryInterface.dropTable('Spendings')
 }

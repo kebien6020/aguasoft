@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'ultimate-express'
 import { UnauthorizedError } from 'express-jwt'
-import * as Sequelize from 'sequelize'
+import { ValidationError } from '@sequelize/core'
 
 const hasStatus = (obj: unknown): obj is { status: number } => {
   return (
@@ -34,7 +34,7 @@ export default function jsonErrorHandler(
         message: 'Unknown error',
         code: 'unknown_error',
       }
-    } else if (error instanceof Sequelize.ValidationError) {
+    } else if (error instanceof ValidationError) {
       response = {
         message: 'One or more database contraints did not pass',
         code: 'validation_error',

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Spendings } from '../models.js'
-import type { SaveOptions } from 'sequelize'
+import type { SaveOptions } from '@sequelize/core'
 
 type Overrides = Record<string, unknown> & {
   userId: number

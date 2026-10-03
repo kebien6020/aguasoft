@@ -1,23 +1,17 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   return queryInterface.createTable('MachineCounters', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
     },
     value: {
-      type: Sequelize.BIGINT,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     type: {
-      type: Sequelize.ENUM(
+      type: DataTypes.ENUM(
         'production',
         'new-reel',
       ),
@@ -25,20 +19,15 @@ export function up(queryInterface, Sequelize) {
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   return queryInterface.dropTable('MachineCounters')
 }

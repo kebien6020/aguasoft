@@ -1,24 +1,13 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   await queryInterface.changeColumn('Prices', 'clientId', {
-    type: Sequelize.INTEGER,
+    type: DataTypes.INTEGER,
     allowNull: true,
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function down(queryInterface, Sequelize) {
+export async function down({ context: { queryInterface, DataTypes } }) {
   await queryInterface.changeColumn('Prices', 'clientId', {
-    type: Sequelize.INTEGER,
+    type: DataTypes.INTEGER,
     allowNull: false,
   })
 }

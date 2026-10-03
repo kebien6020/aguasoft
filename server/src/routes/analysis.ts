@@ -1,6 +1,6 @@
 import { endOfDay, startOfDay } from 'date-fns'
 import { Router } from 'ultimate-express'
-import { Op } from 'sequelize'
+import { Op } from '@sequelize/core'
 import * as Yup from 'yup'
 import {
   Payments,

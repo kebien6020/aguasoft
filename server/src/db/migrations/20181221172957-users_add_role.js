@@ -1,22 +1,11 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   return queryInterface.addColumn('Users', 'role', {
-    type: Sequelize.ENUM('seller', 'admin'),
+    type: DataTypes.ENUM('seller', 'admin'),
     allowNull: false,
     defaultValue: 'seller',
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface, _Sequelize) {
+export function down({ context: { queryInterface } }) {
   return queryInterface.removeColumn('Users', 'role')
 }

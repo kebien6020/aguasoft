@@ -1,42 +1,36 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   await queryInterface.createTable('StorageStates', {
     storageId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Storages',
+        table: 'Storages',
         key: 'id',
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
     },
     inventoryElementId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'InventoryElements',
+        table: 'InventoryElements',
         key: 'id',
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
     },
     quantity: {
-      type: Sequelize.DECIMAL(20, 8),
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
   })
 
@@ -47,11 +41,6 @@ export async function up(queryInterface, Sequelize) {
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   await queryInterface.dropTable('StorageStates')
 }

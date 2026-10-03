@@ -1,4 +1,4 @@
-import { InferAttributes } from 'sequelize'
+import { type InferAttributes } from '@sequelize/core'
 import { Prices } from '../db/models.js'
 import { db } from './db.js'
 

@@ -1,5 +1,25 @@
-import { Model, STRING, ENUM, INTEGER, DATE, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, DATEONLY, BOOLEAN, DECIMAL, TEXT, BelongsToGetAssociationMixin, BelongsToSetAssociationMixin, BIGINT } from 'sequelize'
+import {
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+  NonAttribute,
+  BelongsToGetAssociationMixin,
+  BelongsToSetAssociationMixin,
+  DataTypes,
+} from '@sequelize/core'
 import { sequelize } from './sequelize.js'
+
+const {
+  STRING,
+  ENUM,
+  INTEGER,
+  DATE,
+  DATEONLY,
+  BOOLEAN,
+  TEXT,
+  FLOAT,
+} = DataTypes
 
 export class Users extends Model<InferAttributes<Users>, InferCreationAttributes<Users>> {
   declare id: CreationOptional<number>
@@ -30,6 +50,10 @@ Users.init({
 {
   sequelize,
   paranoid: true,
+  name: {
+    singular: 'User',
+    plural: 'Users',
+  },
 })
 
 export class Session extends Model<InferAttributes<Session>, InferCreationAttributes<Session>> {
@@ -48,6 +72,10 @@ Session.init({
   sequelize,
   timestamps: false,
   tableName: 'Sessions',
+  name: {
+    singular: 'Session',
+    plural: 'Sessions',
+  },
 })
 
 export class Sells extends Model<InferAttributes<Sells>, InferCreationAttributes<Sells>> {
@@ -80,9 +108,9 @@ Sells.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
   date: { type: DATEONLY, allowNull: false },
   cash: { type: BOOLEAN, allowNull: false, defaultValue: false },
-  priceOverride: { type: DECIMAL(20, 8), allowNull: true, defaultValue: null },
+  priceOverride: { type: FLOAT, allowNull: true, defaultValue: null },
   quantity: { type: INTEGER, allowNull: false },
-  value: { type: DECIMAL(20, 8), allowNull: false },
+  value: { type: FLOAT, allowNull: false },
   userId: { type: INTEGER, allowNull: false },
   clientId: { type: INTEGER, allowNull: false },
   productId: { type: INTEGER, allowNull: false },
@@ -101,8 +129,6 @@ Sells.init({
         this.setDataValue('movementIds', null)
         return
       }
-      // @ts-expect-error Typing is wrong, it assumes that the underlying value
-      // is the same type as the observed value
       this.setDataValue('movementIds', JSON.stringify(value))
     },
 
@@ -110,7 +136,13 @@ Sells.init({
   deleted: { type: BOOLEAN, allowNull: false, defaultValue: false },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
+}, {
+  sequelize,
+  name: {
+    singular: 'Sell',
+    plural: 'Sells',
+  },
+})
 
 
 export class Products extends Model<InferAttributes<Products>, InferCreationAttributes<Products>> {
@@ -131,11 +163,17 @@ Products.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
   name: { type: STRING, allowNull: false },
   code: { type: STRING, allowNull: false },
-  basePrice: { type: DECIMAL(20, 8), allowNull: false },
+  basePrice: { type: FLOAT, allowNull: false },
   batchCategoryId: { type: INTEGER, allowNull: true },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
+}, {
+  sequelize,
+  name: {
+    singular: 'Product',
+    plural: 'Products',
+  },
+})
 
 
 export class ProductVariants extends Model<InferAttributes<ProductVariants>, InferCreationAttributes<ProductVariants>> {
@@ -157,11 +195,11 @@ ProductVariants.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
   code: { type: STRING, allowNull: false },
   name: { type: STRING, allowNull: false },
-  basePrice: { type: DECIMAL(20, 8), allowNull: true },
+  basePrice: { type: FLOAT, allowNull: true },
   productId: {
     type: INTEGER,
     references: {
-      model: 'Products',
+      table: 'Products',
       key: 'id',
     },
     allowNull: false,
@@ -172,6 +210,10 @@ ProductVariants.init({
 }, {
   sequelize,
   paranoid: true,
+  name: {
+    singular: 'ProductVariant',
+    plural: 'ProductVariants',
+  },
 })
 
 
@@ -199,7 +241,42 @@ Clients.init({
   priceSetId: { type: INTEGER, allowNull: true, defaultValue: null },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
+}, {
+  sequelize,
+  name: {
+    singular: 'Client',
+    plural: 'Clients',
+  },
+})
+
+
+export class BatchCategories extends Model<InferAttributes<BatchCategories>, InferCreationAttributes<BatchCategories>> {
+  declare id: CreationOptional<number>
+  declare code: string
+  declare name: string
+  declare expirationDays: number
+
+  declare createdAt: CreationOptional<Date>
+  declare updatedAt: CreationOptional<Date>
+  declare deletedAt: CreationOptional<Date | null>
+}
+
+BatchCategories.init({
+  id: { type: INTEGER, autoIncrement: true, primaryKey: true },
+  code: { type: STRING, allowNull: false, unique: true },
+  name: { type: STRING, allowNull: false },
+  expirationDays: { type: INTEGER, allowNull: false },
+  createdAt: DATE,
+  updatedAt: DATE,
+  deletedAt: DATE,
+}, {
+  sequelize,
+  paranoid: true,
+  name: {
+    singular: 'BatchCategory',
+    plural: 'BatchCategories',
+  },
+})
 
 
 export class Batches extends Model<InferAttributes<Batches>, InferCreationAttributes<Batches>> {
@@ -225,39 +302,19 @@ Batches.init({
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'BatchCategories',
+      table: 'BatchCategories',
       key: 'id',
     },
   },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
-
-
-export class BatchCategories extends Model<InferAttributes<BatchCategories>, InferCreationAttributes<BatchCategories>> {
-  declare id: CreationOptional<number>
-  declare code: string
-  declare name: string
-  declare expirationDays: number
-
-  declare createdAt: CreationOptional<Date>
-  declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date | null>
-}
-
-BatchCategories.init({
-  id: { type: INTEGER, autoIncrement: true, primaryKey: true },
-  code: { type: STRING, allowNull: false, unique: true },
-  name: { type: STRING, allowNull: false },
-  expirationDays: { type: INTEGER, allowNull: false },
-  createdAt: DATE,
-  updatedAt: DATE,
-  deletedAt: DATE,
 }, {
   sequelize,
-  paranoid: true,
+  name: {
+    singular: 'Batch',
+    plural: 'Batches',
+  },
 })
-
 
 export class Prices extends Model<InferAttributes<Prices>, InferCreationAttributes<Prices>> {
   declare id: CreationOptional<number>
@@ -273,14 +330,20 @@ export class Prices extends Model<InferAttributes<Prices>, InferCreationAttribut
 
 Prices.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
-  value: { type: DECIMAL(20, 8), allowNull: false },
+  value: { type: FLOAT, allowNull: false },
   name: { type: STRING, allowNull: false, defaultValue: 'Base' },
   clientId: { type: INTEGER, allowNull: true },
   productId: { type: INTEGER, allowNull: false },
   priceSetId: { type: INTEGER, allowNull: true },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
+}, {
+  sequelize,
+  name: {
+    singular: 'Price',
+    plural: 'Prices',
+  },
+})
 
 
 export class Payments extends Model<InferAttributes<Payments>, InferCreationAttributes<Payments>> {
@@ -297,11 +360,12 @@ export class Payments extends Model<InferAttributes<Payments>, InferCreationAttr
 
   declare createdAt: CreationOptional<Date>
   declare updatedAt: CreationOptional<Date>
+  declare deletedAt: CreationOptional<Date | null>
 }
 
 Payments.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
-  value: { type: DECIMAL(20, 8), allowNull: false },
+  value: { type: FLOAT, allowNull: false },
   clientId: { type: INTEGER, allowNull: false },
   userId: { type: INTEGER, allowNull: false },
   date: { type: DATE, allowNull: false },
@@ -321,6 +385,10 @@ Payments.init({
         throw new Error('Specify both dates or neither')
 
     },
+  },
+  name: {
+    singular: 'Payment',
+    plural: 'Payments',
   },
 })
 
@@ -353,18 +421,18 @@ Spendings.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
   date: { type: DATE, allowNull: false },
   description: { type: STRING, allowNull: false },
-  value: { type: DECIMAL, allowNull: false },
+  value: { type: FLOAT, allowNull: false },
   fromCash: { type: BOOLEAN, allowNull: false, defaultValue: true },
   isTransfer: { type: BOOLEAN, allowNull: false, defaultValue: false },
   userId: {
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
+      table: 'Users',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'restrict',
+    onDelete: 'RESTRICT',
+    onUpdate: 'RESTRICT',
   },
   createdAt: DATE,
   updatedAt: DATE,
@@ -372,6 +440,10 @@ Spendings.init({
 }, {
   sequelize,
   paranoid: true,
+  name: {
+    singular: 'Spending',
+    plural: 'Spendings',
+  },
 })
 
 export class BalanceVerifications
@@ -393,21 +465,27 @@ export class BalanceVerifications
 BalanceVerifications.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
   date: { type: DATEONLY, allowNull: false },
-  adjustAmount: { type: DECIMAL(20, 8), allowNull: false },
-  amount: { type: DECIMAL(20, 8), allowNull: false },
+  adjustAmount: { type: FLOAT, allowNull: false },
+  amount: { type: FLOAT, allowNull: false },
   createdById: {
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
+      table: 'Users',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
+}, {
+  sequelize,
+  name: {
+    singular: 'BalanceVerification',
+    plural: 'BalanceVerifications',
+  },
+})
 
 export class Storages extends Model<InferAttributes<Storages>, InferCreationAttributes<Storages>> {
   declare id: CreationOptional<number>
@@ -430,6 +508,40 @@ Storages.init({
 }, {
   sequelize,
   paranoid: true,
+  name: {
+    singular: 'Storage',
+    plural: 'Storages',
+  },
+})
+
+export class InventoryElements
+  extends Model<InferAttributes<InventoryElements>, InferCreationAttributes<InventoryElements>> {
+
+  declare id: CreationOptional<number>
+  declare code: string
+  declare name: string
+  declare type: 'raw' | 'product' | 'tool'
+
+  declare createdAt: CreationOptional<Date>
+  declare updatedAt: CreationOptional<Date>
+  declare deletedAt: CreationOptional<Date | null>
+}
+
+InventoryElements.init({
+  id: { type: INTEGER, autoIncrement: true, primaryKey: true },
+  code: { type: STRING, allowNull: false, unique: true },
+  name: { type: STRING, allowNull: false },
+  type: { type: ENUM('raw', 'product', 'tool'), allowNull: false },
+  createdAt: DATE,
+  updatedAt: DATE,
+  deletedAt: DATE,
+}, {
+  sequelize,
+  paranoid: true,
+  name: {
+    singular: 'InventoryElement',
+    plural: 'InventoryElements',
+  },
 })
 
 export class StorageStates extends Model<InferAttributes<StorageStates>, InferCreationAttributes<StorageStates>> {
@@ -456,53 +568,33 @@ StorageStates.init({
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'Storages',
+      table: 'Storages',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
     primaryKey: true,
   },
   inventoryElementId: {
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'InventoryElements',
+      table: 'InventoryElements',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
     primaryKey: true,
   },
-  quantity: { type: DECIMAL(20, 8), allowNull: false },
+  quantity: { type: FLOAT, allowNull: false },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
-
-export class InventoryElements
-  extends Model<InferAttributes<InventoryElements>, InferCreationAttributes<InventoryElements>> {
-
-  declare id: CreationOptional<number>
-  declare code: string
-  declare name: string
-  declare type: 'raw' | 'product' | 'tool'
-
-  declare createdAt: CreationOptional<Date>
-  declare updatedAt: CreationOptional<Date>
-  declare deletedAt: CreationOptional<Date | null>
-}
-
-InventoryElements.init({
-  id: { type: INTEGER, autoIncrement: true, primaryKey: true },
-  code: { type: STRING, allowNull: false, unique: true },
-  name: { type: STRING, allowNull: false },
-  type: { type: ENUM('raw', 'product', 'tool'), allowNull: false },
-  createdAt: DATE,
-  updatedAt: DATE,
-  deletedAt: DATE,
 }, {
   sequelize,
-  paranoid: true,
+  name: {
+    singular: 'StorageState',
+    plural: 'StorageStates',
+  },
 })
 
 export class InventoryMovements
@@ -561,44 +653,44 @@ InventoryMovements.init({
     type: INTEGER,
     allowNull: true,
     references: {
-      model: 'Storages',
+      table: 'Storages',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   },
   storageToId: {
     type: INTEGER,
     allowNull: true,
     references: {
-      model: 'Storages',
+      table: 'Storages',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   },
   inventoryElementFromId: {
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'InventoryElements',
+      table: 'InventoryElements',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   },
   inventoryElementToId: {
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'InventoryElements',
+      table: 'InventoryElements',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   },
-  quantityFrom: { type: DECIMAL(20, 8), allowNull: false },
-  quantityTo: { type: DECIMAL(20, 8), allowNull: false },
+  quantityFrom: { type: FLOAT, allowNull: false },
+  quantityTo: { type: FLOAT, allowNull: false },
   cause: {
     type: ENUM(
       'manual',
@@ -615,21 +707,21 @@ InventoryMovements.init({
     type: INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
+      table: 'Users',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   },
   deletedBy: {
     type: INTEGER,
     allowNull: true,
     references: {
-      model: 'Users',
+      table: 'Users',
       key: 'id',
     },
-    onDelete: 'restrict',
-    onUpdate: 'cascade',
+    onDelete: 'RESTRICT',
+    onUpdate: 'CASCADE',
   },
   createdAt: DATE,
   updatedAt: DATE,
@@ -644,11 +736,15 @@ InventoryMovements.init({
 
     },
   },
+  name: {
+    singular: 'InventoryMovement',
+    plural: 'InventoryMovements',
+  },
 })
 
 export class MachineCounters extends Model<InferAttributes<MachineCounters>, InferCreationAttributes<MachineCounters>> {
   declare id: CreationOptional<number>
-  declare value: number
+  declare value: string
   declare type: 'production' | 'new-reel'
 
   declare createdAt: CreationOptional<Date>
@@ -657,11 +753,20 @@ export class MachineCounters extends Model<InferAttributes<MachineCounters>, Inf
 
 MachineCounters.init({
   id: { type: INTEGER, autoIncrement: true, primaryKey: true },
-  value: { type: BIGINT, allowNull: false },
+  value: {
+    type: STRING,
+    allowNull: false,
+  },
   type: { type: ENUM('production', 'new-reel'), allowNull: false },
   createdAt: DATE,
   updatedAt: DATE,
-}, { sequelize })
+}, {
+  sequelize,
+  name: {
+    singular: 'MachineCounter',
+    plural: 'MachineCounters',
+  },
+})
 
 // View based on aggregations over the sales and payments tables
 export class ClientBalances extends Model<InferAttributes<ClientBalances>, InferCreationAttributes<ClientBalances>> {
@@ -673,9 +778,7 @@ export class ClientBalances extends Model<InferAttributes<ClientBalances>, Infer
 }
 
 ClientBalances.init({
-  // Not an actual primary key, but this is required because otherwise
-  // sequelize assumes there's a column named 'id'
-  clientId: { type: INTEGER, primaryKey: true },
+  clientId: INTEGER,
   totalSales: INTEGER,
   totalPayments: INTEGER,
   balance: INTEGER,
@@ -683,49 +786,45 @@ ClientBalances.init({
 }, {
   sequelize,
   timestamps: false,
-
+  noPrimaryKey: true,
+  name: {
+    singular: 'ClientBalance',
+    plural: 'ClientBalances',
+  },
 })
 
 // Associations
-Sells.belongsTo(Users)
-Sells.belongsTo(Clients)
-Sells.belongsTo(Products)
-Sells.belongsTo(Batches)
-Sells.belongsTo(ProductVariants, {
-  as: 'Variant',
-  foreignKey: 'productVariantId',
-})
+Sells.belongsTo(Users, { as: 'User', inverse: { type: 'hasMany', as: 'Sells' } })
+Sells.belongsTo(Clients, { as: 'Client', inverse: { type: 'hasMany', as: 'Sells' } })
+Sells.belongsTo(Products, { as: 'Product', inverse: { type: 'hasMany', as: 'Sells' } })
+Sells.belongsTo(Batches, { as: 'Batch', inverse: { type: 'hasMany', as: 'Sells' } })
+Sells.belongsTo(ProductVariants, { as: 'Variant', foreignKey: 'productVariantId', inverse: { type: 'hasMany', as: 'Sells' } })
 Sells.hasOne(Prices, { as: 'BasePrice' }) // Intended to be used with custom `on` in the query
 
-Products.hasMany(Sells)
-Products.hasMany(ProductVariants, { as: 'Variants' })
-Products.belongsTo(BatchCategories, { foreignKey: 'batchCategoryId' })
+ProductVariants.belongsTo(Products, { as: 'Product', inverse: { type: 'hasMany', as: 'Variants' } })
 
-ProductVariants.belongsTo(Products)
+Products.belongsTo(BatchCategories, { as: 'BatchCategory', inverse: { type: 'hasMany', as: 'Products' } })
 
-Clients.hasMany(Sells)
-Clients.hasMany(Prices, { foreignKey: 'clientId' })
+Batches.belongsTo(BatchCategories, { as: 'BatchCategory', inverse: { type: 'hasMany', as: 'Batches' } })
 
-Batches.belongsTo(BatchCategories)
+Prices.belongsTo(Clients, { as: 'Client', inverse: { type: 'hasMany', as: 'Prices' } })
+Prices.belongsTo(Products, { as: 'Product', inverse: { type: 'hasMany', as: 'Prices' } })
 
-Prices.belongsTo(Clients)
-Prices.belongsTo(Products)
+Payments.belongsTo(Clients, { as: 'Client', inverse: { type: 'hasMany', as: 'Payments' } })
+Payments.belongsTo(Users, { as: 'User', inverse: { type: 'hasMany', as: 'Payments' } })
 
-Payments.belongsTo(Clients)
-Payments.belongsTo(Users)
+Spendings.belongsTo(Users, { as: 'User' })
 
-Spendings.belongsTo(Users)
+BalanceVerifications.belongsTo(Users, { as: 'createdBy', foreignKey: 'createdById', inverse: { type: 'hasMany', as: 'CreatedBalanceVerifications' } })
 
-BalanceVerifications.belongsTo(Users, { as: 'createdBy', foreignKey: 'createdById' })
+StorageStates.belongsTo(Storages, { as: 'Storage', inverse: { type: 'hasMany', as: 'StorageStates' } })
+StorageStates.belongsTo(InventoryElements, { as: 'InventoryElement', inverse: { type: 'hasMany', as: 'StorageStates' } })
 
-StorageStates.belongsTo(Storages)
-StorageStates.belongsTo(InventoryElements)
+InventoryMovements.belongsTo(Storages, { as: 'storageFrom', inverse: { type: 'hasMany', as: 'InventoryMovementsFrom' } })
+InventoryMovements.belongsTo(Storages, { as: 'storageTo', inverse: { type: 'hasMany', as: 'InventoryMovementsTo' } })
+InventoryMovements.belongsTo(InventoryElements, { as: 'inventoryElementFrom', inverse: { type: 'hasMany', as: 'InventoryMovementsFrom' } })
+InventoryMovements.belongsTo(InventoryElements, { as: 'inventoryElementTo', inverse: { type: 'hasMany', as: 'InventoryMovementsTo' } })
+InventoryMovements.belongsTo(Users, { as: 'creator', foreignKey: 'createdBy', inverse: { type: 'hasMany', as: 'CreatedInventoryMovements' } })
+InventoryMovements.belongsTo(Users, { as: 'deletor', foreignKey: 'deletedBy', inverse: { type: 'hasMany', as: 'DeletedInventoryMovements' } })
 
-InventoryMovements.belongsTo(Storages, { as: 'storageFrom' })
-InventoryMovements.belongsTo(Storages, { as: 'storageTo' })
-InventoryMovements.belongsTo(InventoryElements, { as: 'inventoryElementFrom' })
-InventoryMovements.belongsTo(InventoryElements, { as: 'inventoryElementTo' })
-InventoryMovements.belongsTo(Users, { as: 'creator', foreignKey: 'createdBy' })
-InventoryMovements.belongsTo(Users, { as: 'deletor', foreignKey: 'deletedBy' })
-
-ClientBalances.belongsTo(Clients, { as: 'Client', foreignKey: 'clientId' })
+ClientBalances.belongsTo(Clients, { as: 'Client', inverse: { type: 'hasMany', as: 'ClientBalances' } })
