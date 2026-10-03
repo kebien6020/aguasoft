@@ -53,6 +53,7 @@ const acceptedEmails = [
   'kevin.pena.prog@gmail.com',
   'agualaif@gmail.com',
   'jairopsanchez@gmail.com',
+  'ventasagualaif1@gmail.com',
 ]
 function validateJwtEmail(req: Request, _res: Response, next: NextFunction) {
   if (req.auth) {
