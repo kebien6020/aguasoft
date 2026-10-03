@@ -798,7 +798,7 @@ Sells.belongsTo(Users, { as: 'User', inverse: { type: 'hasMany', as: 'Sells' } }
 Sells.belongsTo(Clients, { as: 'Client', inverse: { type: 'hasMany', as: 'Sells' } })
 Sells.belongsTo(Products, { as: 'Product', inverse: { type: 'hasMany', as: 'Sells' } })
 Sells.belongsTo(Batches, { as: 'Batch', inverse: { type: 'hasMany', as: 'Sells' } })
-Sells.belongsTo(ProductVariants, { as: 'Variant', inverse: { type: 'hasMany', as: 'Sells' } })
+Sells.belongsTo(ProductVariants, { as: 'Variant', foreignKey: 'productVariantId', inverse: { type: 'hasMany', as: 'Sells' } })
 Sells.hasOne(Prices, { as: 'BasePrice' }) // Intended to be used with custom `on` in the query
 
 ProductVariants.belongsTo(Products, { as: 'Product', inverse: { type: 'hasMany', as: 'Variants' } })
@@ -827,4 +827,4 @@ InventoryMovements.belongsTo(InventoryElements, { as: 'inventoryElementTo', inve
 InventoryMovements.belongsTo(Users, { as: 'creator', foreignKey: 'createdBy', inverse: { type: 'hasMany', as: 'CreatedInventoryMovements' } })
 InventoryMovements.belongsTo(Users, { as: 'deletor', foreignKey: 'deletedBy', inverse: { type: 'hasMany', as: 'DeletedInventoryMovements' } })
 
-ClientBalances.belongsTo(Clients, { as: 'Client', foreignKey: 'clientId', inverse: { type: 'hasMany', as: 'ClientBalances' } })
+ClientBalances.belongsTo(Clients, { as: 'Client', inverse: { type: 'hasMany', as: 'ClientBalances' } })
