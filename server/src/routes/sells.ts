@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'ultimate-express'
-import { Includeable, Op } from 'sequelize'
+import { type Includeable, Op } from '@sequelize/core'
 import * as yup from 'yup'
 import { sequelize } from '../db/sequelize.js'
 import {
@@ -543,7 +543,7 @@ export async function del(req: Request, res: Response, next: NextFunction): Prom
 
     sell.set('deleted', true)
 
-    const transaction = await sequelize.transaction()
+    const transaction = await sequelize.startUnmanagedTransaction()
 
     try {
       await sell.save({ silent: true, transaction }) // Do not touch updatedAt

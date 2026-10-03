@@ -1,3 +1,4 @@
+import { Op } from '@sequelize/core'
 const CODE_CK = 'Clients_code_noempty'
 const NAME_CK = 'Clients_name_noempty'
 
@@ -7,14 +8,12 @@ const addCommon = (obj = {}) => Object.assign(obj, {
 
 const raw = addCommon({ raw: true })
 
-export function up(queryInterface, Sequelize) {
-  const { ne } = Sequelize.Op
-
+export async function up({ context: { queryInterface } }) {
   const checkNoEmptyCode = addCommon({
     type: 'check',
     name: CODE_CK,
     where: {
-      code: { [ne]: '' },
+      code: { [Op.ne]: '' },
     },
   })
 
@@ -22,7 +21,7 @@ export function up(queryInterface, Sequelize) {
     type: 'check',
     name: NAME_CK,
     where: {
-      name: { [ne]: '' },
+      name: { [Op.ne]: '' },
     },
   })
 
@@ -45,13 +44,16 @@ export function up(queryInterface, Sequelize) {
   ).catch(() => sequelize.query('ROLLBACK;', raw),
   )
 }
-export function down(queryInterface, Sequelize) {
-  const sequelize = queryInterface.sequelize
-  return sequelize.query('PRAGMA foreign_keys = OFF;', raw).then(() => sequelize.query('BEGIN TRANSACTION;', raw),
-  ).then(() => sequelize.query('PRAGMA defer_foreign_keys = ON;', raw),
-  ).then(() => queryInterface.removeConstraint('Clients', NAME_CK, addCommon()),
-  ).then(() => queryInterface.removeConstraint('Clients', CODE_CK, addCommon()),
-  ).then(() => sequelize.query('COMMIT;', raw),
-  ).catch(() => sequelize.query('ROLLBACK;', raw),
-  )
+
+export async function down({ context: { queryInterface, sequelize } }) {
+  try {
+    await sequelize.query('PRAGMA foreign_keys = OFF;', raw)
+    await sequelize.query('BEGIN TRANSACTION;', raw)
+    await sequelize.query('PRAGMA defer_foreign_keys = ON;', raw)
+    await queryInterface.removeConstraint('Clients', NAME_CK, addCommon())
+    await queryInterface.removeConstraint('Clients', CODE_CK, addCommon())
+    await sequelize.query('COMMIT;', raw)
+  } catch (e) {
+    sequelize.query('ROLLBACK;', raw)
+  }
 }

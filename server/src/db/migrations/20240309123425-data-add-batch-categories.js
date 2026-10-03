@@ -1,10 +1,4 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, _Sequelize) {
+export async function up({ context: { queryInterface } }) {
   const now = new Date
   await queryInterface.bulkInsert('BatchCategories', [
     {
@@ -59,11 +53,6 @@ export async function up(queryInterface, _Sequelize) {
   ])
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   await queryInterface.bulkDelete('BatchCategories', {})
 }

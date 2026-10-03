@@ -1,16 +1,16 @@
 export default {
   development: {
-    dialect: 'sqlite',
+    dialect: 'sqlite3',
     storage: 'db.sqlite',
     logQueryParameters: true,
   },
   test: {
-    dialect: 'sqlite',
+    dialect: 'sqlite3',
     storage: 'db.test.sqlite',
     logQueryParameters: true,
   },
   production: {
-    dialect: 'sqlite',
+    dialect: 'sqlite3',
     storage: '/db/db.sqlite',
     logQueryParameters: true,
   },

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'ultimate-express'
 import { Clients, Prices, Payments, Sells, ClientBalances } from '../db/models.js'
 import { sequelize } from '../db/sequelize.js'
 import * as Yup from 'yup'
-import { type CreationAttributes, type Order, Sequelize } from 'sequelize'
+import { type CreationAttributes, type Order, sql } from '@sequelize/core'
 import { formatDateonly } from '../utils/date.js'
 import { ok, time, wrap, wrapSync } from './utils.js'
 import { listClientsStmt } from '../db2/clients.js'
@@ -365,7 +365,7 @@ export const listBalances = wrap(async (req: Request) => {
     include.push('Client')
 
   const order: Order = sortBy === 'clientName'
-    ? [[Sequelize.col('Client.name'), sortDir]] as const
+    ? [[sql.col('Client.name'), sortDir]] as const
     : [[sortBy, sortDir]] as const
 
   const balances = await ClientBalances.findAll({ order, include })

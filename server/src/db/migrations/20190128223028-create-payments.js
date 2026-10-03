@@ -1,70 +1,71 @@
-export function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   return queryInterface.createTable('Payments', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
     },
     value: {
-      type: Sequelize.DECIMAL(20, 8),
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     clientId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Clients',
+        table: 'Clients',
         key: 'id',
       },
     },
     userId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users',
+        table: 'Users',
         key: 'id',
       },
     },
     date: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     dateFrom: {
-      type: Sequelize.DATEONLY,
+      type: DataTypes.DATEONLY,
       allowNull: true,
     },
     dateTo: {
-      type: Sequelize.DATEONLY,
+      type: DataTypes.DATEONLY,
       allowNull: true,
     },
     invoiceNo: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     invoiceDate: {
-      type: Sequelize.DATEONLY,
+      type: DataTypes.DATEONLY,
       allowNull: true,
     },
     directPayment: {
-      type: Sequelize.BOOLEAN,
+      type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     deletedAt: {
       allowNull: true,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
   })
 }
-export function down(queryInterface, Sequelize) {
+
+export async function down({ context: { queryInterface } }) {
   return queryInterface.dropTable('Payments')
 }

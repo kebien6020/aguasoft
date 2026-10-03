@@ -1,5 +1,5 @@
 import debug from 'debug'
-import { Sequelize } from 'sequelize'
+import { Sequelize } from '@sequelize/core'
 import configs from './config.js'
 import { env } from '../utils/env.js'
 

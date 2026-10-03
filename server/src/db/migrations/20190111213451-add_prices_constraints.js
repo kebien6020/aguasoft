@@ -1,13 +1,7 @@
-// @ts-check
 const CLIENT_FKEY = 'fkey_clientId'
 const PRODUCT_FKEY = 'fkey_productId'
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function up(queryInterface, _Sequelize) {
+export async function up({ context: { queryInterface, sequelize } }) {
   const commonOptions = /** @type {const} */ ({
     type: 'foreign key',
     // When deleting clients or products, all the
@@ -36,7 +30,6 @@ export function up(queryInterface, _Sequelize) {
     fields: ['productId'],
   }
 
-  const sequelize = queryInterface.sequelize
   const trans =
     (/** @type {import("sequelize").Transaction} */ t) =>
       (/** @type {typeof clientOptions | typeof productOptions} */ obj) =>
@@ -50,14 +43,7 @@ export function up(queryInterface, _Sequelize) {
 
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface, _Sequelize) {
-  const sequelize = queryInterface.sequelize
-
+export function down({ context: { queryInterface, sequelize } }) {
   return sequelize.transaction(async t => {
     await queryInterface.removeConstraint('Prices', PRODUCT_FKEY, { transaction: t })
     await queryInterface.removeConstraint('Prices', CLIENT_FKEY, { transaction: t })

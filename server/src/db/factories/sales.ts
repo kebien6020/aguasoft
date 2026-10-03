@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Sells } from '../models.js'
-import type { SaveOptions } from 'sequelize'
+import type { SaveOptions } from '@sequelize/core'
 import { formatDateonly } from '../../utils/date.js'
 
 type Overrides = Record<string, unknown> & {

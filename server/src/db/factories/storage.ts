@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Storages } from '../models.js'
-import type { SaveOptions } from 'sequelize'
+import type { SaveOptions } from '@sequelize/core'
 
 export function make(overrides?: Record<string, unknown>): Storages {
   return Storages.build({

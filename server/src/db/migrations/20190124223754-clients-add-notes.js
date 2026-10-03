@@ -1,18 +1,12 @@
-// @ts-check
-import { Op } from 'sequelize'
+import { Op } from '@sequelize/core'
 import { fkValidationsDeferred } from '../migration-utils.js'
 
 const options = {}
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
 
   await fkValidationsDeferred(queryInterface, options, async () => {
-    await queryInterface.addColumn('Clients', 'notes', { type: Sequelize.TEXT }, options)
+    await queryInterface.addColumn('Clients', 'notes', { type: DataTypes.TEXT }, options)
 
     // Empty notes are just confusing, they can be either null or not-empty
     await queryInterface.addConstraint('Clients', {
@@ -26,12 +20,7 @@ export async function up(queryInterface, Sequelize) {
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   // Remove column currently drops all constraints from the table schema.
   // Not the end of the word but prefer not to undo this migration, instead
   // restore database from backup if possible

@@ -1,7 +1,7 @@
 import { subDays, isAfter, startOfDay, format } from 'date-fns'
 import { NextFunction, Request, Response } from 'ultimate-express'
-import { UniqueConstraintError } from 'sequelize'
-import { Op, Sequelize } from 'sequelize'
+import { UniqueConstraintError } from '@sequelize/core'
+import { Op, Sequelize } from '@sequelize/core'
 import * as yup from 'yup'
 import {
   BalanceVerifications,

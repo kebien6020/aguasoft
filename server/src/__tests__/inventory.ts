@@ -64,6 +64,7 @@ describe('inventory routes', () => {
       type ResBody = SS[]
 
       await agent.get('/api/inventory/state?include[]=InventoryElement&include[]=Storage').expect(res => {
+        assert.ok(Array.isArray(res.body), `expected body to be an array but it's ${JSON.stringify(res.body)}`)
         const body = res.body as ResBody
         const bolsa360InIntermediate = body.find(ss => ss.InventoryElement.code === 'bolsa-360' && ss.Storage.code === 'intermedia')
         assert.ok(bolsa360InIntermediate, 'bolsa-360 not found in intermediate storage')

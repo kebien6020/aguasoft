@@ -1,32 +1,21 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export function up(queryInterface, Sequelize) {
+export function up({ context: { queryInterface, DataTypes } }) {
   return queryInterface.createTable('Sessions', {
     sid: {
       primaryKey: true,
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     userId: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
     },
     expires: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     data: {
-      type: Sequelize.STRING(50000),
+      type: DataTypes.STRING(50000),
     },
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface, _Sequelize) {
+export function down({ context: { queryInterface } }) {
   return queryInterface.dropTable('Sessions')
 }

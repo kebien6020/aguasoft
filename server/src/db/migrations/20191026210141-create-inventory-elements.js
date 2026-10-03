@@ -1,34 +1,34 @@
-export function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   return queryInterface.createTable('InventoryElements', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
     },
     code: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true,
     },
     name: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     type: {
-      type: Sequelize.ENUM('raw', 'product', 'tool'),
+      type: DataTypes.ENUM('raw', 'product', 'tool'),
       allowNull: false,
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     deletedAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
   }).then(() => {
     return queryInterface.bulkInsert('InventoryElements', [
@@ -196,6 +196,7 @@ export function up(queryInterface, Sequelize) {
     ])
   })
 }
-export function down(queryInterface, _Sequelize) {
+
+export async function down({ context: { queryInterface } }) {
   return queryInterface.dropTable('InventoryElements')
 }

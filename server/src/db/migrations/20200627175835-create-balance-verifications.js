@@ -1,56 +1,45 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   return queryInterface.createTable('BalanceVerifications', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
     },
     date: {
-      type: Sequelize.DATEONLY,
+      type: DataTypes.DATEONLY,
       allowNull: false,
       unique: true,
     },
     createdById: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users',
+        table: 'Users',
         key: 'id',
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
     },
     adjustAmount: {
-      type: Sequelize.DECIMAL,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     amount: {
-      type: Sequelize.DECIMAL,
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     createdAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     updatedAt: {
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export function down(queryInterface) {
+export async function down({ context: { queryInterface } }) {
   return queryInterface.dropTable('BalanceVerifications')
 }

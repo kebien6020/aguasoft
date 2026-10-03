@@ -1,67 +1,61 @@
-// @ts-check
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} Sequelize
- * @return {Promise<void>}
- */
-export async function up(queryInterface, Sequelize) {
+export async function up({ context: { queryInterface, DataTypes } }) {
   await queryInterface.createTable('InventoryMovements', {
     id: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
     },
     storageFromId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Storages',
+        table: 'Storages',
         key: 'id',
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
     },
     storageToId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Storages',
+        table: 'Storages',
         key: 'id',
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
     },
     inventoryElementFromId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'InventoryElements',
+        table: 'InventoryElements',
         key: 'id',
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
     },
     inventoryElementToId: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'InventoryElements',
+        table: 'InventoryElements',
         key: 'id',
       },
       onDelete: 'restrict',
       onUpdate: 'cascade',
     },
     quantityFrom: {
-      type: Sequelize.DECIMAL(20, 8),
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     quantityTo: {
-      type: Sequelize.DECIMAL(20, 8),
+      type: DataTypes.FLOAT,
       allowNull: false,
     },
     cause: {
-      type: Sequelize.ENUM(
+      type: DataTypes.ENUM(
         'manual',
         'in',
         'relocation',
@@ -72,10 +66,10 @@ export async function up(queryInterface, Sequelize) {
       allowNull: false,
     },
     createdBy: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users',
+        table: 'Users',
         key: 'id',
       },
       onDelete: 'restrict',
@@ -83,21 +77,21 @@ export async function up(queryInterface, Sequelize) {
     },
     createdAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     updatedAt: {
       allowNull: false,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     deletedAt: {
       allowNull: true,
-      type: Sequelize.DATE,
+      type: DataTypes.DATE,
     },
     deletedBy: {
-      type: Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Users',
+        table: 'Users',
         key: 'id',
       },
       onDelete: 'restrict',
@@ -106,11 +100,6 @@ export async function up(queryInterface, Sequelize) {
   })
 }
 
-/**
- * @param {import('sequelize').QueryInterface} queryInterface
- * @param {typeof import('sequelize').Sequelize & typeof import('sequelize').DataTypes} _Sequelize
- * @return {Promise<void>}
- */
-export async function down(queryInterface, _Sequelize) {
+export async function down({ context: { queryInterface } }) {
   await queryInterface.dropTable('InventoryMovements')
 }

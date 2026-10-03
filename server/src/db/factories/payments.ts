@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Payments } from '../models.js'
-import type { SaveOptions } from 'sequelize'
+import type { SaveOptions } from '@sequelize/core'
 import { addDays, addMonths, startOfMonth } from 'date-fns'
 
 type Overrides = Record<string, unknown> & {
