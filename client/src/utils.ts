@@ -172,7 +172,7 @@ export function isNumber(value: unknown): boolean {
 // https://stackoverflow.com/a/51828976
 export function scrollToRef<T extends HTMLElement>(ref: React.RefObject<T | null>): void {
   if (ref.current)
-    window.scrollTo(0, ref.current.offsetTop)
+    ref.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 }
 
 export function formatDateCol(date: Date) {

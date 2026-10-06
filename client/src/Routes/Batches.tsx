@@ -6,6 +6,8 @@ import {
   CardProps,
   Grid,
   Paper,
+  Skeleton,
+  SkeletonProps,
   Theme,
   Typography,
 } from '@mui/material'
@@ -22,24 +24,50 @@ import SubmitButton from '../components/form/SubmitButton'
 import { optionsFromBatchCategories, useBatchCategories } from '../hooks/api/useBatchCategories'
 import useSnackbar from '../hooks/useSnackbar'
 import Yup from '../components/form/Yup'
-import { fetchJsonAuth, isErrorResponse } from '../utils'
+import { fetchJsonAuth, isErrorResponse, scrollToRef } from '../utils'
 import useAuth from '../hooks/useAuth'
-import { useBatches } from '../hooks/api/useBatches'
+import { useBatchesPaginated } from '../hooks/api/useBatches'
 import type { Batch } from '../models'
-import LoadingIndicator from '../components/LoadingIndicator'
-import { FC } from 'react'
+import { FC, RefObject, useRef, useState } from 'react'
 import { Link, LinkProps } from 'react-router'
+import Alert from '../components/Alert'
+import Pagination from '../components/pagination'
+
+const PAGE_SIZE = 50
 
 const Batches = () => {
-  const [batches, refresh] = useBatches({ include: ['BatchCategory'] })
+  const [offset, setOffset] = useState(0)
+  const [batches, { refresh, error, loading, totalCount }] = useBatchesPaginated({
+    limit: PAGE_SIZE,
+    offset,
+  }, { include: ['BatchCategory'] })
+  const scrollTargetRef = useRef<HTMLDivElement>(null)
+
+  // Handle filter change while on a high page number
+  if (totalCount && offset > totalCount) {
+    const page = Math.floor(totalCount / PAGE_SIZE)
+    setOffset(page * PAGE_SIZE)
+  }
 
   return (
     <Layout title='Lotes'>
       <Title>Crear Lote</Title>
       <CreateBatchForm refresh={refresh} />
 
+      <div style={{ height: 0 }} ref={scrollTargetRef} />
       <Title>Lotes</Title>
-      <BatchList batches={batches} />
+      {loading && !batches && <BatchListSkeleton />}
+      {error && <Alert type='error' message={`Error al cargar lotes: ${error.message}`} />}
+      {!error && batches && totalCount !== undefined && (
+        <BatchList
+          batches={batches}
+          totalCount={totalCount}
+          offset={offset}
+          setOffset={setOffset}
+          loading={loading}
+          scrollTargetRef={scrollTargetRef}
+        />
+      )}
     </Layout>
   )
 }
@@ -115,20 +143,48 @@ const Wrapper = styled(Paper)({
 })
 
 interface BatchListProps {
-  batches: Batch[] | undefined
+  batches: Batch[]
+  totalCount: number
+  offset: number
+  setOffset: (x: number) => void
+  loading: boolean
+  scrollTargetRef: RefObject<HTMLDivElement | null>
 }
 
-const BatchList = ({ batches }: BatchListProps) => {
-  if (!batches) return <LoadingIndicator />
+const BatchList = ({ batches, loading, totalCount, offset, setOffset, scrollTargetRef }: BatchListProps) => {
+  const renderPagination = () => (
+    <Pagination
+      limit={PAGE_SIZE}
+      offset={offset}
+      total={totalCount}
+      onClick={(_, offset) => {
+        setOffset(offset)
+        scrollToRef(scrollTargetRef)
+      }}
+      disabled={loading}
+    />
+  )
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {batches.map(b =>
-        <BatchCard batch={b} key={String(b.id)} />,
-      )}
-    </Box>
+    <>
+      {renderPagination()}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {batches.map(b =>
+          <BatchCard batch={b} key={String(b.id)} />,
+        )}
+      </Box>
+      {renderPagination()}
+    </>
   )
 }
+
+const BatchListSkeleton = () => (
+  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <BatchCardSkeleton />
+    <BatchCardSkeleton />
+    <BatchCardSkeleton />
+  </Box>
+)
 
 const BatchCard = ({ batch }: { batch: Batch }) => (
   <StyledCard colorKey={batch.BatchCategory?.code ?? ''} component={Link} to={`./${batch.id}`}>
@@ -140,6 +196,20 @@ const BatchCard = ({ batch }: { batch: Batch }) => (
     </CardContent>
   </StyledCard>
 )
+
+const BatchCardSkeleton = () => (
+  <StyledCard colorKey='' to=''>
+    <CardHeader title={<ISkeleton width={200} height={72}/>} />
+    <CardContent>
+      <div><ISkeleton width={120} />{' '}<ISkeleton width={210} /></div>
+    </CardContent>
+  </StyledCard>
+)
+
+const ISkeleton = (props: SkeletonProps) => (
+  <Skeleton sx={{ display: 'inline-block', height: 48 }}{...props} />
+)
+
 
 const colorMap: Record<string, string> = {
   'bolsa-360': blue[500],
