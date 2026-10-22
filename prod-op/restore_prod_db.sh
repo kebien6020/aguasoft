@@ -28,7 +28,7 @@ if [ ! -f "$backup_file" ]; then
 fi
 
 # Shutdown app
-docker service scale aguasoft_aguasoft=0 aguasoft_nginx=0
+docker service scale aguasoft_server=0 aguasoft_nginx=0
 
 # Create backup of current state, just in case
 backup_command='sqlite3 db.sqlite ".backup /tmp/backup" && cat /tmp/backup'
@@ -37,18 +37,18 @@ docker run --rm -u root -v aguasoft_db:/db -w /db "$SQLITE_IMAGE" sh -c "$backup
 
 # Restore backup
 restore_command="sqlite3 db.sqlite '.restore $backup_file'"
-docker run --rm -u root -v aguasoft_db:/db -w /db -v "$backup_file":"$backup_file" "$SQLITE_IMAGE" sh -c "$backup_command" > "$outfile"
+docker run --rm -u root -v aguasoft_db:/db -w /db -v "$backup_file":"$backup_file" "$SQLITE_IMAGE" sh -c "$restore_command" > "$outfile"
 
 # Start app
-docker service scale aguasoft_aguasoft=1 aguasoft_nginx=1
+docker service scale aguasoft_server=1 aguasoft_nginx=1
 SH
 
 chmod +x /tmp/restore.sh
 
 # Copy script and DB
 set -x
-scp /tmp/restore.sh agua:/tmp/restore.sh
-scp server/db.sqlite agua:/tmp/db.restore.sqlite
+scp /tmp/restore.sh agua_blue:/tmp/restore.sh
+scp server/db.sqlite agua_blue:/tmp/db.restore.sqlite
 
 # Run
-ssh agua_automation /tmp/restore.sh
+ssh agua_blue /tmp/restore.sh
