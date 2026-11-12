@@ -29,7 +29,7 @@
     "express-jwt": "^8.5.1",
     "express-session": "^1.19.0",
     "jwks-rsa": "^4.1.0",
-    "qs": "^6.16.0",
+    "qs": "^6.17.1",
     "sequelize-cli": "^6.6.5",
     "ultimate-express": "^2.2.1",
     "umzug": "^3.8.3",
