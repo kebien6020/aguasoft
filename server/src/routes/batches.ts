@@ -4,23 +4,20 @@ import { handleErrors } from '../utils/route.js'
 import { Router } from 'ultimate-express'
 import { addDays, format } from 'date-fns'
 import { ValidationError } from '@sequelize/core'
-import { NotFoundError, wrapSync, ok } from './utils.js'
-import { getBatchDetail } from '../db2/batches.js'
+import { NotFoundError, wrapSync, ok, wrap, time } from './utils.js'
+import { getBatchDetail, listBatches, countBatches } from '../db2/batches.js'
 
 const router = Router()
 export default router
 
-router.get('/', handleErrors(async (req, res) => {
-  const includeOptions = ['BatchCategory']
-  const schema = yup.object({
-    include: yup.array(
-      yup.string().oneOf(includeOptions).required(),
-    ).notRequired(),
-    batchCategoryId: yup.number().integer().notRequired(),
-  })
-
-  schema.validateSync(req.query)
-  const query = schema.cast(req.query)
+const listBatchesSchema = yup.object({
+  include: yup.array(
+    yup.string().oneOf(['BatchCategory']).required(),
+  ).notRequired(),
+  batchCategoryId: yup.number().integer().notRequired(),
+})
+router.get('/', wrap(async (req) => {
+  const query = listBatchesSchema.validateSync(req.query)
 
   const batches = await Batches.findAll({
     attributes: ['id', 'code', 'date', 'expirationDate', 'batchCategoryId'],
@@ -31,7 +28,36 @@ router.get('/', handleErrors(async (req, res) => {
     order: [['date', 'DESC']],
   })
 
-  res.json(batches)
+  return ok(batches)
+}))
+
+const listBatchesPaginatedSchema = yup.object({
+  include: yup.array(
+    yup.string().oneOf(['BatchCategory']).required(),
+  ).notRequired(),
+  batchCategoryId: yup.number().integer().notRequired(),
+  limit: yup.number().integer().required(),
+  offset: yup.number().integer().required(),
+})
+router.get('/paginated', wrapSync(req => {
+  const t1 = time('ValidateQuery')
+  const {
+    include: includeRaw,
+    batchCategoryId: batchCategoryIdRaw,
+    limit,
+    offset,
+  } = listBatchesPaginatedSchema.validateSync(req.query)
+  const include = includeRaw ?? []
+  const batchCategoryId = batchCategoryIdRaw ?? undefined
+  t1()
+
+  const batches = listBatches({ limit, offset, include, batchCategoryId })
+  const totalCount = countBatches({ batchCategoryId })
+
+  return ok({
+    items: batches,
+    totalCount,
+  })
 }))
 
 router.post('/', handleErrors(async (req, res) => {

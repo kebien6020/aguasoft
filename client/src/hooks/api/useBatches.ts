@@ -35,6 +35,44 @@ export const optionsFromBatches =
     })).slice(0, 60)
   }
 
+const PAGE_SIZE = 50
+
+type BatchPaginatedResponse = {
+  items: Batch[]
+  totalCount: number
+}
+
+export const useBatchesPaginated = ({ limit, offset }: { limit: number, offset: number }, params?: Params) => {
+  const showError = useSnackbar()
+
+  const [nonce, refresh] = useNonce()
+
+  const paramsFull = {
+    ...params,
+    limit,
+    offset,
+  }
+
+  const url = `/api/batches/paginated?${paramsToString(paramsFull)}`
+  const [res, loading, error] = useFetch<BatchPaginatedResponse>(url, {
+    showError,
+    name: 'los lotes',
+    nonce,
+  })
+
+  const batches = res?.items
+
+  const batchesDates = batches?.map(b => ({
+    ...b,
+    date: new Date(b.date),
+    expirationDate: new Date(b.expirationDate),
+  }))
+
+  const totalCount = res?.totalCount
+
+  return [batchesDates, { refresh, loading, error, totalCount }] as const
+}
+
 export const useBatch = (id: number) => {
   const showError = useSnackbar()
 

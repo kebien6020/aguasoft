@@ -1,6 +1,10 @@
 import { sequelize } from '../db/sequelize.js'
 import { Umzug, SequelizeStorage } from 'umzug'
 import { DataTypes } from '@sequelize/core'
+import { db } from '../db2/db.js'
+import debug from 'debug'
+
+debug.enable('db2:*,db:*,*:timings')
 
 const umzug = new Umzug({
   migrations: {
@@ -13,7 +17,8 @@ const umzug = new Umzug({
   context: {
     sequelize: sequelize,
     DataTypes: DataTypes,
-    queryInterface: sequelize.getQueryInterface(),
+    queryInterface: sequelize.queryInterface,
+    db: db,
   },
   storage: new SequelizeStorage({ sequelize }),
   logger: console,

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ButtonProps } from '@mui/material'
+import { Box, ButtonProps } from '@mui/material'
 import PageButton, { PageVariant } from './PageButton'
 import { computePages, PagePosition, Position } from './core'
 
@@ -39,7 +39,7 @@ const Pagination: React.FunctionComponent<PaginationProps> = ({
   total = 0,
   centerRipple = false,
   className,
-  component = 'div',
+  component,
   currentPageColor = 'secondary',
   disabled = false,
   disableFocusRipple = false,
@@ -59,9 +59,9 @@ const Pagination: React.FunctionComponent<PaginationProps> = ({
   const innerButtonCount = reduced ? 1 : innerButtonCountProp
   const outerButtonCount = reduced ? 1 : outerButtonCountProp
 
-  const Component = component
+  const Component = component ?? Box
   return (
-    <Component className={className} {...other}>
+    <Component sx={{ textAlign: 'center' }} className={className} {...other}>
       {computePages(limit, offset, total, innerButtonCount, outerButtonCount).map(
         (pp: PagePosition) => {
           let key: React.Attributes['key']
