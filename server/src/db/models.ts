@@ -799,7 +799,8 @@ Sells.belongsTo(Clients, { as: 'Client', inverse: { type: 'hasMany', as: 'Sells'
 Sells.belongsTo(Products, { as: 'Product', inverse: { type: 'hasMany', as: 'Sells' } })
 Sells.belongsTo(Batches, { as: 'Batch', inverse: { type: 'hasMany', as: 'Sells' } })
 Sells.belongsTo(ProductVariants, { as: 'Variant', foreignKey: 'productVariantId', inverse: { type: 'hasMany', as: 'Sells' } })
-Sells.hasOne(Prices, { as: 'BasePrice' }) // Intended to be used with custom `on` in the query
+// Intended to be used with custom `on` in the query
+// Sells.hasOne(Prices, { as: 'BasePrice' })
 
 ProductVariants.belongsTo(Products, { as: 'Product', inverse: { type: 'hasMany', as: 'Variants' } })
 
