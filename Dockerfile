@@ -48,7 +48,7 @@ ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["node", "server/dist/clustered.js"]
 
 ## Client
-FROM nginx:stable-alpine AS client
+FROM nginx:1.30.8-alpine AS client
 
 COPY ./docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=client-builder /build/dist /app/public/

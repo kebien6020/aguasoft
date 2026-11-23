@@ -36,7 +36,7 @@ function publish() {
 	fi
 
 	( set -x;
-	  docker buildx build "$ctx" "${img_flags[@]}" --push )
+	  docker buildx build --pull "$ctx" "${img_flags[@]}" --push )
 }
 
 publish server . server
