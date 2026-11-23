@@ -29,7 +29,7 @@
     "express-jwt": "^8.5.1",
     "express-session": "^1.19.0",
     "jwks-rsa": "^4.1.0",
-    "qs": "^6.16.0",
+    "qs": "^6.16.1",
     "sequelize-cli": "^6.6.5",
     "ultimate-express": "^2.2.1",
     "umzug": "^3.8.3",
@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "@babel/cli": "^8.0.6",
-    "@babel/core": "^8.0.6",
-    "@babel/preset-typescript": "^8.0.1",
+    "@babel/core": "^8.0.7",
+    "@babel/preset-typescript": "^8.0.7",
     "@eslint/js": "^10.0.1",
     "@faker-js/faker": "^10.6.0",
     "@tsconfig/node22": "^22.0.6",
@@ -47,25 +47,23 @@
     "@types/cors": "^2.8.19",
     "@types/debug": "^4.1.13",
     "@types/express-session": "^1.19.0",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.5",
     "@types/supertest": "^7.2.1",
     "cross-env": "^10.1.0",
-    "eslint": "^10.11.0",
+    "eslint": "^10.13.0",
     "npm-run-all": "^4.1.5",
     "supertest": "^7.3.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.70.1"
+    "typescript-eslint": "^8.72.0"
   },
-  "$comment.override-uuid": "Overridden because sequelize@6.37.8 requests uuid@8 which is now reporting for vulns. 11.1.1 is the newest version still using CommonJS",
-  "$comment.override-sqlite3": "Overridden because sequelize requests an older sqlite3, remove when sequelize v7 is released",
+  "$comment.override-node-gyp.1": "Overridden to reduce vuln reports, most vulns come from older node-gyp, used by sqlite as optional dep",
+  "$comment.override-node-gyp.2": "Eventually we'll migrate out of sequelize removing node-sqlite, probably even uzmug at that point",
   "overrides": {
-    "uuid": "^11.1.1",
-    "sqlite3": "6.0.1"
+    "node-gyp": "^12.4.0"
   },
   "allowScripts": {
     "better-sqlite3@13.0.3": true,
-    "esbuild@0.28.2": true,
-    "sqlite3@6.0.1": true
+    "esbuild@0.28.2": true
   }
 }
