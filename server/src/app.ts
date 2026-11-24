@@ -9,10 +9,36 @@ import * as routes from './routes/index.js'
 import jsonErrorHandler from './utils/jsonErrors.js'
 import { SessionStore } from './utils/sessionStore.js'
 import { db } from './db2/db.js'
+import sqlite3 from 'sqlite3'
+import configs from './db/config.js'
+import { env } from './utils/env.js'
 
 const googleClientID = '327533471227-niedralk7louhbv330rm2lk1r8mgcv9g.apps.googleusercontent.com'
 const googleIssuer = 'https://accounts.google.com'
 const googleJwks = 'https://www.googleapis.com/oauth2/v3/certs'
+
+// Workaround for mixed DB libraries, keep the connection pinned
+// Only need to pin node-sqlite3 because we use long-lived connection already
+// for better-sqlite3
+//
+// Not full fix, since concurrent writes are still prone to DB corruption
+
+const config = configs[env]
+
+let pinned
+const pinConnection = () => {
+  return new Promise((resolve, reject) => {
+    const db = new sqlite3.Database(config.storage, err => {
+      if (err) reject(err)
+      db.run('PRAGMA journal_mode=WAL', (err) => {
+        if (err) reject(err)
+        pinned = db
+        resolve(undefined)
+      })
+    })
+  })
+}
+await pinConnection()
 
 // Set up the jwt middleware
 const authCheck = jwt({
