@@ -42,3 +42,9 @@ function publish() {
 publish server . server
 publish nginx . client
 publish certbot docker/certbot
+publish sidecar-collector docker/obs-sidecar-collector
+
+publish main-collector docker/obs-main-collector
+publish clickhouse docker/obs-clickhouse
+publish grafana docker/obs-grafana
+publish prometheus docker/obs-prometheus

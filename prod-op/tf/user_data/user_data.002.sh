@@ -31,6 +31,7 @@ services:
     image: registry.digitalocean.com/kev/aguasoft:server-$version
     environment:
       - DB_PATH=/db/db.sqlite
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel:4317
     networks:
       - main
     volumes:
@@ -53,6 +54,10 @@ services:
       - certbot-etc:/etc/letsencrypt
     secrets:
       - digitalocean_credentials
+  otel:
+    image: registry.digitalocean.com/kev/aguasoft:sidecar-collector-$version
+    networks:
+      - main
 networks:
   main:
 

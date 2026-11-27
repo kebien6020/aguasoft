@@ -28,6 +28,7 @@ export default function jsonErrorHandler(
       message: 'Unknown error',
       code: 'unknown_error',
     }
+    let status = 500
 
     if (!error || !(error instanceof Error)) {
       response = {
@@ -40,12 +41,14 @@ export default function jsonErrorHandler(
         code: 'validation_error',
         errors: (error).errors,
       }
+      status = 400
     } else if (error instanceof UnauthorizedError) {
       response = {
         message: (error).message,
         code: 'unauthorized_error',
         errors: [error],
       }
+      status = 401
     } else if (error instanceof Error) {
       response = { ...error, code: error.name, message: error.message }
     }
@@ -56,6 +59,8 @@ export default function jsonErrorHandler(
 
     if (hasStatus(error))
       res.status(error.status)
+    else
+      res.status(status)
 
 
     res.json({ success: false, error: response })

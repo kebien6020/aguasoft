@@ -12,6 +12,7 @@ import { db } from './db2/db.js'
 import sqlite3 from 'sqlite3'
 import configs from './db/config.js'
 import { env } from './utils/env.js'
+import { obsErrorMiddleware, obsMiddleware } from './obs/middleware.js'
 
 const googleClientID = '327533471227-niedralk7louhbv330rm2lk1r8mgcv9g.apps.googleusercontent.com'
 const googleIssuer = 'https://accounts.google.com'
@@ -117,6 +118,7 @@ app.set('etag', false)
 // app.use('*p', (req, res, next) => { console.log(req.query); next() })
 
 // Common middleware
+app.use(obsMiddleware)
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(sessionMiddleware)
@@ -156,6 +158,7 @@ app.use('/api', (req, _res, next) => {
 
 // Error handler for any error thrown
 // in any route or middleware
+app.use(obsErrorMiddleware)
 app.use(jsonErrorHandler)
 
 // https://www.typescriptlang.org/docs/handbook/declaration-merging.html#module-augmentation

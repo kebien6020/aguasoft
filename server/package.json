@@ -17,6 +17,11 @@
     "watch-build": "npm run build -- -w"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.10.0",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.301.2",
+    "@opentelemetry/resources": "^3.1.1",
+    "@opentelemetry/sdk-metrics": "^3.1.1",
+    "@opentelemetry/semantic-conventions": "^1.45.0",
     "@sequelize/core": "^7.0.0-alpha.48",
     "@sequelize/sqlite3": "^7.0.0-alpha.48",
     "bcryptjs": "^3.0.3",
